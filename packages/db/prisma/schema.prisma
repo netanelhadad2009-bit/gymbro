@@ -1,0 +1,45 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String         @id @default(cuid())
+  email         String         @unique
+  authUserId    String         @unique
+  createdAt     DateTime       @default(now())
+  profile       Profile?
+  subscriptions Subscription[]
+  workoutLogs   WorkoutLog[]
+}
+
+model Profile {
+  id          String  @id @default(cuid())
+  userId      String  @unique
+  user        User    @relation(fields: [userId], references: [id])
+  displayName String?
+}
+
+model Subscription {
+  id               String   @id @default(cuid())
+  userId           String
+  user             User     @relation(fields: [userId], references: [id])
+  provider         String   // "stripe" | "apple" | "google"
+  status           String   // "active" | "past_due" | "canceled"
+  plan             String   // "basic" | "pro" | ...
+  currentPeriodEnd DateTime
+  createdAt        DateTime @default(now())
+}
+
+model WorkoutLog {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  date      DateTime @default(now())
+  notes     String?
+  createdAt DateTime @default(now())
+}

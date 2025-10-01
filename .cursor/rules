@@ -1,0 +1,5 @@
+- Use TypeScript strict mode.
+- No business logic inside React components.
+- All env vars accessed via process.env (NEXT_PUBLIC_* for client).
+- Feature folders by domain (workout/, nutrition/, billing/).
+- When adding API routes later: validate inputs and handle errors explicitly.
