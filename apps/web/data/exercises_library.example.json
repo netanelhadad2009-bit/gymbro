@@ -1,0 +1,49 @@
+{
+  "exercises": [
+    {
+      "name_he": "לחיצת חזה במוט שטוח",
+      "description_he": "תרגיל יסוד לפיתוח שריר החזה. שכבו על ספסל שטוח, אחזו במוט ברוחב כתפיים, הורידו לאט עד שהמוט נוגע בחזה, ודחפו חזרה למעלה. שמרו על יציבות הכתפיים והגב.",
+      "primary_muscle": "חזה",
+      "secondary_muscles": ["כתפיים", "יד אחורית"],
+      "equipment": "מוט, ספסל שטוח",
+      "difficulty": "intermediate",
+      "sets_default": 4,
+      "reps_default": "8-12",
+      "tempo_default": "2-0-2",
+      "rest_seconds_default": 120,
+      "video_url": "",
+      "thumb_url": "",
+      "tags": ["חזה", "לחיצה", "קומפאונד", "מוט", "ספסל שטוח", "פלג גוף עליון"]
+    },
+    {
+      "name_he": "סקוואט חזיתי",
+      "description_he": "תרגיל רגליים מתקדם המדגיש את הקוואדריצפס. אחזו את המוט על החזה, רגליים ברוחב כתפיים, ירידה עמוקה תוך שמירה על הגו זקוף.",
+      "primary_muscle": "רגליים",
+      "secondary_muscles": ["בטן", "גב תחתון", "כתפיים"],
+      "equipment": "מוט, מתקן סקוואט",
+      "difficulty": "advanced",
+      "sets_default": 4,
+      "reps_default": "6-10",
+      "tempo_default": "3-1-1",
+      "rest_seconds_default": 180,
+      "video_url": "",
+      "thumb_url": "",
+      "tags": ["רגליים", "קוואדריצפס", "קומפאונד", "מוט", "פלג גוף תחתון"]
+    },
+    {
+      "name_he": "משיכות עליונות רחבות",
+      "description_he": "תרגיל גב קלאסי לפיתוח רוחב הגב. אחזו במוט ברוחב רחב, משכו את המוט כלפי מטה עד לחזה העליון, דחפו את החזה קדימה.",
+      "primary_muscle": "גב",
+      "secondary_muscles": ["יד קדמית", "כתפיים"],
+      "equipment": "מכונת משיכות",
+      "difficulty": "beginner",
+      "sets_default": 3,
+      "reps_default": "10-12",
+      "tempo_default": "2-1-2",
+      "rest_seconds_default": 90,
+      "video_url": "",
+      "thumb_url": "",
+      "tags": ["גב", "משיכה", "רוחב גב", "מכונה", "פלג גוף עליון"]
+    }
+  ]
+}

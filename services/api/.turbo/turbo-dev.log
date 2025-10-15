@@ -2,5 +2,288 @@
 > @gymbro/api@ dev /Users/netanelhadad/Projects/gymbro/services/api
 > tsx src/index.ts
 
-API listening on http://localhost:3001
-[41m[30m ELIFECYCLE [39m[49m [31mCommand failed with exit code 130.[39m
+🔧 Validation mode: SOFT (auto-correct)
+✓ Plan router initialized
+  📦 Nutrition model: claude-3-5-haiku-20241022
+  🏋️  Workout model: gpt-4o
+  🔧 Validation mode: SOFT (auto-correct)
+
+🟢 API running on http://localhost:3001
+✓ Mounted routes:
+  /health, /db
+  /auth/*
+  /user/*
+  /dev/*
+  /ai/complete (legacy)
+  /ai/days
+  /ai/workout
+  /ai/nutrition
+  /ai/commit
+  /ai/program/:userId
+
+📡 CORS allowed origins: http://localhost:3000, http://127.0.0.1:3000, http://localhost:5173
+   Web origin from env: http://localhost:3000
+
+[2025-10-15T11:05:49.270Z] POST /ai/days - Origin: http://localhost:3000
+[/ai/days] Request: {
+  gender: 'female',
+  age: 23,
+  weight: '***',
+  targetWeight: '***',
+  heightCm: 173,
+  goal: 'loss',
+  activityLevel: 'beginner'
+}
+[/ai/days] Calculated days: 112
+[2025-10-15T11:05:49.274Z] POST /ai/workout - Origin: http://localhost:3000
+[/ai/workout] 📥 Request payload summary: {
+  userId: 'guest-1760526349257',
+  gender: 'female',
+  workoutsPerWeek: 6,
+  goal: 'weight_loss',
+  experienceLevel: 'sure'
+}
+[/ai/workout] 🤖 Calling LLM with model: gpt-4o
+[2025-10-15T11:05:49.288Z] POST /ai/nutrition - Origin: http://localhost:3000
+[/ai/nutrition] Request: { gender: 'male', age: 23, goal: 'weight_loss' }
+[2025-10-15T11:05:49.291Z] POST /ai/days - Origin: http://localhost:3000
+[/ai/days] Request: {
+  gender: 'female',
+  age: 23,
+  weight: '***',
+  targetWeight: '***',
+  heightCm: 173,
+  goal: 'loss',
+  activityLevel: 'beginner'
+}
+[/ai/days] Calculated days: 112
+[2025-10-15T11:05:49.292Z] POST /ai/workout - Origin: http://localhost:3000
+[/ai/workout] 📥 Request payload summary: {
+  userId: 'guest-1760526349258',
+  gender: 'female',
+  workoutsPerWeek: 6,
+  goal: 'weight_loss',
+  experienceLevel: 'sure'
+}
+[/ai/workout] 🤖 Calling LLM with model: gpt-4o
+[2025-10-15T11:05:49.293Z] POST /ai/nutrition - Origin: http://localhost:3000
+[/ai/nutrition] Request: { gender: 'male', age: 23, goal: 'weight_loss' }
+[/ai/nutrition] Generated JSON with 5 meals in 10155 ms
+[/ai/nutrition] Generated JSON with 5 meals in 10251 ms
+[2025-10-15T11:06:00.199Z] POST /ai/days - Origin: http://localhost:3000
+[/ai/days] Request: {
+  gender: 'female',
+  age: 23,
+  weight: '***',
+  targetWeight: '***',
+  heightCm: 173,
+  goal: 'loss',
+  activityLevel: 'beginner'
+}
+[/ai/days] Calculated days: 112
+[2025-10-15T11:06:00.200Z] POST /ai/days - Origin: http://localhost:3000
+[/ai/days] Request: {
+  gender: 'female',
+  age: 23,
+  weight: '***',
+  targetWeight: '***',
+  heightCm: 173,
+  goal: 'loss',
+  activityLevel: 'beginner'
+}
+[/ai/days] Calculated days: 112
+[2025-10-15T11:06:00.203Z] POST /ai/nutrition - Origin: http://localhost:3000
+[/ai/nutrition] Request: { gender: 'male', age: 23, goal: 'weight_loss' }
+[2025-10-15T11:06:00.204Z] POST /ai/workout - Origin: http://localhost:3000
+[/ai/workout] 📥 Request payload summary: {
+  userId: 'guest-1760526360201',
+  gender: 'female',
+  workoutsPerWeek: 6,
+  goal: 'weight_loss',
+  experienceLevel: 'sure'
+}
+[/ai/workout] 🤖 Calling LLM with model: gpt-4o
+[/ai/nutrition] Generated JSON with 5 meals in 9372 ms
+❌ /ai/workout failed - Unexpected error {
+  elapsed_ms: 30001,
+  message: 'LLM timeout',
+  name: 'Error',
+  stack: 'Error: LLM timeout\n' +
+    '    at Timeout._onTimeout (/Users/netanelhadad/Projects/gymbro/services/api/src/lib/withTimeout.ts:3:40)\n' +
+    '    at listOnTimeout (node:internal/timers:581:17)\n' +
+    '    at process.processTimers (node:internal/timers:519:7)',
+  zodIssues: undefined,
+  cause: undefined
+}
+❌ /ai/workout failed - Unexpected error {
+  elapsed_ms: 30000,
+  message: 'LLM timeout',
+  name: 'Error',
+  stack: 'Error: LLM timeout\n' +
+    '    at Timeout._onTimeout (/Users/netanelhadad/Projects/gymbro/services/api/src/lib/withTimeout.ts:3:40)\n' +
+    '    at listOnTimeout (node:internal/timers:581:17)\n' +
+    '    at process.processTimers (node:internal/timers:519:7)',
+  zodIssues: undefined,
+  cause: undefined
+}
+❌ /ai/workout failed - Unexpected error {
+  elapsed_ms: 30002,
+  message: 'LLM timeout',
+  name: 'Error',
+  stack: 'Error: LLM timeout\n' +
+    '    at Timeout._onTimeout (/Users/netanelhadad/Projects/gymbro/services/api/src/lib/withTimeout.ts:3:40)\n' +
+    '    at listOnTimeout (node:internal/timers:581:17)\n' +
+    '    at process.processTimers (node:internal/timers:519:7)',
+  zodIssues: undefined,
+  cause: undefined
+}
+[2025-10-15T11:06:30.210Z] POST /ai/workout - Origin: http://localhost:3000
+[/ai/workout] 📥 Request payload summary: {
+  userId: 'guest-1760526360201',
+  gender: 'female',
+  workoutsPerWeek: 6,
+  goal: 'weight_loss',
+  experienceLevel: 'sure'
+}
+[/ai/workout] 🤖 Calling LLM with model: gpt-4o
+❌ /ai/workout failed - Unexpected error {
+  elapsed_ms: 30007,
+  message: 'LLM timeout',
+  name: 'Error',
+  stack: 'Error: LLM timeout\n' +
+    '    at Timeout._onTimeout (/Users/netanelhadad/Projects/gymbro/services/api/src/lib/withTimeout.ts:3:40)\n' +
+    '    at listOnTimeout (node:internal/timers:581:17)\n' +
+    '    at process.processTimers (node:internal/timers:519:7)',
+  zodIssues: undefined,
+  cause: undefined
+}
+[2025-10-15T11:07:27.216Z] POST /ai/days - Origin: http://localhost:3000
+[/ai/days] Request: {
+  gender: 'female',
+  age: 23,
+  weight: '***',
+  targetWeight: '***',
+  heightCm: 173,
+  goal: 'loss',
+  activityLevel: 'beginner'
+}
+[/ai/days] Calculated days: 112
+[2025-10-15T11:07:27.217Z] POST /ai/days - Origin: http://localhost:3000
+[/ai/days] Request: {
+  gender: 'female',
+  age: 23,
+  weight: '***',
+  targetWeight: '***',
+  heightCm: 173,
+  goal: 'loss',
+  activityLevel: 'beginner'
+}
+[/ai/days] Calculated days: 112
+[2025-10-15T11:07:27.225Z] POST /ai/workout - Origin: http://localhost:3000
+[/ai/workout] 📥 Request payload summary: {
+  userId: 'guest-1760526447220',
+  gender: 'female',
+  workoutsPerWeek: 6,
+  goal: 'weight_loss',
+  experienceLevel: 'sure'
+}
+[/ai/workout] 🤖 Calling LLM with model: gpt-4o
+[2025-10-15T11:07:27.227Z] POST /ai/nutrition - Origin: http://localhost:3000
+[/ai/nutrition] Request: { gender: 'male', age: 23, goal: 'weight_loss' }
+[/ai/nutrition] Generated JSON with 5 meals in 10201 ms
+❌ /ai/workout failed - Unexpected error {
+  elapsed_ms: 30001,
+  message: 'LLM timeout',
+  name: 'Error',
+  stack: 'Error: LLM timeout\n' +
+    '    at Timeout._onTimeout (/Users/netanelhadad/Projects/gymbro/services/api/src/lib/withTimeout.ts:3:40)\n' +
+    '    at listOnTimeout (node:internal/timers:581:17)\n' +
+    '    at process.processTimers (node:internal/timers:519:7)',
+  zodIssues: undefined,
+  cause: undefined
+}
+[2025-10-15T11:07:57.234Z] POST /ai/workout - Origin: http://localhost:3000
+[/ai/workout] 📥 Request payload summary: {
+  userId: 'guest-1760526447220',
+  gender: 'female',
+  workoutsPerWeek: 6,
+  goal: 'weight_loss',
+  experienceLevel: 'sure'
+}
+[/ai/workout] 🤖 Calling LLM with model: gpt-4o
+[2025-10-15T11:08:26.970Z] POST /ai/days - Origin: http://localhost:3000
+[/ai/days] Request: {
+  gender: 'female',
+  age: 23,
+  weight: '***',
+  targetWeight: '***',
+  heightCm: 173,
+  goal: 'loss',
+  activityLevel: 'beginner'
+}
+[/ai/days] Calculated days: 112
+[2025-10-15T11:08:26.972Z] POST /ai/days - Origin: http://localhost:3000
+[/ai/days] Request: {
+  gender: 'female',
+  age: 23,
+  weight: '***',
+  targetWeight: '***',
+  heightCm: 173,
+  goal: 'loss',
+  activityLevel: 'beginner'
+}
+[/ai/days] Calculated days: 112
+[2025-10-15T11:08:26.984Z] POST /ai/workout - Origin: http://localhost:3000
+[/ai/workout] 📥 Request payload summary: {
+  userId: 'guest-1760526506976',
+  gender: 'female',
+  workoutsPerWeek: 6,
+  goal: 'weight_loss',
+  experienceLevel: 'sure'
+}
+[/ai/workout] 🤖 Calling LLM with model: gpt-4o
+[2025-10-15T11:08:26.988Z] POST /ai/nutrition - Origin: http://localhost:3000
+[/ai/nutrition] Request: { gender: 'male', age: 23, goal: 'weight_loss' }
+❌ /ai/workout failed - Unexpected error {
+  elapsed_ms: 30002,
+  message: 'LLM timeout',
+  name: 'Error',
+  stack: 'Error: LLM timeout\n' +
+    '    at Timeout._onTimeout (/Users/netanelhadad/Projects/gymbro/services/api/src/lib/withTimeout.ts:3:40)\n' +
+    '    at listOnTimeout (node:internal/timers:581:17)\n' +
+    '    at process.processTimers (node:internal/timers:519:7)',
+  zodIssues: undefined,
+  cause: undefined
+}
+[/ai/nutrition] Generated JSON with 5 meals in 10054 ms
+❌ /ai/workout failed - Unexpected error {
+  elapsed_ms: 30001,
+  message: 'LLM timeout',
+  name: 'Error',
+  stack: 'Error: LLM timeout\n' +
+    '    at Timeout._onTimeout (/Users/netanelhadad/Projects/gymbro/services/api/src/lib/withTimeout.ts:3:40)\n' +
+    '    at listOnTimeout (node:internal/timers:581:17)\n' +
+    '    at process.processTimers (node:internal/timers:519:7)',
+  zodIssues: undefined,
+  cause: undefined
+}
+[2025-10-15T11:08:56.995Z] POST /ai/workout - Origin: http://localhost:3000
+[/ai/workout] 📥 Request payload summary: {
+  userId: 'guest-1760526506976',
+  gender: 'female',
+  workoutsPerWeek: 6,
+  goal: 'weight_loss',
+  experienceLevel: 'sure'
+}
+[/ai/workout] 🤖 Calling LLM with model: gpt-4o
+❌ /ai/workout failed - Unexpected error {
+  elapsed_ms: 30000,
+  message: 'LLM timeout',
+  name: 'Error',
+  stack: 'Error: LLM timeout\n' +
+    '    at Timeout._onTimeout (/Users/netanelhadad/Projects/gymbro/services/api/src/lib/withTimeout.ts:3:40)\n' +
+    '    at listOnTimeout (node:internal/timers:581:17)\n' +
+    '    at process.processTimers (node:internal/timers:519:7)',
+  zodIssues: undefined,
+  cause: undefined
+}

@@ -1,0 +1,190 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  box-sizing: border-box;
+}
+
+:root {
+  font-family: var(--font-assistant), system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-assistant), system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+}
+
+.landing {
+  position: relative;
+  min-height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+}
+
+.landing::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 0;
+}
+
+.content {
+  position: relative;
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 0 clamp(1rem, 5vw, 1.5rem);
+  z-index: 1;
+}
+
+.brand {
+  position: relative;
+  margin: 0;
+  text-align: center;
+  color: #E2F163;
+  font-weight: 800;
+  font-size: 60px;
+  letter-spacing: 0.06em;
+  line-height: 1.1;
+  max-width: 90vw;
+  word-break: break-word;
+}
+
+.bottom {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: clamp(2rem, 5vh, 2.625rem);
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.75rem, 2vh, 1rem);
+  align-items: center;
+  padding: 0 clamp(1rem, 5vw, 1.5rem);
+  z-index: 2;
+}
+
+.cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #E7F04F;
+  color: #000;
+  width: min(22.5rem, 92vw);
+  height: clamp(3rem, 8vh, 3.5rem);
+  font-size: 20px;
+  font-weight: 700;
+  text-decoration: none;
+  border: none;
+  border-radius: 9999px;
+  transition: transform 0.2s;
+  text-align: center;
+}
+
+.cta:hover {
+  transform: scale(1.05);
+}
+
+.secondary {
+  font-size: clamp(0.875rem, 2vw, 1rem);
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0;
+  text-align: center;
+  line-height: 1.5;
+}
+
+.link {
+  color: #E7F04F;
+  text-decoration: underline;
+}
+
+@media (max-width: 375px) {
+  .bottom {
+    bottom: 1.5rem;
+  }
+}
+
+@media (min-height: 800px) {
+  .bottom {
+    bottom: 3rem;
+  }
+}
+
+/* Prevent default browser link colors (purple/blue) */
+a {
+  color: #e2f163;
+}
+
+a:visited {
+  color: #e2f163;
+}
+
+/* ===== iOS/Safari Autofill — hard override for dark UI ===== */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+select:-webkit-autofill,
+input:autofill,
+textarea:autofill,
+select:autofill {
+  /* white text & caret */
+  -webkit-text-fill-color: #fff !important;
+  caret-color: #fff !important;
+
+  /* fill the field background with our dark color (same as page bg) */
+  -webkit-box-shadow: 0 0 0 1000px #0e0f12 inset !important;
+  box-shadow: 0 0 0 1000px #0e0f12 inset !important;
+
+  /* kill the yellow flash */
+  transition: background-color 9999s ease-in-out 0s !important;
+
+  /* keep paint inside */
+  background-clip: content-box !important;
+}
+
+/* Normalize inputs on iOS */
+input, textarea, select {
+  -webkit-appearance: none;
+  appearance: none;
+  background-clip: padding-box;
+}
+
+/* Hint Safari that our UI is dark */
+html { color-scheme: dark; }
+
+:root { --input-bg: rgba(0,0,0,.30); }
+
+/* Normalize autofill for dark UI */
+.input-dark,
+.input-dark:-webkit-autofill,
+.input-dark:-webkit-autofill:hover,
+.input-dark:-webkit-autofill:focus {
+  -webkit-text-fill-color: #fff !important;
+  caret-color: #fff;
+  -webkit-box-shadow: 0 0 0 1000px var(--input-bg) inset !important;
+          box-shadow: 0 0 0 1000px var(--input-bg) inset !important;
+  transition: background-color 9999s ease-out 0s !important;
+  border-radius: 12px;
+  background-clip: padding-box;
+}
+
+/* Brand link color (avoid default purple) */
+a { color: #e7f25a; }
+a:hover { text-decoration: underline; text-underline-offset: 2px; }
+
+/* Bottom nav spacing helper (kept for backward compatibility) */
+.has-bottom-nav {
+  padding-bottom: 6rem; /* 24 in Tailwind = 96px */
+}
+
+@supports (padding: env(safe-area-inset-bottom)) {
+  .has-bottom-nav {
+    padding-bottom: calc(6rem + env(safe-area-inset-bottom));
+  }
+}

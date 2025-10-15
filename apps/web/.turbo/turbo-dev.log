@@ -2,13 +2,36 @@
 > @gymbro/web@ dev /Users/netanelhadad/Projects/gymbro/apps/web
 > next dev -p 3000
 
-  [1m[38;2;173;127;168m▲ Next.js 14.2.12[39m[22m
+  ▲ Next.js 14.2.12
   - Local:        http://localhost:3000
   - Environments: .env.local
 
- [32m[1m✓[22m[39m Starting...
- [33m[1m⚠[22m[39m Invalid next.config.js options detected: 
- [33m[1m⚠[22m[39m     Unrecognized key(s) in object: 'appDir' at "experimental"
- [33m[1m⚠[22m[39m See more info here: https://nextjs.org/docs/messages/invalid-next-config
- [32m[1m✓[22m[39m Ready in 1348ms
-[?25h
+ ✓ Starting...
+ ✓ Ready in 1856ms
+ ✓ Compiled /middleware in 340ms (143 modules)
+ ○ Compiling / ...
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (114kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+ ✓ Compiled / in 2.7s (652 modules)
+ GET / 200 in 2859ms
+ ✓ Compiled in 154ms (319 modules)
+ GET / 200 in 20ms
+ ✓ Compiled /onboarding/gender in 186ms (643 modules)
+ ✓ Compiled /onboarding/goals in 113ms (653 modules)
+ ✓ Compiled /onboarding/frequency in 110ms (661 modules)
+ ✓ Compiled /onboarding/experience in 103ms (667 modules)
+ ✓ Compiled /onboarding/motivation in 116ms (673 modules)
+ ✓ Compiled /onboarding/longterm in 276ms (687 modules)
+ ✓ Compiled /onboarding/metrics in 144ms (693 modules)
+ ✓ Compiled /onboarding/birthdate in 132ms (699 modules)
+ ✓ Compiled /onboarding/target-weight in 134ms (705 modules)
+ ✓ Compiled /onboarding/goal-summary in 127ms (711 modules)
+ ✓ Compiled /onboarding/pace in 186ms (721 modules)
+ ✓ Compiled /onboarding/activity in 161ms (729 modules)
+ ✓ Compiled /onboarding/diet in 164ms (735 modules)
+ ✓ Compiled /onboarding/readiness in 164ms (741 modules)
+ ✓ Compiled /onboarding/reminders in 394ms (782 modules)
+ ✓ Compiled /onboarding/generating in 213ms (790 modules)
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+🌐 API Client initialized with base URL: http://localhost:3001
+ GET /onboarding/generating 200 in 89ms
+ GET /onboarding/generating 200 in 28ms

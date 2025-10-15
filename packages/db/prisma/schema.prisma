@@ -43,3 +43,15 @@ model WorkoutLog {
   notes     String?
   createdAt DateTime @default(now())
 }
+
+model Program {
+  id                String   @id @default(cuid())
+  userId            String   @unique @map("user_id")
+  daysEstimate      Int      @map("days_estimate")
+  workoutPlanText   String   @map("workout_plan_text") @db.Text
+  nutritionPlanJson Json     @map("nutrition_plan_json")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  @@map("programs")
+}

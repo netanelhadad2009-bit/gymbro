@@ -12,6 +12,12 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "preserve",
+    "baseUrl": ".",
+    "paths": {
+      "@/lib/*": ["lib/*"],
+      "@/components/*": ["components/*"],
+      "@/contexts/*": ["contexts/*"]
+    },
     "plugins": [
       {
         "name": "next"

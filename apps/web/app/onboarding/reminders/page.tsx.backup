@@ -1,0 +1,118 @@
+"use client";
+
+import { useRouter } from "next/navigation";
+import Image from "next/image";
+import { useState } from "react";
+import { saveOnboardingData } from "@/lib/onboarding-storage";
+import { requestAndSubscribe } from "@/lib/notifications";
+
+const VAPID = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || '';
+
+export default function RemindersPage() {
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+  const [msg, setMsg] = useState<string | null>(null);
+
+  async function handleEnable() {
+    try {
+      setLoading(true);
+      setMsg(null);
+
+      const { supported, granted, subscription } = await requestAndSubscribe(VAPID);
+
+      // Save to localStorage
+      saveOnboardingData({ notifications_opt_in: granted });
+
+      if (granted && subscription) {
+        // Send subscription to backend
+        await fetch('/api/push/subscribe', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ subscription }),
+        });
+      }
+
+      if (!supported) {
+        setMsg('התראות מוגבלות במכשיר/דפדפן זה. אפשר להמשיך.');
+      } else if (!granted) {
+        setMsg('בחרת לא לאפשר התראות. תוכל להפעיל אותן מאוחר יותר בהגדרות.');
+      }
+
+      // Proceed to next step regardless (don't block onboarding)
+      setTimeout(() => {
+        router.push("/onboarding/metrics");
+      }, msg ? 2000 : 0);
+    } catch (e: any) {
+      console.error('Notification error:', e);
+      setMsg('משהו השתבש. תוכל להמשיך ולהפעיל התראות מאוחר יותר.');
+      saveOnboardingData({ notifications_opt_in: false });
+      setTimeout(() => {
+        router.push("/onboarding/metrics");
+      }, 2000);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function handleSkip() {
+    saveOnboardingData({ notifications_opt_in: false });
+    router.push("/onboarding/metrics");
+  }
+
+
+  return (
+    <main dir="rtl" className="min-h-screen bg-[#0e0f12] text-white flex flex-col">
+
+      {/* Title and Subtitle */}
+      <div className="px-6 pt-4 pb-6">
+        <p className="text-sm text-white/60 mb-4 text-center">שלב אחרון</p>
+        <h1 className="text-3xl font-bold text-center mb-3">מתמידים ביחד איתך</h1>
+        <p className="text-center text-white/60 text-base">
+          האפליקציה תשלח לך תזכורות שיעזרו לך להישאר במסלול, ולהתקדם לעבר המטרות שלך.
+        </p>
+      </div>
+
+      {/* Phone mockup */}
+      <div className="flex-1 flex items-center justify-center py-8">
+        <Image
+          src="/onboarding/phone-reminders.png"
+          alt="Phone mockup with reminders"
+          width={260}
+          height={520}
+          className="w-[260px] md:w-[300px]"
+          priority
+        />
+      </div>
+
+      {/* Footnote */}
+      <p className="text-center text-white/60 text-sm px-6 mb-6">
+        *משתמשים שמקבלים התראות מתמידים ב־36% יותר.
+      </p>
+
+      {/* Message */}
+      {msg && (
+        <p className="text-sm text-white/70 text-center px-6 mb-4 bg-white/5 py-3 mx-6 rounded-xl">
+          {msg}
+        </p>
+      )}
+
+      {/* Actions */}
+      <div className="px-6 pb-8 space-y-4">
+        <button
+          onClick={handleEnable}
+          disabled={loading}
+          className="w-full h-14 bg-[#E2F163] text-black font-bold text-lg rounded-full transition hover:bg-[#d4e350] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {loading ? 'מפעיל התראות...' : 'מאשר לקבל התראות'}
+        </button>
+        <button
+          onClick={handleSkip}
+          disabled={loading}
+          className="w-full text-white/70 text-base hover:underline transition disabled:opacity-50"
+        >
+          אולי אחר כך
+        </button>
+      </div>
+    </main>
+  );
+}

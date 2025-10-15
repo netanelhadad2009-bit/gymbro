@@ -1,0 +1,28 @@
+PODS:
+  - Capacitor (7.4.3):
+    - CapacitorCordova
+  - CapacitorCordova (7.4.3)
+  - CapacitorDialog (7.0.2):
+    - Capacitor
+
+DEPENDENCIES:
+  - "Capacitor (from `../../../../node_modules/.pnpm/@capacitor+ios@7.4.3_@capacitor+core@7.4.3/node_modules/@capacitor/ios`)"
+  - "CapacitorCordova (from `../../../../node_modules/.pnpm/@capacitor+ios@7.4.3_@capacitor+core@7.4.3/node_modules/@capacitor/ios`)"
+  - "CapacitorDialog (from `../../../../node_modules/.pnpm/@capacitor+dialog@7.0.2_@capacitor+core@7.4.3/node_modules/@capacitor/dialog`)"
+
+EXTERNAL SOURCES:
+  Capacitor:
+    :path: "../../../../node_modules/.pnpm/@capacitor+ios@7.4.3_@capacitor+core@7.4.3/node_modules/@capacitor/ios"
+  CapacitorCordova:
+    :path: "../../../../node_modules/.pnpm/@capacitor+ios@7.4.3_@capacitor+core@7.4.3/node_modules/@capacitor/ios"
+  CapacitorDialog:
+    :path: "../../../../node_modules/.pnpm/@capacitor+dialog@7.0.2_@capacitor+core@7.4.3/node_modules/@capacitor/dialog"
+
+SPEC CHECKSUMS:
+  Capacitor: 28d6c01026a9a3f7156529498ec1f389a2a28dbc
+  CapacitorCordova: 435121e81a2df4d0034f0fb11fcefab5104cfdb5
+  CapacitorDialog: 5bf72a94b747fb339df6f64ef60812e5e4630ad2
+
+PODFILE CHECKSUM: c73dfce2076df8de8b5592d508090cf4fdd38958
+
+COCOAPODS: 1.16.2
