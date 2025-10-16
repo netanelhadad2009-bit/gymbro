@@ -43,6 +43,7 @@ export default function OnboardingShell({
           ) : undefined
         }
         className={disableContentScroll ? '' : 'px-6'}
+        disableScroll={true} // Most questionnaire pages don't need scrolling
       >
         {children}
       </MobileShell>

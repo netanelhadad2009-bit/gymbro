@@ -10,9 +10,10 @@ type Props = {
   title?: string;               // optional title for header
   background?: React.ReactNode; // full-screen background (e.g., hero image)
   overlayClass?: string;        // overlay class for background (e.g., "bg-black/45")
+  disableScroll?: boolean;      // disable scrolling when content fits on screen
 };
 
-export default function MobileShell({ header, footer, children, className, noHeaderShadow, title, background, overlayClass }: Props) {
+export default function MobileShell({ header, footer, children, className, noHeaderShadow, title, background, overlayClass, disableScroll }: Props) {
   return (
     <div className="screen min-h-[100dvh] flex flex-col bg-[#0B0D0F] text-white relative">
       {/* Full-screen background image */}
@@ -35,7 +36,7 @@ export default function MobileShell({ header, footer, children, className, noHea
       )}
 
       {/* Scrollable content - add padding when footer exists */}
-      <div className={`flex-1 overflow-y-auto ${footer ? 'pb-24' : ''} ${className ?? ""}`}>
+      <div className={`flex-1 ${disableScroll ? 'overflow-hidden' : 'overflow-y-auto'} ${footer ? 'pb-24' : ''} ${className ?? ""}`}>
         {children}
       </div>
 
