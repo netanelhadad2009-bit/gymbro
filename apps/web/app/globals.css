@@ -10,6 +10,10 @@
   font-family: var(--font-assistant), system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
 }
 
+html, body {
+  background: #0B0D0F;
+}
+
 body {
   margin: 0;
   padding: 0;
