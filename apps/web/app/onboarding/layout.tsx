@@ -85,7 +85,7 @@ export default function OnboardingLayout({
             paddingTop: 'env(safe-area-inset-top, 0px)',
           }}
         >
-          {/* Back Button and Step Counter */}
+          {/* Back Button */}
           <div className="flex items-center justify-between p-5 pb-3">
             <button
               onClick={handleBack}
@@ -103,13 +103,6 @@ export default function OnboardingLayout({
                 <path d="M19 12H5M12 19l-7-7 7-7" />
               </svg>
             </button>
-
-            {/* Step Counter */}
-            {stepNumber > 0 && (
-              <div className="text-sm text-white/60">
-                שלב {stepNumber} מתוך {TOTAL_STEPS}
-              </div>
-            )}
 
             <div className="w-10" />
           </div>
