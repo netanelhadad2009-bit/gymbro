@@ -113,18 +113,52 @@ export async function ensureNotificationPermission(): Promise<NotificationPermis
  * Subscribe to push notifications
  */
 export async function subscribePush(): Promise<PushSubscribeResult> {
-  // Check if running in Capacitor - simulate success for simulator
+  // Check if running in Capacitor - show dialog then simulate success
   if (typeof window !== 'undefined' && (window as any).Capacitor) {
-    console.log('[Push] Running in Capacitor - simulating success for development');
+    console.log('[Push] Running in Capacitor - showing permission dialog');
 
-    // For iOS simulator, just simulate success
-    // Real push notifications would require Apple certificates and physical device
-    return {
-      success: true,
-      subscription: null,
-      permission: 'granted' as NotificationPermission,
-      supported: true
-    };
+    try {
+      // Dynamically import Dialog to avoid build issues
+      const { Dialog } = await import('@capacitor/dialog');
+
+      // Show system dialog asking for permission
+      const { value } = await Dialog.confirm({
+        title: 'התראות',
+        message: 'האפליקציה רוצה לשלוח לך התראות. התראות יכולות לכלול תזכורות לאימונים, עדכונים והתראות נוספות.',
+        okButtonTitle: 'אשר',
+        cancelButtonTitle: 'אל תאפשר'
+      });
+
+      if (value) {
+        // User approved
+        console.log('[Push] User approved notifications');
+        return {
+          success: true,
+          subscription: null,
+          permission: 'granted' as NotificationPermission,
+          supported: true
+        };
+      } else {
+        // User denied
+        console.log('[Push] User denied notifications');
+        return {
+          success: false,
+          subscription: null,
+          permission: 'denied' as NotificationPermission,
+          supported: true,
+          error: 'המשתמש לא אישר קבלת התראות'
+        };
+      }
+    } catch (error) {
+      console.error('[Push] Error showing dialog:', error);
+      // Fallback to simulated success if dialog fails
+      return {
+        success: true,
+        subscription: null,
+        permission: 'granted' as NotificationPermission,
+        supported: true
+      };
+    }
   }
 
   // Original web push logic for browsers
