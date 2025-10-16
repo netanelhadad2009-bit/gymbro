@@ -25,7 +25,7 @@ export default function MobileShell({ header, footer, children, className, noHea
 
       {/* Fixed header + safe area */}
       {(header || title) && (
-        <div className={`sticky-top safe-pt ${noHeaderShadow ? 'bg-transparent' : 'bg-[#0B0D0F]/95 backdrop-blur supports-[backdrop-filter]:bg-[#0B0D0F]/75'}`}>
+        <div className={`fixed top-0 left-0 right-0 z-50 safe-pt ${noHeaderShadow ? 'bg-transparent' : 'bg-[#0B0D0F]/95 backdrop-blur supports-[backdrop-filter]:bg-[#0B0D0F]/75'}`}>
           {header || (title && (
             <div className="px-4 py-3">
               <h1 className="text-lg font-bold text-center">{title}</h1>
@@ -34,8 +34,8 @@ export default function MobileShell({ header, footer, children, className, noHea
         </div>
       )}
 
-      {/* Scrollable content - add bottom padding when footer exists */}
-      <div className={`scroll-y flex-1 ${footer ? 'pb-24' : ''} ${className ?? ""}`}>
+      {/* Scrollable content - add padding when header/footer exists */}
+      <div className={`scroll-y flex-1 ${(header || title) ? 'pt-20' : ''} ${footer ? 'pb-24' : ''} ${className ?? ""}`}>
         {children}
       </div>
 
