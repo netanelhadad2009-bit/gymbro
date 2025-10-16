@@ -1,59 +1,61 @@
 "use client";
 
+import MobileShell from "@/components/MobileShell";
+import MobileHeader from "@/components/MobileHeader";
 import { useRouter } from "next/navigation";
 
 export default function SplashPage() {
   const router = useRouter();
 
   return (
-    <main
-      dir="rtl"
-      className="min-h-screen flex flex-col items-center justify-between p-8 text-center text-white relative"
-      style={{
-        backgroundImage: "url('/image 4.svg')",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-      }}
-    >
-      {/* Dark overlay for better text readability */}
-      <div className="absolute inset-0 bg-black/40 z-0" />
-
-      {/* Content wrapper with z-index */}
-      <div className="relative z-10 flex-1 flex flex-col items-center justify-center w-full">
-        <div className="mb-12">
-          <h1 className="text-6xl font-extrabold tracking-tight mb-2 drop-shadow-lg">GymBro</h1>
-          <div className="w-16 h-1 bg-[#E2F163] mx-auto rounded-full" />
+    <MobileShell
+      header={<MobileHeader title="GymBro" />}
+      footer={
+        <div className="grid gap-3 px-4 pb-3 pt-3">
+          <button
+            onClick={() => router.push("/onboarding/gender")}
+            className="btn w-full rounded-full py-3 text-black font-bold bg-[#E2F163] text-center active:opacity-90"
+          >
+            התחל את השאלון
+          </button>
+          <button
+            onClick={() => router.push("/login")}
+            className="btn w-full rounded-full py-3 border border-white/15 text-white text-center active:opacity-90"
+          >
+            כבר יש לך משתמש? התחבר עכשיו
+          </button>
         </div>
-        <p className="text-xl text-white leading-relaxed max-w-md drop-shadow-md">
-          המאמן הדיגיטלי שלך — מותאם אישית אליך.
-        </p>
-      </div>
+      }
+    >
+      {/* Content area — no fixed buttons here */}
+      <section className="py-4 flex flex-col items-center justify-center min-h-full">
+        {/* Replace hero background with contained image to avoid overlap */}
+        <div className="rounded-2xl overflow-hidden w-full max-w-md mb-6">
+          <img
+            src="/image 4.svg"
+            alt=""
+            className="w-full h-48 object-cover"
+            draggable={false}
+          />
+        </div>
 
-      {/* Action buttons */}
-      <div className="relative z-10 w-full max-w-md flex flex-col items-center gap-4 mb-8">
-        <button
-          onClick={() => router.push("/onboarding/gender")}
-          className="w-full bg-[#E2F163] text-black text-lg font-bold py-4 rounded-full transition hover:bg-[#d4e350] active:scale-[0.98] shadow-lg"
-        >
-          התחל את השאלון
-        </button>
-        <button
-          onClick={() => router.push("/login")}
-          className="text-white text-base font-normal hover:text-white/80 transition"
-        >
-          כבר יש לך משתמש?{" "}
-          <span className="text-[#E2F163] underline">התחבר עכשיו</span>
-        </button>
-      </div>
-
-      {/* Legal text */}
-      <p className="relative z-10 text-xs text-white/80 leading-relaxed max-w-md drop-shadow-md">
-        בלחיצה על 'התחל את השאלון', אתה מסכים ל
-        <a href="/terms" className="underline mx-1">תנאי השימוש</a>
-        ו
-        <a href="/privacy" className="underline mr-1">מדיניות הפרטיות</a>
-        שלנו.
-      </p>
-    </main>
+        <div className="text-center space-y-4 max-w-md">
+          <div className="mb-4">
+            <h2 className="text-4xl font-extrabold tracking-tight mb-2">GymBro</h2>
+            <div className="w-16 h-1 bg-[#E2F163] mx-auto rounded-full" />
+          </div>
+          <p className="text-lg text-white leading-relaxed">
+            המאמן הדיגיטלי שלך — מותאם אישית אליך.
+          </p>
+          <p className="text-xs text-white/70 leading-relaxed pt-4">
+            בלחיצה על 'התחל את השאלון', אתה מסכים ל
+            <a href="/terms" className="underline mx-1">תנאי השימוש</a>
+            ו
+            <a href="/privacy" className="underline mr-1">מדיניות הפרטיות</a>
+            שלנו.
+          </p>
+        </div>
+      </section>
+    </MobileShell>
   );
 }

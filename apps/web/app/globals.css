@@ -82,12 +82,13 @@ body {
   text-decoration: none;
   border: none;
   border-radius: 9999px;
-  transition: transform 0.2s;
+  transition: transform 0.2s, opacity 0.12s;
   text-align: center;
 }
 
-.cta:hover {
-  transform: scale(1.05);
+.cta:active {
+  transform: scale(0.98);
+  opacity: 0.9;
 }
 
 .secondary {
@@ -187,4 +188,38 @@ a:hover { text-decoration: underline; text-underline-offset: 2px; }
   .has-bottom-nav {
     padding-bottom: calc(6rem + env(safe-area-inset-bottom));
   }
+}
+
+/* ===== Mobile-safe baseline ===== */
+html, body, #__next, main { height: 100%; }
+body {
+  -webkit-text-size-adjust: 100%; /* iOS prevents auto zooming text */
+  text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Respect iPhone notch/safe-areas */
+.safe-pt { padding-top: env(safe-area-inset-top); }
+.safe-pb { padding-bottom: env(safe-area-inset-bottom); }
+
+/* Sticky areas that never scroll out */
+.sticky-top { position: sticky; top: 0; z-index: 50; }
+.sticky-bottom { position: sticky; bottom: 0; z-index: 50; }
+
+/* Mobile container constraints */
+.screen {
+  max-width: 480px; /* centers on wide screens, full-width on phone */
+  margin-inline: auto;
+}
+
+/* Touch feedback instead of hover */
+.btn, button, a[role="button"] {
+  transition: transform 120ms ease, opacity 120ms ease;
+}
+.btn:active { transform: scale(0.98); }
+
+/* Avoid unintended overscroll bounce inside content pane */
+.scroll-y {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }

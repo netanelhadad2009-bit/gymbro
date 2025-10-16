@@ -9,8 +9,8 @@ export default function PrimaryButton(
       className={`
         w-full h-12 rounded-full font-bold
         bg-[#E2F163] text-black
-        hover:bg-[#d9f04f] active:scale-[0.99]
-        transition
+        active:scale-[0.98] active:opacity-90
+        transition-all duration-100
         disabled:opacity-30 disabled:cursor-not-allowed
         ${props.className || ''}
       `}

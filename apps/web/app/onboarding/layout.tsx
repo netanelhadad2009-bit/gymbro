@@ -69,7 +69,7 @@ export default function OnboardingLayout({
           <div className="flex items-center justify-between p-5 pb-3">
             <button
               onClick={handleBack}
-              className="w-10 h-10 flex items-center justify-center text-white/70 hover:text-white transition"
+              className="w-10 h-10 flex items-center justify-center text-white/70 active:text-white active:scale-95 transition"
               aria-label="חזור"
             >
               <svg

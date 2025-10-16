@@ -14,13 +14,17 @@ export const metadata = {
   title: "GymBro Web",
 };
 
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  viewportFit: "cover",
+};
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="he" dir="rtl" className={`${assistant.variable} font-sans`}>
       <head>
-        {/* Viewport with viewport-fit=cover to enable safe area insets */}
-        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-
         {/* Theme color for iOS/Android status bar - matches header background */}
         <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0D0E0F" />
         <meta name="theme-color" media="(prefers-color-scheme: light)" content="#0D0E0F" />

@@ -188,8 +188,8 @@ export default function SignupClient() {
   }
 
   return (
-    <main dir="rtl" className="min-h-screen bg-[#0e0f12] text-white flex items-center justify-center">
-      <div className="w-full max-w-md px-5 py-10">
+    <main dir="rtl" className="min-h-screen bg-[#0D0E0F] text-white flex items-center justify-center px-4">
+      <div className="w-full max-w-md py-10">
         {/* Social Auth Buttons */}
         <SocialAuthButtons size="lg" variant="signup" />
 
@@ -270,7 +270,7 @@ export default function SignupClient() {
           <button
             type="submit"
             disabled={loading || generatingProgram}
-            className="mt-6 h-14 w-full rounded-full bg-[#E2F163] text-black font-bold text-lg transition hover:bg-[#d5e35b] disabled:opacity-50 disabled:cursor-not-allowed"
+            className="mt-6 h-14 w-full rounded-full bg-[#E2F163] text-black font-bold text-lg transition-transform active:scale-98 active:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {generatingProgram ? "מכין את התוכנית שלך..." : loading ? "רושם..." : "הרשמה"}
           </button>
