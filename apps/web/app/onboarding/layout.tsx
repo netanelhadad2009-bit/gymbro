@@ -85,11 +85,11 @@ export default function OnboardingLayout({
             paddingTop: 'env(safe-area-inset-top, 0px)',
           }}
         >
-          {/* Back Button */}
-          <div className="flex items-center justify-between p-5 pb-3">
+          {/* Back Button and Progress Bar in same row */}
+          <div className="flex items-center gap-4 p-5 pb-3">
             <button
               onClick={handleBack}
-              className="w-10 h-10 flex items-center justify-center text-white/70 active:text-white active:scale-95 transition"
+              className="w-10 h-10 flex-shrink-0 flex items-center justify-center text-white/70 active:text-white active:scale-95 transition"
               aria-label="חזור"
             >
               <svg
@@ -104,16 +104,14 @@ export default function OnboardingLayout({
               </svg>
             </button>
 
-            <div className="w-10" />
-          </div>
-
-          {/* Progress Bar */}
-          <div className="px-5 pb-3">
-            <div className="h-1 bg-white/10 rounded-full overflow-hidden">
-              <div
-                className="h-full bg-white/60 rounded-full transition-all duration-300"
-                style={{ width: `${progress}%` }}
-              />
+            {/* Progress Bar */}
+            <div className="flex-1">
+              <div className="h-1 bg-white/10 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-white/60 rounded-full transition-all duration-300"
+                  style={{ width: `${progress}%` }}
+                />
+              </div>
             </div>
           </div>
         </header>
