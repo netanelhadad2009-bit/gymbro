@@ -24,7 +24,7 @@ export default function HomePage() {
           {/* CTA */}
           <Link
             href="/onboarding/gender"
-            className="block w-full text-center rounded-full py-4 text-black font-bold bg-[#E2F163] active:scale-[0.98] transition"
+            className="block w-full text-center rounded-full py-4 text-black text-lg font-bold bg-[#E2F163] active:scale-[0.98] transition"
           >
             התחל את השאלון
           </Link>
