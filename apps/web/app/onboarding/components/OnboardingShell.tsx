@@ -22,11 +22,11 @@ export default function OnboardingShell({
   disableContentScroll = false
 }: Props) {
   return (
-    <div dir={dir} className="h-full">
+    <div dir={dir} className="h-full flex flex-col">
       <MobileShell
         header={
           (title || subtitle) ? (
-            <div className="px-6 pt-4 pb-6">
+            <div className="px-6 pt-2 pb-4">
               <OnboardingHeader
                 title={title || ''}
                 subtitle={subtitle}
@@ -42,10 +42,12 @@ export default function OnboardingShell({
             </div>
           ) : undefined
         }
-        className={disableContentScroll ? '' : 'px-6'}
+        className={`${disableContentScroll ? '' : 'px-6'} flex flex-col justify-center`}
         disableScroll={true} // Disable scrolling on questionnaire pages
       >
-        {children}
+        <div className="w-full">
+          {children}
+        </div>
       </MobileShell>
     </div>
   );

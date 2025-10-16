@@ -110,7 +110,7 @@ export default function OnboardingLayout({
       <div
         className={`flex-1 ${disableScroll ? 'overflow-hidden' : 'overflow-y-auto'}`}
         style={{
-          paddingTop: !hideNavigation ? 'calc(env(safe-area-inset-top, 0px) + 6rem)' : '0',
+          paddingTop: !hideNavigation ? 'calc(env(safe-area-inset-top, 0px) + 4.5rem)' : '0',
         }}
       >
         {children}
