@@ -4,6 +4,7 @@
  */
 
 import { registerServiceWorker, getServiceWorkerRegistration } from './register-sw';
+import { isCapacitorApp, registerNativePush, initializeNativePush } from './push-notifications-native';
 
 export interface PushSubscribeResult {
   success: boolean;
@@ -113,18 +114,33 @@ export async function ensureNotificationPermission(): Promise<NotificationPermis
  * Subscribe to push notifications
  */
 export async function subscribePush(): Promise<PushSubscribeResult> {
+  // Check if running in Capacitor - use native push
+  if (isCapacitorApp()) {
+    console.log('[Push] Using native push notifications for Capacitor');
+
+    // Initialize native push first
+    await initializeNativePush();
+
+    // Register for native push
+    const result = await registerNativePush();
+
+    return {
+      success: result.success,
+      subscription: null, // Native push doesn't use PushSubscription
+      permission: result.permission as NotificationPermission || 'default',
+      supported: true,
+      error: result.error
+    };
+  }
+
+  // Original web push logic for browsers
   const deviceInfo = getDeviceInfo();
 
   // Check if web push is supported
   if (!deviceInfo.supportsWebPush) {
     let error = 'התראות אינן נתמכות במכשיר זה';
 
-    // Check if running in Capacitor (native app)
-    const isCapacitor = (window as any).Capacitor !== undefined;
-
-    if (isCapacitor) {
-      error = 'התראות זמינות רק בגרסת הדפדפן של האפליקציה';
-    } else if (deviceInfo.isIOS && !deviceInfo.isPWA) {
+    if (deviceInfo.isIOS && !deviceInfo.isPWA) {
       error = 'ב-iOS, התראות זמינות רק לאחר התקנת האפליקציה (הוסף למסך הבית)';
     } else if (deviceInfo.isIOS && deviceInfo.iosVersion && deviceInfo.iosVersion < 16) {
       error = 'התראות דורשות iOS 16.4 ומעלה';
