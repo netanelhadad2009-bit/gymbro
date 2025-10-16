@@ -1,0 +1,8 @@
+
+> @gymbro/web@ build /Users/netanelhadad/Projects/gymbro/apps/web
+> next build
+
+  ▲ Next.js 14.2.12
+  - Environments: .env.local
+
+   Creating an optimized production build ...

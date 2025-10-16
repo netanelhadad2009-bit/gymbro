@@ -1,0 +1,11 @@
+
+> @gymbro/api@ build /Users/netanelhadad/Projects/gymbro/services/api
+> tsc -p tsconfig.json
+
+src/index.ts(3,18): error TS7016: Could not find a declaration file for module 'cors'. '/Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/cors@2.8.5/node_modules/cors/lib/index.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/cors` if it exists or add a new declaration (.d.ts) file containing `declare module 'cors';`
+src/routes/user.ts(18,17): error TS2322: Type 'string | null' is not assignable to type 'string | StringFieldUpdateOperationsInput | undefined'.
+  Type 'null' is not assignable to type 'string | StringFieldUpdateOperationsInput | undefined'.
+src/routes/user.ts(19,29): error TS2322: Type 'string | null' is not assignable to type 'string'.
+  Type 'null' is not assignable to type 'string'.
+ ELIFECYCLE  Command failed with exit code 2.

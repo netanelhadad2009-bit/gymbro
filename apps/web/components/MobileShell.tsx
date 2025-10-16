@@ -34,14 +34,14 @@ export default function MobileShell({ header, footer, children, className, noHea
         </div>
       )}
 
-      {/* Scrollable content */}
-      <div className={`scroll-y flex-1 ${className ?? ""}`}>
+      {/* Scrollable content - add bottom padding when footer exists */}
+      <div className={`scroll-y flex-1 ${footer ? 'pb-24' : ''} ${className ?? ""}`}>
         {children}
       </div>
 
       {/* Fixed footer + safe area */}
       {footer && (
-        <div className={`sticky-bottom safe-pb px-4 py-3 ${noHeaderShadow ? 'bg-transparent' : 'bg-[#0B0D0F]/95 backdrop-blur supports-[backdrop-filter]:bg-[#0B0D0F]/75'}`}>
+        <div className={`fixed bottom-0 left-0 right-0 z-50 safe-pb px-4 pb-4 pt-3 ${noHeaderShadow ? 'bg-transparent' : 'bg-[#0B0D0F]/95 backdrop-blur supports-[backdrop-filter]:bg-[#0B0D0F]/75'}`}>
           {footer}
         </div>
       )}

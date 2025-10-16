@@ -7,7 +7,6 @@ import MobileShell from "@/components/MobileShell";
 export default function HomePage() {
   return (
     <MobileShell
-      title="GymBro"
       noHeaderShadow
       background={
         <Image
@@ -35,7 +34,7 @@ export default function HomePage() {
             כבר יש לך משתמש?{" "}
             <Link
               href="/login"
-              className="underline decoration-[#E2F163] decoration-2 underline-offset-4 text-[#E2F163]"
+              className="text-[#E2F163]"
             >
               התחבר עכשיו
             </Link>
@@ -53,7 +52,7 @@ export default function HomePage() {
       }
     >
       {/* CONTENT (scrollable) */}
-      <div className="w-full px-5 pt-10 flex flex-col items-center text-center text-white">
+      <div className="w-full px-5 pt-20 flex flex-col items-center text-center text-white">
         <h1 className="text-4xl font-extrabold drop-shadow">GymBro</h1>
         <div className="w-16 h-1 bg-[#E2F163] rounded-full mt-3 mb-6" />
         <p className="text-lg leading-relaxed drop-shadow-sm">
