@@ -11,7 +11,9 @@
     "export-exercises": "tsx scripts/export_exercises.ts",
     "ios:sync": "cap sync ios",
     "ios:run": "cap run ios --target=\"B0DA3FF2-67CD-4C7A-BF28-EDC5519C562D\"",
-    "ios:open": "cap open ios"
+    "ios:open": "cap open ios",
+    "ios:sim": "CAP_TARGET=sim pnpm exec cap sync ios && pnpm exec cap run ios",
+    "ios:dev": "CAP_TARGET=device pnpm exec cap sync ios && pnpm exec cap open ios"
   },
   "dependencies": {
     "@capacitor/core": "^7.4.3",
