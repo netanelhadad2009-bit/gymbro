@@ -3,7 +3,8 @@
  * Calls the backend API at /ai/* routes
  */
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3001";
+// Use relative URLs to call Next.js API routes
+const API_BASE = "/api";
 
 console.log("🌐 API Client initialized with base URL:", API_BASE);
 
