@@ -3,8 +3,22 @@
  * Handles iOS native push notifications through APNS
  */
 
-import { PushNotifications, PushNotificationSchema, Token, ActionPerformed } from '@capacitor/push-notifications';
 import { Capacitor } from '@capacitor/core';
+
+// Dynamic import to avoid build issues
+let PushNotifications: any;
+let PushNotificationSchema: any;
+let Token: any;
+let ActionPerformed: any;
+
+async function loadPushPlugin() {
+  if (typeof window !== 'undefined' && Capacitor.isNativePlatform()) {
+    const module = await import('@capacitor/push-notifications');
+    PushNotifications = module.PushNotifications;
+    return true;
+  }
+  return false;
+}
 
 export interface NativePushResult {
   success: boolean;
@@ -21,6 +35,19 @@ export function isCapacitorApp(): boolean {
 }
 
 /**
+ * Check if running in iOS Simulator
+ */
+function isSimulator(): boolean {
+  // Check for simulator by looking at platform and device model
+  const platform = Capacitor.getPlatform();
+  if (platform !== 'ios') return false;
+
+  // In simulator, the device model often contains "Simulator" or specific simulator identifiers
+  const userAgent = navigator.userAgent;
+  return userAgent.includes('Simulator') || userAgent.includes('x86_64');
+}
+
+/**
  * Initialize native push notifications
  */
 export async function initializeNativePush(): Promise<void> {
@@ -31,6 +58,13 @@ export async function initializeNativePush(): Promise<void> {
 
   console.log('[NativePush] Initializing native push notifications...');
 
+  // Load the plugin first
+  const loaded = await loadPushPlugin();
+  if (!loaded) {
+    console.error('[NativePush] Failed to load push plugin');
+    return;
+  }
+
   // Register listeners before requesting permissions
   await addListeners();
 }
@@ -39,8 +73,10 @@ export async function initializeNativePush(): Promise<void> {
  * Add listeners for push notification events
  */
 async function addListeners(): Promise<void> {
+  if (!PushNotifications) return;
+
   // Handle registration success
-  await PushNotifications.addListener('registration', (token: Token) => {
+  await PushNotifications.addListener('registration', (token: any) => {
     console.log('[NativePush] Registration success, token:', token.value);
     // Save token to backend here
     saveTokenToBackend(token.value);
@@ -52,13 +88,13 @@ async function addListeners(): Promise<void> {
   });
 
   // Handle incoming notifications when app is in foreground
-  await PushNotifications.addListener('pushNotificationReceived', (notification: PushNotificationSchema) => {
+  await PushNotifications.addListener('pushNotificationReceived', (notification: any) => {
     console.log('[NativePush] Push received:', notification);
     // Handle foreground notification
   });
 
   // Handle notification tap
-  await PushNotifications.addListener('pushNotificationActionPerformed', (notification: ActionPerformed) => {
+  await PushNotifications.addListener('pushNotificationActionPerformed', (notification: any) => {
     console.log('[NativePush] Push action performed:', notification);
     // Handle notification tap
   });
@@ -75,7 +111,29 @@ export async function registerNativePush(): Promise<NativePushResult> {
     };
   }
 
+  // Special handling for iOS Simulator
+  if (isSimulator()) {
+    console.log('[NativePush] Running in iOS Simulator - simulating success');
+    // Simulate successful registration for testing
+    return {
+      success: true,
+      permission: 'granted',
+      token: 'simulator-token-' + Date.now()
+    };
+  }
+
   try {
+    // Load the plugin first if not loaded
+    if (!PushNotifications) {
+      const loaded = await loadPushPlugin();
+      if (!loaded) {
+        return {
+          success: false,
+          error: 'Failed to load push notifications plugin'
+        };
+      }
+    }
+
     // Request permission
     console.log('[NativePush] Requesting permission...');
     let permStatus = await PushNotifications.checkPermissions();
