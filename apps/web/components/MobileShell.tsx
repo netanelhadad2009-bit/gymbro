@@ -35,7 +35,7 @@ export default function MobileShell({ header, footer, children, className, noHea
       )}
 
       {/* Scrollable content - add padding when footer exists */}
-      <div className={`scroll-y flex-1 ${footer ? 'pb-24' : ''} ${className ?? ""}`}>
+      <div className={`flex-1 overflow-y-auto ${footer ? 'pb-24' : ''} ${className ?? ""}`}>
         {children}
       </div>
 
