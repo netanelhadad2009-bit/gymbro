@@ -6,7 +6,7 @@
 "use client";
 
 import { usePathname, useRouter } from "next/navigation";
-import { useMemo } from "react";
+import { useMemo, useEffect, useRef } from "react";
 import { STEP_INDEX, TOTAL_STEPS, type OnboardingStepId, getPrevStep, getStepPath } from "@/lib/onboarding/steps";
 
 export default function OnboardingLayout({
@@ -16,11 +16,19 @@ export default function OnboardingLayout({
 }) {
   const pathname = usePathname();
   const router = useRouter();
+  const contentRef = useRef<HTMLDivElement>(null);
 
   // Extract current step ID from pathname
   const currentStepId = useMemo(() => {
     const segments = pathname.split("/");
     return segments[segments.length - 1] as OnboardingStepId;
+  }, [pathname]);
+
+  // Reset scroll position when navigating between pages
+  useEffect(() => {
+    if (contentRef.current) {
+      contentRef.current.scrollTop = 0;
+    }
   }, [pathname]);
 
   // Hide navigation for generating, preview, and reminders pages
@@ -108,6 +116,7 @@ export default function OnboardingLayout({
 
       {/* Page Content - Conditionally scrollable */}
       <div
+        ref={contentRef}
         className={`flex-1 ${disableScroll ? 'overflow-hidden' : 'overflow-y-auto'}`}
         style={{
           paddingTop: !hideNavigation ? 'calc(env(safe-area-inset-top, 0px) + 4.5rem)' : '0',
