@@ -107,7 +107,12 @@ export default function OnboardingLayout({
       )}
 
       {/* Page Content - Conditionally scrollable */}
-      <div className={`flex-1 ${disableScroll ? 'overflow-hidden' : 'overflow-y-auto'} ${!hideNavigation ? 'pt-24' : ''}`}>
+      <div
+        className={`flex-1 ${disableScroll ? 'overflow-hidden' : 'overflow-y-auto'}`}
+        style={{
+          paddingTop: !hideNavigation ? 'calc(env(safe-area-inset-top, 0px) + 6rem)' : '0',
+        }}
+      >
         {children}
       </div>
     </div>
