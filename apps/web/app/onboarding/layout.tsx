@@ -56,14 +56,14 @@ export default function OnboardingLayout({
     <div
       dir="rtl"
       className="min-h-[100svh] bg-[#0D0E0F] text-white flex flex-col"
-      style={{
-        paddingTop: 'calc(env(safe-area-inset-top, 0px) + 0.75rem)',
-      }}
     >
-      {/* Top Navigation Bar - Sticky at top */}
+      {/* Top Navigation Bar - Fixed at top */}
       {!hideNavigation && (
         <header
-          className="sticky top-0 z-50 bg-[#0D0E0F]/95 backdrop-blur-sm border-b border-white/5 flex-shrink-0"
+          className="fixed top-0 left-0 right-0 z-50 bg-[#0D0E0F]/95 backdrop-blur-sm border-b border-white/5"
+          style={{
+            paddingTop: 'env(safe-area-inset-top, 0px)',
+          }}
         >
           {/* Back Button and Step Counter */}
           <div className="flex items-center justify-between p-5 pb-3">
@@ -107,7 +107,7 @@ export default function OnboardingLayout({
       )}
 
       {/* Page Content - Conditionally scrollable */}
-      <div className={`flex-1 ${disableScroll ? 'overflow-hidden' : 'overflow-y-auto'}`}>
+      <div className={`flex-1 ${disableScroll ? 'overflow-hidden' : 'overflow-y-auto'} ${!hideNavigation ? 'pt-24' : ''}`}>
         {children}
       </div>
     </div>
