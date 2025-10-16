@@ -8,6 +8,7 @@ export default function HomePage() {
   return (
     <MobileShell
       noHeaderShadow
+      disableScroll={true}
       background={
         <Image
           src="/image 4.svg"

@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React from "react";
 
 type Props = {
   header?: React.ReactNode;     // e.g., page title bar
@@ -11,26 +11,9 @@ type Props = {
   background?: React.ReactNode; // full-screen background (e.g., hero image)
   overlayClass?: string;        // overlay class for background (e.g., "bg-black/45")
   disableScroll?: boolean;      // disable scrolling when content fits on screen
-  autoScroll?: boolean;         // automatically enable scroll only on small screens
 };
 
-export default function MobileShell({ header, footer, children, className, noHeaderShadow, title, background, overlayClass, disableScroll, autoScroll }: Props) {
-  const [shouldScroll, setShouldScroll] = useState(false);
-
-  useEffect(() => {
-    if (!autoScroll) return;
-
-    const checkHeight = () => {
-      // Enable scrolling only on screens smaller than 700px height
-      // Most modern phones are 700px+ in height (iPhone SE is ~667px)
-      const viewportHeight = window.innerHeight;
-      setShouldScroll(viewportHeight < 700);
-    };
-
-    checkHeight();
-    window.addEventListener('resize', checkHeight);
-    return () => window.removeEventListener('resize', checkHeight);
-  }, [autoScroll]);
+export default function MobileShell({ header, footer, children, className, noHeaderShadow, title, background, overlayClass, disableScroll }: Props) {
   return (
     <div className="screen min-h-[100dvh] flex flex-col bg-[#0B0D0F] text-white relative">
       {/* Full-screen background image */}
@@ -54,9 +37,9 @@ export default function MobileShell({ header, footer, children, className, noHea
 
       {/* Scrollable content - add padding when footer exists */}
       <div className={`flex-1 ${
-        autoScroll
-          ? (shouldScroll ? 'overflow-y-auto' : 'overflow-hidden')
-          : (disableScroll ? 'overflow-hidden' : 'overflow-y-auto')
+        disableScroll
+          ? 'overflow-hidden'
+          : 'overflow-y-auto'
       } ${footer ? 'pb-24' : ''} ${className ?? ""}`}>
         {children}
       </div>

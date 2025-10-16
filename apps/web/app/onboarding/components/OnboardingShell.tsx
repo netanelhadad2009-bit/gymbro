@@ -43,7 +43,7 @@ export default function OnboardingShell({
           ) : undefined
         }
         className={disableContentScroll ? '' : 'px-6'}
-        autoScroll={true} // Enable scrolling only on small screens
+        disableScroll={true} // Disable scrolling on questionnaire pages
       >
         {children}
       </MobileShell>
