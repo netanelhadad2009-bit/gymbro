@@ -117,17 +117,23 @@ export async function subscribePush(): Promise<PushSubscribeResult> {
 
   // Check if web push is supported
   if (!deviceInfo.supportsWebPush) {
-    let error = 'Web Push not supported on this device';
-    if (deviceInfo.isIOS && !deviceInfo.isPWA) {
-      error = 'Web Push requires installing the app (Add to Home Screen) on iOS';
+    let error = 'התראות אינן נתמכות במכשיר זה';
+
+    // Check if running in Capacitor (native app)
+    const isCapacitor = (window as any).Capacitor !== undefined;
+
+    if (isCapacitor) {
+      error = 'התראות זמינות רק בגרסת הדפדפן של האפליקציה';
+    } else if (deviceInfo.isIOS && !deviceInfo.isPWA) {
+      error = 'ב-iOS, התראות זמינות רק לאחר התקנת האפליקציה (הוסף למסך הבית)';
     } else if (deviceInfo.isIOS && deviceInfo.iosVersion && deviceInfo.iosVersion < 16) {
-      error = 'Web Push requires iOS 16.4 or higher';
+      error = 'התראות דורשות iOS 16.4 ומעלה';
     }
 
     return {
       success: false,
       subscription: null,
-      permission: Notification.permission,
+      permission: typeof window !== 'undefined' && 'Notification' in window ? Notification.permission : 'denied',
       supported: false,
       error
     };

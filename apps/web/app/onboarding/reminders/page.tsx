@@ -81,11 +81,8 @@ export default function RemindersPage() {
       saveOnboardingData({ notifications_opt_in: result.success });
 
       if (!result.supported) {
-        if (result.error?.includes('iOS') && result.error?.includes('Add to Home Screen')) {
-          setMsg('ב-iOS, התראות זמינות רק לאחר התקנת האפליקציה (הוסף למסך הבית). אפשר להמשיך בינתיים.');
-        } else {
-          setMsg(result.error || 'התראות לא נתמכות במכשיר/דפדפן זה. אפשר להמשיך.');
-        }
+        // Show the specific error message returned
+        setMsg(result.error || 'התראות לא נתמכות במכשיר/דפדפן זה. אפשר להמשיך.');
         setMsgType('info');
       } else if (!result.success) {
         if (result.permission === 'denied') {
