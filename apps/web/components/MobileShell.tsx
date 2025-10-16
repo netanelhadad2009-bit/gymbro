@@ -1,5 +1,6 @@
 "use client";
-import React from "react";
+import React, { useEffect, useRef } from "react";
+import { usePathname } from "next/navigation";
 
 type Props = {
   header?: React.ReactNode;     // e.g., page title bar
@@ -14,6 +15,15 @@ type Props = {
 };
 
 export default function MobileShell({ header, footer, children, className, noHeaderShadow, title, background, overlayClass, disableScroll }: Props) {
+  const pathname = usePathname();
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  // Reset scroll position when pathname changes
+  useEffect(() => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTop = 0;
+    }
+  }, [pathname]);
   return (
     <div className="screen min-h-[100dvh] flex flex-col bg-[#0B0D0F] text-white relative">
       {/* Full-screen background image */}
@@ -36,11 +46,14 @@ export default function MobileShell({ header, footer, children, className, noHea
       )}
 
       {/* Scrollable content - add padding when footer exists */}
-      <div className={`flex-1 ${
-        disableScroll
-          ? 'overflow-hidden'
-          : 'overflow-y-auto'
-      } ${footer ? 'pb-24' : ''} ${className ?? ""}`}>
+      <div
+        ref={scrollContainerRef}
+        className={`flex-1 ${
+          disableScroll
+            ? 'overflow-hidden'
+            : 'overflow-y-auto'
+        } ${footer ? 'pb-24' : ''} ${className ?? ""}`}
+      >
         {children}
       </div>
 

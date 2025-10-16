@@ -26,9 +26,21 @@ export default function OnboardingLayout({
 
   // Reset scroll position when navigating between pages
   useEffect(() => {
+    // Reset the content container scroll
     if (contentRef.current) {
       contentRef.current.scrollTop = 0;
     }
+
+    // Also reset window scroll
+    window.scrollTo(0, 0);
+
+    // Reset any other scrollable elements
+    const scrollableElements = document.querySelectorAll('[class*="overflow"]');
+    scrollableElements.forEach((element) => {
+      if (element instanceof HTMLElement) {
+        element.scrollTop = 0;
+      }
+    });
   }, [pathname]);
 
   // Hide navigation for generating, preview, and reminders pages
