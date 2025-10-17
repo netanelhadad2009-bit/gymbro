@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import StickyHeader from "@/components/ui/StickyHeader";
 import texts from "@/lib/assistantTexts";
@@ -9,6 +10,7 @@ import Link from "next/link";
 import { genderToHe, dietLabel } from "@/lib/i18n";
 import DeleteAccountButton from "@/components/profile/DeleteAccountButton";
 import { getGoalLabelHe } from "@/lib/goals";
+import { nativeConfirm } from "@/lib/nativeConfirm";
 
 // ============================================================================
 // TYPES & INTERFACES
@@ -94,9 +96,28 @@ function LoadingSkeleton() {
 // ============================================================================
 
 export default function ProfilePage() {
+  const router = useRouter();
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const handleLogout = async () => {
+    const ok = await nativeConfirm(
+      "התנתקות",
+      "האם אתה בטוח שברצונך להתנתק?",
+      "התנתק",
+      "ביטול"
+    );
+
+    if (!ok) return;
+
+    try {
+      await supabase.auth.signOut();
+      router.replace("/");
+    } catch (error) {
+      console.error("Error during logout:", error);
+    }
+  };
 
   useEffect(() => {
     async function loadProfile() {
@@ -352,16 +373,18 @@ export default function ProfilePage() {
             <DeleteAccountButton />
 
             {/* Logout */}
-            <Link href="/logout">
-              <div className="flex justify-between items-center py-3">
-                <div className="flex items-center gap-2">
-                  <LogOut className="w-4 h-4 text-red-500" />
-                  <span className="text-red-500 font-medium">
-                    {texts.profile.logout}
-                  </span>
-                </div>
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="flex w-full items-center justify-between py-3 active:bg-[#222529] active:opacity-90 transition-opacity text-right"
+            >
+              <div className="flex items-center gap-2">
+                <LogOut className="w-4 h-4 text-red-500" />
+                <span className="text-red-500 font-medium">
+                  {texts.profile.logout}
+                </span>
               </div>
-            </Link>
+            </button>
           </div>
         )}
 
