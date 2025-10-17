@@ -138,11 +138,27 @@ export default function ProfilePage() {
         let onboardingGoal: string | null = null;
         if (typeof window !== "undefined") {
           try {
-            const raw = localStorage.getItem("onboarding");
-            if (raw) {
-              const parsed = JSON.parse(raw);
-              // Support both shapes: { goals: ["gain"] } or { goal: "gain" }
-              onboardingGoal = parsed?.goal ?? parsed?.goals?.[0] ?? null;
+            // Try multiple localStorage keys
+            const keys = ["gymbro_onboarding_data", "onboarding", "onboarding.goal"];
+            for (const key of keys) {
+              const raw = localStorage.getItem(key);
+              if (raw) {
+                try {
+                  const parsed = JSON.parse(raw);
+                  // Support both shapes: { goals: ["gain"] } or { goal: "gain" }
+                  const goal = parsed?.goal ?? parsed?.goals?.[0] ?? null;
+                  if (goal) {
+                    onboardingGoal = goal;
+                    break;
+                  }
+                } catch {
+                  // If it's a plain string, use it directly
+                  if (typeof raw === 'string' && raw.length > 0) {
+                    onboardingGoal = raw;
+                    break;
+                  }
+                }
+              }
             }
           } catch (e) {
             console.error("Error reading onboarding data:", e);
