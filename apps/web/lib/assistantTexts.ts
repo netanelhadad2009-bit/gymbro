@@ -107,6 +107,7 @@ const he = {
     termsOfUse: "תנאי שימוש",
     deleteAccount: "מחיקת חשבון",
     whatsappContact: "כל דבר שיש לך להגיד,\nנשמח שתדברו איתנו.",
+    whatsappHelp: "כל דבר שיש לך להגיד, נשמח שתדברו איתנו.",
   },
 
   // Login Page
