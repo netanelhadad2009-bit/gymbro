@@ -39,10 +39,10 @@ export default function WhatsappSupportCard() {
       "
     >
       <div className={`flex items-center ${dir === "rtl" ? "flex-row-reverse" : ""} gap-4`}>
-        <div className="shrink-0 rounded-full bg-white/10 ring-1 ring-white/15 p-2">
-          <WhatsAppIcon className="w-9 h-9 text-white" />
+        <div className="shrink-0">
+          <WhatsAppIcon className="w-12 h-12 text-white" />
         </div>
-        <p className="font-semibold leading-7">
+        <p className="font-semibold text-[19px] leading-7">
           {texts.profile.whatsappHelp}
         </p>
       </div>
