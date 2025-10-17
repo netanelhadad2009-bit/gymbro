@@ -6,8 +6,9 @@ import StickyHeader from "@/components/ui/StickyHeader";
 import texts from "@/lib/assistantTexts";
 import { Pencil, LogOut } from "lucide-react";
 import Link from "next/link";
-import { genderToHe, goalToHe, dietLabel } from "@/lib/i18n";
+import { genderToHe, dietLabel } from "@/lib/i18n";
 import DeleteAccountButton from "@/components/profile/DeleteAccountButton";
+import { getGoalLabelHe } from "@/lib/goals";
 
 // ============================================================================
 // TYPES & INTERFACES
@@ -20,7 +21,7 @@ interface ProfileData {
   weight?: number;
   target_weight?: number;
   height_cm?: number;
-  goal?: "gain" | "loss" | "recomp";
+  goal?: string | null;
   diet_type?: string;
 }
 
@@ -130,8 +131,39 @@ export default function ProfilePage() {
           .limit(1)
           .maybeSingle();
 
-        // 4. Build profile object with fallback to user_metadata
+        // 4. Build profile object with fallback to user_metadata and localStorage
         const metadata = user.user_metadata || {};
+
+        // Get goal from localStorage (onboarding data)
+        let onboardingGoal: string | null = null;
+        if (typeof window !== "undefined") {
+          try {
+            const raw = localStorage.getItem("onboarding");
+            if (raw) {
+              const parsed = JSON.parse(raw);
+              // Support both shapes: { goals: ["gain"] } or { goal: "gain" }
+              onboardingGoal = parsed?.goal ?? parsed?.goals?.[0] ?? null;
+            }
+          } catch (e) {
+            console.error("Error reading onboarding data:", e);
+          }
+        }
+
+        // Resolve goal from all sources with priority
+        const rawGoal =
+          programData?.goal ??
+          profileData?.goal ??
+          metadata?.goal ??
+          onboardingGoal ??
+          null;
+
+        console.log("Profile goal resolution:", {
+          programGoal: programData?.goal,
+          profileGoal: profileData?.goal,
+          metadataGoal: metadata?.goal,
+          onboardingGoal,
+          rawGoal,
+        });
 
         const profileResult: ProfileData = {
           email: user.email,
@@ -153,7 +185,7 @@ export default function ProfilePage() {
             metadata.target_weight,
           height_cm:
             profileData?.height_cm || metadata.height_cm || metadata.height,
-          goal: programData?.goal || profileData?.goal || metadata.goal,
+          goal: rawGoal,
           diet_type:
             profileData?.diet_type ||
             profileData?.diet ||
@@ -262,7 +294,7 @@ export default function ProfilePage() {
               {/* 7. Goal */}
               <ReadonlyField
                 label="מטרה"
-                value={goalToHe(profile?.goal)}
+                value={getGoalLabelHe(profile?.goal) ?? "—"}
               />
 
               {/* 8. Diet Type */}

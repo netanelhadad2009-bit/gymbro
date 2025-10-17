@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { getOnboardingData, clearOnboardingData } from "@/lib/onboarding-storage";
 import { getDays, getWorkout, getNutrition, commitProgram } from "@/lib/api-client";
 import { readProgramDraft, clearProgramDraft } from "@/lib/program-draft";
+import { migrateGoalOnLogin } from "@/lib/goal";
 
 export default function SignupClient() {
   const router = useRouter();
@@ -132,6 +133,9 @@ export default function SignupClient() {
       } else if (data.session) {
         // Session is available immediately (no email confirmation required)
         const userId = data.user.id;
+
+        // Migrate goal from localStorage to profile
+        await migrateGoalOnLogin(supabase, userId);
 
         // Check for existing draft first
         const draft = readProgramDraft();

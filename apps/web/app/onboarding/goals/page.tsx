@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { saveOnboardingData } from "@/lib/onboarding-storage";
 import { useOnboardingNav } from "@/lib/onboarding/client";
@@ -8,10 +8,12 @@ import { useGender } from "@/contexts/GenderContext";
 import texts from "@/lib/assistantTexts";
 import OnboardingShell from "../components/OnboardingShell";
 import PrimaryButton from "@/components/PrimaryButton";
+import { setGoalLocal, saveGoalToProfile, type GoalKey } from "@/lib/goal";
+import { supabase } from "@/lib/supabase";
 
 const goalOptions = [
   {
-    value: "muscle_gain",
+    value: "gain" as GoalKey,
     labelKey: "muscleGain" as const,
     icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -21,7 +23,7 @@ const goalOptions = [
     ),
   },
   {
-    value: "weight_loss",
+    value: "loss" as GoalKey,
     labelKey: "weightLoss" as const,
     icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -30,7 +32,7 @@ const goalOptions = [
     ),
   },
   {
-    value: "body_maintenance",
+    value: "recomp" as GoalKey,
     labelKey: "bodyMaintenance" as const,
     icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -43,16 +45,47 @@ const goalOptions = [
 
 export default function GoalsPage() {
   const router = useRouter();
-  const [selectedGoal, setSelectedGoal] = useState<string | null>(null);
+  const [selectedGoal, setSelectedGoal] = useState<GoalKey | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const { getGenderedText } = useGender();
   const { nextHref } = useOnboardingNav("goals");
 
-  const handleContinue = () => {
+  // Debounced save to Supabase when goal is selected
+  useEffect(() => {
+    if (!selectedGoal) return;
+
+    const timeoutId = setTimeout(async () => {
+      // Save to localStorage immediately
+      setGoalLocal(selectedGoal);
+
+      // If user is logged in, save to Supabase
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await saveGoalToProfile(supabase, user.id, selectedGoal);
+        console.log('✅ Goal saved to profile:', selectedGoal);
+      }
+    }, 300);
+
+    return () => clearTimeout(timeoutId);
+  }, [selectedGoal]);
+
+  const handleContinue = async () => {
     if (!selectedGoal) return;
 
     setIsLoading(true);
+
+    // Save to localStorage
+    setGoalLocal(selectedGoal);
+
+    // Legacy support: also save to onboarding storage
     saveOnboardingData({ goals: [selectedGoal] });
+
+    // If logged in, ensure goal is saved to profile
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      await saveGoalToProfile(supabase, user.id, selectedGoal);
+    }
+
     router.push(nextHref);
   };
 

@@ -85,8 +85,18 @@ export default function OnboardingLayout({
             paddingTop: 'env(safe-area-inset-top, 0px)',
           }}
         >
-          {/* Back Button and Progress Bar in same row */}
+          {/* Progress Bar and Back Button in same row */}
           <div className="flex items-center gap-4 p-5 pb-3">
+            {/* Progress Bar */}
+            <div className="flex-1" dir="ltr">
+              <div className="h-1 bg-white/10 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-white/60 rounded-full transition-all duration-300"
+                  style={{ width: `${progress}%` }}
+                />
+              </div>
+            </div>
+
             <button
               onClick={handleBack}
               className="w-10 h-10 flex-shrink-0 flex items-center justify-center text-white/70 active:text-white active:scale-95 transition"
@@ -103,16 +113,6 @@ export default function OnboardingLayout({
                 <path d="M19 12H5M12 19l-7-7 7-7" />
               </svg>
             </button>
-
-            {/* Progress Bar */}
-            <div className="flex-1">
-              <div className="h-1 bg-white/10 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-white/60 rounded-full transition-all duration-300"
-                  style={{ width: `${progress}%` }}
-                />
-              </div>
-            </div>
           </div>
         </header>
       )}
