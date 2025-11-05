@@ -8,10 +8,36 @@
 
 :root {
   font-family: var(--font-assistant), system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+
+  /* Onboarding layout dimensions */
+  --header-h: 56px;
+  --footer-h: 72px;
+
+  /* Streak flame colors */
+  --streak-outer: #E2F163;
+  --streak-mid:   #D8F24F;
+  --streak-inner: #C7EA3C;
+  --streak-core:  #F7FFD6;
+  --streak-glow:  rgba(226,241,99,0.25);
 }
 
-html, body {
-  background: #0B0D0F;
+html, body, #__next {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  background: #0b0d0e;
+}
+
+/* Apply overflow hidden only to onboarding pages */
+body:has([id="onboarding-screen-root"]) {
+  overflow: hidden;
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: auto;
+}
+
+* {
+  box-sizing: border-box;
 }
 
 body {
@@ -195,14 +221,50 @@ a:hover { text-decoration: underline; text-underline-offset: 2px; }
 }
 
 /* ===== Mobile-safe baseline ===== */
-html, body, #__next, main { height: 100%; }
+:root { height: 100%; }
+html, body, #__next, #root {
+  height: 100%;
+  background: #0b0d0e;
+}
+
+/* Ensure 100dvh behaves consistently on iOS */
+@supports (height: 100svh) {
+  .min-h-\[100dvh\] { min-height: 100svh; }
+}
+
 body {
   -webkit-text-size-adjust: 100%; /* iOS prevents auto zooming text */
   text-size-adjust: 100%;
   -webkit-tap-highlight-color: transparent;
+  padding: 0;
+  margin: 0;
+}
+
+/* iOS Safari older fallback */
+@supports (-webkit-touch-callout: none) {
+  html, body {
+    min-height: -webkit-fill-available;
+  }
 }
 
 /* Respect iPhone notch/safe-areas */
+@layer utilities {
+  .pt-safe { padding-top: env(safe-area-inset-top); }
+  .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+  .pl-safe { padding-left: env(safe-area-inset-left); }
+  .pr-safe { padding-right: env(safe-area-inset-right); }
+  .mt-safe { margin-top: env(safe-area-inset-top); }
+  .mb-safe { margin-bottom: env(safe-area-inset-bottom); }
+
+  /* Safe area with additional spacing for nav bar + FAB */
+  .pb-safe-32 { padding-bottom: calc(env(safe-area-inset-bottom) + 2rem); }
+  .pb-safe-48 { padding-bottom: calc(env(safe-area-inset-bottom) + 3rem); }
+  .pb-safe-72 { padding-bottom: calc(env(safe-area-inset-bottom) + 4.5rem); }
+  .pb-safe-96 { padding-bottom: calc(env(safe-area-inset-bottom) + 6rem); }
+  .pb-safe-120 { padding-bottom: calc(env(safe-area-inset-bottom) + 7.5rem); }
+}
+
+/* Legacy class names for backward compatibility */
 .safe-pt { padding-top: env(safe-area-inset-top); }
 .safe-pb { padding-bottom: env(safe-area-inset-bottom); }
 
@@ -226,4 +288,143 @@ body {
 .scroll-y {
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
+}
+
+/* Prevent elastic scroll on iOS */
+.overflow-y-auto {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+.overscroll-contain {
+  overscroll-behavior: contain;
+}
+
+/* ===== Onboarding Screen - Prevent rubber-band scrolling ===== */
+#onboarding-screen-root {
+  /* Lock the container to prevent any scroll propagation */
+  overscroll-behavior: none;
+  -webkit-touch-callout: none;
+}
+
+#onboarding-scroll-area {
+  /* Keep scroll contained within this area only */
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Ensure html/body don't interfere when onboarding is active */
+html:has(#onboarding-screen-root) {
+  overscroll-behavior-y: none;
+}
+
+body:has(#onboarding-screen-root) {
+  overscroll-behavior-y: none;
+}
+
+/* Prevent emoji fallback rendering for nutrient icons */
+.no-emoji {
+  font-family: inherit;
+  font-variant-emoji: text;
+}
+
+/* ===== Radix UI Popover & Drawer z-index ===== */
+/* Ensure popovers and drawers appear above sticky headers and other UI elements */
+[data-radix-popper-content-wrapper],
+[data-radix-portal] {
+  z-index: 100 !important;
+}
+
+/* Bottom nav/tab bar z-index hierarchy */
+.bottom-nav,
+[data-mobile-footer-bar] {
+  z-index: 100;
+}
+
+/* Vaul Drawer should be above bottom nav */
+[data-vaul-drawer-wrapper] {
+  z-index: 120 !important;
+}
+
+[data-vaul-overlay] {
+  z-index: 119 !important;
+}
+
+/* Ensure drawer content is above overlay */
+[data-vaul-drawer] {
+  z-index: 120 !important;
+}
+
+/* ===== Flame Animations - Transform-only for performance ===== */
+
+.flame-outer {
+  animation: flame-sway 3.2s ease-in-out infinite;
+  transform-origin: 50% 88%;
+  will-change: transform;
+}
+
+.flame-mid {
+  animation: flame-breathe 3.6s ease-in-out infinite;
+  transform-origin: 50% 88%;
+  will-change: transform;
+}
+
+.flame-inner {
+  animation: flicker 480ms steps(2, end) infinite;
+  transform-origin: 50% 88%;
+  will-change: opacity, transform;
+}
+
+.flame-core {
+  animation: flicker 420ms steps(2, end) infinite;
+  transform-origin: 50% 88%;
+  will-change: opacity, transform;
+}
+
+.flame-glow {
+  animation: glow-pulse 4.2s ease-in-out infinite;
+  transform-origin: 50% 55%;
+  will-change: opacity, transform;
+}
+
+@keyframes flame-sway {
+  0% { transform: rotate(-1.2deg); }
+  50% { transform: rotate(1.2deg); }
+  100% { transform: rotate(-1.2deg); }
+}
+
+@keyframes flame-breathe {
+  0% { transform: scaleX(0.99) scaleY(1.01); }
+  50% { transform: scaleX(1.005) scaleY(0.995); }
+  100% { transform: scaleX(0.99) scaleY(1.01); }
+}
+
+@keyframes flicker {
+  0% { opacity: 0.86; transform: translateY(0); }
+  50% { opacity: 1; transform: translateY(-0.6px); }
+  100% { opacity: 0.9; transform: translateY(0); }
+}
+
+@keyframes glow-pulse {
+  0% { opacity: 0.22; transform: scale(0.97); }
+  50% { opacity: 0.34; transform: scale(1.03); }
+  100% { opacity: 0.22; transform: scale(0.97); }
+}
+
+/* FAB no vertical shift - ensures scale stays anchored at translate(-50%, -50%) */
+.fab-no-shift {
+  transform: translate(-50%, -50%);
+}
+
+.fab-no-shift:active {
+  transform: translate(-50%, -50%) scale(0.95);
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .no-anim,
+  .no-anim * {
+    animation: none !important;
+    transition: none !important;
+  }
 }
