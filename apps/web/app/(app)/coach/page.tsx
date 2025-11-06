@@ -9,6 +9,7 @@ import StickyHeader from "@/components/ui/StickyHeader";
 import { UserProfile, profileToSummaryString, hasCompleteProfile } from "@/lib/profile/types";
 import Link from "next/link";
 import CoachEmptyState from "@/components/coach/CoachEmptyState";
+import { useCoachHeaderOffset } from "@/hooks/useCoachHeaderOffset";
 
 type Msg = {
   id: string;
@@ -34,9 +35,21 @@ export default function CoachPage() {
   const lastSendTimestampRef = useRef<number>(0);
   const lastSentMessageRef = useRef<string>("");
 
-  // Scroll to bottom on new messages
+  // Lock header height to prevent layout shifts
+  useCoachHeaderOffset();
+
+  // Scroll to bottom only if user is already near bottom (prevents layout jumps)
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    const el = document.getElementById('coach-messages');
+    if (!el) return;
+
+    // Check if user is near the bottom (within 24px)
+    const nearBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 24;
+
+    if (nearBottom && messagesEndRef.current) {
+      // Use 'instant' to avoid smooth animation causing reflows
+      messagesEndRef.current.scrollIntoView({ behavior: 'instant' as ScrollBehavior });
+    }
   }, [messages]);
 
   // Auto-resize textarea
@@ -44,9 +57,10 @@ export default function CoachPage() {
     if (textareaRef.current) {
       textareaRef.current.style.height = "auto";
       const scrollHeight = textareaRef.current.scrollHeight;
-      const lineHeight = 24; // approximate line height
-      const maxHeight = lineHeight * 3; // 3 lines max
-      textareaRef.current.style.height = Math.min(scrollHeight, maxHeight) + "px";
+      const minHeight = 44; // minimum height to match send button (44px)
+      const lineHeight = 20; // reduced line height
+      const maxHeight = lineHeight * 3 + 24; // 3 lines max + padding
+      textareaRef.current.style.height = Math.max(minHeight, Math.min(scrollHeight, maxHeight)) + "px";
     }
   }, [input]);
 
@@ -252,8 +266,16 @@ export default function CoachPage() {
         throw new Error(`${errorMsg}${errorCode}${errorStage}`);
       }
 
-      // Success: Real message will arrive via realtime and replace optimistic one
-      // The mergeInsert function automatically removes temp messages when real ones arrive
+      // Optimistically insert assistant's message immediately (don't wait for Realtime)
+      // The API returns the full message object - use it for instant rendering
+      if (json.assistantMessage) {
+        console.log("[AI Coach] Optimistically rendering assistant message");
+        mergeInsert(json.assistantMessage as Msg);
+        lastInsertTsRef.current = Date.now();
+      }
+
+      // Note: Realtime will eventually deliver the same message, but mergeInsert
+      // will deduplicate it automatically (see lines 88-102)
     } catch (error: any) {
       console.error("[AI Coach] Send error:", error);
       alert("שגיאה בשליחת ההודעה:\n" + error.message);
@@ -352,7 +374,7 @@ export default function CoachPage() {
   const profileSummary = profile ? profileToSummaryString(profile) : "";
 
   return (
-    <div className="h-[100dvh] flex flex-col bg-[#0D0E0F]" dir="rtl">
+    <div id="coach-root" data-coach-screen className="min-h-svh flex flex-col bg-[#0D0E0F]" dir="rtl">
       {/* Header */}
       <StickyHeader title="המאמן האישי שלי" />
 
@@ -424,7 +446,11 @@ export default function CoachPage() {
       )}
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-4 py-4 pb-32 space-y-3">
+      <div
+        id="coach-messages"
+        className="flex-1 overflow-y-auto px-4 pb-44 space-y-3 bg-[#0D0E0F]"
+        style={{ paddingTop: 'calc(var(--coach-top-offset, 110px) + 12px)' }}
+      >
         {loading ? (
           <div className="flex justify-center py-8">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#E2F163]" />
@@ -441,13 +467,13 @@ export default function CoachPage() {
                 className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
               >
                 <div
-                  className={`max-w-[80%] px-4 py-3 rounded-2xl ${
+                  className={`max-w-[80%] min-w-0 px-4 py-3 rounded-2xl ${
                     msg.role === "user"
                       ? "bg-[#E2F163] text-black"
                       : "bg-[#1A1B1C] text-white border border-neutral-800"
                   }`}
                 >
-                  <p className="text-sm leading-relaxed whitespace-pre-wrap break-words">{msg.content}</p>
+                  <p className="text-sm leading-[1.6] whitespace-pre-wrap break-words">{msg.content}</p>
                 </div>
               </motion.div>
             ))}
@@ -472,18 +498,18 @@ export default function CoachPage() {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Composer - Fixed above bottom nav */}
+      {/* Composer with integrated spacer - Fixed above bottom nav */}
       <div
-        className="fixed left-0 right-0 bg-black p-3 mb-0"
+        className="fixed left-0 right-0 pt-4 px-4 pb-10 mb-0"
         style={{
           bottom: '80px',
-          paddingBottom: 'env(safe-area-inset-bottom, 0px)',
+          background: '#000000',
         }}
       >
         <div className="flex gap-2 items-end">
           <textarea
             ref={textareaRef}
-            className="flex-1 bg-neutral-900 rounded-xl px-4 py-3 text-white placeholder:text-neutral-500 outline-none resize-none min-h-[44px]"
+            className="flex-1 bg-neutral-900 rounded-xl px-5 py-0 text-white placeholder:text-neutral-500 outline-none resize-none"
             placeholder="כתוב הודעה למאמן..."
             value={input}
             onChange={(e) => setInput(e.target.value)}
@@ -491,7 +517,11 @@ export default function CoachPage() {
             rows={1}
             disabled={sending}
             style={{
-              maxHeight: '72px', // 3 lines max
+              height: '44px',
+              maxHeight: '84px',
+              lineHeight: '20px',
+              paddingTop: '12px',
+              paddingBottom: '12px',
             }}
           />
           <button
@@ -503,6 +533,16 @@ export default function CoachPage() {
             {sending ? "..." : "שלח"}
           </button>
         </div>
+
+        {/* Black spacer integrated into composer */}
+        <div
+          className="w-full h-4"
+          style={{
+            background: '#000000',
+            opacity: 1,
+            paddingBottom: 'env(safe-area-inset-bottom, 0px)',
+          }}
+        />
       </div>
     </div>
   );
