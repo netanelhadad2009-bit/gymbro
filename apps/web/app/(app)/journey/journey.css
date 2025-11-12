@@ -1,0 +1,36 @@
+/**
+ * Journey Screen - Safe Area & Layout Utilities
+ */
+
+.safe-top {
+  padding-top: calc(env(safe-area-inset-top, 0px) + 12px);
+}
+
+.journey-sticky-header {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  background: linear-gradient(
+    180deg,
+    rgba(10, 10, 10, 0.85),
+    rgba(10, 10, 10, 0.55) 70%,
+    rgba(10, 10, 10, 0)
+  );
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.375rem 0.625rem;
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(0, 0, 0, 0.4);
+  font-size: 0.875rem;
+  line-height: 1;
+  color: #fff;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
