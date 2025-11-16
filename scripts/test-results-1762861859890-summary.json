@@ -1,0 +1,46 @@
+{
+  "timestamp": "2025-11-11T11:50:59.886Z",
+  "totalUsers": 10,
+  "successfulRegistrations": 10,
+  "successRate": 100,
+  "totalDuration": 345645,
+  "avgDurations": {
+    "nutritionGeneration": 24762,
+    "registration": 413,
+    "avatarBootstrap": 1402,
+    "sessionAttach": 531,
+    "stagesBootstrap": 4888,
+    "total": 32823
+  },
+  "stepSuccessRates": {
+    "nutritionGeneration": 10,
+    "registration": 10,
+    "avatarBootstrap": 10,
+    "sessionAttach": 10,
+    "stagesBootstrap": 10
+  },
+  "validationStats": {
+    "authUserExists": 10,
+    "profileExists": 10,
+    "avatarExists": 10,
+    "nutritionPlanExists": 0,
+    "nutritionStatusReady": 0,
+    "avatarMatches": 0,
+    "stagesExist": 10,
+    "nutritionQuality": 0,
+    "caloriesInRange": 0
+  },
+  "errorCounts": {
+    "Nutrition plan is null": 10,
+    "Nutrition status is 'null', expected 'ready'": 10,
+    "Avatar gender mismatch: male vs expected female": 6,
+    "Avatar frequency mismatch: medium vs expected high": 6,
+    "Avatar experience mismatch: beginner vs expected intermediate": 4,
+    "Avatar diet mismatch: balanced vs expected vegetarian": 2,
+    "Avatar experience mismatch: beginner vs expected advanced": 2,
+    "Avatar diet mismatch: balanced vs expected vegan": 3,
+    "Avatar frequency mismatch: medium vs expected low": 3
+  },
+  "warningCounts": {},
+  "failedUserCount": 0
+}

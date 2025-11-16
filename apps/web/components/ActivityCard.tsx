@@ -27,7 +27,7 @@ export default function ActivityCard({ title, subtitle, selected, bars, onSelect
       aria-checked={selected}
       className={[
         "w-full rounded-3xl p-6 flex items-center justify-between gap-4 transition-all duration-200",
-        "active:scale-[0.98] cursor-pointer",
+        "active:translate-y-1 active:brightness-90 cursor-pointer",
         selected
           ? "bg-[#E2F163] text-black"
           : "bg-white/5 text-white ring-1 ring-white/10 hover:bg-white/[0.07]",

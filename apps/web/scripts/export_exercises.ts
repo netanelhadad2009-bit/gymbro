@@ -484,7 +484,7 @@ function printSummary(exercises: ExportExercise[], stats: Stats) {
  * Main export function
  */
 async function exportExerciseCatalog(): Promise<void> {
-  console.log(chalk.bold.cyan("\n🏋️‍♂️  GymBro Exercise Catalog Export Started\n"));
+  console.log(chalk.bold.cyan("\n🏋️‍♂️  FitJourney Exercise Catalog Export Started\n"));
   console.log(chalk.gray("=".repeat(70)) + "\n");
 
   try {

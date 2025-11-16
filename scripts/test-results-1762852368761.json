@@ -1,0 +1,153 @@
+{
+  "timestamp": "2025-11-11T09:12:48.758Z",
+  "totalUsers": 2,
+  "totalDuration": 58049,
+  "results": [
+    {
+      "user": {
+        "id": 1,
+        "email": "test1@gymbro-test.com",
+        "password": "Test123!",
+        "gender": "female",
+        "age": 62,
+        "height_cm": 150,
+        "weight_kg": 45,
+        "target_weight_kg": 45,
+        "birthdate": "1963-10-27",
+        "bmi": 20,
+        "goal": "ירידה במשקל",
+        "goals": [
+          "loss"
+        ],
+        "experience": "time",
+        "training_frequency_actual": "high",
+        "diet": "balanced",
+        "motivation": "Test motivation for user 1",
+        "pace": "slow",
+        "activity": "גבוהה",
+        "category": "edge_case"
+      },
+      "success": false,
+      "steps": {
+        "nutritionGeneration": {
+          "success": true,
+          "duration": 28415
+        },
+        "registration": {
+          "success": true,
+          "duration": 1300,
+          "userId": "dc983ec5-be31-4468-bb53-1ce2a7075172"
+        },
+        "avatarBootstrap": {
+          "success": false,
+          "duration": 486,
+          "error": "HTTP 401: {\"ok\":false,\"error\":\"unauthorized\",\"message\":\"Authentication required\"}"
+        },
+        "sessionAttach": {
+          "success": false,
+          "duration": 359,
+          "error": "HTTP 401: {\"ok\":false,\"error\":\"unauthorized\",\"message\":\"Authentication required\"}"
+        },
+        "stagesBootstrap": {
+          "success": false,
+          "duration": 381,
+          "error": "HTTP 401: {\"ok\":false,\"error\":\"Unauthorized\",\"message\":\"Authentication required\"}"
+        }
+      },
+      "totalDuration": 31507,
+      "validation": {
+        "userId": "",
+        "email": "test1@gymbro-test.com",
+        "checks": {
+          "authUserExists": false,
+          "profileExists": false,
+          "avatarExists": false,
+          "nutritionPlanExists": false,
+          "nutritionStatusReady": false,
+          "avatarMatches": false,
+          "stagesExist": false,
+          "nutritionQuality": false,
+          "caloriesInRange": false
+        },
+        "errors": [
+          "Auth query error: Invalid API key"
+        ],
+        "warnings": [],
+        "details": {}
+      }
+    },
+    {
+      "user": {
+        "id": 2,
+        "email": "test2@gymbro-test.com",
+        "password": "Test123!",
+        "gender": "male",
+        "age": 65,
+        "height_cm": 198,
+        "weight_kg": 55,
+        "target_weight_kg": 45,
+        "birthdate": "1960-12-04",
+        "bmi": 14,
+        "goal": "ירידה במשקל",
+        "goals": [
+          "loss"
+        ],
+        "experience": "sure",
+        "training_frequency_actual": "medium",
+        "diet": "balanced",
+        "motivation": "Test motivation for user 2",
+        "pace": "fast",
+        "activity": "בינונית",
+        "category": "edge_case"
+      },
+      "success": false,
+      "steps": {
+        "nutritionGeneration": {
+          "success": true,
+          "duration": 23052
+        },
+        "registration": {
+          "success": true,
+          "duration": 969,
+          "userId": "0f91e807-a026-4806-9560-773e5d3c526c"
+        },
+        "avatarBootstrap": {
+          "success": false,
+          "duration": 111,
+          "error": "HTTP 401: {\"ok\":false,\"error\":\"unauthorized\",\"message\":\"Authentication required\"}"
+        },
+        "sessionAttach": {
+          "success": false,
+          "duration": 61,
+          "error": "HTTP 401: {\"ok\":false,\"error\":\"unauthorized\",\"message\":\"Authentication required\"}"
+        },
+        "stagesBootstrap": {
+          "success": false,
+          "duration": 62,
+          "error": "HTTP 401: {\"ok\":false,\"error\":\"Unauthorized\",\"message\":\"Authentication required\"}"
+        }
+      },
+      "totalDuration": 24735,
+      "validation": {
+        "userId": "",
+        "email": "test2@gymbro-test.com",
+        "checks": {
+          "authUserExists": false,
+          "profileExists": false,
+          "avatarExists": false,
+          "nutritionPlanExists": false,
+          "nutritionStatusReady": false,
+          "avatarMatches": false,
+          "stagesExist": false,
+          "nutritionQuality": false,
+          "caloriesInRange": false
+        },
+        "errors": [
+          "Auth query error: Invalid API key"
+        ],
+        "warnings": [],
+        "details": {}
+      }
+    }
+  ]
+}

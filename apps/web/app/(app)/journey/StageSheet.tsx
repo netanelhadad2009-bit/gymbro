@@ -28,7 +28,7 @@ export function StageSheet({
   if (!stage || !userStage) return null;
 
   const evaluation = evaluateRequirements(stage.requirements, metrics);
-  const nextSteps = getNextSteps(stage, evaluation, metrics);
+  const nextSteps = getNextSteps(evaluation, metrics);
   const isLocked = userStage.status === "locked";
   const isAvailable = userStage.status === "available";
   const isInProgress = userStage.status === "in_progress";
@@ -193,7 +193,7 @@ export function StageSheet({
                       <div className="flex-1">
                         <div className="flex items-baseline justify-between">
                           <span className="text-sm font-medium" style={{ color: colors.text }}>
-                            {he.requirements[rule.metric] || rule.metric}
+                            {he.requirements[rule.metric as keyof typeof he.requirements] || rule.metric}
                           </span>
                           <span className="text-xs" style={{ color: isMet ? colors.success : colors.textMuted }}>
                             {currentValue} / {targetValue}
@@ -219,7 +219,7 @@ export function StageSheet({
                   <ul className="mt-2 space-y-1">
                     {stage.requirements.unlock_any_of.map((rule, idx) => (
                       <li key={idx} className="text-xs" style={{ color: colors.textMuted }}>
-                        • {he.requirements[rule.metric]}: {rule.gte}
+                        • {he.requirements[rule.metric as keyof typeof he.requirements] || rule.metric}: {rule.gte}
                       </li>
                     ))}
                   </ul>

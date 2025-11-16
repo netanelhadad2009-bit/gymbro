@@ -16,7 +16,9 @@
     "paths": {
       "@/lib/*": ["lib/*"],
       "@/components/*": ["components/*"],
-      "@/contexts/*": ["contexts/*"]
+      "@/contexts/*": ["contexts/*"],
+      "@/hooks/*": ["hooks/*"],
+      "@/types/*": ["types/*"]
     },
     "plugins": [
       {
@@ -24,6 +26,6 @@
       }
     ]
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules"]
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "../../configs/**/*.json"],
+  "exclude": ["node_modules", "scripts", "**/__tests__/**", "**/*.test.ts", "**/*.test.tsx"]
 }

@@ -1,0 +1,62 @@
+{
+  "timestamp": "2025-11-12T19:22:30.269Z",
+  "mode": "check",
+  "totalFilesScanned": 741,
+  "filesChanged": 151,
+  "totalReplacements": 495,
+  "categoryStats": {
+    "Lowercase slug": {
+      "count": 255,
+      "files": 104
+    },
+    "Package namespace": {
+      "count": 61,
+      "files": 35
+    },
+    "Test domain": {
+      "count": 11,
+      "files": 4
+    },
+    "TitleCase brand": {
+      "count": 125,
+      "files": 73
+    },
+    "ALL CAPS": {
+      "count": 5,
+      "files": 5
+    },
+    "Hyphenated slug": {
+      "count": 7,
+      "files": 4
+    },
+    "Storage key prefix": {
+      "count": 19,
+      "files": 12
+    },
+    "Dev flags": {
+      "count": 4,
+      "files": 4
+    },
+    "Underscored slug": {
+      "count": 1,
+      "files": 1
+    },
+    "Lower/mixed case": {
+      "count": 2,
+      "files": 2
+    },
+    "Asset filename": {
+      "count": 1,
+      "files": 1
+    },
+    "Local tunnel": {
+      "count": 4,
+      "files": 3
+    }
+  },
+  "reviewFiles": [
+    "apps/web/capacitor.config.ts",
+    "apps/web/ios/App/App/capacitor.config.json"
+  ],
+  "pathRenames": []
+}

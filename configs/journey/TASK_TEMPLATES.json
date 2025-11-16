@@ -1,0 +1,501 @@
+{
+  "metadata": {
+    "version": "2.0.0",
+    "created": "2025-10-30",
+    "description": "Reusable task templates for Journey system - nutrition and habits only, NO workout tasks",
+    "total_tasks": 50,
+    "allowed_types": ["meal_log", "protein_target", "calorie_window", "weigh_in", "streak_days", "habit_check", "edu_read"]
+  },
+  "tasks": [
+    {
+      "key": "t_meal2",
+      "type": "meal_log",
+      "title_he": "תעד 2 ארוחות היום",
+      "desc_he": "ממש כאן באפליקציה",
+      "xp": 15,
+      "cta": "לתיעוד ארוחות",
+      "ctaRoute": "/nutrition",
+      "check": "checkMealCount>=2"
+    },
+    {
+      "key": "t_meal3",
+      "type": "meal_log",
+      "title_he": "תעד 3 ארוחות היום",
+      "desc_he": "בנו בסיס של תיעוד",
+      "xp": 20,
+      "cta": "לתיעוד ארוחות",
+      "ctaRoute": "/nutrition",
+      "check": "checkMealCount>=3"
+    },
+    {
+      "key": "t_meal4",
+      "type": "meal_log",
+      "title_he": "תעד 4 ארוחות היום",
+      "desc_he": "תיעוד מלא של כל מה שאוכלים",
+      "xp": 25,
+      "cta": "לתיעוד ארוחות",
+      "ctaRoute": "/nutrition",
+      "check": "checkMealCount>=4"
+    },
+    {
+      "key": "t_meal7",
+      "type": "meal_log",
+      "title_he": "תעד 7 ארוחות השבוע",
+      "desc_he": "ארוחה אחת ביום למשך שבוע",
+      "xp": 35,
+      "cta": "לתיעוד ארוחות",
+      "ctaRoute": "/nutrition",
+      "check": "checkMealCount>=7,window:7"
+    },
+    {
+      "key": "t_meal_streak_3",
+      "type": "streak_days",
+      "title_he": "רצף תיעוד 3 ימים",
+      "desc_he": "תעד ארוחה כל יום במשך 3 ימים",
+      "xp": 30,
+      "cta": "לתיעוד ארוחות",
+      "ctaRoute": "/nutrition",
+      "check": "checkLogStreak>=3"
+    },
+    {
+      "key": "t_meal_streak_4",
+      "type": "streak_days",
+      "title_he": "רצף תיעוד 4 ימים",
+      "desc_he": "תעד ארוחה כל יום במשך 4 ימים",
+      "xp": 40,
+      "cta": "לתיעוד ארוחות",
+      "ctaRoute": "/nutrition",
+      "check": "checkLogStreak>=4"
+    },
+    {
+      "key": "t_meal_streak_7",
+      "type": "streak_days",
+      "title_he": "רצף שבוע מלא",
+      "desc_he": "תעד ארוחה כל יום למשך שבוע שלם",
+      "xp": 50,
+      "cta": "לתיעוד ארוחות",
+      "ctaRoute": "/nutrition",
+      "check": "checkLogStreak>=7"
+    },
+    {
+      "key": "t_meal_streak_14",
+      "type": "streak_days",
+      "title_he": "רצף שבועיים",
+      "desc_he": "תעד ארוחה כל יום במשך 14 ימים",
+      "xp": 100,
+      "cta": "לתיעוד ארוחות",
+      "ctaRoute": "/nutrition",
+      "check": "checkLogStreak>=14"
+    },
+    {
+      "key": "t_meal_streak_21",
+      "type": "streak_days",
+      "title_he": "רצף 3 שבועות",
+      "desc_he": "תעד ארוחה כל יום במשך 21 ימים",
+      "xp": 150,
+      "cta": "לתיעוד ארוחות",
+      "ctaRoute": "/nutrition",
+      "check": "checkLogStreak>=21"
+    },
+    {
+      "key": "t_protein_min",
+      "type": "protein_target",
+      "title_he": "יעד חלבון בסיסי",
+      "desc_he": "60 גרם חלבון היום",
+      "xp": 20,
+      "cta": "למסך יעדים",
+      "ctaRoute": "/nutrition#targets",
+      "check": "checkProtein>=60"
+    },
+    {
+      "key": "t_protein_80",
+      "type": "protein_target",
+      "title_he": "80 גרם חלבון",
+      "desc_he": "פזר חלבון לאורך היום",
+      "xp": 25,
+      "cta": "למסך יעדים",
+      "ctaRoute": "/nutrition#targets",
+      "check": "checkProtein>=80"
+    },
+    {
+      "key": "t_protein_100",
+      "type": "protein_target",
+      "title_he": "100 גרם חלבון",
+      "desc_he": "יעד חלבון טוב",
+      "xp": 30,
+      "cta": "למסך יעדים",
+      "ctaRoute": "/nutrition#targets",
+      "check": "checkProtein>=100"
+    },
+    {
+      "key": "t_protein_target",
+      "type": "protein_target",
+      "title_he": "עמוד ביעד חלבון",
+      "desc_he": "120 גרם חלבון היום",
+      "xp": 35,
+      "cta": "למסך יעדים",
+      "ctaRoute": "/nutrition#targets",
+      "check": "checkProtein>=120"
+    },
+    {
+      "key": "t_protein_target_high",
+      "type": "protein_target",
+      "title_he": "יעד חלבון גבוה",
+      "desc_he": "150 גרם חלבון היום",
+      "xp": 40,
+      "cta": "למסך יעדים",
+      "ctaRoute": "/nutrition#targets",
+      "check": "checkProtein>=150"
+    },
+    {
+      "key": "t_protein_target_very_high",
+      "type": "protein_target",
+      "title_he": "יעד חלבון מאוד גבוה",
+      "desc_he": "180 גרם חלבון היום",
+      "xp": 50,
+      "cta": "למסך יעדים",
+      "ctaRoute": "/nutrition#targets",
+      "check": "checkProtein>=180"
+    },
+    {
+      "key": "t_protein_streak",
+      "type": "streak_days",
+      "title_he": "רצף חלבון 5 ימים",
+      "desc_he": "עמוד ביעד החלבון 5 ימים ברצף",
+      "xp": 60,
+      "cta": "למסך יעדים",
+      "ctaRoute": "/nutrition#targets",
+      "check": "checkProteinStreak>=5,target:120"
+    },
+    {
+      "key": "t_protein_streak_high",
+      "type": "streak_days",
+      "title_he": "רצף חלבון גבוה",
+      "desc_he": "150 גרם חלבון 5 ימים ברצף",
+      "xp": 75,
+      "cta": "למסך יעדים",
+      "ctaRoute": "/nutrition#targets",
+      "check": "checkProteinStreak>=5,target:150"
+    },
+    {
+      "key": "t_protein_streak_very_high",
+      "type": "streak_days",
+      "title_he": "רצף חלבון מאוד גבוה",
+      "desc_he": "180 גרם חלבון 5 ימים ברצף",
+      "xp": 100,
+      "cta": "למסך יעדים",
+      "ctaRoute": "/nutrition#targets",
+      "check": "checkProteinStreak>=5,target:180"
+    },
+    {
+      "key": "t_protein_plant",
+      "type": "protein_target",
+      "title_he": "חלבון צמחי 80 גרם",
+      "desc_he": "מקורות צמחיים מגוונים",
+      "xp": 30,
+      "cta": "למסך יעדים",
+      "ctaRoute": "/nutrition#targets",
+      "check": "checkProtein>=80"
+    },
+    {
+      "key": "t_protein_plant_high",
+      "type": "protein_target",
+      "title_he": "חלבון צמחי 120 גרם",
+      "desc_he": "טופו, טמפה, קטניות",
+      "xp": 40,
+      "cta": "למסך יעדים",
+      "ctaRoute": "/nutrition#targets",
+      "check": "checkProtein>=120"
+    },
+    {
+      "key": "t_protein_plant_very_high",
+      "type": "protein_target",
+      "title_he": "חלבון צמחי 150 גרם",
+      "desc_he": "רמה גבוהה של חלבון צמחי",
+      "xp": 50,
+      "cta": "למסך יעדים",
+      "ctaRoute": "/nutrition#targets",
+      "check": "checkProtein>=150"
+    },
+    {
+      "key": "t_protein_streak_plant",
+      "type": "streak_days",
+      "title_he": "רצף חלבון צמחי",
+      "desc_he": "יעד חלבון צמחי 5 ימים",
+      "xp": 70,
+      "cta": "למסך יעדים",
+      "ctaRoute": "/nutrition#targets",
+      "check": "checkProteinStreak>=5,target:100"
+    },
+    {
+      "key": "t_protein_streak_plant_high",
+      "type": "streak_days",
+      "title_he": "רצף חלבון צמחי גבוה",
+      "desc_he": "120 גרם חלבון צמחי 5 ימים",
+      "xp": 90,
+      "cta": "למסך יעדים",
+      "ctaRoute": "/nutrition#targets",
+      "check": "checkProteinStreak>=5,target:120"
+    },
+    {
+      "key": "t_calorie_loose",
+      "type": "calorie_window",
+      "title_he": "טווח קלורי רחב",
+      "desc_he": "±15% מהיעד שלך",
+      "xp": 30,
+      "cta": "לתיעוד ארוחות",
+      "ctaRoute": "/nutrition",
+      "check": "checkCaloriesInWindow,tolerance:0.15"
+    },
+    {
+      "key": "t_calorie_tight",
+      "type": "calorie_window",
+      "title_he": "טווח קלורי מדויק",
+      "desc_he": "±10% מהיעד שלך",
+      "xp": 40,
+      "cta": "לתיעוד ארוחות",
+      "ctaRoute": "/nutrition",
+      "check": "checkCaloriesInWindow,tolerance:0.10"
+    },
+    {
+      "key": "t_calorie_very_tight",
+      "type": "calorie_window",
+      "title_he": "טווח קלורי מאוד מדויק",
+      "desc_he": "±5% מהיעד שלך",
+      "xp": 50,
+      "cta": "לתיעוד ארוחות",
+      "ctaRoute": "/nutrition",
+      "check": "checkCaloriesInWindow,tolerance:0.05"
+    },
+    {
+      "key": "t_calorie_surplus",
+      "type": "calorie_window",
+      "title_he": "עודף קלורי",
+      "desc_he": "+300-500 קלוריות מהתחזוקה",
+      "xp": 35,
+      "cta": "לתיעוד ארוחות",
+      "ctaRoute": "/nutrition",
+      "check": "checkCalorieSurplus,range:300-500"
+    },
+    {
+      "key": "t_calorie_surplus_tight",
+      "type": "calorie_window",
+      "title_he": "עודף קלורי מדויק",
+      "desc_he": "+350-450 קלוריות",
+      "xp": 45,
+      "cta": "לתיעוד ארוחות",
+      "ctaRoute": "/nutrition",
+      "check": "checkCalorieSurplus,range:350-450"
+    },
+    {
+      "key": "t_calorie_surplus_aggressive",
+      "type": "calorie_window",
+      "title_he": "עודף קלורי אגרסיבי",
+      "desc_he": "+500-600 קלוריות",
+      "xp": 50,
+      "cta": "לתיעוד ארוחות",
+      "ctaRoute": "/nutrition",
+      "check": "checkCalorieSurplus,range:500-600"
+    },
+    {
+      "key": "t_calorie_maintenance",
+      "type": "calorie_window",
+      "title_he": "קלוריות תחזוקה",
+      "desc_he": "±10% מתחזוקה",
+      "xp": 35,
+      "cta": "לתיעוד ארוחות",
+      "ctaRoute": "/nutrition",
+      "check": "checkCaloriesInWindow,tolerance:0.10"
+    },
+    {
+      "key": "t_calorie_maintenance_tight",
+      "type": "calorie_window",
+      "title_he": "תחזוקה מדויקת",
+      "desc_he": "±5% מתחזוקה",
+      "xp": 45,
+      "cta": "לתיעוד ארוחות",
+      "ctaRoute": "/nutrition",
+      "check": "checkCaloriesInWindow,tolerance:0.05"
+    },
+    {
+      "key": "t_weigh_1",
+      "type": "weigh_in",
+      "title_he": "שקילה אחת",
+      "desc_he": "תעד משקל השבוע",
+      "xp": 15,
+      "cta": "לתיעוד משקל",
+      "ctaRoute": "/progress#weight",
+      "check": "checkWeighIns>=1"
+    },
+    {
+      "key": "t_weigh_2",
+      "type": "weigh_in",
+      "title_he": "שתי שקילות",
+      "desc_he": "שקול פעמיים השבוע",
+      "xp": 25,
+      "cta": "לתיעוד משקל",
+      "ctaRoute": "/progress#weight",
+      "check": "checkWeighIns>=2"
+    },
+    {
+      "key": "t_weigh_3",
+      "type": "weigh_in",
+      "title_he": "3 שקילות בשבוע",
+      "desc_he": "מעקב צפוף אחר התקדמות",
+      "xp": 30,
+      "cta": "לתיעוד משקל",
+      "ctaRoute": "/progress#weight",
+      "check": "checkWeighIns>=3"
+    },
+    {
+      "key": "t_weigh_4",
+      "type": "weigh_in",
+      "title_he": "4 שקילות בשבוע",
+      "desc_he": "מעקב יומיומי כמעט",
+      "xp": 35,
+      "cta": "לתיעוד משקל",
+      "ctaRoute": "/progress#weight",
+      "check": "checkWeighIns>=4"
+    },
+    {
+      "key": "t_habit_prep",
+      "type": "habit_check",
+      "title_he": "הכנת ארוחות",
+      "desc_he": "הכן ארוחות מראש לשבוע",
+      "xp": 40,
+      "cta": "סמן כהושלם",
+      "ctaRoute": "/journey",
+      "check": "manual"
+    },
+    {
+      "key": "t_habit_prep_weekend",
+      "type": "habit_check",
+      "title_he": "הכנה בסוף שבוע",
+      "desc_he": "הכן ארוחות לשבוע הקרוב",
+      "xp": 45,
+      "cta": "סמן כהושלם",
+      "ctaRoute": "/journey",
+      "check": "manual"
+    },
+    {
+      "key": "t_habit_planning",
+      "type": "habit_check",
+      "title_he": "תכנון תפריט שבועי",
+      "desc_he": "תכנן תפריט לשבוע הבא",
+      "xp": 35,
+      "cta": "סמן כהושלם",
+      "ctaRoute": "/journey",
+      "check": "manual"
+    },
+    {
+      "key": "t_habit_water",
+      "type": "habit_check",
+      "title_he": "שתיית מים",
+      "desc_he": "שתה 8 כוסות מים היום",
+      "xp": 20,
+      "cta": "סמן כהושלם",
+      "ctaRoute": "/journey",
+      "check": "manual"
+    },
+    {
+      "key": "t_habit_sleep",
+      "type": "habit_check",
+      "title_he": "שינה טובה",
+      "desc_he": "ישן 7-8 שעות",
+      "xp": 25,
+      "cta": "סמן כהושלם",
+      "ctaRoute": "/journey",
+      "check": "manual"
+    },
+    {
+      "key": "t_edu_basics",
+      "type": "edu_read",
+      "title_he": "יסודות התזונה",
+      "desc_he": "למד על עקרונות בסיס",
+      "xp": 25,
+      "cta": "לקריאה",
+      "ctaRoute": "/education/basics",
+      "check": "checkEduRead,topic:basics"
+    },
+    {
+      "key": "t_edu_portions",
+      "type": "edu_read",
+      "title_he": "מנות נכונות",
+      "desc_he": "למד על גדלי מנות",
+      "xp": 25,
+      "cta": "לקריאה",
+      "ctaRoute": "/education/portions",
+      "check": "checkEduRead,topic:portions"
+    },
+    {
+      "key": "t_edu_prep",
+      "type": "edu_read",
+      "title_he": "הכנת ארוחות",
+      "desc_he": "טיפים להכנה מראש",
+      "xp": 30,
+      "cta": "לקריאה",
+      "ctaRoute": "/education/prep",
+      "check": "checkEduRead,topic:prep"
+    },
+    {
+      "key": "t_edu_plant_basics",
+      "type": "edu_read",
+      "title_he": "תזונה צמחית - יסודות",
+      "desc_he": "עקרונות תזונה צמחית",
+      "xp": 30,
+      "cta": "לקריאה",
+      "ctaRoute": "/education/plant-basics",
+      "check": "checkEduRead,topic:plant-basics"
+    },
+    {
+      "key": "t_edu_plant_protein",
+      "type": "edu_read",
+      "title_he": "חלבון צמחי",
+      "desc_he": "מקורות חלבון צמחיים",
+      "xp": 35,
+      "cta": "לקריאה",
+      "ctaRoute": "/education/plant-protein",
+      "check": "checkEduRead,topic:plant-protein"
+    },
+    {
+      "key": "t_edu_macros",
+      "type": "edu_read",
+      "title_he": "מאקרו-נוטריינטים",
+      "desc_he": "חלבון, פחמימות, שומנים",
+      "xp": 30,
+      "cta": "לקריאה",
+      "ctaRoute": "/education/macros",
+      "check": "checkEduRead,topic:macros"
+    },
+    {
+      "key": "t_edu_timing",
+      "type": "edu_read",
+      "title_he": "תזמון ארוחות",
+      "desc_he": "מתי לאכול מה",
+      "xp": 30,
+      "cta": "לקריאה",
+      "ctaRoute": "/education/timing",
+      "check": "checkEduRead,topic:timing"
+    },
+    {
+      "key": "t_edu_cutting",
+      "type": "edu_read",
+      "title_he": "חיתוך נכון",
+      "desc_he": "איך לרדת במשקל נכון",
+      "xp": 35,
+      "cta": "לקריאה",
+      "ctaRoute": "/education/cutting",
+      "check": "checkEduRead,topic:cutting"
+    },
+    {
+      "key": "t_edu_bulking",
+      "type": "edu_read",
+      "title_he": "בנייה נכונה",
+      "desc_he": "איך לעלות במסה נכון",
+      "xp": 35,
+      "cta": "לקריאה",
+      "ctaRoute": "/education/bulking",
+      "check": "checkEduRead,topic:bulking"
+    }
+  ]
+}

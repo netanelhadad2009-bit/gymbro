@@ -73,7 +73,7 @@ export default function ProgramReadyPage() {
           {/* Continue Button */}
           <button
             onClick={handleContinue}
-            className="w-full h-14 bg-[#E2F163] text-black font-bold text-lg rounded-full transition hover:bg-[#d4e350] active:scale-[0.98]"
+            className="w-full h-14 bg-[#E2F163] text-black font-bold text-lg rounded-full transition hover:bg-[#d4e350] active:translate-y-1 active:brightness-90"
           >
             {texts.programReady.letsStart}
           </button>

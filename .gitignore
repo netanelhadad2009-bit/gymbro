@@ -5,3 +5,12 @@ dist
 .env.*
 .idea
 .vscode
+
+# Playwright
+test-results/
+playwright-report/
+playwright/.cache/
+
+# Stability test results
+scripts/stability-results-*.json
+scripts/stability-summary-*.md

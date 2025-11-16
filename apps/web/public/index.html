@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>GymBro - Loading...</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #0D0E0F;
+            color: #E2F163;
+            font-family: -apple-system, system-ui, sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            flex-direction: column;
+        }
+        .loader {
+            border: 3px solid #1a1b1c;
+            border-top: 3px solid #E2F163;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .text {
+            margin-top: 20px;
+            font-size: 16px;
+            opacity: 0.8;
+        }
+    </style>
+    <script>
+        // For development - redirect to dev server
+        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+            // Already on localhost, don't redirect
+        } else {
+            // On device, the server.url from capacitor config should handle this
+            // This is a fallback
+            setTimeout(() => {
+                if (document.readyState === 'complete' && !window.location.href.includes(':3000')) {
+                    document.querySelector('.text').textContent = 'Connecting to development server...';
+                }
+            }, 2000);
+        }
+    </script>
+</head>
+<body>
+    <div class="loader"></div>
+    <div class="text">Loading GymBro...</div>
+</body>
+</html>

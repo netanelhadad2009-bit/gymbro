@@ -2,10 +2,12 @@
 
 import { usePathname, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { Dumbbell, Utensils, Map, Bot, User } from "lucide-react";
+import { TrendingUp, Utensils, Bot, User } from "lucide-react";
 import { NavItem } from "./NavItem";
 import { tokens } from "@/lib/ui/tokens";
 import texts from "@/lib/assistantTexts";
+import MapFab from "@/components/map/MapFab";
+import { uiBus } from "@/lib/ui/eventBus";
 
 export function BottomNav() {
   const pathname = usePathname();
@@ -14,93 +16,85 @@ export function BottomNav() {
   const isActive = (path: string) => pathname === path;
   const isMapActive = isActive("/journey");
 
+  const handleMapClick = () => {
+    if (pathname === "/journey") {
+      // Already on journey page - emit event to open stage picker
+      uiBus.emit("open-stage-picker");
+    } else {
+      // Navigate to journey page
+      router.push("/journey");
+    }
+  };
+
   return (
     <motion.nav
       initial={{ y: 100, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ type: "spring", stiffness: 260, damping: 20, delay: 0.1 }}
-      className="fixed inset-x-0 bottom-3 z-50 flex justify-center pointer-events-none px-4"
+      className="fixed inset-x-0 bottom-0 z-50 bg-[#1a1b1c] border-t border-zinc-700"
       style={{
-        paddingBottom: "calc(env(safe-area-inset-bottom) + 0.5rem)",
+        paddingBottom: `env(safe-area-inset-bottom, 0px)`,
+        backgroundColor: '#1a1b1c',
+        WebkitBackdropFilter: 'none',
+        backdropFilter: 'none',
       }}
     >
-      <div
-        className="pointer-events-auto rounded-2xl px-2 sm:px-4 py-2.5 flex items-center relative w-full max-w-[560px] backdrop-blur-md"
-        style={{
-          backgroundColor: tokens.colors.surface,
-          border: `1px solid ${tokens.colors.outline}`,
-          boxShadow: tokens.shadow.nav,
-        }}
-        dir="rtl"
-      >
-        {/* Right side - Single tab */}
-        <div className="flex-1 flex justify-center">
-          <NavItem
-            href="/workouts"
-            label={texts.nav.workouts}
-            icon={<Dumbbell size={20} strokeWidth={2} />}
-            active={isActive("/workouts")}
-          />
+      {/* Bottom bar with fixed height and grid layout */}
+      <div className="relative h-20 px-2 sm:px-4">
+        {/* Grid layout with spacers around center FAB for breathing room */}
+        <div className="grid grid-cols-[1fr_1fr_0.3fr_0.3fr_1fr_1fr] h-full" dir="rtl">
+          {/* Tab 1 - Progress */}
+          <div className="flex justify-center items-center">
+            <NavItem
+              href="/progress"
+              label="התקדמות"
+              icon={<TrendingUp size={20} strokeWidth={2} />}
+              active={isActive("/progress")}
+            />
+          </div>
+
+          {/* Tab 2 - Nutrition */}
+          <div className="flex justify-center items-center">
+            <NavItem
+              href="/nutrition"
+              label={texts.nav.nutrition}
+              icon={<Utensils size={20} strokeWidth={2} />}
+              active={isActive("/nutrition")}
+            />
+          </div>
+
+          {/* Spacer for FAB breathing room (right side) */}
+          <div aria-hidden="true" />
+
+          {/* Spacer for FAB breathing room (left side) */}
+          <div aria-hidden="true" />
+
+          {/* Tab 3 - Coach */}
+          <div className="flex justify-center items-center">
+            <NavItem
+              href="/coach"
+              label={texts.nav.coach}
+              icon={<Bot size={20} strokeWidth={2} />}
+              active={isActive("/coach")}
+            />
+          </div>
+
+          {/* Tab 4 - Profile */}
+          <div className="flex justify-center items-center">
+            <NavItem
+              href="/profile"
+              label={texts.nav.profile}
+              icon={<User size={20} strokeWidth={2} />}
+              active={isActive("/profile")}
+            />
+          </div>
         </div>
 
-        {/* Right-center - Single tab with increased right margin */}
-        <div className="flex-1 flex justify-center mr-4 sm:mr-12">
-          <NavItem
-            href="/nutrition"
-            label={texts.nav.nutrition}
-            icon={<Utensils size={20} strokeWidth={2} />}
-            active={isActive("/nutrition")}
-          />
-        </div>
-
-        {/* Larger responsive spacer for center button clearance */}
-        <div className="w-16 sm:w-28" />
-
-        {/* Center floating map button - Static, no animations */}
-        <motion.button
-          onClick={() => router.push("/journey")}
-          aria-label={texts.nav.map}
-          className="absolute left-1/2 flex items-center justify-center"
-          style={{
-            width: "68px",
-            height: "68px",
-            borderRadius: tokens.radii.full,
-            backgroundColor: tokens.colors.surfaceHi,
-            border: `3px solid #E2F163`,
-            boxShadow: tokens.shadow.float,
-            transform: "translateX(-50%) translateY(-28px)",
-            zIndex: 10,
-          }}
-          whileTap={{ scale: 0.96 }}
-        >
-          {/* Icon in primary lime green */}
-          <Map
-            size={28}
-            strokeWidth={2.5}
-            style={{
-              color: "#E2F163",
-            }}
-          />
-        </motion.button>
-
-        {/* Left-center - Single tab with increased left margin */}
-        <div className="flex-1 flex justify-center ml-4 sm:ml-12">
-          <NavItem
-            href="/coach"
-            label={texts.nav.coach}
-            icon={<Bot size={20} strokeWidth={2} />}
-            active={isActive("/coach")}
-          />
-        </div>
-
-        {/* Left side - Single tab */}
-        <div className="flex-1 flex justify-center">
-          <NavItem
-            href="/profile"
-            label={texts.nav.profile}
-            icon={<User size={20} strokeWidth={2} />}
-            active={isActive("/profile")}
-          />
+        {/* Center FAB - Absolutely positioned with translate(-50%, -50%) anchor */}
+        <div className="pointer-events-none absolute inset-x-0 top-0" aria-hidden="true">
+          <div className="pointer-events-auto absolute left-1/2 top-0 -translate-x-1/2 -translate-y-[50%]">
+            <MapFab onClick={handleMapClick} />
+          </div>
         </div>
       </div>
     </motion.nav>

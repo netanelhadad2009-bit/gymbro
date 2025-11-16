@@ -1,0 +1,298 @@
+{
+  "timestamp": "2025-11-11T10:42:02.269Z",
+  "totalUsers": 2,
+  "totalDuration": 71721,
+  "results": [
+    {
+      "user": {
+        "id": 1,
+        "email": "test1@gymbro-test.com",
+        "password": "Test123!",
+        "gender": "female",
+        "age": 18,
+        "height_cm": 152,
+        "weight_kg": 47,
+        "target_weight_kg": 45,
+        "birthdate": "2007-01-07",
+        "bmi": 20.3,
+        "goal": "ירידה במשקל",
+        "goals": [
+          "loss"
+        ],
+        "experience": "time",
+        "training_frequency_actual": "medium",
+        "diet": "balanced",
+        "motivation": "Test motivation for user 1",
+        "pace": "moderate",
+        "activity": "בינונית",
+        "category": "edge_case"
+      },
+      "success": false,
+      "steps": {
+        "nutritionGeneration": {
+          "success": true,
+          "duration": 25203
+        },
+        "registration": {
+          "success": true,
+          "duration": 600,
+          "userId": "877164b6-eb32-4699-b603-b31cd10e6ada"
+        },
+        "avatarBootstrap": {
+          "success": true,
+          "duration": 2099
+        },
+        "sessionAttach": {
+          "success": false,
+          "duration": 611,
+          "error": "HTTP 400: {\"ok\":false,\"error\":\"invalid_input\",\"message\":\"Missing plan session data\"}"
+        },
+        "stagesBootstrap": {
+          "success": true,
+          "duration": 5379
+        }
+      },
+      "totalDuration": 34351,
+      "validation": {
+        "userId": "877164b6-eb32-4699-b603-b31cd10e6ada",
+        "email": "test1@gymbro-test.com",
+        "checks": {
+          "authUserExists": true,
+          "profileExists": true,
+          "avatarExists": true,
+          "nutritionPlanExists": false,
+          "nutritionStatusReady": false,
+          "avatarMatches": false,
+          "stagesExist": false,
+          "nutritionQuality": false,
+          "caloriesInRange": false
+        },
+        "errors": [
+          "Nutrition plan is null",
+          "Nutrition status is 'null', expected 'ready'",
+          "Avatar gender mismatch: male vs expected female"
+        ],
+        "warnings": [
+          "Stages query error: Could not find the table 'public.journey_stages' in the schema cache"
+        ],
+        "details": {
+          "authUser": {
+            "id": "877164b6-eb32-4699-b603-b31cd10e6ada",
+            "email": "test1@gymbro-test.com",
+            "created_at": "2025-11-11T10:41:16.407447Z",
+            "user_metadata": {
+              "activity": "בינונית",
+              "birthdate": "2007-01-07",
+              "bmi": 20.3,
+              "diet": "balanced",
+              "email": "test1@gymbro-test.com",
+              "email_verified": true,
+              "experience": "time",
+              "gender": "female",
+              "goals": [
+                "loss"
+              ],
+              "height_cm": 152,
+              "motivation": "Test motivation for user 1",
+              "notifications_opt_in": true,
+              "pace": "moderate",
+              "phone_verified": false,
+              "sub": "877164b6-eb32-4699-b603-b31cd10e6ada",
+              "target_weight_kg": 45,
+              "training_frequency_actual": "medium",
+              "weight_kg": 47
+            }
+          },
+          "profile": {
+            "id": "877164b6-eb32-4699-b603-b31cd10e6ada",
+            "username": null,
+            "full_name": null,
+            "avatar_url": null,
+            "is_admin": false,
+            "created_at": "2025-11-11T10:41:18.088+00:00",
+            "updated_at": "2025-11-11T10:41:18.088+00:00",
+            "age": null,
+            "gender": null,
+            "height_cm": null,
+            "weight_kg": null,
+            "target_weight_kg": null,
+            "goal": null,
+            "diet": null,
+            "activity_level": null,
+            "workout_days_per_week": null,
+            "injuries": null,
+            "has_completed_onboarding": false,
+            "nutrition_plan": null,
+            "nutrition_fingerprint": null,
+            "nutrition_calories": null,
+            "nutrition_updated_at": null,
+            "journey_bootstrapped": false,
+            "nutrition_status": null
+          },
+          "avatar": {
+            "user_id": "877164b6-eb32-4699-b603-b31cd10e6ada",
+            "gender": "male",
+            "goal": "recomp",
+            "diet": "balanced",
+            "frequency": "medium",
+            "experience": "beginner",
+            "created_at": "2025-11-11T10:41:18.853322+00:00",
+            "updated_at": "2025-11-11T10:41:18.503+00:00",
+            "avatar_id": "rookie-cut",
+            "confidence": 0.1,
+            "matched_rules": [],
+            "reasons": [
+              "נמצא אווטר ברירת מחדל - אין התאמה מושלמת"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "user": {
+        "id": 2,
+        "email": "test2@gymbro-test.com",
+        "password": "Test123!",
+        "gender": "female",
+        "age": 62,
+        "height_cm": 198,
+        "weight_kg": 45,
+        "target_weight_kg": 45,
+        "birthdate": "1963-12-13",
+        "bmi": 11.5,
+        "goal": "ירידה במשקל",
+        "goals": [
+          "loss"
+        ],
+        "experience": "sure",
+        "training_frequency_actual": "medium",
+        "diet": "balanced",
+        "motivation": "Test motivation for user 2",
+        "pace": "moderate",
+        "activity": "בינונית",
+        "category": "edge_case"
+      },
+      "success": false,
+      "steps": {
+        "nutritionGeneration": {
+          "success": true,
+          "duration": 24689
+        },
+        "registration": {
+          "success": true,
+          "duration": 396,
+          "userId": "c9fae7f6-92ad-4cb8-afd6-0c288b9b9012"
+        },
+        "avatarBootstrap": {
+          "success": true,
+          "duration": 1731
+        },
+        "sessionAttach": {
+          "success": false,
+          "duration": 428,
+          "error": "HTTP 400: {\"ok\":false,\"error\":\"invalid_input\",\"message\":\"Missing plan session data\"}"
+        },
+        "stagesBootstrap": {
+          "success": true,
+          "duration": 5423
+        }
+      },
+      "totalDuration": 33353,
+      "validation": {
+        "userId": "c9fae7f6-92ad-4cb8-afd6-0c288b9b9012",
+        "email": "test2@gymbro-test.com",
+        "checks": {
+          "authUserExists": true,
+          "profileExists": true,
+          "avatarExists": true,
+          "nutritionPlanExists": false,
+          "nutritionStatusReady": false,
+          "avatarMatches": false,
+          "stagesExist": false,
+          "nutritionQuality": false,
+          "caloriesInRange": false
+        },
+        "errors": [
+          "Nutrition plan is null",
+          "Nutrition status is 'null', expected 'ready'",
+          "Avatar gender mismatch: male vs expected female",
+          "Avatar experience mismatch: beginner vs expected intermediate"
+        ],
+        "warnings": [
+          "Stages query error: Could not find the table 'public.journey_stages' in the schema cache"
+        ],
+        "details": {
+          "authUser": {
+            "id": "c9fae7f6-92ad-4cb8-afd6-0c288b9b9012",
+            "email": "test2@gymbro-test.com",
+            "created_at": "2025-11-11T10:41:51.894845Z",
+            "user_metadata": {
+              "activity": "בינונית",
+              "birthdate": "1963-12-13",
+              "bmi": 11.5,
+              "diet": "balanced",
+              "email": "test2@gymbro-test.com",
+              "email_verified": true,
+              "experience": "sure",
+              "gender": "female",
+              "goals": [
+                "loss"
+              ],
+              "height_cm": 198,
+              "motivation": "Test motivation for user 2",
+              "notifications_opt_in": true,
+              "pace": "moderate",
+              "phone_verified": false,
+              "sub": "c9fae7f6-92ad-4cb8-afd6-0c288b9b9012",
+              "target_weight_kg": 45,
+              "training_frequency_actual": "medium",
+              "weight_kg": 45
+            }
+          },
+          "profile": {
+            "id": "c9fae7f6-92ad-4cb8-afd6-0c288b9b9012",
+            "username": null,
+            "full_name": null,
+            "avatar_url": null,
+            "is_admin": false,
+            "created_at": "2025-11-11T10:41:53.554+00:00",
+            "updated_at": "2025-11-11T10:41:53.554+00:00",
+            "age": null,
+            "gender": null,
+            "height_cm": null,
+            "weight_kg": null,
+            "target_weight_kg": null,
+            "goal": null,
+            "diet": null,
+            "activity_level": null,
+            "workout_days_per_week": null,
+            "injuries": null,
+            "has_completed_onboarding": false,
+            "nutrition_plan": null,
+            "nutrition_fingerprint": null,
+            "nutrition_calories": null,
+            "nutrition_updated_at": null,
+            "journey_bootstrapped": false,
+            "nutrition_status": null
+          },
+          "avatar": {
+            "user_id": "c9fae7f6-92ad-4cb8-afd6-0c288b9b9012",
+            "gender": "male",
+            "goal": "recomp",
+            "diet": "balanced",
+            "frequency": "medium",
+            "experience": "beginner",
+            "created_at": "2025-11-11T10:41:54.16796+00:00",
+            "updated_at": "2025-11-11T10:41:53.813+00:00",
+            "avatar_id": "rookie-cut",
+            "confidence": 0.1,
+            "matched_rules": [],
+            "reasons": [
+              "נמצא אווטר ברירת מחדל - אין התאמה מושלמת"
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

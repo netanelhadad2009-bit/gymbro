@@ -1,0 +1,1307 @@
+{
+  "timestamp": "2025-11-11T11:39:38.351Z",
+  "totalUsers": 10,
+  "totalDuration": 285482,
+  "results": [
+    {
+      "user": {
+        "id": 1,
+        "email": "test1@gymbro-test.com",
+        "password": "Test123!",
+        "gender": "male",
+        "age": 65,
+        "height_cm": 200,
+        "weight_kg": 53,
+        "target_weight_kg": 45,
+        "birthdate": "1960-10-23",
+        "bmi": 13.3,
+        "goal": "ירידה במשקל",
+        "goals": [
+          "loss"
+        ],
+        "experience": "time",
+        "training_frequency_actual": "medium",
+        "diet": "vegetarian",
+        "motivation": "Test motivation for user 1",
+        "pace": "slow",
+        "activity": "בינונית",
+        "category": "edge_case"
+      },
+      "success": false,
+      "steps": {
+        "nutritionGeneration": {
+          "success": true,
+          "duration": 20994
+        },
+        "registration": {
+          "success": true,
+          "duration": 570,
+          "userId": "4ba54e8c-41df-4c35-b4d6-c4c10d15237a"
+        },
+        "avatarBootstrap": {
+          "success": false,
+          "duration": 477,
+          "error": "HTTP 500: <!DOCTYPE html><html><head><style data-next-hide-fouc=\"true\">body{display:none}</style><noscript data-next-hide-fouc=\"true\"><style>body{display:block}</style></noscript><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width\"/><meta name=\"next-head-count\" content=\"2\"/><noscript data-n-css=\"\"></noscript><script defer=\"\" nomodule=\"\" src=\"/_next/static/chunks/polyfills.js\"></script><script src=\"/_next/static/chunks/fallback/webpack.js\" defer=\"\"></script><script src=\"/_next/static/chunks/fallback/main.js\" defer=\"\"></script><script src=\"/_next/static/chunks/fallback/pages/_app.js\" defer=\"\"></script><script src=\"/_next/static/chunks/fallback/pages/_error.js\" defer=\"\"></script><noscript id=\"__next_css__DO_NOT_USE__\"></noscript></head><body><div id=\"__next\"></div><script src=\"/_next/static/chunks/fallback/react-refresh.js\"></script><script id=\"__NEXT_DATA__\" type=\"application/json\">{\"props\":{\"pageProps\":{\"statusCode\":500}},\"page\":\"/_error\",\"query\":{},\"buildId\":\"development\",\"isFallback\":false,\"err\":{\"name\":\"Error\",\"source\":\"server\",\"message\":\"Cannot find module './528.js'\\nRequire stack:\\n- /Users/netanelhadad/Projects/gymbro/apps/web/.next/server/webpack-runtime.js\\n- /Users/netanelhadad/Projects/gymbro/apps/web/.next/server/app/api/avatar/bootstrap/route.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/require.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/load-components.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/build/utils.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/dev/hot-middleware.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/dev/hot-reloader-webpack.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/lib/router-utils/setup-dev-bundler.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/lib/router-server.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/lib/start-server.js\",\"stack\":\"Error: Cannot find module './528.js'\\nRequire stack:\\n- /Users/netanelhadad/Projects/gymbro/apps/web/.next/server/webpack-runtime.js\\n- /Users/netanelhadad/Projects/gymbro/apps/web/.next/server/app/api/avatar/bootstrap/route.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/require.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/load-components.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/build/utils.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/dev/hot-middleware.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/dev/hot-reloader-webpack.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/lib/router-utils/setup-dev-bundler.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/lib/router-server.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/lib/start-server.js\\n    at Module._resolveFilename (node:internal/modules/cjs/loader:1207:15)\\n    at /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/require-hook.js:55:36\\n    at Module._load (node:internal/modules/cjs/loader:1038:27)\\n    at Module.require (node:internal/modules/cjs/loader:1289:19)\\n    at mod.require (/Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/require-hook.js:65:28)\\n    at require (node:internal/modules/helpers:182:18)\\n    at __webpack_require__.f.require (/Users/netanelhadad/Projects/gymbro/apps/web/.next/server/webpack-runtime.js:208:28)\\n    at /Users/netanelhadad/Projects/gymbro/apps/web/.next/server/webpack-runtime.js:116:40\\n    at Array.reduce (\\u003canonymous\\u003e)\\n    at __webpack_require__.e (/Users/netanelhadad/Projects/gymbro/apps/web/.next/server/webpack-runtime.js:115:67)\\n    at Array.map (\\u003canonymous\\u003e)\\n    at __webpack_require__.X (/Users/netanelhadad/Projects/gymbro/apps/web/.next/server/webpack-runtime.js:167:22)\\n    at /Users/netanelhadad/Projects/gymbro/apps/web/.next/server/pages/_document.js:1:340\\n    at Object.\\u003canonymous\\u003e (/Users/netanelhadad/Projects/gymbro/apps/web/.next/server/pages/_document.js:1:382)\\n    at Module._compile (node:internal/modules/cjs/loader:1521:14)\\n    at Module._extensions..js (node:internal/modules/cjs/loader:1623:10)\\n    at Module.load (node:internal/modules/cjs/loader:1266:32)\\n    at Module._load (node:internal/modules/cjs/loader:1091:12)\\n    at Module.require (node:internal/modules/cjs/loader:1289:19)\\n    at mod.require (/Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/require-hook.js:65:28)\\n    at require (node:internal/modules/helpers:182:18)\\n    at requirePage (/Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/require.js:109:84)\\n    at /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/load-components.js:72:65\\n    at async Promise.all (index 0)\\n    at async loadComponentsImpl (/Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/load-components.js:71:33)\\n    at async DevServer.findPageComponentsImpl (/Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/next-server.js:709:36)\"},\"gip\":true,\"scriptLoader\":[]}</script></body></html>"
+        },
+        "sessionAttach": {
+          "success": true,
+          "duration": 1477
+        },
+        "stagesBootstrap": {
+          "success": false,
+          "duration": 905,
+          "error": "HTTP 404: {\"ok\":false,\"error\":\"NoAvatar\",\"message\":\"User avatar not found\"}"
+        }
+      },
+      "totalDuration": 25222,
+      "validation": {
+        "userId": "4ba54e8c-41df-4c35-b4d6-c4c10d15237a",
+        "email": "test1@gymbro-test.com",
+        "checks": {
+          "authUserExists": true,
+          "profileExists": true,
+          "avatarExists": false,
+          "nutritionPlanExists": false,
+          "nutritionStatusReady": false,
+          "avatarMatches": false,
+          "stagesExist": false,
+          "nutritionQuality": false,
+          "caloriesInRange": false
+        },
+        "errors": [
+          "Nutrition plan is null",
+          "Nutrition status is 'null', expected 'ready'",
+          "Avatar not found: Cannot coerce the result to a single JSON object"
+        ],
+        "warnings": [
+          "No journey stages found"
+        ],
+        "details": {
+          "authUser": {
+            "id": "4ba54e8c-41df-4c35-b4d6-c4c10d15237a",
+            "email": "test1@gymbro-test.com",
+            "created_at": "2025-11-11T11:35:14.451156Z",
+            "user_metadata": {
+              "activity": "בינונית",
+              "birthdate": "1960-10-23",
+              "bmi": 13.3,
+              "diet": "vegetarian",
+              "email": "test1@gymbro-test.com",
+              "email_verified": true,
+              "experience": "time",
+              "gender": "male",
+              "goals": [
+                "loss"
+              ],
+              "height_cm": 200,
+              "motivation": "Test motivation for user 1",
+              "notifications_opt_in": true,
+              "pace": "slow",
+              "phone_verified": false,
+              "sub": "4ba54e8c-41df-4c35-b4d6-c4c10d15237a",
+              "target_weight_kg": 45,
+              "training_frequency_actual": "medium",
+              "weight_kg": 53
+            }
+          },
+          "profile": {
+            "id": "4ba54e8c-41df-4c35-b4d6-c4c10d15237a",
+            "username": null,
+            "full_name": null,
+            "avatar_url": null,
+            "is_admin": false,
+            "created_at": "2025-11-11T11:35:16.399+00:00",
+            "updated_at": "2025-11-11T11:35:16.399+00:00",
+            "age": null,
+            "gender": null,
+            "height_cm": null,
+            "weight_kg": null,
+            "target_weight_kg": null,
+            "goal": null,
+            "diet": null,
+            "activity_level": null,
+            "workout_days_per_week": null,
+            "injuries": null,
+            "has_completed_onboarding": false,
+            "nutrition_plan": null,
+            "nutrition_fingerprint": null,
+            "nutrition_calories": null,
+            "nutrition_updated_at": null,
+            "journey_bootstrapped": false,
+            "nutrition_status": null
+          }
+        }
+      }
+    },
+    {
+      "user": {
+        "id": 2,
+        "email": "test2@gymbro-test.com",
+        "password": "Test123!",
+        "gender": "female",
+        "age": 65,
+        "height_cm": 150,
+        "weight_kg": 46,
+        "target_weight_kg": 45,
+        "birthdate": "1960-06-17",
+        "bmi": 20.4,
+        "goal": "ירידה במשקל",
+        "goals": [
+          "loss"
+        ],
+        "experience": "sure",
+        "training_frequency_actual": "medium",
+        "diet": "balanced",
+        "motivation": "Test motivation for user 2",
+        "pace": "moderate",
+        "activity": "בינונית",
+        "category": "edge_case"
+      },
+      "success": false,
+      "steps": {
+        "nutritionGeneration": {
+          "success": true,
+          "duration": 19265
+        },
+        "registration": {
+          "success": true,
+          "duration": 579,
+          "userId": "167b194a-f647-42b6-8487-31565709f7d1"
+        },
+        "avatarBootstrap": {
+          "success": false,
+          "duration": 111,
+          "error": "HTTP 500: <!DOCTYPE html><html><head><style data-next-hide-fouc=\"true\">body{display:none}</style><noscript data-next-hide-fouc=\"true\"><style>body{display:block}</style></noscript><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width\"/><meta name=\"next-head-count\" content=\"2\"/><noscript data-n-css=\"\"></noscript><script defer=\"\" nomodule=\"\" src=\"/_next/static/chunks/polyfills.js\"></script><script src=\"/_next/static/chunks/fallback/webpack.js\" defer=\"\"></script><script src=\"/_next/static/chunks/fallback/main.js\" defer=\"\"></script><script src=\"/_next/static/chunks/fallback/pages/_app.js\" defer=\"\"></script><script src=\"/_next/static/chunks/fallback/pages/_error.js\" defer=\"\"></script><noscript id=\"__next_css__DO_NOT_USE__\"></noscript></head><body><div id=\"__next\"></div><script src=\"/_next/static/chunks/fallback/react-refresh.js\"></script><script id=\"__NEXT_DATA__\" type=\"application/json\">{\"props\":{\"pageProps\":{\"statusCode\":500}},\"page\":\"/_error\",\"query\":{},\"buildId\":\"development\",\"isFallback\":false,\"err\":{\"name\":\"Error\",\"source\":\"server\",\"message\":\"Cannot find module './528.js'\\nRequire stack:\\n- /Users/netanelhadad/Projects/gymbro/apps/web/.next/server/webpack-runtime.js\\n- /Users/netanelhadad/Projects/gymbro/apps/web/.next/server/app/api/journey/stages/bootstrap/route.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/require.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/load-components.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/build/utils.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/dev/hot-middleware.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/dev/hot-reloader-webpack.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/lib/router-utils/setup-dev-bundler.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/lib/router-server.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/lib/start-server.js\",\"stack\":\"Error: Cannot find module './528.js'\\nRequire stack:\\n- /Users/netanelhadad/Projects/gymbro/apps/web/.next/server/webpack-runtime.js\\n- /Users/netanelhadad/Projects/gymbro/apps/web/.next/server/app/api/journey/stages/bootstrap/route.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/require.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/load-components.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/build/utils.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/dev/hot-middleware.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/dev/hot-reloader-webpack.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/lib/router-utils/setup-dev-bundler.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/lib/router-server.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/lib/start-server.js\\n    at Module._resolveFilename (node:internal/modules/cjs/loader:1207:15)\\n    at /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/require-hook.js:55:36\\n    at Module._load (node:internal/modules/cjs/loader:1038:27)\\n    at Module.require (node:internal/modules/cjs/loader:1289:19)\\n    at mod.require (/Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/require-hook.js:65:28)\\n    at require (node:internal/modules/helpers:182:18)\\n    at __webpack_require__.f.require (/Users/netanelhadad/Projects/gymbro/apps/web/.next/server/webpack-runtime.js:208:28)\\n    at /Users/netanelhadad/Projects/gymbro/apps/web/.next/server/webpack-runtime.js:116:40\\n    at Array.reduce (\\u003canonymous\\u003e)\\n    at __webpack_require__.e (/Users/netanelhadad/Projects/gymbro/apps/web/.next/server/webpack-runtime.js:115:67)\\n    at Array.map (\\u003canonymous\\u003e)\\n    at __webpack_require__.X (/Users/netanelhadad/Projects/gymbro/apps/web/.next/server/webpack-runtime.js:167:22)\\n    at /Users/netanelhadad/Projects/gymbro/apps/web/.next/server/pages/_document.js:1:340\\n    at Object.\\u003canonymous\\u003e (/Users/netanelhadad/Projects/gymbro/apps/web/.next/server/pages/_document.js:1:382)\\n    at Module._compile (node:internal/modules/cjs/loader:1521:14)\\n    at Module._extensions..js (node:internal/modules/cjs/loader:1623:10)\\n    at Module.load (node:internal/modules/cjs/loader:1266:32)\\n    at Module._load (node:internal/modules/cjs/loader:1091:12)\\n    at Module.require (node:internal/modules/cjs/loader:1289:19)\\n    at mod.require (/Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/require-hook.js:65:28)\\n    at require (node:internal/modules/helpers:182:18)\\n    at requirePage (/Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/require.js:109:84)\\n    at /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/load-components.js:72:65\\n    at async Promise.all (index 0)\\n    at async loadComponentsImpl (/Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/load-components.js:71:33)\\n    at async DevServer.findPageComponentsImpl (/Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/next-server.js:709:36)\"},\"gip\":true,\"scriptLoader\":[]}</script></body></html>"
+        },
+        "sessionAttach": {
+          "success": true,
+          "duration": 1013
+        },
+        "stagesBootstrap": {
+          "success": false,
+          "duration": 531,
+          "error": "HTTP 404: {\"ok\":false,\"error\":\"NoAvatar\",\"message\":\"User avatar not found\"}"
+        }
+      },
+      "totalDuration": 22409,
+      "validation": {
+        "userId": "167b194a-f647-42b6-8487-31565709f7d1",
+        "email": "test2@gymbro-test.com",
+        "checks": {
+          "authUserExists": true,
+          "profileExists": true,
+          "avatarExists": false,
+          "nutritionPlanExists": false,
+          "nutritionStatusReady": false,
+          "avatarMatches": false,
+          "stagesExist": false,
+          "nutritionQuality": false,
+          "caloriesInRange": false
+        },
+        "errors": [
+          "Nutrition plan is null",
+          "Nutrition status is 'null', expected 'ready'",
+          "Avatar not found: Cannot coerce the result to a single JSON object"
+        ],
+        "warnings": [
+          "No journey stages found"
+        ],
+        "details": {
+          "authUser": {
+            "id": "167b194a-f647-42b6-8487-31565709f7d1",
+            "email": "test2@gymbro-test.com",
+            "created_at": "2025-11-11T11:35:39.54834Z",
+            "user_metadata": {
+              "activity": "בינונית",
+              "birthdate": "1960-06-17",
+              "bmi": 20.4,
+              "diet": "balanced",
+              "email": "test2@gymbro-test.com",
+              "email_verified": true,
+              "experience": "sure",
+              "gender": "female",
+              "goals": [
+                "loss"
+              ],
+              "height_cm": 150,
+              "motivation": "Test motivation for user 2",
+              "notifications_opt_in": true,
+              "pace": "moderate",
+              "phone_verified": false,
+              "sub": "167b194a-f647-42b6-8487-31565709f7d1",
+              "target_weight_kg": 45,
+              "training_frequency_actual": "medium",
+              "weight_kg": 46
+            }
+          },
+          "profile": {
+            "id": "167b194a-f647-42b6-8487-31565709f7d1",
+            "username": null,
+            "full_name": null,
+            "avatar_url": null,
+            "is_admin": false,
+            "created_at": "2025-11-11T11:35:40.882+00:00",
+            "updated_at": "2025-11-11T11:35:40.882+00:00",
+            "age": null,
+            "gender": null,
+            "height_cm": null,
+            "weight_kg": null,
+            "target_weight_kg": null,
+            "goal": null,
+            "diet": null,
+            "activity_level": null,
+            "workout_days_per_week": null,
+            "injuries": null,
+            "has_completed_onboarding": false,
+            "nutrition_plan": null,
+            "nutrition_fingerprint": null,
+            "nutrition_calories": null,
+            "nutrition_updated_at": null,
+            "journey_bootstrapped": false,
+            "nutrition_status": null
+          }
+        }
+      }
+    },
+    {
+      "user": {
+        "id": 3,
+        "email": "test3@gymbro-test.com",
+        "password": "Test123!",
+        "gender": "male",
+        "age": 50,
+        "height_cm": 186,
+        "weight_kg": 113,
+        "target_weight_kg": 98,
+        "birthdate": "1975-11-01",
+        "bmi": 32.7,
+        "goal": "ירידה במשקל",
+        "goals": [
+          "loss"
+        ],
+        "experience": "results",
+        "training_frequency_actual": "high",
+        "diet": "vegetarian",
+        "motivation": "Test motivation for user 3",
+        "pace": "fast",
+        "activity": "גבוהה",
+        "category": "happy_path"
+      },
+      "success": false,
+      "steps": {
+        "nutritionGeneration": {
+          "success": true,
+          "duration": 28973
+        },
+        "registration": {
+          "success": true,
+          "duration": 442,
+          "userId": "d50bc017-7f83-4f4d-b467-ca765ab6c217"
+        },
+        "avatarBootstrap": {
+          "success": false,
+          "duration": 78,
+          "error": "HTTP 500: <!DOCTYPE html><html><head><style data-next-hide-fouc=\"true\">body{display:none}</style><noscript data-next-hide-fouc=\"true\"><style>body{display:block}</style></noscript><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width\"/><meta name=\"next-head-count\" content=\"2\"/><noscript data-n-css=\"\"></noscript><script defer=\"\" nomodule=\"\" src=\"/_next/static/chunks/polyfills.js\"></script><script src=\"/_next/static/chunks/fallback/webpack.js\" defer=\"\"></script><script src=\"/_next/static/chunks/fallback/main.js\" defer=\"\"></script><script src=\"/_next/static/chunks/fallback/pages/_app.js\" defer=\"\"></script><script src=\"/_next/static/chunks/fallback/pages/_error.js\" defer=\"\"></script><noscript id=\"__next_css__DO_NOT_USE__\"></noscript></head><body><div id=\"__next\"></div><script src=\"/_next/static/chunks/fallback/react-refresh.js\"></script><script id=\"__NEXT_DATA__\" type=\"application/json\">{\"props\":{\"pageProps\":{\"statusCode\":500}},\"page\":\"/_error\",\"query\":{},\"buildId\":\"development\",\"isFallback\":false,\"err\":{\"name\":\"Error\",\"source\":\"server\",\"message\":\"Cannot find module './528.js'\\nRequire stack:\\n- /Users/netanelhadad/Projects/gymbro/apps/web/.next/server/webpack-runtime.js\\n- /Users/netanelhadad/Projects/gymbro/apps/web/.next/server/app/api/journey/stages/bootstrap/route.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/require.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/load-components.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/build/utils.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/dev/hot-middleware.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/dev/hot-reloader-webpack.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/lib/router-utils/setup-dev-bundler.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/lib/router-server.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/lib/start-server.js\",\"stack\":\"Error: Cannot find module './528.js'\\nRequire stack:\\n- /Users/netanelhadad/Projects/gymbro/apps/web/.next/server/webpack-runtime.js\\n- /Users/netanelhadad/Projects/gymbro/apps/web/.next/server/app/api/journey/stages/bootstrap/route.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/require.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/load-components.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/build/utils.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/dev/hot-middleware.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/dev/hot-reloader-webpack.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/lib/router-utils/setup-dev-bundler.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/lib/router-server.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/lib/start-server.js\\n    at Module._resolveFilename (node:internal/modules/cjs/loader:1207:15)\\n    at /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/require-hook.js:55:36\\n    at Module._load (node:internal/modules/cjs/loader:1038:27)\\n    at Module.require (node:internal/modules/cjs/loader:1289:19)\\n    at mod.require (/Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/require-hook.js:65:28)\\n    at require (node:internal/modules/helpers:182:18)\\n    at __webpack_require__.f.require (/Users/netanelhadad/Projects/gymbro/apps/web/.next/server/webpack-runtime.js:208:28)\\n    at /Users/netanelhadad/Projects/gymbro/apps/web/.next/server/webpack-runtime.js:116:40\\n    at Array.reduce (\\u003canonymous\\u003e)\\n    at __webpack_require__.e (/Users/netanelhadad/Projects/gymbro/apps/web/.next/server/webpack-runtime.js:115:67)\\n    at Array.map (\\u003canonymous\\u003e)\\n    at __webpack_require__.X (/Users/netanelhadad/Projects/gymbro/apps/web/.next/server/webpack-runtime.js:167:22)\\n    at /Users/netanelhadad/Projects/gymbro/apps/web/.next/server/pages/_document.js:1:340\\n    at Object.\\u003canonymous\\u003e (/Users/netanelhadad/Projects/gymbro/apps/web/.next/server/pages/_document.js:1:382)\\n    at Module._compile (node:internal/modules/cjs/loader:1521:14)\\n    at Module._extensions..js (node:internal/modules/cjs/loader:1623:10)\\n    at Module.load (node:internal/modules/cjs/loader:1266:32)\\n    at Module._load (node:internal/modules/cjs/loader:1091:12)\\n    at Module.require (node:internal/modules/cjs/loader:1289:19)\\n    at mod.require (/Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/require-hook.js:65:28)\\n    at require (node:internal/modules/helpers:182:18)\\n    at requirePage (/Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/require.js:109:84)\\n    at /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/load-components.js:72:65\\n    at async Promise.all (index 0)\\n    at async loadComponentsImpl (/Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/load-components.js:71:33)\\n    at async DevServer.findPageComponentsImpl (/Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/next-server.js:709:36)\"},\"gip\":true,\"scriptLoader\":[]}</script></body></html>"
+        },
+        "sessionAttach": {
+          "success": true,
+          "duration": 1198
+        },
+        "stagesBootstrap": {
+          "success": false,
+          "duration": 559,
+          "error": "HTTP 404: {\"ok\":false,\"error\":\"NoAvatar\",\"message\":\"User avatar not found\"}"
+        }
+      },
+      "totalDuration": 32055,
+      "validation": {
+        "userId": "d50bc017-7f83-4f4d-b467-ca765ab6c217",
+        "email": "test3@gymbro-test.com",
+        "checks": {
+          "authUserExists": true,
+          "profileExists": true,
+          "avatarExists": false,
+          "nutritionPlanExists": false,
+          "nutritionStatusReady": false,
+          "avatarMatches": false,
+          "stagesExist": false,
+          "nutritionQuality": false,
+          "caloriesInRange": false
+        },
+        "errors": [
+          "Nutrition plan is null",
+          "Nutrition status is 'null', expected 'ready'",
+          "Avatar not found: Cannot coerce the result to a single JSON object"
+        ],
+        "warnings": [
+          "No journey stages found"
+        ],
+        "details": {
+          "authUser": {
+            "id": "d50bc017-7f83-4f4d-b467-ca765ab6c217",
+            "email": "test3@gymbro-test.com",
+            "created_at": "2025-11-11T11:36:14.025087Z",
+            "user_metadata": {
+              "activity": "גבוהה",
+              "birthdate": "1975-11-01",
+              "bmi": 32.7,
+              "diet": "vegetarian",
+              "email": "test3@gymbro-test.com",
+              "email_verified": true,
+              "experience": "results",
+              "gender": "male",
+              "goals": [
+                "loss"
+              ],
+              "height_cm": 186,
+              "motivation": "Test motivation for user 3",
+              "notifications_opt_in": true,
+              "pace": "fast",
+              "phone_verified": false,
+              "sub": "d50bc017-7f83-4f4d-b467-ca765ab6c217",
+              "target_weight_kg": 98,
+              "training_frequency_actual": "high",
+              "weight_kg": 113
+            }
+          },
+          "profile": {
+            "id": "d50bc017-7f83-4f4d-b467-ca765ab6c217",
+            "username": null,
+            "full_name": null,
+            "avatar_url": null,
+            "is_admin": false,
+            "created_at": "2025-11-11T11:36:15.203+00:00",
+            "updated_at": "2025-11-11T11:36:15.203+00:00",
+            "age": null,
+            "gender": null,
+            "height_cm": null,
+            "weight_kg": null,
+            "target_weight_kg": null,
+            "goal": null,
+            "diet": null,
+            "activity_level": null,
+            "workout_days_per_week": null,
+            "injuries": null,
+            "has_completed_onboarding": false,
+            "nutrition_plan": null,
+            "nutrition_fingerprint": null,
+            "nutrition_calories": null,
+            "nutrition_updated_at": null,
+            "journey_bootstrapped": false,
+            "nutrition_status": null
+          }
+        }
+      }
+    },
+    {
+      "user": {
+        "id": 4,
+        "email": "test4@gymbro-test.com",
+        "password": "Test123!",
+        "gender": "male",
+        "age": 34,
+        "height_cm": 173,
+        "weight_kg": 97,
+        "target_weight_kg": 87,
+        "birthdate": "1991-11-15",
+        "bmi": 32.4,
+        "goal": "ירידה במשקל",
+        "goals": [
+          "loss"
+        ],
+        "experience": "knowledge",
+        "training_frequency_actual": "medium",
+        "diet": "vegetarian",
+        "motivation": "Test motivation for user 4",
+        "pace": "fast",
+        "activity": "בינונית",
+        "category": "happy_path"
+      },
+      "success": false,
+      "steps": {
+        "nutritionGeneration": {
+          "success": true,
+          "duration": 22699
+        },
+        "registration": {
+          "success": true,
+          "duration": 470,
+          "userId": "236b7faf-a4c1-4c11-9782-3223b698f72d"
+        },
+        "avatarBootstrap": {
+          "success": false,
+          "duration": 97,
+          "error": "HTTP 500: <!DOCTYPE html><html><head><style data-next-hide-fouc=\"true\">body{display:none}</style><noscript data-next-hide-fouc=\"true\"><style>body{display:block}</style></noscript><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width\"/><meta name=\"next-head-count\" content=\"2\"/><noscript data-n-css=\"\"></noscript><script defer=\"\" nomodule=\"\" src=\"/_next/static/chunks/polyfills.js\"></script><script src=\"/_next/static/chunks/fallback/webpack.js\" defer=\"\"></script><script src=\"/_next/static/chunks/fallback/main.js\" defer=\"\"></script><script src=\"/_next/static/chunks/fallback/pages/_app.js\" defer=\"\"></script><script src=\"/_next/static/chunks/fallback/pages/_error.js\" defer=\"\"></script><noscript id=\"__next_css__DO_NOT_USE__\"></noscript></head><body><div id=\"__next\"></div><script src=\"/_next/static/chunks/fallback/react-refresh.js\"></script><script id=\"__NEXT_DATA__\" type=\"application/json\">{\"props\":{\"pageProps\":{\"statusCode\":500}},\"page\":\"/_error\",\"query\":{},\"buildId\":\"development\",\"isFallback\":false,\"err\":{\"name\":\"Error\",\"source\":\"server\",\"message\":\"Cannot find module './528.js'\\nRequire stack:\\n- /Users/netanelhadad/Projects/gymbro/apps/web/.next/server/webpack-runtime.js\\n- /Users/netanelhadad/Projects/gymbro/apps/web/.next/server/app/api/journey/stages/bootstrap/route.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/require.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/load-components.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/build/utils.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/dev/hot-middleware.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/dev/hot-reloader-webpack.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/lib/router-utils/setup-dev-bundler.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/lib/router-server.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/lib/start-server.js\",\"stack\":\"Error: Cannot find module './528.js'\\nRequire stack:\\n- /Users/netanelhadad/Projects/gymbro/apps/web/.next/server/webpack-runtime.js\\n- /Users/netanelhadad/Projects/gymbro/apps/web/.next/server/app/api/journey/stages/bootstrap/route.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/require.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/load-components.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/build/utils.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/dev/hot-middleware.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/dev/hot-reloader-webpack.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/lib/router-utils/setup-dev-bundler.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/lib/router-server.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/lib/start-server.js\\n    at Module._resolveFilename (node:internal/modules/cjs/loader:1207:15)\\n    at /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/require-hook.js:55:36\\n    at Module._load (node:internal/modules/cjs/loader:1038:27)\\n    at Module.require (node:internal/modules/cjs/loader:1289:19)\\n    at mod.require (/Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/require-hook.js:65:28)\\n    at require (node:internal/modules/helpers:182:18)\\n    at __webpack_require__.f.require (/Users/netanelhadad/Projects/gymbro/apps/web/.next/server/webpack-runtime.js:208:28)\\n    at /Users/netanelhadad/Projects/gymbro/apps/web/.next/server/webpack-runtime.js:116:40\\n    at Array.reduce (\\u003canonymous\\u003e)\\n    at __webpack_require__.e (/Users/netanelhadad/Projects/gymbro/apps/web/.next/server/webpack-runtime.js:115:67)\\n    at Array.map (\\u003canonymous\\u003e)\\n    at __webpack_require__.X (/Users/netanelhadad/Projects/gymbro/apps/web/.next/server/webpack-runtime.js:167:22)\\n    at /Users/netanelhadad/Projects/gymbro/apps/web/.next/server/pages/_document.js:1:340\\n    at Object.\\u003canonymous\\u003e (/Users/netanelhadad/Projects/gymbro/apps/web/.next/server/pages/_document.js:1:382)\\n    at Module._compile (node:internal/modules/cjs/loader:1521:14)\\n    at Module._extensions..js (node:internal/modules/cjs/loader:1623:10)\\n    at Module.load (node:internal/modules/cjs/loader:1266:32)\\n    at Module._load (node:internal/modules/cjs/loader:1091:12)\\n    at Module.require (node:internal/modules/cjs/loader:1289:19)\\n    at mod.require (/Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/require-hook.js:65:28)\\n    at require (node:internal/modules/helpers:182:18)\\n    at requirePage (/Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/require.js:109:84)\\n    at /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/load-components.js:72:65\\n    at async Promise.all (index 0)\\n    at async loadComponentsImpl (/Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/load-components.js:71:33)\\n    at async DevServer.findPageComponentsImpl (/Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/next-server.js:709:36)\"},\"gip\":true,\"scriptLoader\":[]}</script></body></html>"
+        },
+        "sessionAttach": {
+          "success": true,
+          "duration": 955
+        },
+        "stagesBootstrap": {
+          "success": false,
+          "duration": 536,
+          "error": "HTTP 404: {\"ok\":false,\"error\":\"NoAvatar\",\"message\":\"User avatar not found\"}"
+        }
+      },
+      "totalDuration": 25566,
+      "validation": {
+        "userId": "236b7faf-a4c1-4c11-9782-3223b698f72d",
+        "email": "test4@gymbro-test.com",
+        "checks": {
+          "authUserExists": true,
+          "profileExists": true,
+          "avatarExists": false,
+          "nutritionPlanExists": false,
+          "nutritionStatusReady": false,
+          "avatarMatches": false,
+          "stagesExist": false,
+          "nutritionQuality": false,
+          "caloriesInRange": false
+        },
+        "errors": [
+          "Nutrition plan is null",
+          "Nutrition status is 'null', expected 'ready'",
+          "Avatar not found: Cannot coerce the result to a single JSON object"
+        ],
+        "warnings": [
+          "No journey stages found"
+        ],
+        "details": {
+          "authUser": {
+            "id": "236b7faf-a4c1-4c11-9782-3223b698f72d",
+            "email": "test4@gymbro-test.com",
+            "created_at": "2025-11-11T11:36:41.616269Z",
+            "user_metadata": {
+              "activity": "בינונית",
+              "birthdate": "1991-11-15",
+              "bmi": 32.4,
+              "diet": "vegetarian",
+              "email": "test4@gymbro-test.com",
+              "email_verified": true,
+              "experience": "knowledge",
+              "gender": "male",
+              "goals": [
+                "loss"
+              ],
+              "height_cm": 173,
+              "motivation": "Test motivation for user 4",
+              "notifications_opt_in": true,
+              "pace": "fast",
+              "phone_verified": false,
+              "sub": "236b7faf-a4c1-4c11-9782-3223b698f72d",
+              "target_weight_kg": 87,
+              "training_frequency_actual": "medium",
+              "weight_kg": 97
+            }
+          },
+          "profile": {
+            "id": "236b7faf-a4c1-4c11-9782-3223b698f72d",
+            "username": null,
+            "full_name": null,
+            "avatar_url": null,
+            "is_admin": false,
+            "created_at": "2025-11-11T11:36:42.649+00:00",
+            "updated_at": "2025-11-11T11:36:42.649+00:00",
+            "age": null,
+            "gender": null,
+            "height_cm": null,
+            "weight_kg": null,
+            "target_weight_kg": null,
+            "goal": null,
+            "diet": null,
+            "activity_level": null,
+            "workout_days_per_week": null,
+            "injuries": null,
+            "has_completed_onboarding": false,
+            "nutrition_plan": null,
+            "nutrition_fingerprint": null,
+            "nutrition_calories": null,
+            "nutrition_updated_at": null,
+            "journey_bootstrapped": false,
+            "nutrition_status": null
+          }
+        }
+      }
+    },
+    {
+      "user": {
+        "id": 5,
+        "email": "test5@gymbro-test.com",
+        "password": "Test123!",
+        "gender": "male",
+        "age": 20,
+        "height_cm": 194,
+        "weight_kg": 81,
+        "target_weight_kg": 71,
+        "birthdate": "2005-09-18",
+        "bmi": 21.5,
+        "goal": "ירידה במשקל",
+        "goals": [
+          "loss"
+        ],
+        "experience": "never",
+        "training_frequency_actual": "medium",
+        "diet": "vegan",
+        "motivation": "Test motivation for user 5",
+        "pace": "fast",
+        "activity": "בינונית",
+        "category": "happy_path"
+      },
+      "success": false,
+      "steps": {
+        "nutritionGeneration": {
+          "success": true,
+          "duration": 19472
+        },
+        "registration": {
+          "success": true,
+          "duration": 472,
+          "userId": "d76f24b8-fbda-40d6-8937-0f55bd94345d"
+        },
+        "avatarBootstrap": {
+          "success": false,
+          "duration": 83,
+          "error": "HTTP 500: <!DOCTYPE html><html><head><style data-next-hide-fouc=\"true\">body{display:none}</style><noscript data-next-hide-fouc=\"true\"><style>body{display:block}</style></noscript><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width\"/><meta name=\"next-head-count\" content=\"2\"/><noscript data-n-css=\"\"></noscript><script defer=\"\" nomodule=\"\" src=\"/_next/static/chunks/polyfills.js\"></script><script src=\"/_next/static/chunks/fallback/webpack.js\" defer=\"\"></script><script src=\"/_next/static/chunks/fallback/main.js\" defer=\"\"></script><script src=\"/_next/static/chunks/fallback/pages/_app.js\" defer=\"\"></script><script src=\"/_next/static/chunks/fallback/pages/_error.js\" defer=\"\"></script><noscript id=\"__next_css__DO_NOT_USE__\"></noscript></head><body><div id=\"__next\"></div><script src=\"/_next/static/chunks/fallback/react-refresh.js\"></script><script id=\"__NEXT_DATA__\" type=\"application/json\">{\"props\":{\"pageProps\":{\"statusCode\":500}},\"page\":\"/_error\",\"query\":{},\"buildId\":\"development\",\"isFallback\":false,\"err\":{\"name\":\"Error\",\"source\":\"server\",\"message\":\"Cannot find module './528.js'\\nRequire stack:\\n- /Users/netanelhadad/Projects/gymbro/apps/web/.next/server/webpack-runtime.js\\n- /Users/netanelhadad/Projects/gymbro/apps/web/.next/server/app/api/journey/stages/bootstrap/route.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/require.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/load-components.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/build/utils.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/dev/hot-middleware.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/dev/hot-reloader-webpack.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/lib/router-utils/setup-dev-bundler.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/lib/router-server.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/lib/start-server.js\",\"stack\":\"Error: Cannot find module './528.js'\\nRequire stack:\\n- /Users/netanelhadad/Projects/gymbro/apps/web/.next/server/webpack-runtime.js\\n- /Users/netanelhadad/Projects/gymbro/apps/web/.next/server/app/api/journey/stages/bootstrap/route.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/require.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/load-components.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/build/utils.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/dev/hot-middleware.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/dev/hot-reloader-webpack.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/lib/router-utils/setup-dev-bundler.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/lib/router-server.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/lib/start-server.js\\n    at Module._resolveFilename (node:internal/modules/cjs/loader:1207:15)\\n    at /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/require-hook.js:55:36\\n    at Module._load (node:internal/modules/cjs/loader:1038:27)\\n    at Module.require (node:internal/modules/cjs/loader:1289:19)\\n    at mod.require (/Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/require-hook.js:65:28)\\n    at require (node:internal/modules/helpers:182:18)\\n    at __webpack_require__.f.require (/Users/netanelhadad/Projects/gymbro/apps/web/.next/server/webpack-runtime.js:208:28)\\n    at /Users/netanelhadad/Projects/gymbro/apps/web/.next/server/webpack-runtime.js:116:40\\n    at Array.reduce (\\u003canonymous\\u003e)\\n    at __webpack_require__.e (/Users/netanelhadad/Projects/gymbro/apps/web/.next/server/webpack-runtime.js:115:67)\\n    at Array.map (\\u003canonymous\\u003e)\\n    at __webpack_require__.X (/Users/netanelhadad/Projects/gymbro/apps/web/.next/server/webpack-runtime.js:167:22)\\n    at /Users/netanelhadad/Projects/gymbro/apps/web/.next/server/pages/_document.js:1:340\\n    at Object.\\u003canonymous\\u003e (/Users/netanelhadad/Projects/gymbro/apps/web/.next/server/pages/_document.js:1:382)\\n    at Module._compile (node:internal/modules/cjs/loader:1521:14)\\n    at Module._extensions..js (node:internal/modules/cjs/loader:1623:10)\\n    at Module.load (node:internal/modules/cjs/loader:1266:32)\\n    at Module._load (node:internal/modules/cjs/loader:1091:12)\\n    at Module.require (node:internal/modules/cjs/loader:1289:19)\\n    at mod.require (/Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/require-hook.js:65:28)\\n    at require (node:internal/modules/helpers:182:18)\\n    at requirePage (/Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/require.js:109:84)\\n    at /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/load-components.js:72:65\\n    at async Promise.all (index 0)\\n    at async loadComponentsImpl (/Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/load-components.js:71:33)\\n    at async DevServer.findPageComponentsImpl (/Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/next-server.js:709:36)\"},\"gip\":true,\"scriptLoader\":[]}</script></body></html>"
+        },
+        "sessionAttach": {
+          "success": true,
+          "duration": 1066
+        },
+        "stagesBootstrap": {
+          "success": false,
+          "duration": 616,
+          "error": "HTTP 404: {\"ok\":false,\"error\":\"NoAvatar\",\"message\":\"User avatar not found\"}"
+        }
+      },
+      "totalDuration": 22654,
+      "validation": {
+        "userId": "d76f24b8-fbda-40d6-8937-0f55bd94345d",
+        "email": "test5@gymbro-test.com",
+        "checks": {
+          "authUserExists": true,
+          "profileExists": true,
+          "avatarExists": false,
+          "nutritionPlanExists": false,
+          "nutritionStatusReady": false,
+          "avatarMatches": false,
+          "stagesExist": false,
+          "nutritionQuality": false,
+          "caloriesInRange": false
+        },
+        "errors": [
+          "Nutrition plan is null",
+          "Nutrition status is 'null', expected 'ready'",
+          "Avatar not found: Cannot coerce the result to a single JSON object"
+        ],
+        "warnings": [
+          "No journey stages found"
+        ],
+        "details": {
+          "authUser": {
+            "id": "d76f24b8-fbda-40d6-8937-0f55bd94345d",
+            "email": "test5@gymbro-test.com",
+            "created_at": "2025-11-11T11:37:05.961627Z",
+            "user_metadata": {
+              "activity": "בינונית",
+              "birthdate": "2005-09-18",
+              "bmi": 21.5,
+              "diet": "vegan",
+              "email": "test5@gymbro-test.com",
+              "email_verified": true,
+              "experience": "never",
+              "gender": "male",
+              "goals": [
+                "loss"
+              ],
+              "height_cm": 194,
+              "motivation": "Test motivation for user 5",
+              "notifications_opt_in": true,
+              "pace": "fast",
+              "phone_verified": false,
+              "sub": "d76f24b8-fbda-40d6-8937-0f55bd94345d",
+              "target_weight_kg": 71,
+              "training_frequency_actual": "medium",
+              "weight_kg": 81
+            }
+          },
+          "profile": {
+            "id": "d76f24b8-fbda-40d6-8937-0f55bd94345d",
+            "username": null,
+            "full_name": null,
+            "avatar_url": null,
+            "is_admin": false,
+            "created_at": "2025-11-11T11:37:07.143+00:00",
+            "updated_at": "2025-11-11T11:37:07.143+00:00",
+            "age": null,
+            "gender": null,
+            "height_cm": null,
+            "weight_kg": null,
+            "target_weight_kg": null,
+            "goal": null,
+            "diet": null,
+            "activity_level": null,
+            "workout_days_per_week": null,
+            "injuries": null,
+            "has_completed_onboarding": false,
+            "nutrition_plan": null,
+            "nutrition_fingerprint": null,
+            "nutrition_calories": null,
+            "nutrition_updated_at": null,
+            "journey_bootstrapped": false,
+            "nutrition_status": null
+          }
+        }
+      }
+    },
+    {
+      "user": {
+        "id": 6,
+        "email": "test6@gymbro-test.com",
+        "password": "Test123!",
+        "gender": "female",
+        "age": 54,
+        "height_cm": 170,
+        "weight_kg": 76,
+        "target_weight_kg": 63,
+        "birthdate": "1971-11-25",
+        "bmi": 26.3,
+        "goal": "ירידה במשקל",
+        "goals": [
+          "loss"
+        ],
+        "experience": "time",
+        "training_frequency_actual": "medium",
+        "diet": "balanced",
+        "motivation": "Test motivation for user 6",
+        "pace": "moderate",
+        "activity": "בינונית",
+        "category": "happy_path"
+      },
+      "success": false,
+      "steps": {
+        "nutritionGeneration": {
+          "success": true,
+          "duration": 20850
+        },
+        "registration": {
+          "success": true,
+          "duration": 436,
+          "userId": "c098f2d4-b03a-4e81-a124-3e864a0fea7b"
+        },
+        "avatarBootstrap": {
+          "success": false,
+          "duration": 84,
+          "error": "HTTP 500: <!DOCTYPE html><html><head><style data-next-hide-fouc=\"true\">body{display:none}</style><noscript data-next-hide-fouc=\"true\"><style>body{display:block}</style></noscript><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width\"/><meta name=\"next-head-count\" content=\"2\"/><noscript data-n-css=\"\"></noscript><script defer=\"\" nomodule=\"\" src=\"/_next/static/chunks/polyfills.js\"></script><script src=\"/_next/static/chunks/fallback/webpack.js\" defer=\"\"></script><script src=\"/_next/static/chunks/fallback/main.js\" defer=\"\"></script><script src=\"/_next/static/chunks/fallback/pages/_app.js\" defer=\"\"></script><script src=\"/_next/static/chunks/fallback/pages/_error.js\" defer=\"\"></script><noscript id=\"__next_css__DO_NOT_USE__\"></noscript></head><body><div id=\"__next\"></div><script src=\"/_next/static/chunks/fallback/react-refresh.js\"></script><script id=\"__NEXT_DATA__\" type=\"application/json\">{\"props\":{\"pageProps\":{\"statusCode\":500}},\"page\":\"/_error\",\"query\":{},\"buildId\":\"development\",\"isFallback\":false,\"err\":{\"name\":\"Error\",\"source\":\"server\",\"message\":\"Cannot find module './528.js'\\nRequire stack:\\n- /Users/netanelhadad/Projects/gymbro/apps/web/.next/server/webpack-runtime.js\\n- /Users/netanelhadad/Projects/gymbro/apps/web/.next/server/app/api/journey/stages/bootstrap/route.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/require.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/load-components.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/build/utils.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/dev/hot-middleware.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/dev/hot-reloader-webpack.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/lib/router-utils/setup-dev-bundler.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/lib/router-server.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/lib/start-server.js\",\"stack\":\"Error: Cannot find module './528.js'\\nRequire stack:\\n- /Users/netanelhadad/Projects/gymbro/apps/web/.next/server/webpack-runtime.js\\n- /Users/netanelhadad/Projects/gymbro/apps/web/.next/server/app/api/journey/stages/bootstrap/route.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/require.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/load-components.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/build/utils.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/dev/hot-middleware.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/dev/hot-reloader-webpack.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/lib/router-utils/setup-dev-bundler.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/lib/router-server.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/lib/start-server.js\\n    at Module._resolveFilename (node:internal/modules/cjs/loader:1207:15)\\n    at /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/require-hook.js:55:36\\n    at Module._load (node:internal/modules/cjs/loader:1038:27)\\n    at Module.require (node:internal/modules/cjs/loader:1289:19)\\n    at mod.require (/Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/require-hook.js:65:28)\\n    at require (node:internal/modules/helpers:182:18)\\n    at __webpack_require__.f.require (/Users/netanelhadad/Projects/gymbro/apps/web/.next/server/webpack-runtime.js:208:28)\\n    at /Users/netanelhadad/Projects/gymbro/apps/web/.next/server/webpack-runtime.js:116:40\\n    at Array.reduce (\\u003canonymous\\u003e)\\n    at __webpack_require__.e (/Users/netanelhadad/Projects/gymbro/apps/web/.next/server/webpack-runtime.js:115:67)\\n    at Array.map (\\u003canonymous\\u003e)\\n    at __webpack_require__.X (/Users/netanelhadad/Projects/gymbro/apps/web/.next/server/webpack-runtime.js:167:22)\\n    at /Users/netanelhadad/Projects/gymbro/apps/web/.next/server/pages/_document.js:1:340\\n    at Object.\\u003canonymous\\u003e (/Users/netanelhadad/Projects/gymbro/apps/web/.next/server/pages/_document.js:1:382)\\n    at Module._compile (node:internal/modules/cjs/loader:1521:14)\\n    at Module._extensions..js (node:internal/modules/cjs/loader:1623:10)\\n    at Module.load (node:internal/modules/cjs/loader:1266:32)\\n    at Module._load (node:internal/modules/cjs/loader:1091:12)\\n    at Module.require (node:internal/modules/cjs/loader:1289:19)\\n    at mod.require (/Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/require-hook.js:65:28)\\n    at require (node:internal/modules/helpers:182:18)\\n    at requirePage (/Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/require.js:109:84)\\n    at /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/load-components.js:72:65\\n    at async Promise.all (index 0)\\n    at async loadComponentsImpl (/Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/load-components.js:71:33)\\n    at async DevServer.findPageComponentsImpl (/Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/next-server.js:709:36)\"},\"gip\":true,\"scriptLoader\":[]}</script></body></html>"
+        },
+        "sessionAttach": {
+          "success": true,
+          "duration": 1030
+        },
+        "stagesBootstrap": {
+          "success": false,
+          "duration": 1007,
+          "error": "HTTP 404: {\"ok\":false,\"error\":\"NoAvatar\",\"message\":\"User avatar not found\"}"
+        }
+      },
+      "totalDuration": 24213,
+      "validation": {
+        "userId": "c098f2d4-b03a-4e81-a124-3e864a0fea7b",
+        "email": "test6@gymbro-test.com",
+        "checks": {
+          "authUserExists": true,
+          "profileExists": true,
+          "avatarExists": false,
+          "nutritionPlanExists": false,
+          "nutritionStatusReady": false,
+          "avatarMatches": false,
+          "stagesExist": false,
+          "nutritionQuality": false,
+          "caloriesInRange": false
+        },
+        "errors": [
+          "Nutrition plan is null",
+          "Nutrition status is 'null', expected 'ready'",
+          "Avatar not found: Cannot coerce the result to a single JSON object"
+        ],
+        "warnings": [
+          "No journey stages found"
+        ],
+        "details": {
+          "authUser": {
+            "id": "c098f2d4-b03a-4e81-a124-3e864a0fea7b",
+            "email": "test6@gymbro-test.com",
+            "created_at": "2025-11-11T11:37:31.687132Z",
+            "user_metadata": {
+              "activity": "בינונית",
+              "birthdate": "1971-11-25",
+              "bmi": 26.3,
+              "diet": "balanced",
+              "email": "test6@gymbro-test.com",
+              "email_verified": true,
+              "experience": "time",
+              "gender": "female",
+              "goals": [
+                "loss"
+              ],
+              "height_cm": 170,
+              "motivation": "Test motivation for user 6",
+              "notifications_opt_in": true,
+              "pace": "moderate",
+              "phone_verified": false,
+              "sub": "c098f2d4-b03a-4e81-a124-3e864a0fea7b",
+              "target_weight_kg": 63,
+              "training_frequency_actual": "medium",
+              "weight_kg": 76
+            }
+          },
+          "profile": {
+            "id": "c098f2d4-b03a-4e81-a124-3e864a0fea7b",
+            "username": null,
+            "full_name": null,
+            "avatar_url": null,
+            "is_admin": false,
+            "created_at": "2025-11-11T11:37:32.723+00:00",
+            "updated_at": "2025-11-11T11:37:32.723+00:00",
+            "age": null,
+            "gender": null,
+            "height_cm": null,
+            "weight_kg": null,
+            "target_weight_kg": null,
+            "goal": null,
+            "diet": null,
+            "activity_level": null,
+            "workout_days_per_week": null,
+            "injuries": null,
+            "has_completed_onboarding": false,
+            "nutrition_plan": null,
+            "nutrition_fingerprint": null,
+            "nutrition_calories": null,
+            "nutrition_updated_at": null,
+            "journey_bootstrapped": false,
+            "nutrition_status": null
+          }
+        }
+      }
+    },
+    {
+      "user": {
+        "id": 7,
+        "email": "test7@gymbro-test.com",
+        "password": "Test123!",
+        "gender": "female",
+        "age": 51,
+        "height_cm": 186,
+        "weight_kg": 60,
+        "target_weight_kg": 51,
+        "birthdate": "1974-10-27",
+        "bmi": 17.3,
+        "goal": "ירידה במשקל",
+        "goals": [
+          "loss"
+        ],
+        "experience": "sure",
+        "training_frequency_actual": "medium",
+        "diet": "balanced",
+        "motivation": "Test motivation for user 7",
+        "pace": "slow",
+        "activity": "בינונית",
+        "category": "happy_path"
+      },
+      "success": false,
+      "steps": {
+        "nutritionGeneration": {
+          "success": true,
+          "duration": 24443
+        },
+        "registration": {
+          "success": true,
+          "duration": 422,
+          "userId": "1f2eef38-c720-48a0-bab4-e1d3c5bce77d"
+        },
+        "avatarBootstrap": {
+          "success": false,
+          "duration": 88,
+          "error": "HTTP 500: <!DOCTYPE html><html><head><style data-next-hide-fouc=\"true\">body{display:none}</style><noscript data-next-hide-fouc=\"true\"><style>body{display:block}</style></noscript><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width\"/><meta name=\"next-head-count\" content=\"2\"/><noscript data-n-css=\"\"></noscript><script defer=\"\" nomodule=\"\" src=\"/_next/static/chunks/polyfills.js\"></script><script src=\"/_next/static/chunks/fallback/webpack.js\" defer=\"\"></script><script src=\"/_next/static/chunks/fallback/main.js\" defer=\"\"></script><script src=\"/_next/static/chunks/fallback/pages/_app.js\" defer=\"\"></script><script src=\"/_next/static/chunks/fallback/pages/_error.js\" defer=\"\"></script><noscript id=\"__next_css__DO_NOT_USE__\"></noscript></head><body><div id=\"__next\"></div><script src=\"/_next/static/chunks/fallback/react-refresh.js\"></script><script id=\"__NEXT_DATA__\" type=\"application/json\">{\"props\":{\"pageProps\":{\"statusCode\":500}},\"page\":\"/_error\",\"query\":{},\"buildId\":\"development\",\"isFallback\":false,\"err\":{\"name\":\"Error\",\"source\":\"server\",\"message\":\"Cannot find module './528.js'\\nRequire stack:\\n- /Users/netanelhadad/Projects/gymbro/apps/web/.next/server/webpack-runtime.js\\n- /Users/netanelhadad/Projects/gymbro/apps/web/.next/server/app/api/journey/stages/bootstrap/route.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/require.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/load-components.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/build/utils.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/dev/hot-middleware.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/dev/hot-reloader-webpack.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/lib/router-utils/setup-dev-bundler.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/lib/router-server.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/lib/start-server.js\",\"stack\":\"Error: Cannot find module './528.js'\\nRequire stack:\\n- /Users/netanelhadad/Projects/gymbro/apps/web/.next/server/webpack-runtime.js\\n- /Users/netanelhadad/Projects/gymbro/apps/web/.next/server/app/api/journey/stages/bootstrap/route.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/require.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/load-components.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/build/utils.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/dev/hot-middleware.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/dev/hot-reloader-webpack.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/lib/router-utils/setup-dev-bundler.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/lib/router-server.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/lib/start-server.js\\n    at Module._resolveFilename (node:internal/modules/cjs/loader:1207:15)\\n    at /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/require-hook.js:55:36\\n    at Module._load (node:internal/modules/cjs/loader:1038:27)\\n    at Module.require (node:internal/modules/cjs/loader:1289:19)\\n    at mod.require (/Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/require-hook.js:65:28)\\n    at require (node:internal/modules/helpers:182:18)\\n    at __webpack_require__.f.require (/Users/netanelhadad/Projects/gymbro/apps/web/.next/server/webpack-runtime.js:208:28)\\n    at /Users/netanelhadad/Projects/gymbro/apps/web/.next/server/webpack-runtime.js:116:40\\n    at Array.reduce (\\u003canonymous\\u003e)\\n    at __webpack_require__.e (/Users/netanelhadad/Projects/gymbro/apps/web/.next/server/webpack-runtime.js:115:67)\\n    at Array.map (\\u003canonymous\\u003e)\\n    at __webpack_require__.X (/Users/netanelhadad/Projects/gymbro/apps/web/.next/server/webpack-runtime.js:167:22)\\n    at /Users/netanelhadad/Projects/gymbro/apps/web/.next/server/pages/_document.js:1:340\\n    at Object.\\u003canonymous\\u003e (/Users/netanelhadad/Projects/gymbro/apps/web/.next/server/pages/_document.js:1:382)\\n    at Module._compile (node:internal/modules/cjs/loader:1521:14)\\n    at Module._extensions..js (node:internal/modules/cjs/loader:1623:10)\\n    at Module.load (node:internal/modules/cjs/loader:1266:32)\\n    at Module._load (node:internal/modules/cjs/loader:1091:12)\\n    at Module.require (node:internal/modules/cjs/loader:1289:19)\\n    at mod.require (/Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/require-hook.js:65:28)\\n    at require (node:internal/modules/helpers:182:18)\\n    at requirePage (/Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/require.js:109:84)\\n    at /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/load-components.js:72:65\\n    at async Promise.all (index 0)\\n    at async loadComponentsImpl (/Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/load-components.js:71:33)\\n    at async DevServer.findPageComponentsImpl (/Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/next-server.js:709:36)\"},\"gip\":true,\"scriptLoader\":[]}</script></body></html>"
+        },
+        "sessionAttach": {
+          "success": true,
+          "duration": 1468
+        },
+        "stagesBootstrap": {
+          "success": false,
+          "duration": 557,
+          "error": "HTTP 404: {\"ok\":false,\"error\":\"NoAvatar\",\"message\":\"User avatar not found\"}"
+        }
+      },
+      "totalDuration": 27788,
+      "validation": {
+        "userId": "1f2eef38-c720-48a0-bab4-e1d3c5bce77d",
+        "email": "test7@gymbro-test.com",
+        "checks": {
+          "authUserExists": true,
+          "profileExists": true,
+          "avatarExists": false,
+          "nutritionPlanExists": false,
+          "nutritionStatusReady": false,
+          "avatarMatches": false,
+          "stagesExist": false,
+          "nutritionQuality": false,
+          "caloriesInRange": false
+        },
+        "errors": [
+          "Nutrition plan is null",
+          "Nutrition status is 'null', expected 'ready'",
+          "Avatar not found: Cannot coerce the result to a single JSON object"
+        ],
+        "warnings": [
+          "No journey stages found"
+        ],
+        "details": {
+          "authUser": {
+            "id": "1f2eef38-c720-48a0-bab4-e1d3c5bce77d",
+            "email": "test7@gymbro-test.com",
+            "created_at": "2025-11-11T11:38:01.46086Z",
+            "user_metadata": {
+              "activity": "בינונית",
+              "birthdate": "1974-10-27",
+              "bmi": 17.3,
+              "diet": "balanced",
+              "email": "test7@gymbro-test.com",
+              "email_verified": true,
+              "experience": "sure",
+              "gender": "female",
+              "goals": [
+                "loss"
+              ],
+              "height_cm": 186,
+              "motivation": "Test motivation for user 7",
+              "notifications_opt_in": true,
+              "pace": "slow",
+              "phone_verified": false,
+              "sub": "1f2eef38-c720-48a0-bab4-e1d3c5bce77d",
+              "target_weight_kg": 51,
+              "training_frequency_actual": "medium",
+              "weight_kg": 60
+            }
+          },
+          "profile": {
+            "id": "1f2eef38-c720-48a0-bab4-e1d3c5bce77d",
+            "username": null,
+            "full_name": null,
+            "avatar_url": null,
+            "is_admin": false,
+            "created_at": "2025-11-11T11:38:02.83+00:00",
+            "updated_at": "2025-11-11T11:38:02.83+00:00",
+            "age": null,
+            "gender": null,
+            "height_cm": null,
+            "weight_kg": null,
+            "target_weight_kg": null,
+            "goal": null,
+            "diet": null,
+            "activity_level": null,
+            "workout_days_per_week": null,
+            "injuries": null,
+            "has_completed_onboarding": false,
+            "nutrition_plan": null,
+            "nutrition_fingerprint": null,
+            "nutrition_calories": null,
+            "nutrition_updated_at": null,
+            "journey_bootstrapped": false,
+            "nutrition_status": null
+          }
+        }
+      }
+    },
+    {
+      "user": {
+        "id": 8,
+        "email": "test8@gymbro-test.com",
+        "password": "Test123!",
+        "gender": "male",
+        "age": 40,
+        "height_cm": 168,
+        "weight_kg": 89,
+        "target_weight_kg": 79,
+        "birthdate": "1985-05-08",
+        "bmi": 31.5,
+        "goal": "ירידה במשקל",
+        "goals": [
+          "loss"
+        ],
+        "experience": "results",
+        "training_frequency_actual": "high",
+        "diet": "balanced",
+        "motivation": "Test motivation for user 8",
+        "pace": "slow",
+        "activity": "גבוהה",
+        "category": "happy_path"
+      },
+      "success": false,
+      "steps": {
+        "nutritionGeneration": {
+          "success": true,
+          "duration": 29162
+        },
+        "registration": {
+          "success": true,
+          "duration": 454,
+          "userId": "3f5d3255-2887-4668-a388-c0ca0ec785ab"
+        },
+        "avatarBootstrap": {
+          "success": false,
+          "duration": 123,
+          "error": "HTTP 500: <!DOCTYPE html><html><head><style data-next-hide-fouc=\"true\">body{display:none}</style><noscript data-next-hide-fouc=\"true\"><style>body{display:block}</style></noscript><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width\"/><meta name=\"next-head-count\" content=\"2\"/><noscript data-n-css=\"\"></noscript><script defer=\"\" nomodule=\"\" src=\"/_next/static/chunks/polyfills.js\"></script><script src=\"/_next/static/chunks/fallback/webpack.js\" defer=\"\"></script><script src=\"/_next/static/chunks/fallback/main.js\" defer=\"\"></script><script src=\"/_next/static/chunks/fallback/pages/_app.js\" defer=\"\"></script><script src=\"/_next/static/chunks/fallback/pages/_error.js\" defer=\"\"></script><noscript id=\"__next_css__DO_NOT_USE__\"></noscript></head><body><div id=\"__next\"></div><script src=\"/_next/static/chunks/fallback/react-refresh.js\"></script><script id=\"__NEXT_DATA__\" type=\"application/json\">{\"props\":{\"pageProps\":{\"statusCode\":500}},\"page\":\"/_error\",\"query\":{},\"buildId\":\"development\",\"isFallback\":false,\"err\":{\"name\":\"Error\",\"source\":\"server\",\"message\":\"Cannot find module './528.js'\\nRequire stack:\\n- /Users/netanelhadad/Projects/gymbro/apps/web/.next/server/webpack-runtime.js\\n- /Users/netanelhadad/Projects/gymbro/apps/web/.next/server/app/api/journey/stages/bootstrap/route.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/require.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/load-components.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/build/utils.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/dev/hot-middleware.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/dev/hot-reloader-webpack.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/lib/router-utils/setup-dev-bundler.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/lib/router-server.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/lib/start-server.js\",\"stack\":\"Error: Cannot find module './528.js'\\nRequire stack:\\n- /Users/netanelhadad/Projects/gymbro/apps/web/.next/server/webpack-runtime.js\\n- /Users/netanelhadad/Projects/gymbro/apps/web/.next/server/app/api/journey/stages/bootstrap/route.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/require.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/load-components.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/build/utils.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/dev/hot-middleware.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/dev/hot-reloader-webpack.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/lib/router-utils/setup-dev-bundler.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/lib/router-server.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/lib/start-server.js\\n    at Module._resolveFilename (node:internal/modules/cjs/loader:1207:15)\\n    at /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/require-hook.js:55:36\\n    at Module._load (node:internal/modules/cjs/loader:1038:27)\\n    at Module.require (node:internal/modules/cjs/loader:1289:19)\\n    at mod.require (/Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/require-hook.js:65:28)\\n    at require (node:internal/modules/helpers:182:18)\\n    at __webpack_require__.f.require (/Users/netanelhadad/Projects/gymbro/apps/web/.next/server/webpack-runtime.js:208:28)\\n    at /Users/netanelhadad/Projects/gymbro/apps/web/.next/server/webpack-runtime.js:116:40\\n    at Array.reduce (\\u003canonymous\\u003e)\\n    at __webpack_require__.e (/Users/netanelhadad/Projects/gymbro/apps/web/.next/server/webpack-runtime.js:115:67)\\n    at Array.map (\\u003canonymous\\u003e)\\n    at __webpack_require__.X (/Users/netanelhadad/Projects/gymbro/apps/web/.next/server/webpack-runtime.js:167:22)\\n    at /Users/netanelhadad/Projects/gymbro/apps/web/.next/server/pages/_document.js:1:340\\n    at Object.\\u003canonymous\\u003e (/Users/netanelhadad/Projects/gymbro/apps/web/.next/server/pages/_document.js:1:382)\\n    at Module._compile (node:internal/modules/cjs/loader:1521:14)\\n    at Module._extensions..js (node:internal/modules/cjs/loader:1623:10)\\n    at Module.load (node:internal/modules/cjs/loader:1266:32)\\n    at Module._load (node:internal/modules/cjs/loader:1091:12)\\n    at Module.require (node:internal/modules/cjs/loader:1289:19)\\n    at mod.require (/Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/require-hook.js:65:28)\\n    at require (node:internal/modules/helpers:182:18)\\n    at requirePage (/Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/require.js:109:84)\\n    at /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/load-components.js:72:65\\n    at async Promise.all (index 0)\\n    at async loadComponentsImpl (/Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/load-components.js:71:33)\\n    at async DevServer.findPageComponentsImpl (/Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/next-server.js:709:36)\"},\"gip\":true,\"scriptLoader\":[]}</script></body></html>"
+        },
+        "sessionAttach": {
+          "success": true,
+          "duration": 1016
+        },
+        "stagesBootstrap": {
+          "success": false,
+          "duration": 599,
+          "error": "HTTP 404: {\"ok\":false,\"error\":\"NoAvatar\",\"message\":\"User avatar not found\"}"
+        }
+      },
+      "totalDuration": 32175,
+      "validation": {
+        "userId": "3f5d3255-2887-4668-a388-c0ca0ec785ab",
+        "email": "test8@gymbro-test.com",
+        "checks": {
+          "authUserExists": true,
+          "profileExists": true,
+          "avatarExists": false,
+          "nutritionPlanExists": false,
+          "nutritionStatusReady": false,
+          "avatarMatches": false,
+          "stagesExist": false,
+          "nutritionQuality": false,
+          "caloriesInRange": false
+        },
+        "errors": [
+          "Nutrition plan is null",
+          "Nutrition status is 'null', expected 'ready'",
+          "Avatar not found: Cannot coerce the result to a single JSON object"
+        ],
+        "warnings": [
+          "No journey stages found"
+        ],
+        "details": {
+          "authUser": {
+            "id": "3f5d3255-2887-4668-a388-c0ca0ec785ab",
+            "email": "test8@gymbro-test.com",
+            "created_at": "2025-11-11T11:38:35.62853Z",
+            "user_metadata": {
+              "activity": "גבוהה",
+              "birthdate": "1985-05-08",
+              "bmi": 31.5,
+              "diet": "balanced",
+              "email": "test8@gymbro-test.com",
+              "email_verified": true,
+              "experience": "results",
+              "gender": "male",
+              "goals": [
+                "loss"
+              ],
+              "height_cm": 168,
+              "motivation": "Test motivation for user 8",
+              "notifications_opt_in": true,
+              "pace": "slow",
+              "phone_verified": false,
+              "sub": "3f5d3255-2887-4668-a388-c0ca0ec785ab",
+              "target_weight_kg": 79,
+              "training_frequency_actual": "high",
+              "weight_kg": 89
+            }
+          },
+          "profile": {
+            "id": "3f5d3255-2887-4668-a388-c0ca0ec785ab",
+            "username": null,
+            "full_name": null,
+            "avatar_url": null,
+            "is_admin": false,
+            "created_at": "2025-11-11T11:38:36.723+00:00",
+            "updated_at": "2025-11-11T11:38:36.723+00:00",
+            "age": null,
+            "gender": null,
+            "height_cm": null,
+            "weight_kg": null,
+            "target_weight_kg": null,
+            "goal": null,
+            "diet": null,
+            "activity_level": null,
+            "workout_days_per_week": null,
+            "injuries": null,
+            "has_completed_onboarding": false,
+            "nutrition_plan": null,
+            "nutrition_fingerprint": null,
+            "nutrition_calories": null,
+            "nutrition_updated_at": null,
+            "journey_bootstrapped": false,
+            "nutrition_status": null
+          }
+        }
+      }
+    },
+    {
+      "user": {
+        "id": 9,
+        "email": "test9@gymbro-test.com",
+        "password": "Test123!",
+        "gender": "female",
+        "age": 20,
+        "height_cm": 183,
+        "weight_kg": 64,
+        "target_weight_kg": 48,
+        "birthdate": "2005-04-14",
+        "bmi": 19.1,
+        "goal": "ירידה במשקל",
+        "goals": [
+          "loss"
+        ],
+        "experience": "knowledge",
+        "training_frequency_actual": "medium",
+        "diet": "vegan",
+        "motivation": "Test motivation for user 9",
+        "pace": "fast",
+        "activity": "בינונית",
+        "category": "happy_path"
+      },
+      "success": false,
+      "steps": {
+        "nutritionGeneration": {
+          "success": true,
+          "duration": 22799
+        },
+        "registration": {
+          "success": true,
+          "duration": 511,
+          "userId": "99b9d89b-4aec-4b69-bbd1-8d5e6552e989"
+        },
+        "avatarBootstrap": {
+          "success": false,
+          "duration": 116,
+          "error": "HTTP 500: <!DOCTYPE html><html><head><style data-next-hide-fouc=\"true\">body{display:none}</style><noscript data-next-hide-fouc=\"true\"><style>body{display:block}</style></noscript><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width\"/><meta name=\"next-head-count\" content=\"2\"/><noscript data-n-css=\"\"></noscript><script defer=\"\" nomodule=\"\" src=\"/_next/static/chunks/polyfills.js\"></script><script src=\"/_next/static/chunks/fallback/webpack.js\" defer=\"\"></script><script src=\"/_next/static/chunks/fallback/main.js\" defer=\"\"></script><script src=\"/_next/static/chunks/fallback/pages/_app.js\" defer=\"\"></script><script src=\"/_next/static/chunks/fallback/pages/_error.js\" defer=\"\"></script><noscript id=\"__next_css__DO_NOT_USE__\"></noscript></head><body><div id=\"__next\"></div><script src=\"/_next/static/chunks/fallback/react-refresh.js\"></script><script id=\"__NEXT_DATA__\" type=\"application/json\">{\"props\":{\"pageProps\":{\"statusCode\":500}},\"page\":\"/_error\",\"query\":{},\"buildId\":\"development\",\"isFallback\":false,\"err\":{\"name\":\"Error\",\"source\":\"server\",\"message\":\"Cannot find module './528.js'\\nRequire stack:\\n- /Users/netanelhadad/Projects/gymbro/apps/web/.next/server/webpack-runtime.js\\n- /Users/netanelhadad/Projects/gymbro/apps/web/.next/server/app/api/journey/stages/bootstrap/route.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/require.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/load-components.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/build/utils.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/dev/hot-middleware.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/dev/hot-reloader-webpack.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/lib/router-utils/setup-dev-bundler.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/lib/router-server.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/lib/start-server.js\",\"stack\":\"Error: Cannot find module './528.js'\\nRequire stack:\\n- /Users/netanelhadad/Projects/gymbro/apps/web/.next/server/webpack-runtime.js\\n- /Users/netanelhadad/Projects/gymbro/apps/web/.next/server/app/api/journey/stages/bootstrap/route.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/require.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/load-components.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/build/utils.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/dev/hot-middleware.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/dev/hot-reloader-webpack.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/lib/router-utils/setup-dev-bundler.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/lib/router-server.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/lib/start-server.js\\n    at Module._resolveFilename (node:internal/modules/cjs/loader:1207:15)\\n    at /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/require-hook.js:55:36\\n    at Module._load (node:internal/modules/cjs/loader:1038:27)\\n    at Module.require (node:internal/modules/cjs/loader:1289:19)\\n    at mod.require (/Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/require-hook.js:65:28)\\n    at require (node:internal/modules/helpers:182:18)\\n    at __webpack_require__.f.require (/Users/netanelhadad/Projects/gymbro/apps/web/.next/server/webpack-runtime.js:208:28)\\n    at /Users/netanelhadad/Projects/gymbro/apps/web/.next/server/webpack-runtime.js:116:40\\n    at Array.reduce (\\u003canonymous\\u003e)\\n    at __webpack_require__.e (/Users/netanelhadad/Projects/gymbro/apps/web/.next/server/webpack-runtime.js:115:67)\\n    at Array.map (\\u003canonymous\\u003e)\\n    at __webpack_require__.X (/Users/netanelhadad/Projects/gymbro/apps/web/.next/server/webpack-runtime.js:167:22)\\n    at /Users/netanelhadad/Projects/gymbro/apps/web/.next/server/pages/_document.js:1:340\\n    at Object.\\u003canonymous\\u003e (/Users/netanelhadad/Projects/gymbro/apps/web/.next/server/pages/_document.js:1:382)\\n    at Module._compile (node:internal/modules/cjs/loader:1521:14)\\n    at Module._extensions..js (node:internal/modules/cjs/loader:1623:10)\\n    at Module.load (node:internal/modules/cjs/loader:1266:32)\\n    at Module._load (node:internal/modules/cjs/loader:1091:12)\\n    at Module.require (node:internal/modules/cjs/loader:1289:19)\\n    at mod.require (/Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/require-hook.js:65:28)\\n    at require (node:internal/modules/helpers:182:18)\\n    at requirePage (/Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/require.js:109:84)\\n    at /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/load-components.js:72:65\\n    at async Promise.all (index 0)\\n    at async loadComponentsImpl (/Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/load-components.js:71:33)\\n    at async DevServer.findPageComponentsImpl (/Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/next-server.js:709:36)\"},\"gip\":true,\"scriptLoader\":[]}</script></body></html>"
+        },
+        "sessionAttach": {
+          "success": true,
+          "duration": 1155
+        },
+        "stagesBootstrap": {
+          "success": false,
+          "duration": 507,
+          "error": "HTTP 404: {\"ok\":false,\"error\":\"NoAvatar\",\"message\":\"User avatar not found\"}"
+        }
+      },
+      "totalDuration": 25916,
+      "validation": {
+        "userId": "99b9d89b-4aec-4b69-bbd1-8d5e6552e989",
+        "email": "test9@gymbro-test.com",
+        "checks": {
+          "authUserExists": true,
+          "profileExists": true,
+          "avatarExists": false,
+          "nutritionPlanExists": false,
+          "nutritionStatusReady": false,
+          "avatarMatches": false,
+          "stagesExist": false,
+          "nutritionQuality": false,
+          "caloriesInRange": false
+        },
+        "errors": [
+          "Nutrition plan is null",
+          "Nutrition status is 'null', expected 'ready'",
+          "Avatar not found: Cannot coerce the result to a single JSON object"
+        ],
+        "warnings": [
+          "No journey stages found"
+        ],
+        "details": {
+          "authUser": {
+            "id": "99b9d89b-4aec-4b69-bbd1-8d5e6552e989",
+            "email": "test9@gymbro-test.com",
+            "created_at": "2025-11-11T11:39:03.343417Z",
+            "user_metadata": {
+              "activity": "בינונית",
+              "birthdate": "2005-04-14",
+              "bmi": 19.1,
+              "diet": "vegan",
+              "email": "test9@gymbro-test.com",
+              "email_verified": true,
+              "experience": "knowledge",
+              "gender": "female",
+              "goals": [
+                "loss"
+              ],
+              "height_cm": 183,
+              "motivation": "Test motivation for user 9",
+              "notifications_opt_in": true,
+              "pace": "fast",
+              "phone_verified": false,
+              "sub": "99b9d89b-4aec-4b69-bbd1-8d5e6552e989",
+              "target_weight_kg": 48,
+              "training_frequency_actual": "medium",
+              "weight_kg": 64
+            }
+          },
+          "profile": {
+            "id": "99b9d89b-4aec-4b69-bbd1-8d5e6552e989",
+            "username": null,
+            "full_name": null,
+            "avatar_url": null,
+            "is_admin": false,
+            "created_at": "2025-11-11T11:39:04.617+00:00",
+            "updated_at": "2025-11-11T11:39:04.617+00:00",
+            "age": null,
+            "gender": null,
+            "height_cm": null,
+            "weight_kg": null,
+            "target_weight_kg": null,
+            "goal": null,
+            "diet": null,
+            "activity_level": null,
+            "workout_days_per_week": null,
+            "injuries": null,
+            "has_completed_onboarding": false,
+            "nutrition_plan": null,
+            "nutrition_fingerprint": null,
+            "nutrition_calories": null,
+            "nutrition_updated_at": null,
+            "journey_bootstrapped": false,
+            "nutrition_status": null
+          }
+        }
+      }
+    },
+    {
+      "user": {
+        "id": 10,
+        "email": "test10@gymbro-test.com",
+        "password": "Test123!",
+        "gender": "male",
+        "age": 58,
+        "height_cm": 155,
+        "weight_kg": 76,
+        "target_weight_kg": 70,
+        "birthdate": "1967-06-22",
+        "bmi": 31.6,
+        "goal": "ירידה במשקל",
+        "goals": [
+          "loss"
+        ],
+        "experience": "never",
+        "training_frequency_actual": "low",
+        "diet": "vegan",
+        "motivation": "Test motivation for user 10",
+        "pace": "moderate",
+        "activity": "נמוכה",
+        "category": "happy_path"
+      },
+      "success": false,
+      "steps": {
+        "nutritionGeneration": {
+          "success": true,
+          "duration": 25882
+        },
+        "registration": {
+          "success": true,
+          "duration": 463,
+          "userId": "a5067452-00d7-451e-be5b-e1e142c2ac2d"
+        },
+        "avatarBootstrap": {
+          "success": false,
+          "duration": 82,
+          "error": "HTTP 500: <!DOCTYPE html><html><head><style data-next-hide-fouc=\"true\">body{display:none}</style><noscript data-next-hide-fouc=\"true\"><style>body{display:block}</style></noscript><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width\"/><meta name=\"next-head-count\" content=\"2\"/><noscript data-n-css=\"\"></noscript><script defer=\"\" nomodule=\"\" src=\"/_next/static/chunks/polyfills.js\"></script><script src=\"/_next/static/chunks/fallback/webpack.js\" defer=\"\"></script><script src=\"/_next/static/chunks/fallback/main.js\" defer=\"\"></script><script src=\"/_next/static/chunks/fallback/pages/_app.js\" defer=\"\"></script><script src=\"/_next/static/chunks/fallback/pages/_error.js\" defer=\"\"></script><noscript id=\"__next_css__DO_NOT_USE__\"></noscript></head><body><div id=\"__next\"></div><script src=\"/_next/static/chunks/fallback/react-refresh.js\"></script><script id=\"__NEXT_DATA__\" type=\"application/json\">{\"props\":{\"pageProps\":{\"statusCode\":500}},\"page\":\"/_error\",\"query\":{},\"buildId\":\"development\",\"isFallback\":false,\"err\":{\"name\":\"Error\",\"source\":\"server\",\"message\":\"Cannot find module './528.js'\\nRequire stack:\\n- /Users/netanelhadad/Projects/gymbro/apps/web/.next/server/webpack-runtime.js\\n- /Users/netanelhadad/Projects/gymbro/apps/web/.next/server/app/api/journey/stages/bootstrap/route.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/require.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/load-components.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/build/utils.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/dev/hot-middleware.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/dev/hot-reloader-webpack.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/lib/router-utils/setup-dev-bundler.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/lib/router-server.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/lib/start-server.js\",\"stack\":\"Error: Cannot find module './528.js'\\nRequire stack:\\n- /Users/netanelhadad/Projects/gymbro/apps/web/.next/server/webpack-runtime.js\\n- /Users/netanelhadad/Projects/gymbro/apps/web/.next/server/app/api/journey/stages/bootstrap/route.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/require.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/load-components.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/build/utils.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/dev/hot-middleware.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/dev/hot-reloader-webpack.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/lib/router-utils/setup-dev-bundler.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/lib/router-server.js\\n- /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/lib/start-server.js\\n    at Module._resolveFilename (node:internal/modules/cjs/loader:1207:15)\\n    at /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/require-hook.js:55:36\\n    at Module._load (node:internal/modules/cjs/loader:1038:27)\\n    at Module.require (node:internal/modules/cjs/loader:1289:19)\\n    at mod.require (/Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/require-hook.js:65:28)\\n    at require (node:internal/modules/helpers:182:18)\\n    at __webpack_require__.f.require (/Users/netanelhadad/Projects/gymbro/apps/web/.next/server/webpack-runtime.js:208:28)\\n    at /Users/netanelhadad/Projects/gymbro/apps/web/.next/server/webpack-runtime.js:116:40\\n    at Array.reduce (\\u003canonymous\\u003e)\\n    at __webpack_require__.e (/Users/netanelhadad/Projects/gymbro/apps/web/.next/server/webpack-runtime.js:115:67)\\n    at Array.map (\\u003canonymous\\u003e)\\n    at __webpack_require__.X (/Users/netanelhadad/Projects/gymbro/apps/web/.next/server/webpack-runtime.js:167:22)\\n    at /Users/netanelhadad/Projects/gymbro/apps/web/.next/server/pages/_document.js:1:340\\n    at Object.\\u003canonymous\\u003e (/Users/netanelhadad/Projects/gymbro/apps/web/.next/server/pages/_document.js:1:382)\\n    at Module._compile (node:internal/modules/cjs/loader:1521:14)\\n    at Module._extensions..js (node:internal/modules/cjs/loader:1623:10)\\n    at Module.load (node:internal/modules/cjs/loader:1266:32)\\n    at Module._load (node:internal/modules/cjs/loader:1091:12)\\n    at Module.require (node:internal/modules/cjs/loader:1289:19)\\n    at mod.require (/Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/require-hook.js:65:28)\\n    at require (node:internal/modules/helpers:182:18)\\n    at requirePage (/Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/require.js:109:84)\\n    at /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/load-components.js:72:65\\n    at async Promise.all (index 0)\\n    at async loadComponentsImpl (/Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/load-components.js:71:33)\\n    at async DevServer.findPageComponentsImpl (/Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/next-server.js:709:36)\"},\"gip\":true,\"scriptLoader\":[]}</script></body></html>"
+        },
+        "sessionAttach": {
+          "success": true,
+          "duration": 945
+        },
+        "stagesBootstrap": {
+          "success": false,
+          "duration": 902,
+          "error": "HTTP 404: {\"ok\":false,\"error\":\"NoAvatar\",\"message\":\"User avatar not found\"}"
+        }
+      },
+      "totalDuration": 29075,
+      "validation": {
+        "userId": "a5067452-00d7-451e-be5b-e1e142c2ac2d",
+        "email": "test10@gymbro-test.com",
+        "checks": {
+          "authUserExists": true,
+          "profileExists": true,
+          "avatarExists": false,
+          "nutritionPlanExists": false,
+          "nutritionStatusReady": false,
+          "avatarMatches": false,
+          "stagesExist": false,
+          "nutritionQuality": false,
+          "caloriesInRange": false
+        },
+        "errors": [
+          "Nutrition plan is null",
+          "Nutrition status is 'null', expected 'ready'",
+          "Avatar not found: Cannot coerce the result to a single JSON object"
+        ],
+        "warnings": [
+          "No journey stages found"
+        ],
+        "details": {
+          "authUser": {
+            "id": "a5067452-00d7-451e-be5b-e1e142c2ac2d",
+            "email": "test10@gymbro-test.com",
+            "created_at": "2025-11-11T11:39:34.018322Z",
+            "user_metadata": {
+              "activity": "נמוכה",
+              "birthdate": "1967-06-22",
+              "bmi": 31.6,
+              "diet": "vegan",
+              "email": "test10@gymbro-test.com",
+              "email_verified": true,
+              "experience": "never",
+              "gender": "male",
+              "goals": [
+                "loss"
+              ],
+              "height_cm": 155,
+              "motivation": "Test motivation for user 10",
+              "notifications_opt_in": true,
+              "pace": "moderate",
+              "phone_verified": false,
+              "sub": "a5067452-00d7-451e-be5b-e1e142c2ac2d",
+              "target_weight_kg": 70,
+              "training_frequency_actual": "low",
+              "weight_kg": 76
+            }
+          },
+          "profile": {
+            "id": "a5067452-00d7-451e-be5b-e1e142c2ac2d",
+            "username": null,
+            "full_name": null,
+            "avatar_url": null,
+            "is_admin": false,
+            "created_at": "2025-11-11T11:39:35.021+00:00",
+            "updated_at": "2025-11-11T11:39:35.021+00:00",
+            "age": null,
+            "gender": null,
+            "height_cm": null,
+            "weight_kg": null,
+            "target_weight_kg": null,
+            "goal": null,
+            "diet": null,
+            "activity_level": null,
+            "workout_days_per_week": null,
+            "injuries": null,
+            "has_completed_onboarding": false,
+            "nutrition_plan": null,
+            "nutrition_fingerprint": null,
+            "nutrition_calories": null,
+            "nutrition_updated_at": null,
+            "journey_bootstrapped": false,
+            "nutrition_status": null
+          }
+        }
+      }
+    }
+  ]
+}

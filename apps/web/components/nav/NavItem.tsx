@@ -25,6 +25,7 @@ export function NavItem({ href, label, icon, active }: NavItemProps) {
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         transition={{ type: "spring", stiffness: 400, damping: 17 }}
+        style={{ transformOrigin: "center" }}
       >
         {/* Icon */}
         <div
@@ -47,13 +48,14 @@ export function NavItem({ href, label, icon, active }: NavItemProps) {
           {label}
         </span>
 
-        {/* Active indicator dot */}
+        {/* Active indicator dot - no layoutId to prevent layout shifts */}
         {active && (
           <motion.div
-            layoutId="activeTab"
             className="absolute -bottom-1 w-1 h-1 rounded-full"
             style={{ backgroundColor: tokens.colors.accent }}
-            initial={false}
+            initial={{ opacity: 0, scale: 0.5 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.5 }}
             transition={{ type: "spring", stiffness: 500, damping: 30 }}
           />
         )}

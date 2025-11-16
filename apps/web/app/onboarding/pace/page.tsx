@@ -1,22 +1,24 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
-import { saveOnboardingData, getOnboardingData } from "@/lib/onboarding-storage";
+import { useState, useEffect, useRef, startTransition } from "react";
+import { getOnboardingData } from "@/lib/onboarding-storage";
+import { saveOnboardingDraft } from "@/lib/onboarding/saveDraft";
+import { queueDraftRetry } from "@/lib/onboarding/retryQueue";
 import { useOnboardingNav } from "@/lib/onboarding/client";
 import SpeedRecommendation from "@/components/SpeedRecommendation";
 import { useOnboardingGender } from "@/lib/onboarding/useOnboardingGender";
-import { supabase } from "@/lib/supabase";
-import { getDays, getWorkout, getNutrition } from "@/lib/api-client";
 import OnboardingHeader from "../components/OnboardingHeader";
+import { useOnboardingContext } from "../OnboardingContext";
 
 export default function PacePage() {
   const router = useRouter();
   const [pace, setPace] = useState(0.8);
-  const [isLoading, setIsLoading] = useState(false);
+  const submittedRef = useRef(false);
   const [goalDirection, setGoalDirection] = useState<'gain' | 'lose'>('gain');
   const { nextHref } = useOnboardingNav("pace");
   const { getGenderedText } = useOnboardingGender();
+  const { progress, handleBack } = useOnboardingContext();
 
   const MIN_PACE = 0.1;
   const MAX_PACE = 1.5;
@@ -36,123 +38,6 @@ export default function PacePage() {
     }
   }, []);
 
-  // 🚀 Pre-generate workout and nutrition plans in the background
-  useEffect(() => {
-    let cancelled = false;
-
-    const preGenerate = async () => {
-      try {
-        const profile = getOnboardingData();
-        if (!profile || !profile.height_cm) {
-          console.log("[PreGen] Missing profile data, skipping");
-          return;
-        }
-
-        // Check if already pre-generated
-        const existing = localStorage.getItem("pregenerated_plans");
-        if (existing) {
-          console.log("[PreGen] Plans already generated, skipping");
-          return;
-        }
-
-        console.log("[PreGen] 🚀 Starting background plan generation...");
-
-        // Calculate age from birthdate
-        const age = profile.birthdate
-          ? new Date().getFullYear() - new Date(profile.birthdate).getFullYear()
-          : 28;
-
-        // Map to API format
-        const genderCode = profile.gender === "זכר" ? "male" : "female";
-        const goalCode = profile.goals?.includes("ירידה במשקל") ? "loss" :
-                         profile.goals?.includes("עלייה במסת שריר") ? "muscle" :
-                         profile.goals?.includes("עלייה במשקל") ? "gain" : "loss";
-        const activityCode = profile.activity === "מתחיל" ? "beginner" :
-                            profile.activity === "בינוני" ? "intermediate" :
-                            profile.activity === "מתקדם" ? "advanced" : "beginner";
-
-        const todayISO = new Date().toISOString().slice(0, 10);
-
-        // Get user ID
-        const { data: { user: currentUser } } = await supabase.auth.getUser();
-        const userId = currentUser?.id || `guest-${Date.now()}`;
-
-        // Calculate days
-        const daysPromise = getDays({
-          gender: genderCode,
-          age: age,
-          weight: profile.weight_kg || 75,
-          targetWeight: profile.target_weight_kg || 70,
-          heightCm: profile.height_cm,
-          goal: goalCode,
-          activityLevel: activityCode,
-        });
-
-        // Generate workout
-        const workoutPromise = getWorkout({
-          userId: userId,
-          gender: genderCode,
-          age: age,
-          weight: profile.weight_kg || 75,
-          targetWeight: profile.target_weight_kg || 70,
-          heightCm: profile.height_cm,
-          activityLevel: activityCode,
-          experienceLevel: profile.experience || "בינוני",
-          goal: profile.goals?.[0] || "שריפת שומן",
-          workoutsPerWeek: profile.frequency || 3,
-        });
-
-        // Generate nutrition
-        const nutritionPromise = getNutrition({
-          gender: profile.gender || "זכר",
-          age: age,
-          heightCm: profile.height_cm,
-          weight: profile.weight_kg || 75,
-          targetWeight: profile.target_weight_kg || 70,
-          activityDisplay: profile.activity || "בינוני",
-          goalDisplay: profile.goals?.[0] || "שריפת שומן",
-          startDateISO: todayISO,
-        });
-
-        // Wait for all to complete
-        const [daysRes, workoutRes, nutritionRes] = await Promise.allSettled([
-          daysPromise,
-          workoutPromise,
-          nutritionPromise
-        ]);
-
-        if (cancelled) return;
-
-        // Extract results
-        const days = daysRes.status === "fulfilled" && daysRes.value.ok ? daysRes.value.days : null;
-        const workout = workoutRes.status === "fulfilled" && workoutRes.value.ok ? workoutRes.value : null;
-        const nutrition = nutritionRes.status === "fulfilled" && nutritionRes.value.ok ? nutritionRes.value.json : null;
-
-        // Store in localStorage
-        const pregenerated = {
-          days,
-          workout: workout?.text,
-          workoutPlan: workout?.plan,
-          nutrition,
-          timestamp: Date.now(),
-          userId
-        };
-
-        localStorage.setItem("pregenerated_plans", JSON.stringify(pregenerated));
-        console.log("[PreGen] ✅ Plans pre-generated and cached successfully!");
-      } catch (err) {
-        console.error("[PreGen] ❌ Pre-generation failed:", err);
-        // Don't block the UI - generating page will handle it normally
-      }
-    };
-
-    preGenerate();
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
   // Calculate normalized position (0.0 to 1.0)
   const normalizedPosition = (pace - MIN_PACE) / (MAX_PACE - MIN_PACE);
 
@@ -161,9 +46,19 @@ export default function PacePage() {
   const inactive = 'rgba(255,255,255,0.1)';
 
   const handleContinue = () => {
-    setIsLoading(true);
-    saveOnboardingData({ pace: pace.toString() });
-    router.push(nextHref);
+    if (submittedRef.current) return;
+    submittedRef.current = true;
+
+    // Navigate immediately
+    startTransition(() => {
+      router.push(nextHref);
+    });
+
+    // Save in background with retry queue
+    saveOnboardingDraft({ pace: pace.toString() }).catch((error) => {
+      console.error("Failed to save pace draft:", error);
+      queueDraftRetry("pace", { pace: pace.toString() });
+    });
   };
 
   const paceLabel = goalDirection === 'gain' ? 'קצב עלייה במשקל לשבוע' : 'קצב ירידה במשקל לשבוע';
@@ -171,8 +66,39 @@ export default function PacePage() {
   return (
     <div className="flex flex-col min-h-full relative">
 
+      {/* Navigation bar */}
+      <div className="flex items-center gap-4 px-5 pb-3 pt-5" style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 1.25rem)' }}>
+        {/* Progress Bar */}
+        <div className="flex-1" dir="ltr">
+          <div className="h-1 bg-white/10 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-white/60 rounded-full transition-all duration-300"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+        </div>
+
+        {/* Back Button */}
+        <button
+          onClick={handleBack}
+          className="w-10 h-10 flex-shrink-0 flex items-center justify-center text-white/70 active:text-white active:scale-95 transition"
+          aria-label="חזור"
+        >
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+          >
+            <path d="M19 12H5M12 19l-7-7 7-7" />
+          </svg>
+        </button>
+      </div>
+
       {/* Title and Subtitle */}
-      <div className="px-6 pb-8 pt-4 flex-shrink-0">
+      <div className="px-6 pb-8 pt-2 flex-shrink-0">
         <OnboardingHeader
           title={
             <>
@@ -241,11 +167,9 @@ export default function PacePage() {
       >
         <button
           onClick={handleContinue}
-          disabled={isLoading}
-          className="w-full h-14 bg-[#E2F163] text-black font-bold text-lg rounded-full transition hover:bg-[#d4e350] active:scale-[0.98] disabled:opacity-50"
-          aria-busy={isLoading}
+          className="w-full h-14 bg-[#E2F163] text-black font-bold text-lg rounded-full transition hover:bg-[#d4e350] active:translate-y-1 active:brightness-90"
         >
-          {isLoading ? "שומר..." : "הבא"}
+          הבא
         </button>
       </footer>
 

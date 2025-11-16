@@ -1,7 +1,7 @@
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
-import { prisma } from "@gymbro/db";
+import { prisma } from "@fitjourney/db";
 import { authRouter } from "./routes/auth";
 import { userRouter } from "./routes/user";
 import { devRouter } from "./routes/dev";

@@ -222,8 +222,6 @@ export async function loadUserContext(): Promise<UserContext> {
     ? calculateAge(birthdate)
     : parseNumeric(
         getValue('age',
-          { value: profile?.age, source: 'profiles' },
-          { value: snapshot?.age, source: 'snapshot' },
           { value: metadata?.age, source: 'metadata' }
         ),
         13, 120

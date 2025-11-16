@@ -1,0 +1,1453 @@
+{
+  "timestamp": "2025-11-11T11:50:59.886Z",
+  "totalUsers": 10,
+  "totalDuration": 345645,
+  "results": [
+    {
+      "user": {
+        "id": 1,
+        "email": "test1@gymbro-test.com",
+        "password": "Test123!",
+        "gender": "female",
+        "age": 62,
+        "height_cm": 200,
+        "weight_kg": 47,
+        "target_weight_kg": 45,
+        "birthdate": "1963-07-24",
+        "bmi": 11.8,
+        "goal": "ירידה במשקל",
+        "goals": [
+          "loss"
+        ],
+        "experience": "time",
+        "training_frequency_actual": "high",
+        "diet": "balanced",
+        "motivation": "Test motivation for user 1",
+        "pace": "fast",
+        "activity": "גבוהה",
+        "category": "edge_case"
+      },
+      "success": true,
+      "steps": {
+        "nutritionGeneration": {
+          "success": true,
+          "duration": 22602
+        },
+        "registration": {
+          "success": true,
+          "duration": 506,
+          "userId": "fbb27012-56d6-4120-90d5-822771e8307a"
+        },
+        "avatarBootstrap": {
+          "success": true,
+          "duration": 1618
+        },
+        "sessionAttach": {
+          "success": true,
+          "duration": 553
+        },
+        "stagesBootstrap": {
+          "success": true,
+          "duration": 4901
+        }
+      },
+      "totalDuration": 31005,
+      "validation": {
+        "userId": "fbb27012-56d6-4120-90d5-822771e8307a",
+        "email": "test1@gymbro-test.com",
+        "checks": {
+          "authUserExists": true,
+          "profileExists": true,
+          "avatarExists": true,
+          "nutritionPlanExists": false,
+          "nutritionStatusReady": false,
+          "avatarMatches": false,
+          "stagesExist": true,
+          "nutritionQuality": false,
+          "caloriesInRange": false
+        },
+        "errors": [
+          "Nutrition plan is null",
+          "Nutrition status is 'null', expected 'ready'",
+          "Avatar gender mismatch: male vs expected female",
+          "Avatar frequency mismatch: medium vs expected high"
+        ],
+        "warnings": [],
+        "details": {
+          "authUser": {
+            "id": "fbb27012-56d6-4120-90d5-822771e8307a",
+            "email": "test1@gymbro-test.com",
+            "created_at": "2025-11-11T11:45:37.32708Z",
+            "user_metadata": {
+              "activity": "גבוהה",
+              "birthdate": "1963-07-24",
+              "bmi": 11.8,
+              "diet": "balanced",
+              "email": "test1@gymbro-test.com",
+              "email_verified": true,
+              "experience": "time",
+              "gender": "female",
+              "goals": [
+                "loss"
+              ],
+              "height_cm": 200,
+              "motivation": "Test motivation for user 1",
+              "notifications_opt_in": true,
+              "pace": "fast",
+              "phone_verified": false,
+              "sub": "fbb27012-56d6-4120-90d5-822771e8307a",
+              "target_weight_kg": 45,
+              "training_frequency_actual": "high",
+              "weight_kg": 47
+            }
+          },
+          "profile": {
+            "id": "fbb27012-56d6-4120-90d5-822771e8307a",
+            "username": null,
+            "full_name": null,
+            "avatar_url": null,
+            "is_admin": false,
+            "created_at": "2025-11-11T11:45:38.713+00:00",
+            "updated_at": "2025-11-11T11:45:38.713+00:00",
+            "age": null,
+            "gender": null,
+            "height_cm": null,
+            "weight_kg": null,
+            "target_weight_kg": null,
+            "goal": null,
+            "diet": null,
+            "activity_level": null,
+            "workout_days_per_week": null,
+            "injuries": null,
+            "has_completed_onboarding": false,
+            "nutrition_plan": null,
+            "nutrition_fingerprint": null,
+            "nutrition_calories": null,
+            "nutrition_updated_at": null,
+            "journey_bootstrapped": false,
+            "nutrition_status": null
+          },
+          "avatar": {
+            "user_id": "fbb27012-56d6-4120-90d5-822771e8307a",
+            "gender": "male",
+            "goal": "recomp",
+            "diet": "balanced",
+            "frequency": "medium",
+            "experience": "beginner",
+            "created_at": "2025-11-11T11:45:39.315328+00:00",
+            "updated_at": "2025-11-11T11:45:39.054+00:00",
+            "avatar_id": "rookie-cut",
+            "confidence": 0.1,
+            "matched_rules": [],
+            "reasons": [
+              "נמצא אווטר ברירת מחדל - אין התאמה מושלמת"
+            ]
+          },
+          "stagesCount": 4
+        }
+      }
+    },
+    {
+      "user": {
+        "id": 2,
+        "email": "test2@gymbro-test.com",
+        "password": "Test123!",
+        "gender": "female",
+        "age": 18,
+        "height_cm": 200,
+        "weight_kg": 45,
+        "target_weight_kg": 45,
+        "birthdate": "2007-02-18",
+        "bmi": 11.3,
+        "goal": "ירידה במשקל",
+        "goals": [
+          "loss"
+        ],
+        "experience": "sure",
+        "training_frequency_actual": "high",
+        "diet": "balanced",
+        "motivation": "Test motivation for user 2",
+        "pace": "fast",
+        "activity": "גבוהה",
+        "category": "edge_case"
+      },
+      "success": true,
+      "steps": {
+        "nutritionGeneration": {
+          "success": true,
+          "duration": 24672
+        },
+        "registration": {
+          "success": true,
+          "duration": 388,
+          "userId": "d806b17c-f771-43d9-b5a0-2245ebc4f96b"
+        },
+        "avatarBootstrap": {
+          "success": true,
+          "duration": 1391
+        },
+        "sessionAttach": {
+          "success": true,
+          "duration": 516
+        },
+        "stagesBootstrap": {
+          "success": true,
+          "duration": 5180
+        }
+      },
+      "totalDuration": 32947,
+      "validation": {
+        "userId": "d806b17c-f771-43d9-b5a0-2245ebc4f96b",
+        "email": "test2@gymbro-test.com",
+        "checks": {
+          "authUserExists": true,
+          "profileExists": true,
+          "avatarExists": true,
+          "nutritionPlanExists": false,
+          "nutritionStatusReady": false,
+          "avatarMatches": false,
+          "stagesExist": true,
+          "nutritionQuality": false,
+          "caloriesInRange": false
+        },
+        "errors": [
+          "Nutrition plan is null",
+          "Nutrition status is 'null', expected 'ready'",
+          "Avatar gender mismatch: male vs expected female",
+          "Avatar experience mismatch: beginner vs expected intermediate",
+          "Avatar frequency mismatch: medium vs expected high"
+        ],
+        "warnings": [],
+        "details": {
+          "authUser": {
+            "id": "d806b17c-f771-43d9-b5a0-2245ebc4f96b",
+            "email": "test2@gymbro-test.com",
+            "created_at": "2025-11-11T11:46:12.133873Z",
+            "user_metadata": {
+              "activity": "גבוהה",
+              "birthdate": "2007-02-18",
+              "bmi": 11.3,
+              "diet": "balanced",
+              "email": "test2@gymbro-test.com",
+              "email_verified": true,
+              "experience": "sure",
+              "gender": "female",
+              "goals": [
+                "loss"
+              ],
+              "height_cm": 200,
+              "motivation": "Test motivation for user 2",
+              "notifications_opt_in": true,
+              "pace": "fast",
+              "phone_verified": false,
+              "sub": "d806b17c-f771-43d9-b5a0-2245ebc4f96b",
+              "target_weight_kg": 45,
+              "training_frequency_actual": "high",
+              "weight_kg": 45
+            }
+          },
+          "profile": {
+            "id": "d806b17c-f771-43d9-b5a0-2245ebc4f96b",
+            "username": null,
+            "full_name": null,
+            "avatar_url": null,
+            "is_admin": false,
+            "created_at": "2025-11-11T11:46:13.317+00:00",
+            "updated_at": "2025-11-11T11:46:13.317+00:00",
+            "age": null,
+            "gender": null,
+            "height_cm": null,
+            "weight_kg": null,
+            "target_weight_kg": null,
+            "goal": null,
+            "diet": null,
+            "activity_level": null,
+            "workout_days_per_week": null,
+            "injuries": null,
+            "has_completed_onboarding": false,
+            "nutrition_plan": null,
+            "nutrition_fingerprint": null,
+            "nutrition_calories": null,
+            "nutrition_updated_at": null,
+            "journey_bootstrapped": false,
+            "nutrition_status": null
+          },
+          "avatar": {
+            "user_id": "d806b17c-f771-43d9-b5a0-2245ebc4f96b",
+            "gender": "male",
+            "goal": "recomp",
+            "diet": "balanced",
+            "frequency": "medium",
+            "experience": "beginner",
+            "created_at": "2025-11-11T11:46:13.828517+00:00",
+            "updated_at": "2025-11-11T11:46:13.571+00:00",
+            "avatar_id": "rookie-cut",
+            "confidence": 0.1,
+            "matched_rules": [],
+            "reasons": [
+              "נמצא אווטר ברירת מחדל - אין התאמה מושלמת"
+            ]
+          },
+          "stagesCount": 4
+        }
+      }
+    },
+    {
+      "user": {
+        "id": 3,
+        "email": "test3@gymbro-test.com",
+        "password": "Test123!",
+        "gender": "female",
+        "age": 40,
+        "height_cm": 172,
+        "weight_kg": 72,
+        "target_weight_kg": 54,
+        "birthdate": "1985-08-15",
+        "bmi": 24.3,
+        "goal": "ירידה במשקל",
+        "goals": [
+          "loss"
+        ],
+        "experience": "results",
+        "training_frequency_actual": "high",
+        "diet": "vegetarian",
+        "motivation": "Test motivation for user 3",
+        "pace": "slow",
+        "activity": "גבוהה",
+        "category": "happy_path"
+      },
+      "success": true,
+      "steps": {
+        "nutritionGeneration": {
+          "success": true,
+          "duration": 22861
+        },
+        "registration": {
+          "success": true,
+          "duration": 429,
+          "userId": "65464698-93f2-48b2-a449-ddcb6a488013"
+        },
+        "avatarBootstrap": {
+          "success": true,
+          "duration": 1620
+        },
+        "sessionAttach": {
+          "success": true,
+          "duration": 480
+        },
+        "stagesBootstrap": {
+          "success": true,
+          "duration": 4892
+        }
+      },
+      "totalDuration": 31176,
+      "validation": {
+        "userId": "65464698-93f2-48b2-a449-ddcb6a488013",
+        "email": "test3@gymbro-test.com",
+        "checks": {
+          "authUserExists": true,
+          "profileExists": true,
+          "avatarExists": true,
+          "nutritionPlanExists": false,
+          "nutritionStatusReady": false,
+          "avatarMatches": false,
+          "stagesExist": true,
+          "nutritionQuality": false,
+          "caloriesInRange": false
+        },
+        "errors": [
+          "Nutrition plan is null",
+          "Nutrition status is 'null', expected 'ready'",
+          "Avatar gender mismatch: male vs expected female",
+          "Avatar experience mismatch: beginner vs expected intermediate",
+          "Avatar diet mismatch: balanced vs expected vegetarian",
+          "Avatar frequency mismatch: medium vs expected high"
+        ],
+        "warnings": [],
+        "details": {
+          "authUser": {
+            "id": "65464698-93f2-48b2-a449-ddcb6a488013",
+            "email": "test3@gymbro-test.com",
+            "created_at": "2025-11-11T11:46:45.036296Z",
+            "user_metadata": {
+              "activity": "גבוהה",
+              "birthdate": "1985-08-15",
+              "bmi": 24.3,
+              "diet": "vegetarian",
+              "email": "test3@gymbro-test.com",
+              "email_verified": true,
+              "experience": "results",
+              "gender": "female",
+              "goals": [
+                "loss"
+              ],
+              "height_cm": 172,
+              "motivation": "Test motivation for user 3",
+              "notifications_opt_in": true,
+              "pace": "slow",
+              "phone_verified": false,
+              "sub": "65464698-93f2-48b2-a449-ddcb6a488013",
+              "target_weight_kg": 54,
+              "training_frequency_actual": "high",
+              "weight_kg": 72
+            }
+          },
+          "profile": {
+            "id": "65464698-93f2-48b2-a449-ddcb6a488013",
+            "username": null,
+            "full_name": null,
+            "avatar_url": null,
+            "is_admin": false,
+            "created_at": "2025-11-11T11:46:46.536+00:00",
+            "updated_at": "2025-11-11T11:46:46.536+00:00",
+            "age": null,
+            "gender": null,
+            "height_cm": null,
+            "weight_kg": null,
+            "target_weight_kg": null,
+            "goal": null,
+            "diet": null,
+            "activity_level": null,
+            "workout_days_per_week": null,
+            "injuries": null,
+            "has_completed_onboarding": false,
+            "nutrition_plan": null,
+            "nutrition_fingerprint": null,
+            "nutrition_calories": null,
+            "nutrition_updated_at": null,
+            "journey_bootstrapped": false,
+            "nutrition_status": null
+          },
+          "avatar": {
+            "user_id": "65464698-93f2-48b2-a449-ddcb6a488013",
+            "gender": "male",
+            "goal": "recomp",
+            "diet": "balanced",
+            "frequency": "medium",
+            "experience": "beginner",
+            "created_at": "2025-11-11T11:46:47.058716+00:00",
+            "updated_at": "2025-11-11T11:46:46.799+00:00",
+            "avatar_id": "rookie-cut",
+            "confidence": 0.1,
+            "matched_rules": [],
+            "reasons": [
+              "נמצא אווטר ברירת מחדל - אין התאמה מושלמת"
+            ]
+          },
+          "stagesCount": 4
+        }
+      }
+    },
+    {
+      "user": {
+        "id": 4,
+        "email": "test4@gymbro-test.com",
+        "password": "Test123!",
+        "gender": "male",
+        "age": 36,
+        "height_cm": 159,
+        "weight_kg": 117,
+        "target_weight_kg": 109,
+        "birthdate": "1989-04-08",
+        "bmi": 46.3,
+        "goal": "ירידה במשקל",
+        "goals": [
+          "loss"
+        ],
+        "experience": "knowledge",
+        "training_frequency_actual": "low",
+        "diet": "vegan",
+        "motivation": "Test motivation for user 4",
+        "pace": "slow",
+        "activity": "נמוכה",
+        "category": "happy_path"
+      },
+      "success": true,
+      "steps": {
+        "nutritionGeneration": {
+          "success": true,
+          "duration": 22196
+        },
+        "registration": {
+          "success": true,
+          "duration": 406,
+          "userId": "35d7a573-a775-4691-ab5a-2481330f4afa"
+        },
+        "avatarBootstrap": {
+          "success": true,
+          "duration": 1411
+        },
+        "sessionAttach": {
+          "success": true,
+          "duration": 460
+        },
+        "stagesBootstrap": {
+          "success": true,
+          "duration": 4612
+        }
+      },
+      "totalDuration": 29870,
+      "validation": {
+        "userId": "35d7a573-a775-4691-ab5a-2481330f4afa",
+        "email": "test4@gymbro-test.com",
+        "checks": {
+          "authUserExists": true,
+          "profileExists": true,
+          "avatarExists": true,
+          "nutritionPlanExists": false,
+          "nutritionStatusReady": false,
+          "avatarMatches": false,
+          "stagesExist": true,
+          "nutritionQuality": false,
+          "caloriesInRange": false
+        },
+        "errors": [
+          "Nutrition plan is null",
+          "Nutrition status is 'null', expected 'ready'",
+          "Avatar experience mismatch: beginner vs expected advanced",
+          "Avatar diet mismatch: balanced vs expected vegan",
+          "Avatar frequency mismatch: medium vs expected low"
+        ],
+        "warnings": [],
+        "details": {
+          "authUser": {
+            "id": "35d7a573-a775-4691-ab5a-2481330f4afa",
+            "email": "test4@gymbro-test.com",
+            "created_at": "2025-11-11T11:47:17.173575Z",
+            "user_metadata": {
+              "activity": "נמוכה",
+              "birthdate": "1989-04-08",
+              "bmi": 46.3,
+              "diet": "vegan",
+              "email": "test4@gymbro-test.com",
+              "email_verified": true,
+              "experience": "knowledge",
+              "gender": "male",
+              "goals": [
+                "loss"
+              ],
+              "height_cm": 159,
+              "motivation": "Test motivation for user 4",
+              "notifications_opt_in": true,
+              "pace": "slow",
+              "phone_verified": false,
+              "sub": "35d7a573-a775-4691-ab5a-2481330f4afa",
+              "target_weight_kg": 109,
+              "training_frequency_actual": "low",
+              "weight_kg": 117
+            }
+          },
+          "profile": {
+            "id": "35d7a573-a775-4691-ab5a-2481330f4afa",
+            "username": null,
+            "full_name": null,
+            "avatar_url": null,
+            "is_admin": false,
+            "created_at": "2025-11-11T11:47:18.183+00:00",
+            "updated_at": "2025-11-11T11:47:18.183+00:00",
+            "age": null,
+            "gender": null,
+            "height_cm": null,
+            "weight_kg": null,
+            "target_weight_kg": null,
+            "goal": null,
+            "diet": null,
+            "activity_level": null,
+            "workout_days_per_week": null,
+            "injuries": null,
+            "has_completed_onboarding": false,
+            "nutrition_plan": null,
+            "nutrition_fingerprint": null,
+            "nutrition_calories": null,
+            "nutrition_updated_at": null,
+            "journey_bootstrapped": false,
+            "nutrition_status": null
+          },
+          "avatar": {
+            "user_id": "35d7a573-a775-4691-ab5a-2481330f4afa",
+            "gender": "male",
+            "goal": "recomp",
+            "diet": "balanced",
+            "frequency": "medium",
+            "experience": "beginner",
+            "created_at": "2025-11-11T11:47:18.615714+00:00",
+            "updated_at": "2025-11-11T11:47:18.379+00:00",
+            "avatar_id": "rookie-cut",
+            "confidence": 0.1,
+            "matched_rules": [],
+            "reasons": [
+              "נמצא אווטר ברירת מחדל - אין התאמה מושלמת"
+            ]
+          },
+          "stagesCount": 4
+        }
+      }
+    },
+    {
+      "user": {
+        "id": 5,
+        "email": "test5@gymbro-test.com",
+        "password": "Test123!",
+        "gender": "male",
+        "age": 29,
+        "height_cm": 174,
+        "weight_kg": 96,
+        "target_weight_kg": 76,
+        "birthdate": "1996-03-09",
+        "bmi": 31.7,
+        "goal": "ירידה במשקל",
+        "goals": [
+          "loss"
+        ],
+        "experience": "never",
+        "training_frequency_actual": "low",
+        "diet": "balanced",
+        "motivation": "Test motivation for user 5",
+        "pace": "fast",
+        "activity": "נמוכה",
+        "category": "happy_path"
+      },
+      "success": true,
+      "steps": {
+        "nutritionGeneration": {
+          "success": true,
+          "duration": 22232
+        },
+        "registration": {
+          "success": true,
+          "duration": 385,
+          "userId": "348b0f31-de34-4e94-8886-f0a1f6d8d05c"
+        },
+        "avatarBootstrap": {
+          "success": true,
+          "duration": 1245
+        },
+        "sessionAttach": {
+          "success": true,
+          "duration": 435
+        },
+        "stagesBootstrap": {
+          "success": true,
+          "duration": 4389
+        }
+      },
+      "totalDuration": 29498,
+      "validation": {
+        "userId": "348b0f31-de34-4e94-8886-f0a1f6d8d05c",
+        "email": "test5@gymbro-test.com",
+        "checks": {
+          "authUserExists": true,
+          "profileExists": true,
+          "avatarExists": true,
+          "nutritionPlanExists": false,
+          "nutritionStatusReady": false,
+          "avatarMatches": false,
+          "stagesExist": true,
+          "nutritionQuality": false,
+          "caloriesInRange": false
+        },
+        "errors": [
+          "Nutrition plan is null",
+          "Nutrition status is 'null', expected 'ready'",
+          "Avatar frequency mismatch: medium vs expected low"
+        ],
+        "warnings": [],
+        "details": {
+          "authUser": {
+            "id": "348b0f31-de34-4e94-8886-f0a1f6d8d05c",
+            "email": "test5@gymbro-test.com",
+            "created_at": "2025-11-11T11:47:48.813936Z",
+            "user_metadata": {
+              "activity": "נמוכה",
+              "birthdate": "1996-03-09",
+              "bmi": 31.7,
+              "diet": "balanced",
+              "email": "test5@gymbro-test.com",
+              "email_verified": true,
+              "experience": "never",
+              "gender": "male",
+              "goals": [
+                "loss"
+              ],
+              "height_cm": 174,
+              "motivation": "Test motivation for user 5",
+              "notifications_opt_in": true,
+              "pace": "fast",
+              "phone_verified": false,
+              "sub": "348b0f31-de34-4e94-8886-f0a1f6d8d05c",
+              "target_weight_kg": 76,
+              "training_frequency_actual": "low",
+              "weight_kg": 96
+            }
+          },
+          "profile": {
+            "id": "348b0f31-de34-4e94-8886-f0a1f6d8d05c",
+            "username": null,
+            "full_name": null,
+            "avatar_url": null,
+            "is_admin": false,
+            "created_at": "2025-11-11T11:47:49.874+00:00",
+            "updated_at": "2025-11-11T11:47:49.874+00:00",
+            "age": null,
+            "gender": null,
+            "height_cm": null,
+            "weight_kg": null,
+            "target_weight_kg": null,
+            "goal": null,
+            "diet": null,
+            "activity_level": null,
+            "workout_days_per_week": null,
+            "injuries": null,
+            "has_completed_onboarding": false,
+            "nutrition_plan": null,
+            "nutrition_fingerprint": null,
+            "nutrition_calories": null,
+            "nutrition_updated_at": null,
+            "journey_bootstrapped": false,
+            "nutrition_status": null
+          },
+          "avatar": {
+            "user_id": "348b0f31-de34-4e94-8886-f0a1f6d8d05c",
+            "gender": "male",
+            "goal": "recomp",
+            "diet": "balanced",
+            "frequency": "medium",
+            "experience": "beginner",
+            "created_at": "2025-11-11T11:47:50.340154+00:00",
+            "updated_at": "2025-11-11T11:47:50.102+00:00",
+            "avatar_id": "rookie-cut",
+            "confidence": 0.1,
+            "matched_rules": [],
+            "reasons": [
+              "נמצא אווטר ברירת מחדל - אין התאמה מושלמת"
+            ]
+          },
+          "stagesCount": 4
+        }
+      }
+    },
+    {
+      "user": {
+        "id": 6,
+        "email": "test6@gymbro-test.com",
+        "password": "Test123!",
+        "gender": "male",
+        "age": 26,
+        "height_cm": 173,
+        "weight_kg": 67,
+        "target_weight_kg": 58,
+        "birthdate": "1999-03-26",
+        "bmi": 22.4,
+        "goal": "ירידה במשקל",
+        "goals": [
+          "loss"
+        ],
+        "experience": "time",
+        "training_frequency_actual": "low",
+        "diet": "balanced",
+        "motivation": "Test motivation for user 6",
+        "pace": "moderate",
+        "activity": "נמוכה",
+        "category": "happy_path"
+      },
+      "success": true,
+      "steps": {
+        "nutritionGeneration": {
+          "success": true,
+          "duration": 25050
+        },
+        "registration": {
+          "success": true,
+          "duration": 358,
+          "userId": "c3ef8c4e-9bd8-48cc-948a-fd82ac7b752e"
+        },
+        "avatarBootstrap": {
+          "success": true,
+          "duration": 1405
+        },
+        "sessionAttach": {
+          "success": true,
+          "duration": 626
+        },
+        "stagesBootstrap": {
+          "success": true,
+          "duration": 5042
+        }
+      },
+      "totalDuration": 33361,
+      "validation": {
+        "userId": "c3ef8c4e-9bd8-48cc-948a-fd82ac7b752e",
+        "email": "test6@gymbro-test.com",
+        "checks": {
+          "authUserExists": true,
+          "profileExists": true,
+          "avatarExists": true,
+          "nutritionPlanExists": false,
+          "nutritionStatusReady": false,
+          "avatarMatches": false,
+          "stagesExist": true,
+          "nutritionQuality": false,
+          "caloriesInRange": false
+        },
+        "errors": [
+          "Nutrition plan is null",
+          "Nutrition status is 'null', expected 'ready'",
+          "Avatar frequency mismatch: medium vs expected low"
+        ],
+        "warnings": [],
+        "details": {
+          "authUser": {
+            "id": "c3ef8c4e-9bd8-48cc-948a-fd82ac7b752e",
+            "email": "test6@gymbro-test.com",
+            "created_at": "2025-11-11T11:48:22.706367Z",
+            "user_metadata": {
+              "activity": "נמוכה",
+              "birthdate": "1999-03-26",
+              "bmi": 22.4,
+              "diet": "balanced",
+              "email": "test6@gymbro-test.com",
+              "email_verified": true,
+              "experience": "time",
+              "gender": "male",
+              "goals": [
+                "loss"
+              ],
+              "height_cm": 173,
+              "motivation": "Test motivation for user 6",
+              "notifications_opt_in": true,
+              "pace": "moderate",
+              "phone_verified": false,
+              "sub": "c3ef8c4e-9bd8-48cc-948a-fd82ac7b752e",
+              "target_weight_kg": 58,
+              "training_frequency_actual": "low",
+              "weight_kg": 67
+            }
+          },
+          "profile": {
+            "id": "c3ef8c4e-9bd8-48cc-948a-fd82ac7b752e",
+            "username": null,
+            "full_name": null,
+            "avatar_url": null,
+            "is_admin": false,
+            "created_at": "2025-11-11T11:48:23.957+00:00",
+            "updated_at": "2025-11-11T11:48:23.957+00:00",
+            "age": null,
+            "gender": null,
+            "height_cm": null,
+            "weight_kg": null,
+            "target_weight_kg": null,
+            "goal": null,
+            "diet": null,
+            "activity_level": null,
+            "workout_days_per_week": null,
+            "injuries": null,
+            "has_completed_onboarding": false,
+            "nutrition_plan": null,
+            "nutrition_fingerprint": null,
+            "nutrition_calories": null,
+            "nutrition_updated_at": null,
+            "journey_bootstrapped": false,
+            "nutrition_status": null
+          },
+          "avatar": {
+            "user_id": "c3ef8c4e-9bd8-48cc-948a-fd82ac7b752e",
+            "gender": "male",
+            "goal": "recomp",
+            "diet": "balanced",
+            "frequency": "medium",
+            "experience": "beginner",
+            "created_at": "2025-11-11T11:48:24.497704+00:00",
+            "updated_at": "2025-11-11T11:48:24.161+00:00",
+            "avatar_id": "rookie-cut",
+            "confidence": 0.1,
+            "matched_rules": [],
+            "reasons": [
+              "נמצא אווטר ברירת מחדל - אין התאמה מושלמת"
+            ]
+          },
+          "stagesCount": 4
+        }
+      }
+    },
+    {
+      "user": {
+        "id": 7,
+        "email": "test7@gymbro-test.com",
+        "password": "Test123!",
+        "gender": "male",
+        "age": 53,
+        "height_cm": 186,
+        "weight_kg": 113,
+        "target_weight_kg": 108,
+        "birthdate": "1972-12-11",
+        "bmi": 32.7,
+        "goal": "ירידה במשקל",
+        "goals": [
+          "loss"
+        ],
+        "experience": "sure",
+        "training_frequency_actual": "high",
+        "diet": "vegetarian",
+        "motivation": "Test motivation for user 7",
+        "pace": "slow",
+        "activity": "גבוהה",
+        "category": "happy_path"
+      },
+      "success": true,
+      "steps": {
+        "nutritionGeneration": {
+          "success": true,
+          "duration": 26215
+        },
+        "registration": {
+          "success": true,
+          "duration": 400,
+          "userId": "d8727748-cf75-4fd1-a3d2-55958361f965"
+        },
+        "avatarBootstrap": {
+          "success": true,
+          "duration": 1321
+        },
+        "sessionAttach": {
+          "success": true,
+          "duration": 615
+        },
+        "stagesBootstrap": {
+          "success": true,
+          "duration": 5334
+        }
+      },
+      "totalDuration": 34721,
+      "validation": {
+        "userId": "d8727748-cf75-4fd1-a3d2-55958361f965",
+        "email": "test7@gymbro-test.com",
+        "checks": {
+          "authUserExists": true,
+          "profileExists": true,
+          "avatarExists": true,
+          "nutritionPlanExists": false,
+          "nutritionStatusReady": false,
+          "avatarMatches": false,
+          "stagesExist": true,
+          "nutritionQuality": false,
+          "caloriesInRange": false
+        },
+        "errors": [
+          "Nutrition plan is null",
+          "Nutrition status is 'null', expected 'ready'",
+          "Avatar experience mismatch: beginner vs expected intermediate",
+          "Avatar diet mismatch: balanced vs expected vegetarian",
+          "Avatar frequency mismatch: medium vs expected high"
+        ],
+        "warnings": [],
+        "details": {
+          "authUser": {
+            "id": "d8727748-cf75-4fd1-a3d2-55958361f965",
+            "email": "test7@gymbro-test.com",
+            "created_at": "2025-11-11T11:48:58.967413Z",
+            "user_metadata": {
+              "activity": "גבוהה",
+              "birthdate": "1972-12-11",
+              "bmi": 32.7,
+              "diet": "vegetarian",
+              "email": "test7@gymbro-test.com",
+              "email_verified": true,
+              "experience": "sure",
+              "gender": "male",
+              "goals": [
+                "loss"
+              ],
+              "height_cm": 186,
+              "motivation": "Test motivation for user 7",
+              "notifications_opt_in": true,
+              "pace": "slow",
+              "phone_verified": false,
+              "sub": "d8727748-cf75-4fd1-a3d2-55958361f965",
+              "target_weight_kg": 108,
+              "training_frequency_actual": "high",
+              "weight_kg": 113
+            }
+          },
+          "profile": {
+            "id": "d8727748-cf75-4fd1-a3d2-55958361f965",
+            "username": null,
+            "full_name": null,
+            "avatar_url": null,
+            "is_admin": false,
+            "created_at": "2025-11-11T11:49:00.142+00:00",
+            "updated_at": "2025-11-11T11:49:00.142+00:00",
+            "age": null,
+            "gender": null,
+            "height_cm": null,
+            "weight_kg": null,
+            "target_weight_kg": null,
+            "goal": null,
+            "diet": null,
+            "activity_level": null,
+            "workout_days_per_week": null,
+            "injuries": null,
+            "has_completed_onboarding": false,
+            "nutrition_plan": null,
+            "nutrition_fingerprint": null,
+            "nutrition_calories": null,
+            "nutrition_updated_at": null,
+            "journey_bootstrapped": false,
+            "nutrition_status": null
+          },
+          "avatar": {
+            "user_id": "d8727748-cf75-4fd1-a3d2-55958361f965",
+            "gender": "male",
+            "goal": "recomp",
+            "diet": "balanced",
+            "frequency": "medium",
+            "experience": "beginner",
+            "created_at": "2025-11-11T11:49:00.647917+00:00",
+            "updated_at": "2025-11-11T11:49:00.4+00:00",
+            "avatar_id": "rookie-cut",
+            "confidence": 0.1,
+            "matched_rules": [],
+            "reasons": [
+              "נמצא אווטר ברירת מחדל - אין התאמה מושלמת"
+            ]
+          },
+          "stagesCount": 4
+        }
+      }
+    },
+    {
+      "user": {
+        "id": 8,
+        "email": "test8@gymbro-test.com",
+        "password": "Test123!",
+        "gender": "female",
+        "age": 35,
+        "height_cm": 183,
+        "weight_kg": 53,
+        "target_weight_kg": 45,
+        "birthdate": "1990-11-12",
+        "bmi": 15.8,
+        "goal": "ירידה במשקל",
+        "goals": [
+          "loss"
+        ],
+        "experience": "results",
+        "training_frequency_actual": "high",
+        "diet": "vegan",
+        "motivation": "Test motivation for user 8",
+        "pace": "slow",
+        "activity": "גבוהה",
+        "category": "happy_path"
+      },
+      "success": true,
+      "steps": {
+        "nutritionGeneration": {
+          "success": true,
+          "duration": 22640
+        },
+        "registration": {
+          "success": true,
+          "duration": 376,
+          "userId": "a330bda6-2dc2-44b6-ad28-a149a20e8c49"
+        },
+        "avatarBootstrap": {
+          "success": true,
+          "duration": 1319
+        },
+        "sessionAttach": {
+          "success": true,
+          "duration": 606
+        },
+        "stagesBootstrap": {
+          "success": true,
+          "duration": 5239
+        }
+      },
+      "totalDuration": 30977,
+      "validation": {
+        "userId": "a330bda6-2dc2-44b6-ad28-a149a20e8c49",
+        "email": "test8@gymbro-test.com",
+        "checks": {
+          "authUserExists": true,
+          "profileExists": true,
+          "avatarExists": true,
+          "nutritionPlanExists": false,
+          "nutritionStatusReady": false,
+          "avatarMatches": false,
+          "stagesExist": true,
+          "nutritionQuality": false,
+          "caloriesInRange": false
+        },
+        "errors": [
+          "Nutrition plan is null",
+          "Nutrition status is 'null', expected 'ready'",
+          "Avatar gender mismatch: male vs expected female",
+          "Avatar experience mismatch: beginner vs expected intermediate",
+          "Avatar diet mismatch: balanced vs expected vegan",
+          "Avatar frequency mismatch: medium vs expected high"
+        ],
+        "warnings": [],
+        "details": {
+          "authUser": {
+            "id": "a330bda6-2dc2-44b6-ad28-a149a20e8c49",
+            "email": "test8@gymbro-test.com",
+            "created_at": "2025-11-11T11:49:31.991309Z",
+            "user_metadata": {
+              "activity": "גבוהה",
+              "birthdate": "1990-11-12",
+              "bmi": 15.8,
+              "diet": "vegan",
+              "email": "test8@gymbro-test.com",
+              "email_verified": true,
+              "experience": "results",
+              "gender": "female",
+              "goals": [
+                "loss"
+              ],
+              "height_cm": 183,
+              "motivation": "Test motivation for user 8",
+              "notifications_opt_in": true,
+              "pace": "slow",
+              "phone_verified": false,
+              "sub": "a330bda6-2dc2-44b6-ad28-a149a20e8c49",
+              "target_weight_kg": 45,
+              "training_frequency_actual": "high",
+              "weight_kg": 53
+            }
+          },
+          "profile": {
+            "id": "a330bda6-2dc2-44b6-ad28-a149a20e8c49",
+            "username": null,
+            "full_name": null,
+            "avatar_url": null,
+            "is_admin": false,
+            "created_at": "2025-11-11T11:49:33.14+00:00",
+            "updated_at": "2025-11-11T11:49:33.14+00:00",
+            "age": null,
+            "gender": null,
+            "height_cm": null,
+            "weight_kg": null,
+            "target_weight_kg": null,
+            "goal": null,
+            "diet": null,
+            "activity_level": null,
+            "workout_days_per_week": null,
+            "injuries": null,
+            "has_completed_onboarding": false,
+            "nutrition_plan": null,
+            "nutrition_fingerprint": null,
+            "nutrition_calories": null,
+            "nutrition_updated_at": null,
+            "journey_bootstrapped": false,
+            "nutrition_status": null
+          },
+          "avatar": {
+            "user_id": "a330bda6-2dc2-44b6-ad28-a149a20e8c49",
+            "gender": "male",
+            "goal": "recomp",
+            "diet": "balanced",
+            "frequency": "medium",
+            "experience": "beginner",
+            "created_at": "2025-11-11T11:49:33.620634+00:00",
+            "updated_at": "2025-11-11T11:49:33.366+00:00",
+            "avatar_id": "rookie-cut",
+            "confidence": 0.1,
+            "matched_rules": [],
+            "reasons": [
+              "נמצא אווטר ברירת מחדל - אין התאמה מושלמת"
+            ]
+          },
+          "stagesCount": 4
+        }
+      }
+    },
+    {
+      "user": {
+        "id": 9,
+        "email": "test9@gymbro-test.com",
+        "password": "Test123!",
+        "gender": "female",
+        "age": 51,
+        "height_cm": 186,
+        "weight_kg": 80,
+        "target_weight_kg": 64,
+        "birthdate": "1974-07-12",
+        "bmi": 23.1,
+        "goal": "ירידה במשקל",
+        "goals": [
+          "loss"
+        ],
+        "experience": "knowledge",
+        "training_frequency_actual": "medium",
+        "diet": "vegan",
+        "motivation": "Test motivation for user 9",
+        "pace": "moderate",
+        "activity": "בינונית",
+        "category": "happy_path"
+      },
+      "success": true,
+      "steps": {
+        "nutritionGeneration": {
+          "success": true,
+          "duration": 31438
+        },
+        "registration": {
+          "success": true,
+          "duration": 517,
+          "userId": "6bf91e97-6c60-4b7b-b335-8e8c6358e210"
+        },
+        "avatarBootstrap": {
+          "success": true,
+          "duration": 1260
+        },
+        "sessionAttach": {
+          "success": true,
+          "duration": 446
+        },
+        "stagesBootstrap": {
+          "success": true,
+          "duration": 4672
+        }
+      },
+      "totalDuration": 39171,
+      "validation": {
+        "userId": "6bf91e97-6c60-4b7b-b335-8e8c6358e210",
+        "email": "test9@gymbro-test.com",
+        "checks": {
+          "authUserExists": true,
+          "profileExists": true,
+          "avatarExists": true,
+          "nutritionPlanExists": false,
+          "nutritionStatusReady": false,
+          "avatarMatches": false,
+          "stagesExist": true,
+          "nutritionQuality": false,
+          "caloriesInRange": false
+        },
+        "errors": [
+          "Nutrition plan is null",
+          "Nutrition status is 'null', expected 'ready'",
+          "Avatar gender mismatch: male vs expected female",
+          "Avatar experience mismatch: beginner vs expected advanced",
+          "Avatar diet mismatch: balanced vs expected vegan"
+        ],
+        "warnings": [],
+        "details": {
+          "authUser": {
+            "id": "6bf91e97-6c60-4b7b-b335-8e8c6358e210",
+            "email": "test9@gymbro-test.com",
+            "created_at": "2025-11-11T11:50:13.702308Z",
+            "user_metadata": {
+              "activity": "בינונית",
+              "birthdate": "1974-07-12",
+              "bmi": 23.1,
+              "diet": "vegan",
+              "email": "test9@gymbro-test.com",
+              "email_verified": true,
+              "experience": "knowledge",
+              "gender": "female",
+              "goals": [
+                "loss"
+              ],
+              "height_cm": 186,
+              "motivation": "Test motivation for user 9",
+              "notifications_opt_in": true,
+              "pace": "moderate",
+              "phone_verified": false,
+              "sub": "6bf91e97-6c60-4b7b-b335-8e8c6358e210",
+              "target_weight_kg": 64,
+              "training_frequency_actual": "medium",
+              "weight_kg": 80
+            }
+          },
+          "profile": {
+            "id": "6bf91e97-6c60-4b7b-b335-8e8c6358e210",
+            "username": null,
+            "full_name": null,
+            "avatar_url": null,
+            "is_admin": false,
+            "created_at": "2025-11-11T11:50:14.823+00:00",
+            "updated_at": "2025-11-11T11:50:14.823+00:00",
+            "age": null,
+            "gender": null,
+            "height_cm": null,
+            "weight_kg": null,
+            "target_weight_kg": null,
+            "goal": null,
+            "diet": null,
+            "activity_level": null,
+            "workout_days_per_week": null,
+            "injuries": null,
+            "has_completed_onboarding": false,
+            "nutrition_plan": null,
+            "nutrition_fingerprint": null,
+            "nutrition_calories": null,
+            "nutrition_updated_at": null,
+            "journey_bootstrapped": false,
+            "nutrition_status": null
+          },
+          "avatar": {
+            "user_id": "6bf91e97-6c60-4b7b-b335-8e8c6358e210",
+            "gender": "male",
+            "goal": "recomp",
+            "diet": "balanced",
+            "frequency": "medium",
+            "experience": "beginner",
+            "created_at": "2025-11-11T11:50:15.298649+00:00",
+            "updated_at": "2025-11-11T11:50:15.058+00:00",
+            "avatar_id": "rookie-cut",
+            "confidence": 0.1,
+            "matched_rules": [],
+            "reasons": [
+              "נמצא אווטר ברירת מחדל - אין התאמה מושלמת"
+            ]
+          },
+          "stagesCount": 4
+        }
+      }
+    },
+    {
+      "user": {
+        "id": 10,
+        "email": "test10@gymbro-test.com",
+        "password": "Test123!",
+        "gender": "female",
+        "age": 41,
+        "height_cm": 162,
+        "weight_kg": 74,
+        "target_weight_kg": 63,
+        "birthdate": "1984-07-23",
+        "bmi": 28.2,
+        "goal": "ירידה במשקל",
+        "goals": [
+          "loss"
+        ],
+        "experience": "never",
+        "training_frequency_actual": "high",
+        "diet": "balanced",
+        "motivation": "Test motivation for user 10",
+        "pace": "slow",
+        "activity": "גבוהה",
+        "category": "happy_path"
+      },
+      "success": true,
+      "steps": {
+        "nutritionGeneration": {
+          "success": true,
+          "duration": 27715
+        },
+        "registration": {
+          "success": true,
+          "duration": 364,
+          "userId": "5c7b76fb-8b42-4a3b-862d-4d5e32542e19"
+        },
+        "avatarBootstrap": {
+          "success": true,
+          "duration": 1433
+        },
+        "sessionAttach": {
+          "success": true,
+          "duration": 575
+        },
+        "stagesBootstrap": {
+          "success": true,
+          "duration": 4617
+        }
+      },
+      "totalDuration": 35506,
+      "validation": {
+        "userId": "5c7b76fb-8b42-4a3b-862d-4d5e32542e19",
+        "email": "test10@gymbro-test.com",
+        "checks": {
+          "authUserExists": true,
+          "profileExists": true,
+          "avatarExists": true,
+          "nutritionPlanExists": false,
+          "nutritionStatusReady": false,
+          "avatarMatches": false,
+          "stagesExist": true,
+          "nutritionQuality": false,
+          "caloriesInRange": false
+        },
+        "errors": [
+          "Nutrition plan is null",
+          "Nutrition status is 'null', expected 'ready'",
+          "Avatar gender mismatch: male vs expected female",
+          "Avatar frequency mismatch: medium vs expected high"
+        ],
+        "warnings": [],
+        "details": {
+          "authUser": {
+            "id": "5c7b76fb-8b42-4a3b-862d-4d5e32542e19",
+            "email": "test10@gymbro-test.com",
+            "created_at": "2025-11-11T11:50:50.786549Z",
+            "user_metadata": {
+              "activity": "גבוהה",
+              "birthdate": "1984-07-23",
+              "bmi": 28.2,
+              "diet": "balanced",
+              "email": "test10@gymbro-test.com",
+              "email_verified": true,
+              "experience": "never",
+              "gender": "female",
+              "goals": [
+                "loss"
+              ],
+              "height_cm": 162,
+              "motivation": "Test motivation for user 10",
+              "notifications_opt_in": true,
+              "pace": "slow",
+              "phone_verified": false,
+              "sub": "5c7b76fb-8b42-4a3b-862d-4d5e32542e19",
+              "target_weight_kg": 63,
+              "training_frequency_actual": "high",
+              "weight_kg": 74
+            }
+          },
+          "profile": {
+            "id": "5c7b76fb-8b42-4a3b-862d-4d5e32542e19",
+            "username": null,
+            "full_name": null,
+            "avatar_url": null,
+            "is_admin": false,
+            "created_at": "2025-11-11T11:50:51.88+00:00",
+            "updated_at": "2025-11-11T11:50:51.88+00:00",
+            "age": null,
+            "gender": null,
+            "height_cm": null,
+            "weight_kg": null,
+            "target_weight_kg": null,
+            "goal": null,
+            "diet": null,
+            "activity_level": null,
+            "workout_days_per_week": null,
+            "injuries": null,
+            "has_completed_onboarding": false,
+            "nutrition_plan": null,
+            "nutrition_fingerprint": null,
+            "nutrition_calories": null,
+            "nutrition_updated_at": null,
+            "journey_bootstrapped": false,
+            "nutrition_status": null
+          },
+          "avatar": {
+            "user_id": "5c7b76fb-8b42-4a3b-862d-4d5e32542e19",
+            "gender": "male",
+            "goal": "recomp",
+            "diet": "balanced",
+            "frequency": "medium",
+            "experience": "beginner",
+            "created_at": "2025-11-11T11:50:52.346488+00:00",
+            "updated_at": "2025-11-11T11:50:52.108+00:00",
+            "avatar_id": "rookie-cut",
+            "confidence": 0.1,
+            "matched_rules": [],
+            "reasons": [
+              "נמצא אווטר ברירת מחדל - אין התאמה מושלמת"
+            ]
+          },
+          "stagesCount": 4
+        }
+      }
+    }
+  ]
+}

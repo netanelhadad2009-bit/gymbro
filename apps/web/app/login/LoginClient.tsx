@@ -2,9 +2,10 @@
 
 import SocialAuthButtons from "@/components/SocialAuthButtons";
 import { supabase } from "@/lib/supabase";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import texts from "@/lib/assistantTexts";
+import { translateAuthError, validateEmail, validatePassword } from "@/lib/i18n/authHe";
 
 export default function LoginClient() {
   const router = useRouter();
@@ -13,23 +14,60 @@ export default function LoginClient() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Force re-render when returning from external browser (iOS Simulator fix)
+  const [, forceUpdate] = useState(0);
+
+  useEffect(() => {
+    const handleBrowserClosed = () => {
+      console.log("[LoginClient] Browser closed, forcing re-render");
+      forceUpdate(prev => prev + 1);
+    };
+
+    window.addEventListener('external-browser-closed', handleBrowserClosed);
+    window.addEventListener('focus', handleBrowserClosed);
+
+    return () => {
+      window.removeEventListener('external-browser-closed', handleBrowserClosed);
+      window.removeEventListener('focus', handleBrowserClosed);
+    };
+  }, []);
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
+
+    // Client-side validation
+    const emailError = validateEmail(email);
+    if (emailError) {
+      setError(emailError);
+      return;
+    }
+
+    const passwordError = validatePassword(password);
+    if (passwordError) {
+      setError(passwordError);
+      return;
+    }
+
     setLoading(true);
 
-    const { data, error: err } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    try {
+      const { data, error: err } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
 
-    setLoading(false);
+      setLoading(false);
 
-    if (err) {
-      setError(err.message);
-    } else if (data?.user) {
-      // Success - redirect to onboarding
-      router.push("/onboarding/gender");
+      if (err) {
+        setError(translateAuthError(err, 'sign_in'));
+      } else if (data?.user) {
+        // Success - redirect to onboarding
+        router.push("/onboarding/gender");
+      }
+    } catch (err) {
+      setLoading(false);
+      setError(translateAuthError(err, 'sign_in'));
     }
   }
 
@@ -47,7 +85,7 @@ export default function LoginClient() {
         </div>
 
         {/* Email/Password Form */}
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit}>
           <div className="space-y-2">
             <label className="text-sm text-[#d9dee3]">{texts.login.emailLabel}</label>
             <input
@@ -60,7 +98,7 @@ export default function LoginClient() {
             />
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-2 mt-4">
             <label className="text-sm text-[#d9dee3]">{texts.login.passwordLabel}</label>
             <input
               type="password"
@@ -72,13 +110,13 @@ export default function LoginClient() {
           </div>
 
           {error && (
-            <p className="text-red-400 text-sm pt-1">{error}</p>
+            <p className="text-red-400 text-sm pt-1 mt-4">{error}</p>
           )}
 
           <button
             type="submit"
             disabled={loading}
-            className="mt-6 h-14 w-full rounded-full bg-[#E2F163] text-black font-bold text-lg transition-transform active:scale-98 active:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="mt-10 h-14 w-full rounded-full bg-[#E2F163] text-black font-bold text-lg transition-transform active:scale-98 active:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? texts.login.loggingIn : texts.login.loginButton}
           </button>

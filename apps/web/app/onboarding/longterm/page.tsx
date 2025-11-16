@@ -1,167 +1,120 @@
 "use client";
-
-import { Line } from "react-chartjs-2";
-import {
-  Chart as ChartJS,
-  LineElement,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  Filler,
-} from "chart.js";
+import React, { useState, useEffect } from "react";
+import AnimatedProgressChart from "@/components/onboarding/AnimatedProgressChart";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
 import { getNextStep, getStepPath } from "@/lib/onboarding/steps";
-import OnboardingHeader from "../components/OnboardingHeader";
-
-ChartJS.register(LineElement, CategoryScale, LinearScale, PointElement, Filler);
+import { motion } from "framer-motion";
+import OnboardingShell from "../components/OnboardingShell";
+import PrimaryButton from "@/components/PrimaryButton";
 
 export default function LongTermPage() {
   const router = useRouter();
-  const [loaded, setLoaded] = useState(false);
+  const [showButton, setShowButton] = useState(false);
 
+  // Show button after chart animation completes
   useEffect(() => {
-    setTimeout(() => setLoaded(true), 300);
+    const timer = setTimeout(() => {
+      setShowButton(true);
+    }, 2200); // After chart animation (1.8s + 0.4s buffer)
+
+    return () => clearTimeout(timer);
   }, []);
 
-  const data = {
-    labels: ["חודש 1", "חודש 6"],
-    datasets: [
-      {
-        label: "GymBro",
-        data: loaded ? [40, 90] : [40, 40],
-        borderColor: "#E2F163",
-        backgroundColor: "rgba(226, 241, 99, 0.1)",
-        borderWidth: 3,
-        tension: 0.4,
-        pointBackgroundColor: "#E2F163",
-        pointBorderColor: "#E2F163",
-        pointRadius: 6,
-        pointHoverRadius: 8,
-        fill: true,
-      },
-      {
-        label: "מסורתי",
-        data: loaded ? [40, 30] : [40, 40],
-        borderColor: "#6B7280",
-        backgroundColor: "rgba(107, 114, 128, 0.1)",
-        borderWidth: 2,
-        tension: 0.4,
-        pointBackgroundColor: "#6B7280",
-        pointBorderColor: "#6B7280",
-        pointRadius: 5,
-        pointHoverRadius: 7,
-        fill: true,
-      },
-    ],
-  };
-
-  const options = {
-    responsive: true,
-    maintainAspectRatio: true,
-    plugins: {
-      legend: {
-        display: true,
-        position: "top" as const,
-        align: "center" as const,
-        rtl: true,
-        labels: {
-          color: "#ffffff",
-          font: {
-            size: 14,
-            weight: "bold" as const,
-          },
-          padding: 15,
-          usePointStyle: true,
-          pointStyle: "circle",
-        },
-      },
-      tooltip: {
-        enabled: true,
-        rtl: true,
-        backgroundColor: "rgba(14, 15, 18, 0.9)",
-        titleColor: "#E2F163",
-        bodyColor: "#ffffff",
-        borderColor: "#E2F163",
-        borderWidth: 1,
-        padding: 12,
-        displayColors: true,
-      },
-    },
-    scales: {
-      x: {
-        grid: {
-          display: false,
-        },
-        ticks: {
-          color: "#ffffff99",
-          font: {
-            size: 12,
-          },
-        },
-        border: {
-          display: false,
-        },
-      },
-      y: {
-        display: false,
-        min: 0,
-        max: 100,
-      },
-    },
-    animation: {
-      duration: 1500,
-      easing: "easeInOutQuart" as const,
-    },
+  const handleNext = () => {
+    const nextStep = getNextStep("longterm");
+    if (nextStep) {
+      router.push(getStepPath(nextStep));
+    }
   };
 
   return (
-    <div
-      className="flex flex-col p-6 text-white min-h-full relative"
+    <OnboardingShell
+      title={
+        <>
+          FitJourney יוצר תוצאות
+          <br />
+          לאורך זמן
+        </>
+      }
+      subtitle="רוב המשתמשים שלנו שומרים על ההתקדמות שלהם גם אחרי חודשים ארוכים."
+      footer={
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={showButton ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+          transition={{ duration: 0.5 }}
+        >
+          <PrimaryButton onClick={handleNext} className="h-14 text-lg">
+            המשך
+          </PrimaryButton>
+        </motion.div>
+      }
     >
-      <div className="w-full max-w-md mx-auto flex flex-col flex-1" style={{ paddingBottom: 'calc(5rem + env(safe-area-inset-bottom, 0px) + 1.5rem)' }}>
-        <div>
-          <OnboardingHeader
-            title="GymBro יוצר תוצאות לטווח ארוך 💪"
-            subtitle="רוב המשתמשים שלנו שומרים על התקדמות עקבית לאורך זמן"
-            className="mb-6"
-          />
-
-          {/* Chart */}
-          <div className="bg-white/5 rounded-2xl p-6 mb-4 shadow-inner border border-white/10">
-            <Line data={data} options={options} />
-          </div>
-
-          {/* Caption */}
-          <p className="text-center text-white/60 text-sm px-4 leading-relaxed">
-            <span className="text-[#E2F163] font-bold">80%</span> ממשתמשי GymBro שומרים על ההתקדמות שלהם גם לאחר 6 חודשים.
-          </p>
-        </div>
-
-      </div>
-
-      {/* Continue Button - Fixed at bottom of viewport with spacing */}
-      <footer
-        className="fixed left-0 right-0 z-40 bg-[#0D0E0F] px-6 pt-3 border-t border-white/5"
+      {/* CHART CARD - Single premium card */}
+      <motion.section
+        className="relative rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[rgba(22,22,22,0.75)] p-4 sm:p-6 mb-6 shadow-[0_10px_35px_rgba(0,0,0,0.55)] overflow-hidden"
         style={{
-          bottom: 'calc(env(safe-area-inset-bottom, 0px) + 0.75rem)',
-          paddingBottom: '0.75rem'
+          backdropFilter: "blur(6px)",
+          WebkitBackdropFilter: "blur(6px)",
         }}
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.7, delay: 0.2 }}
       >
-        <div className="w-full max-w-md mx-auto">
-          <button
-            onClick={() => {
-              const nextStep = getNextStep("longterm");
-              if (nextStep) {
-                router.push(getStepPath(nextStep));
-              }
-            }}
-            className="bg-[#E2F163] text-black font-bold text-lg h-14 rounded-full w-full transition hover:bg-[#d4e350] active:scale-[0.98]"
-          >
-            הבא
-          </button>
+        {/* Gradient stroke (single layer) */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 rounded-2xl"
+          style={{
+            boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.06)",
+            background:
+              "radial-gradient(120% 100% at 100% 0%, rgba(226,241,99,0.16) 0%, rgba(226,241,99,0.06) 35%, transparent 60%)",
+          }}
+        />
+
+        {/* Subtle grid – very faint */}
+        <svg
+          className="absolute inset-0 opacity-10"
+          width="100%"
+          height="100%"
+          aria-hidden
+        >
+          <defs>
+            <pattern
+              id="chart-grid"
+              width="28"
+              height="28"
+              patternUnits="userSpaceOnUse"
+            >
+              <path
+                d="M 28 0 L 0 0 0 28"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="0.5"
+              />
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#chart-grid)" />
+        </svg>
+
+        <div className="relative z-10">
+          <AnimatedProgressChart rtl={true} accentColor="#E2F163" />
         </div>
-      </footer>
-    </div>
+      </motion.section>
+
+      {/* STAT LINE - Emotional emphasis */}
+      <motion.div
+        className="rounded-[20px] bg-white/[0.04] border border-white/[0.06] px-5 py-4"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.8 }}
+      >
+        <p className="text-[15px] text-white/85 leading-relaxed text-center">
+          <span className="text-[#E2F163] font-bold text-[18px]">82%</span>{" "}
+          ממשתמשי FitJourney שומרים על
+          <br />
+          ההישגים שלהם גם אחרי 6 חודשים.
+        </p>
+      </motion.div>
+    </OnboardingShell>
   );
 }

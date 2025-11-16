@@ -1,9 +1,11 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useMemo } from "react";
-import { getOnboardingData } from "@/lib/onboarding-storage";
+import { useMemo, useState, useEffect } from "react";
 import OnboardingHeader from "../components/OnboardingHeader";
+import { supabase } from "@/lib/supabase";
+import { getPushStatus } from '@/lib/notifications/permissions';
+import { saveOnboardingData } from "@/lib/onboarding-storage";
 
 type Point = { label: string; weight: number; days: number };
 
@@ -12,17 +14,25 @@ function buildProjection(
   target: number,
   pacePerWeek: number
 ): Point[] {
-  const days = [3, 7, 30, 60, 90];
+  const days = [3, 7, 30, 60];
   const perDay = pacePerWeek / 7; // kg per day (+/-)
   const arr = days.map((d) => ({
     label: d === 3 ? "3 ימים" : d === 7 ? "7 ימים" : `${d} ימים`,
     weight: Number((current + perDay * d).toFixed(1)),
     days: d,
   }));
-  // clamp end toward target (don't overshoot by > 0.5kg)
-  const last = arr[arr.length - 1];
-  if (pacePerWeek < 0 && last.weight < target - 0.5) last.weight = target;
-  if (pacePerWeek > 0 && last.weight > target + 0.5) last.weight = target;
+
+  // Calculate days to reach target
+  const weightDiff = target - current;
+  const daysToTarget = Math.abs(weightDiff / perDay);
+
+  // Add final point at exactly the target weight
+  arr.push({
+    label: `יעד`,
+    weight: target,
+    days: Math.round(daysToTarget),
+  });
+
   return arr;
 }
 
@@ -33,38 +43,145 @@ function getDataFromLocalStorage() {
     const target = localStorage.getItem("onb.targetWeightKg");
     const pace = localStorage.getItem("onb.paceKgPerWeek");
     return {
-      currentWeightKg: current ? parseFloat(current) : 75,
-      targetWeightKg: target ? parseFloat(target) : 72,
-      paceKgPerWeek: pace ? parseFloat(pace) : -0.4,
+      currentWeightKg: current ? parseFloat(current) : null,
+      targetWeightKg: target ? parseFloat(target) : null,
+      paceKgPerWeek: pace ? parseFloat(pace) : null,
     };
   } catch {
-    return { currentWeightKg: 75, targetWeightKg: 72, paceKgPerWeek: -0.4 };
+    return { currentWeightKg: null, targetWeightKg: null, paceKgPerWeek: null };
+  }
+}
+
+function getDataFromURL() {
+  if (typeof window === "undefined") return null;
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const target = params.get("target_weight_kg");
+    const current = params.get("current_weight_kg");
+    const pace = params.get("pace_kg_per_week");
+
+    const targetNum = target ? Number(target) : NaN;
+    const currentNum = current ? Number(current) : NaN;
+    const paceNum = pace ? Number(pace) : NaN;
+
+    return {
+      targetWeightKg: Number.isFinite(targetNum) && targetNum >= 20 && targetNum <= 500 ? Math.round(targetNum) : null,
+      currentWeightKg: Number.isFinite(currentNum) && currentNum >= 20 && currentNum <= 500 ? Math.round(currentNum) : null,
+      paceKgPerWeek: Number.isFinite(paceNum) && paceNum >= -2 && paceNum <= 2 ? paceNum : null,
+    };
+  } catch {
+    return { currentWeightKg: null, targetWeightKg: null, paceKgPerWeek: null };
   }
 }
 
 export default function ReadinessPage() {
   const router = useRouter();
 
-  const { currentWeightKg, targetWeightKg, paceKgPerWeek } = useMemo(
-    () => getDataFromLocalStorage() || { currentWeightKg: 75, targetWeightKg: 72, paceKgPerWeek: -0.4 },
-    []
-  );
+  // Target weight with proper fallback chain
+  const [targetKg, setTargetKg] = useState<number | null>(null);
+  const [currentKg, setCurrentKg] = useState<number>(75); // Default current weight
+  const [paceKg, setPaceKg] = useState<number>(-0.4); // Default pace
+  const [realDeadline, setRealDeadline] = useState<string | null>(null);
+  const [targetSource, setTargetSource] = useState<string>("none");
 
+  // Fetch target weight with fallback chain
+  useEffect(() => {
+    async function resolveTargetWeight() {
+      let resolved: number | null = null;
+      let source = "none";
+
+      // 1) Try Supabase user metadata first
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        const meta = user?.user_metadata as any;
+        if (typeof meta?.target_weight_kg === "number" && meta.target_weight_kg >= 20 && meta.target_weight_kg <= 500) {
+          resolved = Math.round(meta.target_weight_kg);
+          source = "supabase";
+          console.info("[OnboardingFinal] target weight source", { source, value: resolved });
+        }
+      } catch (err) {
+        console.warn("[Readiness] Failed to fetch Supabase user metadata:", err);
+      }
+
+      // 2) Try API if not resolved
+      if (resolved == null) {
+        try {
+          const res = await fetch("/api/onboarding/results-meta");
+          const json = await res.json();
+          if (json.ok && json.data?.targetKg) {
+            const apiTarget = Number(json.data.targetKg);
+            if (Number.isFinite(apiTarget) && apiTarget >= 20 && apiTarget <= 500) {
+              resolved = Math.round(apiTarget);
+              source = "api";
+              setRealDeadline(json.data.deadline);
+            }
+          }
+        } catch (err) {
+          console.warn("[Readiness] Failed to fetch API meta:", err);
+        }
+      }
+
+      // 3) Try localStorage if still not resolved
+      if (resolved == null) {
+        const localData = getDataFromLocalStorage();
+        if (localData?.targetWeightKg != null && localData.targetWeightKg >= 20 && localData.targetWeightKg <= 500) {
+          resolved = Math.round(localData.targetWeightKg);
+          source = "localStorage";
+        }
+        // Also get current and pace from localStorage
+        if (localData?.currentWeightKg) setCurrentKg(localData.currentWeightKg);
+        if (localData?.paceKgPerWeek) setPaceKg(localData.paceKgPerWeek);
+      }
+
+      // 4) Try URL params as last resort
+      if (resolved == null) {
+        const urlData = getDataFromURL();
+        if (urlData?.targetWeightKg != null) {
+          resolved = urlData.targetWeightKg;
+          source = "url";
+        }
+        if (urlData?.currentWeightKg) setCurrentKg(urlData.currentWeightKg);
+        if (urlData?.paceKgPerWeek) setPaceKg(urlData.paceKgPerWeek);
+      }
+
+      console.info("[OnboardingFinal] target weight source", { source, value: resolved });
+      setTargetKg(resolved);
+      setTargetSource(source);
+    }
+
+    resolveTargetWeight();
+  }, []);
+
+  // Log display mode
+  useEffect(() => {
+    console.info('[OnboardingFinal] Display mode: maximum progress label instead of target weight');
+  }, []);
+
+  // Use resolved target; fallback to reasonable default only for graph calculations
+  // The text display will show "התקדמות מירבית" instead of weight
+  const displayTargetKg = targetKg ?? (currentKg - 3); // Graph fallback: slightly below current
+  const displayTargetText = targetKg != null ? `${targetKg} ק״ג` : "—";
+  const displayTargetAriaLabel = targetKg != null ? undefined : "משקל יעד לא זמין";
+
+  // Build projection using the display target (which includes real target from DB if available)
   const projection = useMemo(
-    () => buildProjection(currentWeightKg, targetWeightKg, paceKgPerWeek),
-    [currentWeightKg, targetWeightKg, paceKgPerWeek]
+    () => buildProjection(currentKg, displayTargetKg, paceKg),
+    [currentKg, displayTargetKg, paceKg]
   );
 
-  // Calculate target date
-  const targetDate = useMemo(() => {
-    const diff = targetWeightKg - currentWeightKg;
-    const weeks = diff / paceKgPerWeek;
+  // Calculate fallback deadline from current data (always computed)
+  const fallbackDeadline = useMemo(() => {
+    const diff = displayTargetKg - currentKg;
+    const weeks = diff / paceKg;
     const days = Math.round(Math.abs(weeks * 7));
     const clampedDays = Math.min(days, 120);
     const date = new Date();
     date.setDate(date.getDate() + clampedDays);
     return date.toLocaleDateString("he-IL", { day: "numeric", month: "long" });
-  }, [currentWeightKg, targetWeightKg, paceKgPerWeek]);
+  }, [currentKg, displayTargetKg, paceKg]);
+
+  // Use real deadline if available, otherwise use calculated fallback
+  const displayDeadline = realDeadline ?? fallbackDeadline;
 
   // SVG chart dimensions
   const chartWidth = 320;
@@ -74,16 +191,16 @@ export default function ReadinessPage() {
   const plotHeight = chartHeight - padding.top - padding.bottom;
 
   // Find min/max for y-scale
-  const allWeights = [currentWeightKg, ...projection.map((p) => p.weight)];
+  const allWeights = [currentKg, ...projection.map((p) => p.weight)];
   const minWeight = Math.min(...allWeights) - 2;
   const maxWeight = Math.max(...allWeights) + 2;
   const weightRange = maxWeight - minWeight;
 
-  // Map points to SVG coordinates
+  // Map points to SVG coordinates - extend graph more to the right
   const svgPoints = [
-    { x: padding.left, y: padding.top + plotHeight - ((currentWeightKg - minWeight) / weightRange) * plotHeight },
+    { x: padding.left, y: padding.top + plotHeight - ((currentKg - minWeight) / weightRange) * plotHeight },
     ...projection.map((p, i) => ({
-      x: padding.left + ((i + 1) / (projection.length + 1)) * plotWidth,
+      x: padding.left + ((i + 1) / (projection.length + 0.3)) * plotWidth,
       y: padding.top + plotHeight - ((p.weight - minWeight) / weightRange) * plotHeight,
     })),
   ];
@@ -99,40 +216,81 @@ export default function ReadinessPage() {
     "Z",
   ].join(" ");
 
-  const handleContinue = () => {
-    router.push("/onboarding/reminders");
+  const handleContinue = async () => {
+    // Check if notifications are already granted
+    const permissionStatus = await getPushStatus();
+
+    if (permissionStatus === 'granted') {
+      // Already granted - skip reminders page and go straight to generating
+      console.log('[ReadinessPage] Notifications already granted, skipping reminders page');
+      saveOnboardingData({ notifications_opt_in: true });
+      router.push("/onboarding/generating");
+    } else {
+      // Not granted - show reminders page to request permission
+      router.push("/onboarding/reminders");
+    }
   };
 
   return (
-    <div className="flex flex-col min-h-full px-5 relative">
-      {/* Title Block */}
-      <div className="text-center mb-8 mt-4 flex-shrink-0">
-        <OnboardingHeader
-          title={
-            <>
-              הנתונים שלך מראים
-              <br />
-              שהמטרה בהישג יד!
-            </>
-          }
-          subtitle="בואו נראה את התחזית שלך"
-        />
-      </div>
+    <div className="flex flex-col h-[100dvh] overflow-hidden">
+      {/* Scrollable content */}
+      <div className="flex-1 overflow-y-auto px-5">
+        {/* Title Block with progress hairline */}
+        <div className="text-center mb-8 pt-20 sm:pt-24 flex-shrink-0 space-y-3">
+          <div className="h-px w-14 bg-white/10 rounded-full mx-auto" />
+          <OnboardingHeader
+            title={
+              <>
+                הנתונים שלך מראים
+                <br />
+                שהמטרה בהישג יד!
+              </>
+            }
+            subtitle="בואו נראה את התחזית שלך"
+          />
+        </div>
 
-      {/* Projection Card */}
-      <div className="rounded-3xl bg-[#14161b] p-5 shadow-[0_10px_40px_rgba(0,0,0,0.35)] mb-8" style={{ paddingBottom: 'calc(5rem + env(safe-area-inset-bottom, 0px) + 1.5rem)' }}>
+        {/* Projection Card - Single premium container */}
+        <div
+          className="relative rounded-2xl p-4 md:p-5 mb-8 shadow-[0_10px_35px_rgba(0,0,0,0.55)] overflow-hidden ring-1 ring-white/10"
+          style={{
+            paddingBottom: 'calc(5rem + env(safe-area-inset-bottom, 0px) + 1.5rem)',
+            background: 'linear-gradient(180deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.02) 100%)',
+            backdropFilter: 'blur(8px)',
+            WebkitBackdropFilter: 'blur(8px)',
+            boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.05), 0 10px 35px rgba(0,0,0,0.55)'
+          }}
+        >
         {/* Card caption */}
-        <p className="text-sm text-white/50 mb-4 text-right">עם GymBro</p>
+        <p className="text-sm text-white/50 mb-4 text-right">עם FitJourney</p>
 
-        {/* Chart */}
-        <div className="mb-6">
+        {/* Chart - LTR flow with Hebrew labels */}
+        <div className="mb-6" dir="ltr" aria-label="גרף תחזית המשקל">
           <svg
             width="100%"
             height={chartHeight}
             viewBox={`0 0 ${chartWidth} ${chartHeight}`}
             className="overflow-visible"
           >
-            {/* Vertical grid lines */}
+            {/* Defs - gradients and filters */}
+            <defs>
+              {/* Area gradient with lime accent */}
+              <linearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#E2F163" stopOpacity="0.18" />
+                <stop offset="100%" stopColor="#E2F163" stopOpacity="0.04" />
+              </linearGradient>
+
+              {/* Soft glow filter */}
+              <filter id="softGlow" x="-50%" y="-50%" width="200%" height="200%">
+                <feGaussianBlur stdDeviation="3" result="glow"/>
+                <feMerge>
+                  <feMergeNode in="glow"/>
+                  <feMergeNode in="SourceGraphic"/>
+                </feMerge>
+              </filter>
+            </defs>
+
+            {/* Vertical grid lines - softer */}
             {projection.map((_, i) => {
               const x = padding.left + ((i + 1) / (projection.length + 1)) * plotWidth;
               return (
@@ -142,52 +300,57 @@ export default function ReadinessPage() {
                   y1={padding.top}
                   x2={x}
                   y2={padding.top + plotHeight}
-                  stroke="rgba(255,255,255,0.05)"
+                  stroke="rgba(255,255,255,0.06)"
                   strokeWidth="1"
                 />
               );
             })}
 
-            {/* Area gradient */}
-            <defs>
-              <linearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#F59E0B" stopOpacity="0.2" />
-                <stop offset="100%" stopColor="#F59E0B" stopOpacity="0.05" />
-              </linearGradient>
-            </defs>
-
             {/* Area fill */}
             <path d={areaPath} fill="url(#areaGradient)" />
 
-            {/* Line path - first segment in gray, rest in lime */}
+            {/* Main line path with glow */}
             <path
               d={linePath}
               fill="none"
-              stroke="#A1A1AA"
-              strokeWidth="2.5"
+              stroke="#E2F163"
+              strokeWidth="3.5"
               strokeLinejoin="round"
               strokeLinecap="round"
-            />
-            {/* Highlight last segment */}
-            {svgPoints.length > 1 && (
-              <path
-                d={`M ${svgPoints[svgPoints.length - 2].x} ${svgPoints[svgPoints.length - 2].y} L ${
-                  svgPoints[svgPoints.length - 1].x
-                } ${svgPoints[svgPoints.length - 1].y}`}
-                fill="none"
-                stroke="#E2F163"
-                strokeWidth="2.5"
-                strokeLinecap="round"
+              filter="url(#softGlow)"
+            >
+              <animate
+                attributeName="stroke-dasharray"
+                from={`0 ${chartWidth * 2}`}
+                to={`${chartWidth * 2} 0`}
+                dur="1.4s"
+                fill="freeze"
               />
-            )}
+            </path>
 
             {/* Data points */}
             {svgPoints.map((p, i) => {
               const isLast = i === svgPoints.length - 1;
               if (isLast) {
-                // Trophy marker for last point
+                // Target marker with ping animation
                 return (
                   <g key={`point-${i}`}>
+                    {/* Ping circle animation */}
+                    <circle cx={p.x} cy={p.y} r="8" fill="transparent" stroke="#E2F163" strokeWidth="2" opacity="0.4">
+                      <animate
+                        attributeName="r"
+                        values="8;14;8"
+                        dur="2s"
+                        repeatCount="indefinite"
+                      />
+                      <animate
+                        attributeName="opacity"
+                        values="0.4;0;0.4"
+                        dur="2s"
+                        repeatCount="indefinite"
+                      />
+                    </circle>
+                    {/* Inner glow */}
                     <circle cx={p.x} cy={p.y} r="16" fill="rgba(226, 241, 99, 0.15)" />
                     <circle cx={p.x} cy={p.y} r="12" fill="#E2F163" />
                     {/* Trophy icon */}
@@ -211,12 +374,12 @@ export default function ReadinessPage() {
               } else if (i === 0) {
                 // Starting point
                 return (
-                  <circle key={`point-${i}`} cx={p.x} cy={p.y} r="5" fill="#A1A1AA" opacity="0.8" />
+                  <circle key={`point-${i}`} cx={p.x} cy={p.y} r="5" fill="#0B0D0E" stroke="#E2F163" strokeWidth="3" filter="url(#softGlow)" />
                 );
               } else {
                 // Intermediate points
                 return (
-                  <circle key={`point-${i}`} cx={p.x} cy={p.y} r="4" fill="#A1A1AA" opacity="0.6" />
+                  <circle key={`point-${i}`} cx={p.x} cy={p.y} r="4" fill="#E2F163" opacity="0.4" />
                 );
               }
             })}
@@ -236,28 +399,34 @@ export default function ReadinessPage() {
           </svg>
         </div>
 
-        {/* Explanation text */}
-        <div className="text-right text-sm text-white/60 leading-relaxed">
+        {/* Explanation text with enhanced highlighting */}
+        <div className="text-right text-[15px] text-white/80 leading-relaxed" dir="rtl">
           <p>
-            לפי הנתונים שלנו, בדרך כלל רואים שינוי משמעותי אחרי שבוע.
+            לפי הנתונים שלנו, שינוי משמעותי בדרך כלל נראה לאחר שבוע.
             <br />
-            בקצב שבחרת נוכל להגיע ל־
-            <span className="text-[#E2F163] font-semibold">{targetWeightKg} ק״ג</span> עד {targetDate}.
+            בקצב הנוכחי תוכל להגיע ל{" "}
+            <span className="text-[#E2F163] font-semibold">
+              התקדמות מירבית
+            </span>
+            {" "}עד{" "}
+            <span className="inline-flex items-center gap-1 rounded-full bg-[#E2F163]/15 text-[#E2F163] px-2 py-0.5 font-semibold">
+              {displayDeadline}
+            </span>.
           </p>
         </div>
+      </div>
       </div>
 
       {/* CTA Button - Fixed at bottom of viewport with spacing */}
       <footer
-        className="fixed left-0 right-0 z-40 bg-[#0D0E0F] px-5 pt-3 border-t border-white/5"
+        className="flex-shrink-0 z-40 bg-[#0D0E0F] px-5 pt-3 pb-3 border-t border-white/5"
         style={{
-          bottom: 'calc(env(safe-area-inset-bottom, 0px) + 0.75rem)',
-          paddingBottom: '0.75rem'
+          paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 0.75rem)',
         }}
       >
         <button
           onClick={handleContinue}
-          className="w-full h-14 bg-[#E2F163] text-black font-bold text-lg rounded-full transition hover:bg-[#d4e350] active:scale-[0.98]"
+          className="w-full h-14 bg-[#E2F163] text-[#0B0D0E] font-bold text-lg rounded-full transition-transform hover:bg-[#d4e350] active:scale-[0.99]"
         >
           הבא
         </button>

@@ -1,7 +1,10 @@
 "use client";
 
-import { supabase } from "@/lib/supabase";
 import { useState } from "react";
+import { translateAuthError } from "@/lib/i18n/authHe";
+import { startGoogleSignIn, startAppleSignIn } from "@/lib/auth/oauth";
+import { usePlatform } from "@/lib/platform";
+import { useToast } from "@/components/ui/use-toast";
 
 type Size = "lg" | "md";
 type Variant = "signup" | "login";
@@ -14,24 +17,112 @@ export default function SocialAuthButtons({
   variant?: Variant;
 }) {
   const [loading, setLoading] = useState<"google" | "apple" | null>(null);
+  const platform = usePlatform();
+  const { toast } = useToast();
+
+  const haptics = platform?.haptics;
 
   const title =
     variant === "signup" ? "הרשמה באמצעות" : "התחברות באמצעות";
 
-  async function handle(provider: "google" | "apple") {
-    setLoading(provider);
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider,
-      options: {
-        redirectTo:
-          typeof window !== "undefined"
-            ? `${window.location.origin}/auth/callback`
-            : undefined,
-      },
-    });
-    if (error) {
-      console.error(error);
-      alert(error.message);
+  async function handleGoogle() {
+    if (loading) return;
+
+    console.log("[SocialAuthButtons] Google button clicked");
+    setLoading("google");
+
+    try {
+      // Haptic feedback on button press
+      console.log("[SocialAuthButtons] Triggering selection haptic");
+      await haptics?.selection?.();
+
+      // Start OAuth flow (automatically selects native vs web)
+      console.log("[SocialAuthButtons] Starting Google sign-in");
+      await startGoogleSignIn();
+
+      // Success haptic
+      console.log("[SocialAuthButtons] Google sign-in successful, triggering success haptic");
+      await haptics?.success?.();
+
+      console.log("[SocialAuthButtons] Google OAuth completed successfully");
+      // Loading state will be cleared by redirect/navigation
+    } catch (err: any) {
+      console.error("[SocialAuthButtons] Google OAuth error:", err);
+      console.error("[SocialAuthButtons] Error stack:", err?.stack);
+
+      // Error haptic (triple vibration)
+      try {
+        await haptics?.error?.();
+      } catch (hapticErr) {
+        console.error("[SocialAuthButtons] Haptic error feedback failed:", hapticErr);
+      }
+
+      // Show error toast with Hebrew message
+      try {
+        const hebrewError = translateAuthError(err, variant === 'signup' ? 'sign_up' : 'sign_in');
+        toast({
+          title: "שגיאה בהתחברות עם Google",
+          description: hebrewError || "לא הצלחנו להשלים את ההתחברות. נסו שוב.",
+          variant: "destructive",
+        });
+      } catch (toastErr) {
+        console.error("[SocialAuthButtons] Toast error:", toastErr);
+        alert(`שגיאת התחברות: ${err?.message || "לא הצלחנו להשלים את ההתחברות"}`);
+      }
+
+      // Re-enable buttons
+      console.log("[SocialAuthButtons] Re-enabling buttons");
+      setLoading(null);
+    }
+  }
+
+  async function handleApple() {
+    if (loading) return;
+
+    console.log("[SocialAuthButtons] Apple button clicked");
+    setLoading("apple");
+
+    try {
+      // Haptic feedback on button press
+      console.log("[SocialAuthButtons] Triggering selection haptic");
+      await haptics?.selection?.();
+
+      // Start OAuth flow (automatically selects native vs web)
+      console.log("[SocialAuthButtons] Starting Apple sign-in");
+      await startAppleSignIn();
+
+      // Success haptic
+      console.log("[SocialAuthButtons] Apple sign-in successful, triggering success haptic");
+      await haptics?.success?.();
+
+      console.log("[SocialAuthButtons] Apple OAuth completed successfully");
+      // Loading state will be cleared by redirect/navigation
+    } catch (err: any) {
+      console.error("[SocialAuthButtons] Apple OAuth error:", err);
+      console.error("[SocialAuthButtons] Error stack:", err?.stack);
+
+      // Error haptic (triple vibration)
+      try {
+        await haptics?.error?.();
+      } catch (hapticErr) {
+        console.error("[SocialAuthButtons] Haptic error feedback failed:", hapticErr);
+      }
+
+      // Show error toast with Hebrew message
+      try {
+        const hebrewError = translateAuthError(err, variant === 'signup' ? 'sign_up' : 'sign_in');
+        toast({
+          title: "שגיאה בהתחברות עם Apple",
+          description: hebrewError || "לא הצלחנו להשלים את ההתחברות. נסו שוב.",
+          variant: "destructive",
+        });
+      } catch (toastErr) {
+        console.error("[SocialAuthButtons] Toast error:", toastErr);
+        alert(`שגיאת התחברות: ${err?.message || "לא הצלחנו להשלים את ההתחברות"}`);
+      }
+
+      // Re-enable buttons
+      console.log("[SocialAuthButtons] Re-enabling buttons");
       setLoading(null);
     }
   }
@@ -41,7 +132,7 @@ export default function SocialAuthButtons({
       {/* Google Button */}
       <button
         type="button"
-        onClick={() => handle("google")}
+        onClick={handleGoogle}
         disabled={!!loading}
         className="w-full h-14 bg-white text-black font-bold text-lg rounded-full flex items-center justify-center gap-3 transition hover:bg-gray-100 disabled:opacity-50"
         dir="rtl"
@@ -58,7 +149,7 @@ export default function SocialAuthButtons({
       {/* Apple Button */}
       <button
         type="button"
-        onClick={() => handle("apple")}
+        onClick={handleApple}
         disabled={!!loading}
         className="w-full h-14 bg-white text-black font-bold text-lg rounded-full flex items-center justify-center gap-3 transition hover:bg-gray-100 disabled:opacity-50"
         dir="rtl"

@@ -36,14 +36,14 @@ export default function GoalSummaryPage() {
 
   if (isLoading) {
     return (
-      <div className="flex flex-col min-h-screen items-center justify-center">
+      <div className="flex flex-col min-h-[100dvh] items-center justify-center">
         <div className="text-white/60">טוען...</div>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col relative overflow-hidden" style={{ height: 'calc(100vh - env(safe-area-inset-top, 0px) - 0.75rem)' }}>
+    <div className="flex flex-col relative overflow-hidden" style={{ height: 'calc(100dvh - env(safe-area-inset-top, 0px) - 0.75rem)' }}>
 
       {/* Main Content - Centered vertically and horizontally */}
       <div className="flex-1 flex flex-col items-center justify-center px-6">
@@ -72,7 +72,7 @@ export default function GoalSummaryPage() {
       >
         <button
           onClick={handleContinue}
-          className="w-full h-14 bg-[#E2F163] text-black font-bold text-lg rounded-full transition hover:bg-[#d4e350] active:scale-[0.98]"
+          className="w-full h-14 bg-[#E2F163] text-black font-bold text-lg rounded-full transition hover:bg-[#d4e350] active:translate-y-1 active:brightness-90"
         >
           הבא
         </button>

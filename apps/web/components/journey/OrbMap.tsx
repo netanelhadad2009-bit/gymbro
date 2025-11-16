@@ -60,12 +60,11 @@ export function OrbMap({ orbs, accentColor, onOrbTap, focusOrbIndex }: OrbMapPro
       ref={containerRef}
       className="relative w-full overflow-x-hidden"
       style={{
-        minHeight: '100%',
         paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 2rem)',
       }}
     >
       {/* Energy connectors layer */}
-      <div className="absolute inset-0 w-full h-full pointer-events-none" style={{ zIndex: 1 }}>
+      <div className="absolute inset-0 w-full pointer-events-none" style={{ zIndex: 1 }}>
         {orbs.map((orb, index) => {
           const nextOrb = orbs[index + 1];
           if (!nextOrb) return null;

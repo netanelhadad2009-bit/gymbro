@@ -1,5 +1,5 @@
 {
-  "name": "@gymbro/db",
+  "name": "@fitjourney/db",
   "private": true,
   "type": "module",
   "exports": {

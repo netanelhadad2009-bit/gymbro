@@ -1,8 +1,10 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState, useRef, useEffect } from "react";
-import { saveOnboardingData, getOnboardingData } from "@/lib/onboarding-storage";
+import { useState, useRef, useEffect, startTransition } from "react";
+import { getOnboardingData } from "@/lib/onboarding-storage";
+import { saveOnboardingDraft } from "@/lib/onboarding/saveDraft";
+import { queueDraftRetry } from "@/lib/onboarding/retryQueue";
 import OnboardingShell from "../components/OnboardingShell";
 import PrimaryButton from "@/components/PrimaryButton";
 
@@ -18,7 +20,7 @@ export default function BirthdatePage() {
   const [year, setYear] = useState(2002);
   const [month, setMonth] = useState(3); // April (0-indexed)
   const [day, setDay] = useState(5);
-  const [isLoading, setIsLoading] = useState(false);
+  const submittedRef = useRef(false);
 
   const yearRef = useRef<HTMLDivElement>(null);
   const monthRef = useRef<HTMLDivElement>(null);
@@ -105,21 +107,30 @@ export default function BirthdatePage() {
       return;
     }
 
-    setIsLoading(true);
-    try {
-      const birthdate = new Date(year, month, day);
+    // Prevent double submissions
+    if (submittedRef.current) return;
+    submittedRef.current = true;
 
-      // Save to localStorage
-      saveOnboardingData({
-        birthdate: birthdate.toISOString()
-      });
+    const birthdate = new Date(year, month, day);
+    const formData = {
+      birthdate: birthdate.toISOString()
+    };
 
+    // 1) Navigate immediately (no loading state!)
+    startTransition(() => {
       router.push("/onboarding/target-weight");
-    } catch (error) {
-      console.error(error);
-      alert("אירעה שגיאה, נסה שוב");
-      setIsLoading(false);
-    }
+    });
+
+    // 2) Save in background (fire-and-forget)
+    (async () => {
+      try {
+        await saveOnboardingDraft(formData);
+      } catch (error) {
+        console.warn('[Birthdate] Background save failed:', error);
+        // Queue for retry
+        queueDraftRetry('birthdate', formData);
+      }
+    })();
   };
 
   return (
@@ -130,7 +141,7 @@ export default function BirthdatePage() {
           הגיל שלך משפיע על ההמלצות<br />שתקבלי באופן שוטף.
         </>
       }
-      disableContentScroll={true}
+      disableContentScroll={false}
       footer={
         <>
           {/* Age Warning */}
@@ -156,10 +167,10 @@ export default function BirthdatePage() {
           )}
           <PrimaryButton
             onClick={handleContinue}
-            disabled={isLoading || age < 18}
+            disabled={age < 18}
             className="h-14 text-lg"
           >
-            {isLoading ? "שומר..." : "הבא"}
+            הבא
           </PrimaryButton>
         </>
       }

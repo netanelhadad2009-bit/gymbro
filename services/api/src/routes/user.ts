@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { prisma } from "@gymbro/db";
+import { prisma } from "@fitjourney/db";
 import { requireAuth, AuthedRequest } from "../lib/auth";
 
 export const userRouter = Router();

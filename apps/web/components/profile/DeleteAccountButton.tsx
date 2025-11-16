@@ -40,9 +40,9 @@ export default function DeleteAccountButton() {
     <button
       type="button"
       onClick={handleDelete}
-      className="flex w-full items-center justify-between py-3 border-b border-[#2A2B2C] active:bg-[#222529] active:opacity-90 transition-opacity text-right"
+      className="flex w-full items-center justify-between py-3 border-b border-[#2A2B2C] text-right"
     >
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 active:translate-y-0.5 transition-transform duration-75">
         <Trash2 className="w-4 h-4 text-white" />
         <span className="text-white font-medium">{texts.profile.deleteAccount}</span>
       </div>

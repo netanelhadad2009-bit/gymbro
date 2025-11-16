@@ -1,0 +1,91 @@
+"use client";
+import React from "react";
+import ImpactChart from "@/components/onboarding/ImpactChart";
+import { useRouter } from "next/navigation";
+import { getNextStep, getStepPath } from "@/lib/onboarding/steps";
+import clsx from "clsx";
+
+export default function LongTermPage() {
+  const router = useRouter();
+
+  const handleNext = () => {
+    const nextStep = getNextStep("longterm");
+    if (nextStep) {
+      router.push(getStepPath(nextStep));
+    }
+  };
+
+  return (
+    <div dir="rtl" className="min-h-screen bg-[#0E1113] text-white">
+      {/* Subtle background grid */}
+      <div
+        aria-hidden
+        className="pointer-events-none fixed inset-0 opacity-[0.08]"
+        style={{
+          backgroundImage:
+            "radial-gradient(circle at 1px 1px, #ffffff 1px, transparent 0), radial-gradient(circle at 1px 1px, #ffffff 1px, transparent 0)",
+          backgroundSize: "28px 28px, 28px 28px",
+          backgroundPosition: "0 0, 14px 14px",
+        }}
+      />
+
+      <div className="relative mx-auto max-w-screen-sm px-4 pb-28 pt-[calc(env(safe-area-inset-top)+16px)]">
+        {/* HERO */}
+        <header className="mb-5">
+          <h1 className="text-[28px] leading-tight font-extrabold">
+            GymBro יוצר תוצאות
+            <br />
+            לטווח ארוך
+          </h1>
+          <p className="mt-2 text-white/70">
+            רוב המשתמשים שלנו שומרים על ההתקדמות עקבית לאורך זמן.
+          </p>
+        </header>
+
+        {/* STAT + PROGRESS */}
+        <div className="mb-4 flex items-center justify-between">
+          <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[13px]">
+            <span className="font-semibold text-[#E2F163]">80%</span> ממשתמשי
+            GymBro
+          </div>
+          <div className="text-[13px] text-white/60">0%</div>
+        </div>
+
+        {/* CHART CARD */}
+        <section
+          className={clsx(
+            "rounded-3xl border border-white/10 bg-black/30 backdrop-blur-md",
+            "p-4 shadow-[0_6px_30px_rgba(0,0,0,0.45)]"
+          )}
+        >
+          <div className="mb-3 text-white/70 text-[13px]">
+            השוואת התקדמות לאורך זמן
+          </div>
+          <ImpactChart />
+          <div className="mt-3 text-[12px] text-white/60">
+            הקו <span className="text-[#E2F163] font-semibold">הצהוב</span>{" "}
+            מייצג משתמשי GymBro.
+          </div>
+        </section>
+
+        {/* SUBTEXT */}
+        <p className="mt-4 text-white/70">
+          <span className="text-[#E2F163] font-semibold">80%</span> ממשתמשי
+          GymBro שומרים על ההתקדמות שלהם גם לאחר 6 חודשים.
+        </p>
+      </div>
+
+      {/* CTA */}
+      <div className="fixed inset-x-0 bottom-0 px-4 pb-[calc(env(safe-area-inset-bottom)+12px)]">
+        <div className="w-full max-w-screen-sm mx-auto">
+          <button
+            onClick={handleNext}
+            className="w-full rounded-full bg-[#E2F163] py-4 text-black font-bold text-[16px] transition hover:bg-[#d4e350] active:scale-[0.98]"
+          >
+            הבא
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}

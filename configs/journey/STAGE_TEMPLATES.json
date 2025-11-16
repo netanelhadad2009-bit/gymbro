@@ -1,0 +1,546 @@
+{
+  "rookie-cut": [
+    {
+      "key": "rookie_intro",
+      "title_he": "התחלה חכמה",
+      "subtitle_he": "בונים בסיס קליל",
+      "xp": 50,
+      "order": 1,
+      "lockedCopy_he": "תשלים את ההתחלה קודם 😉",
+      "conditions": { "any": [] },
+      "tasks": ["t_meal3", "t_weigh_1", "t_edu_basics"]
+    },
+    {
+      "key": "rookie_habit",
+      "title_he": "בונים הרגלים",
+      "subtitle_he": "עקביות היא המפתח",
+      "xp": 75,
+      "order": 2,
+      "lockedCopy_he": "השלם את השלב הקודם",
+      "conditions": { "all": ["rookie_intro"] },
+      "tasks": ["t_meal_streak_3", "t_protein_80", "t_habit_prep"]
+    },
+    {
+      "key": "rookie_consistency",
+      "title_he": "שבוע מלא",
+      "subtitle_he": "תיעוד יומיומי",
+      "xp": 100,
+      "order": 3,
+      "lockedCopy_he": "השלם את השלב הקודם",
+      "conditions": { "all": ["rookie_habit"] },
+      "tasks": ["t_meal7", "t_weigh_2", "t_protein_target", "t_edu_portions"]
+    },
+    {
+      "key": "rookie_mastery",
+      "title_he": "שליטה מלאה",
+      "subtitle_he": "מוכן לעבור רמה",
+      "xp": 150,
+      "order": 4,
+      "lockedCopy_he": "השלם את השלב הקודם",
+      "conditions": { "all": ["rookie_consistency"] },
+      "tasks": ["t_meal_streak_7", "t_protein_streak", "t_calorie_loose", "t_habit_planning"]
+    }
+  ],
+  "rookie-gain": [
+    {
+      "key": "rookie_gain_intro",
+      "title_he": "התחלת הבנייה",
+      "subtitle_he": "מזון הוא הדלק",
+      "xp": 50,
+      "order": 1,
+      "lockedCopy_he": "תשלים את ההתחלה קודם 💪",
+      "conditions": { "any": [] },
+      "tasks": ["t_meal3", "t_weigh_1", "t_edu_basics"]
+    },
+    {
+      "key": "rookie_gain_fuel",
+      "title_he": "תדלוק נכון",
+      "subtitle_he": "אוכלים למען שריר",
+      "xp": 75,
+      "order": 2,
+      "lockedCopy_he": "השלם את השלב הקודם",
+      "conditions": { "all": ["rookie_gain_intro"] },
+      "tasks": ["t_meal_streak_3", "t_protein_100", "t_habit_prep"]
+    },
+    {
+      "key": "rookie_gain_growth",
+      "title_he": "שבוע גדילה",
+      "subtitle_he": "אימון ותזונה מושלמת",
+      "xp": 100,
+      "order": 3,
+      "lockedCopy_he": "השלם את השלב הקודם",
+      "conditions": { "all": ["rookie_gain_fuel"] },
+      "tasks": ["t_meal7", "t_weigh_2", "t_protein_target_high", "t_edu_portions"]
+    },
+    {
+      "key": "rookie_gain_momentum",
+      "title_he": "מומנטום עולה",
+      "subtitle_he": "מוכן לצמיחה רצינית",
+      "xp": 150,
+      "order": 4,
+      "lockedCopy_he": "השלם את השלב הקודם",
+      "conditions": { "all": ["rookie_gain_growth"] },
+      "tasks": ["t_meal_streak_7", "t_protein_streak_high", "t_calorie_surplus", "t_habit_planning"]
+    }
+  ],
+  "busy-3day-cut": [
+    {
+      "key": "busy_cut_quickstart",
+      "title_he": "התחלה מהירה",
+      "subtitle_he": "יעילות מקסימלית",
+      "xp": 60,
+      "order": 1,
+      "lockedCopy_he": "תשלים את ההתחלה קודם ⚡",
+      "conditions": { "any": [] },
+      "tasks": ["t_meal2", "t_weigh_1", "t_edu_basics"]
+    },
+    {
+      "key": "busy_cut_streamline",
+      "title_he": "ייעול התהליך",
+      "subtitle_he": "חיסכון בזמן מקסימלי",
+      "xp": 80,
+      "order": 2,
+      "lockedCopy_he": "השלם את השלב הקודם",
+      "conditions": { "all": ["busy_cut_quickstart"] },
+      "tasks": ["t_meal_streak_4", "t_protein_min", "t_habit_prep_weekend"]
+    },
+    {
+      "key": "busy_cut_autopilot",
+      "title_he": "פיילוט אוטומטי",
+      "subtitle_he": "הרגלים שעובדים",
+      "xp": 120,
+      "order": 3,
+      "lockedCopy_he": "השלם את השלב הקודם",
+      "conditions": { "all": ["busy_cut_streamline"] },
+      "tasks": ["t_meal7", "t_protein_target", "t_calorie_loose", "t_weigh_2"]
+    },
+    {
+      "key": "busy_cut_results",
+      "title_he": "תוצאות ברורות",
+      "subtitle_he": "מערכת שעובדת",
+      "xp": 150,
+      "order": 4,
+      "lockedCopy_he": "השלם את השלב הקודם",
+      "conditions": { "all": ["busy_cut_autopilot"] },
+      "tasks": ["t_meal_streak_7", "t_protein_streak", "t_calorie_tight", "t_edu_prep"]
+    }
+  ],
+  "busy-3day-gain": [
+    {
+      "key": "busy_gain_quickstart",
+      "title_he": "התחלה מהירה",
+      "subtitle_he": "בנייה יעילה",
+      "xp": 60,
+      "order": 1,
+      "lockedCopy_he": "תשלים את ההתחלה קודם 🚀",
+      "conditions": { "any": [] },
+      "tasks": ["t_meal3", "t_weigh_1", "t_edu_basics"]
+    },
+    {
+      "key": "busy_gain_fuel",
+      "title_he": "תדלוק מהיר",
+      "subtitle_he": "אוכלים חכם",
+      "xp": 80,
+      "order": 2,
+      "lockedCopy_he": "השלם את השלב הקודם",
+      "conditions": { "all": ["busy_gain_quickstart"] },
+      "tasks": ["t_meal_streak_4", "t_protein_100", "t_habit_prep_weekend"]
+    },
+    {
+      "key": "busy_gain_growth",
+      "title_he": "צמיחה יעילה",
+      "subtitle_he": "מקסימום תוצאות",
+      "xp": 120,
+      "order": 3,
+      "lockedCopy_he": "השלם את השלב הקודם",
+      "conditions": { "all": ["busy_gain_fuel"] },
+      "tasks": ["t_meal7", "t_protein_target_high", "t_calorie_surplus", "t_weigh_2"]
+    },
+    {
+      "key": "busy_gain_momentum",
+      "title_he": "מומנטום מלא",
+      "subtitle_he": "מערכת שעובדת",
+      "xp": 150,
+      "order": 4,
+      "lockedCopy_he": "השלם את השלב הקודם",
+      "conditions": { "all": ["busy_gain_growth"] },
+      "tasks": ["t_meal_streak_7", "t_protein_streak_high", "t_calorie_surplus_tight", "t_edu_prep"]
+    }
+  ],
+  "gym-regular-cut": [
+    {
+      "key": "regular_cut_baseline",
+      "title_he": "קו בסיס",
+      "subtitle_he": "נקודת התחלה מדויקת",
+      "xp": 70,
+      "order": 1,
+      "lockedCopy_he": "תשלים את ההתחלה קודם 🔥",
+      "conditions": { "any": [] },
+      "tasks": ["t_meal4", "t_weigh_2", "t_edu_basics"]
+    },
+    {
+      "key": "regular_cut_dial_in",
+      "title_he": "כיוון מדויק",
+      "subtitle_he": "מאקרו אופטימלי",
+      "xp": 90,
+      "order": 2,
+      "lockedCopy_he": "השלם את השלב הקודם",
+      "conditions": { "all": ["regular_cut_baseline"] },
+      "tasks": ["t_meal7", "t_protein_target_high", "t_calorie_loose", "t_habit_prep"]
+    },
+    {
+      "key": "regular_cut_precision",
+      "title_he": "דיוק מקסימלי",
+      "subtitle_he": "שליטה מלאה",
+      "xp": 120,
+      "order": 3,
+      "lockedCopy_he": "השלם את השלב הקודם",
+      "conditions": { "all": ["regular_cut_dial_in"] },
+      "tasks": ["t_meal_streak_7", "t_protein_streak_high", "t_calorie_tight", "t_weigh_3"]
+    },
+    {
+      "key": "regular_cut_shredded",
+      "title_he": "קאט מושלם",
+      "subtitle_he": "מקצוען אמיתי",
+      "xp": 180,
+      "order": 4,
+      "lockedCopy_he": "השלם את השלב הקודם",
+      "conditions": { "all": ["regular_cut_precision"] },
+      "tasks": ["t_meal_streak_14", "t_protein_streak_high", "t_calorie_tight", "t_habit_planning"]
+    },
+    {
+      "key": "regular_cut_advanced",
+      "title_he": "מתקדם מאוד",
+      "subtitle_he": "רמה גבוהה",
+      "xp": 200,
+      "order": 5,
+      "lockedCopy_he": "השלם את השלב הקודם",
+      "conditions": { "all": ["regular_cut_shredded"] },
+      "tasks": ["t_meal_streak_14", "t_protein_streak_high", "t_calorie_very_tight", "t_edu_prep"]
+    }
+  ],
+  "gym-regular-gain": [
+    {
+      "key": "regular_gain_baseline",
+      "title_he": "קו בסיס",
+      "subtitle_he": "התחלת בנייה מדויקת",
+      "xp": 70,
+      "order": 1,
+      "lockedCopy_he": "תשלים את ההתחלה קודם 💎",
+      "conditions": { "any": [] },
+      "tasks": ["t_meal4", "t_weigh_2", "t_edu_basics"]
+    },
+    {
+      "key": "regular_gain_fuel",
+      "title_he": "תדלוק אופטימלי",
+      "subtitle_he": "מזון לצמיחה",
+      "xp": 90,
+      "order": 2,
+      "lockedCopy_he": "השלם את השלב הקודם",
+      "conditions": { "all": ["regular_gain_baseline"] },
+      "tasks": ["t_meal7", "t_protein_target_high", "t_calorie_surplus", "t_habit_prep"]
+    },
+    {
+      "key": "regular_gain_growth",
+      "title_he": "צמיחה מלאה",
+      "subtitle_he": "מקסימום רווחים",
+      "xp": 120,
+      "order": 3,
+      "lockedCopy_he": "השלם את השלב הקודם",
+      "conditions": { "all": ["regular_gain_fuel"] },
+      "tasks": ["t_meal_streak_7", "t_protein_streak_high", "t_calorie_surplus_tight", "t_weigh_3"]
+    },
+    {
+      "key": "regular_gain_beast",
+      "title_he": "מצב חיה",
+      "subtitle_he": "בונה שריר כמו מקצוען",
+      "xp": 180,
+      "order": 4,
+      "lockedCopy_he": "השלם את השלב הקודם",
+      "conditions": { "all": ["regular_gain_growth"] },
+      "tasks": ["t_meal_streak_14", "t_protein_streak_very_high", "t_calorie_surplus_tight", "t_habit_planning"]
+    },
+    {
+      "key": "regular_gain_advanced",
+      "title_he": "מתקדם מאוד",
+      "subtitle_he": "רמה תחרותית",
+      "xp": 200,
+      "order": 5,
+      "lockedCopy_he": "השלם את השלב הקודם",
+      "conditions": { "all": ["regular_gain_beast"] },
+      "tasks": ["t_meal_streak_14", "t_protein_streak_very_high", "t_calorie_surplus_tight", "t_edu_prep"]
+    }
+  ],
+  "athlete-cut": [
+    {
+      "key": "athlete_cut_baseline",
+      "title_he": "בסיס ספורטאי",
+      "subtitle_he": "קאט ברמה גבוהה",
+      "xp": 80,
+      "order": 1,
+      "lockedCopy_he": "תשלים את ההתחלה קודם 🏆",
+      "conditions": { "any": [] },
+      "tasks": ["t_meal4", "t_weigh_3", "t_edu_basics"]
+    },
+    {
+      "key": "athlete_cut_precision",
+      "title_he": "דיוק כירורגי",
+      "subtitle_he": "שליטה מלאה במאקרו",
+      "xp": 100,
+      "order": 2,
+      "lockedCopy_he": "השלם את השלב הקודם",
+      "conditions": { "all": ["athlete_cut_baseline"] },
+      "tasks": ["t_meal7", "t_protein_target_very_high", "t_calorie_tight", "t_habit_prep"]
+    },
+    {
+      "key": "athlete_cut_elite",
+      "title_he": "אליטה אמיתית",
+      "subtitle_he": "תחרותי מלא",
+      "xp": 150,
+      "order": 3,
+      "lockedCopy_he": "השלם את השלב הקודם",
+      "conditions": { "all": ["athlete_cut_precision"] },
+      "tasks": ["t_meal_streak_14", "t_protein_streak_very_high", "t_calorie_very_tight", "t_weigh_4"]
+    },
+    {
+      "key": "athlete_cut_champion",
+      "title_he": "רמת אלוף",
+      "subtitle_he": "המקצוענים האמיתיים",
+      "xp": 200,
+      "order": 4,
+      "lockedCopy_he": "השלם את השלב הקודם",
+      "conditions": { "all": ["athlete_cut_elite"] },
+      "tasks": ["t_meal_streak_14", "t_protein_streak_very_high", "t_calorie_very_tight", "t_habit_planning"]
+    },
+    {
+      "key": "athlete_cut_peak",
+      "title_he": "פסגה מוחלטת",
+      "subtitle_he": "רמה שרק מעטים מגיעים",
+      "xp": 250,
+      "order": 5,
+      "lockedCopy_he": "השלם את השלב הקודם",
+      "conditions": { "all": ["athlete_cut_champion"] },
+      "tasks": ["t_meal_streak_21", "t_protein_streak_very_high", "t_calorie_very_tight", "t_edu_prep"]
+    }
+  ],
+  "athlete-gain": [
+    {
+      "key": "athlete_gain_baseline",
+      "title_he": "בסיס ספורטאי",
+      "subtitle_he": "בנייה ברמה גבוהה",
+      "xp": 80,
+      "order": 1,
+      "lockedCopy_he": "תשלים את ההתחלה קודם 🦁",
+      "conditions": { "any": [] },
+      "tasks": ["t_meal4", "t_weigh_3", "t_edu_basics"]
+    },
+    {
+      "key": "athlete_gain_fuel",
+      "title_he": "תדלוק אלוף",
+      "subtitle_he": "מזון למקסימום רווחים",
+      "xp": 100,
+      "order": 2,
+      "lockedCopy_he": "השלם את השלב הקודם",
+      "conditions": { "all": ["athlete_gain_baseline"] },
+      "tasks": ["t_meal7", "t_protein_target_very_high", "t_calorie_surplus_tight", "t_habit_prep"]
+    },
+    {
+      "key": "athlete_gain_growth",
+      "title_he": "צמיחה אגרסיבית",
+      "subtitle_he": "בנייה רצינית",
+      "xp": 150,
+      "order": 3,
+      "lockedCopy_he": "השלם את השלב הקודם",
+      "conditions": { "all": ["athlete_gain_fuel"] },
+      "tasks": ["t_meal_streak_14", "t_protein_streak_very_high", "t_calorie_surplus_aggressive", "t_weigh_4"]
+    },
+    {
+      "key": "athlete_gain_beast",
+      "title_he": "מצב חיה",
+      "subtitle_he": "מקסימום מסה",
+      "xp": 200,
+      "order": 4,
+      "lockedCopy_he": "השלם את השלב הקודם",
+      "conditions": { "all": ["athlete_gain_growth"] },
+      "tasks": ["t_meal_streak_14", "t_protein_streak_very_high", "t_calorie_surplus_aggressive", "t_habit_planning"]
+    },
+    {
+      "key": "athlete_gain_monster",
+      "title_he": "מפלצת אמיתית",
+      "subtitle_he": "רמה שרק מעטים מגיעים",
+      "xp": 250,
+      "order": 5,
+      "lockedCopy_he": "השלם את השלב הקודם",
+      "conditions": { "all": ["athlete_gain_beast"] },
+      "tasks": ["t_meal_streak_21", "t_protein_streak_very_high", "t_calorie_surplus_aggressive", "t_edu_prep"]
+    }
+  ],
+  "plant-powered-cut": [
+    {
+      "key": "plant_cut_intro",
+      "title_he": "התחלה צמחית",
+      "subtitle_he": "כוח הצמחים",
+      "xp": 60,
+      "order": 1,
+      "lockedCopy_he": "תשלים את ההתחלה קודם 🌿",
+      "conditions": { "any": [] },
+      "tasks": ["t_meal3", "t_weigh_1", "t_edu_plant_basics"]
+    },
+    {
+      "key": "plant_cut_protein",
+      "title_he": "חלבון צמחי",
+      "subtitle_he": "מקורות מגוונים",
+      "xp": 80,
+      "order": 2,
+      "lockedCopy_he": "השלם את השלב הקודם",
+      "conditions": { "all": ["plant_cut_intro"] },
+      "tasks": ["t_meal_streak_4", "t_protein_plant", "t_habit_prep", "t_edu_plant_protein"]
+    },
+    {
+      "key": "plant_cut_mastery",
+      "title_he": "שליטה צמחית",
+      "subtitle_he": "תזונה מאוזנת",
+      "xp": 120,
+      "order": 3,
+      "lockedCopy_he": "השלם את השלב הקודם",
+      "conditions": { "all": ["plant_cut_protein"] },
+      "tasks": ["t_meal7", "t_protein_plant_high", "t_calorie_loose", "t_weigh_2"]
+    },
+    {
+      "key": "plant_cut_excellence",
+      "title_he": "מצוינות צמחית",
+      "subtitle_he": "מקצוען בתחום",
+      "xp": 150,
+      "order": 4,
+      "lockedCopy_he": "השלם את השלב הקודם",
+      "conditions": { "all": ["plant_cut_mastery"] },
+      "tasks": ["t_meal_streak_7", "t_protein_streak_plant", "t_calorie_tight", "t_habit_planning"]
+    }
+  ],
+  "plant-powered-gain": [
+    {
+      "key": "plant_gain_intro",
+      "title_he": "התחלה צמחית",
+      "subtitle_he": "בנייה ירוקה",
+      "xp": 60,
+      "order": 1,
+      "lockedCopy_he": "תשלים את ההתחלה קודם 🥬",
+      "conditions": { "any": [] },
+      "tasks": ["t_meal3", "t_weigh_1", "t_edu_plant_basics"]
+    },
+    {
+      "key": "plant_gain_protein",
+      "title_he": "חלבון לצמיחה",
+      "subtitle_he": "מקורות עשירים",
+      "xp": 80,
+      "order": 2,
+      "lockedCopy_he": "השלם את השלב הקודם",
+      "conditions": { "all": ["plant_gain_intro"] },
+      "tasks": ["t_meal_streak_4", "t_protein_plant_high", "t_habit_prep", "t_edu_plant_protein"]
+    },
+    {
+      "key": "plant_gain_growth",
+      "title_he": "צמיחה צמחית",
+      "subtitle_he": "בונים שריר ירוק",
+      "xp": 120,
+      "order": 3,
+      "lockedCopy_he": "השלם את השלב הקודם",
+      "conditions": { "all": ["plant_gain_protein"] },
+      "tasks": ["t_meal7", "t_protein_plant_very_high", "t_calorie_surplus", "t_weigh_2"]
+    },
+    {
+      "key": "plant_gain_beast",
+      "title_he": "חיה צמחית",
+      "subtitle_he": "כוח טבעי",
+      "xp": 150,
+      "order": 4,
+      "lockedCopy_he": "השלם את השלב הקודם",
+      "conditions": { "all": ["plant_gain_growth"] },
+      "tasks": ["t_meal_streak_7", "t_protein_streak_plant_high", "t_calorie_surplus_tight", "t_habit_planning"]
+    }
+  ],
+  "recomp-balanced": [
+    {
+      "key": "recomp_baseline",
+      "title_he": "קו בסיס מאוזן",
+      "subtitle_he": "נקודת התחלה מדויקת",
+      "xp": 70,
+      "order": 1,
+      "lockedCopy_he": "תשלים את ההתחלה קודם ⚖️",
+      "conditions": { "any": [] },
+      "tasks": ["t_meal4", "t_weigh_2", "t_edu_basics"]
+    },
+    {
+      "key": "recomp_precision",
+      "title_he": "דיוק מושלם",
+      "subtitle_he": "שליטה בתזונה",
+      "xp": 90,
+      "order": 2,
+      "lockedCopy_he": "השלם את השלב הקודם",
+      "conditions": { "all": ["recomp_baseline"] },
+      "tasks": ["t_meal7", "t_protein_target_high", "t_calorie_maintenance", "t_habit_prep"]
+    },
+    {
+      "key": "recomp_consistency",
+      "title_he": "עקביות מלאה",
+      "subtitle_he": "הרגלים טובים",
+      "xp": 120,
+      "order": 3,
+      "lockedCopy_he": "השלם את השלב הקודם",
+      "conditions": { "all": ["recomp_precision"] },
+      "tasks": ["t_meal_streak_7", "t_protein_streak_high", "t_calorie_maintenance_tight", "t_weigh_3"]
+    },
+    {
+      "key": "recomp_master",
+      "title_he": "מאסטר ריקומפ",
+      "subtitle_he": "מקצוען אמיתי",
+      "xp": 180,
+      "order": 4,
+      "lockedCopy_he": "השלם את השלב הקודם",
+      "conditions": { "all": ["recomp_consistency"] },
+      "tasks": ["t_meal_streak_14", "t_protein_streak_high", "t_calorie_maintenance_tight", "t_habit_planning"]
+    }
+  ],
+  "comeback-cut": [
+    {
+      "key": "comeback_restart",
+      "title_he": "חזרה לפעולה",
+      "subtitle_he": "התחלה מחודשת",
+      "xp": 60,
+      "order": 1,
+      "lockedCopy_he": "תשלים את ההתחלה קודם 🔄",
+      "conditions": { "any": [] },
+      "tasks": ["t_meal3", "t_weigh_1", "t_edu_basics"]
+    },
+    {
+      "key": "comeback_rebuild",
+      "title_he": "בניה מחדש",
+      "subtitle_he": "הרגלים טובים חוזרים",
+      "xp": 80,
+      "order": 2,
+      "lockedCopy_he": "השלם את השלב הקודם",
+      "conditions": { "all": ["comeback_restart"] },
+      "tasks": ["t_meal_streak_4", "t_protein_min", "t_habit_prep"]
+    },
+    {
+      "key": "comeback_momentum",
+      "title_he": "מומנטום חוזר",
+      "subtitle_he": "כמו בימים הטובים",
+      "xp": 100,
+      "order": 3,
+      "lockedCopy_he": "השלם את השלב הקודם",
+      "conditions": { "all": ["comeback_rebuild"] },
+      "tasks": ["t_meal7", "t_protein_target", "t_calorie_loose", "t_weigh_2"]
+    },
+    {
+      "key": "comeback_strong",
+      "title_he": "חזר בגדול",
+      "subtitle_he": "מוכן להצליח",
+      "xp": 150,
+      "order": 4,
+      "lockedCopy_he": "השלם את השלב הקודם",
+      "conditions": { "all": ["comeback_momentum"] },
+      "tasks": ["t_meal_streak_7", "t_protein_streak", "t_calorie_tight", "t_habit_planning", "t_edu_prep"]
+    }
+  ]
+}

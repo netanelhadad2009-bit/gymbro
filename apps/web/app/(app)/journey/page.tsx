@@ -18,6 +18,7 @@ import { useAvatar } from "@/lib/avatar/useAvatar";
 import { StagePickerSheet } from "@/components/journey/StagePickerSheet";
 import { OrbMap } from "@/components/journey/OrbMap";
 import { OrbDetailSheet } from "@/components/journey/OrbDetailSheet";
+import { StageCompletionSheet } from "@/components/journey/StageCompletionSheet";
 import { MapFrame } from "@/components/journey/MapFrame";
 import { uiBus } from "@/lib/ui/eventBus";
 import { motion } from "framer-motion";
@@ -32,6 +33,7 @@ import MapFab from "@/components/map/MapFab";
 import FlameClean from "@/components/streak/FlameClean";
 import { PointsSummaryCard } from "@/components/journey/PointsSummaryCard";
 import { usePointsSummary } from "@/lib/points/usePoints";
+import { Stage } from "@/lib/journey/stages/useStages";
 
 export default function JourneyPage() {
   const { avatar, colorToken } = useAvatar();
@@ -59,6 +61,12 @@ export default function JourneyPage() {
   const [sheetOpen, setSheetOpen] = useState(false);
   const [selectedOrb, setSelectedOrb] = useState<OrbTask | null>(null);
   const [detailSheetOpen, setDetailSheetOpen] = useState(false);
+  const [showStageCompletionSheet, setShowStageCompletionSheet] = useState(false);
+  const [completedStageData, setCompletedStageData] = useState<{
+    stage: Stage;
+    nextStage: Stage | null;
+    pointsEarned: number;
+  } | null>(null);
   const router = useRouter();
 
   // Fetch points summary
@@ -110,12 +118,40 @@ export default function JourneyPage() {
     const result = await completeTask(selectedOrb.stageId, taskId);
 
     if (result.ok) {
-      // Show confetti
+      // Show confetti for task completion
       setShowConfetti(true);
       setTimeout(() => setShowConfetti(false), 3000);
 
       // Refetch to get updated progress
       await refetch();
+
+      // Check if stage was completed
+      if (result.stageCompleted && selectedStage) {
+        // Calculate total points earned from this stage
+        const stagePointsEarned = selectedStage.tasks.reduce((sum, task) => sum + task.points, 0);
+
+        // Find the next stage
+        const currentStageIndex = stages.findIndex(s => s.id === selectedStage.id);
+        const nextStage = currentStageIndex >= 0 && currentStageIndex < stages.length - 1
+          ? stages[currentStageIndex + 1]
+          : null;
+
+        // Store completion data
+        setCompletedStageData({
+          stage: selectedStage,
+          nextStage,
+          pointsEarned: stagePointsEarned,
+        });
+
+        // Close the detail sheet
+        setDetailSheetOpen(false);
+        setSelectedOrb(null);
+
+        // Show stage completion sheet after a brief delay (for better UX)
+        setTimeout(() => {
+          setShowStageCompletionSheet(true);
+        }, 500);
+      }
     } else {
       throw new Error(result.message || result.error || 'לא ניתן להשלים משימה');
     }
@@ -332,6 +368,31 @@ export default function JourneyPage() {
         onComplete={handleCompleteTask}
         onGoToActiveStage={handleGoToActiveStage}
       />
+
+      {/* Stage Completion Sheet */}
+      {completedStageData && (
+        <StageCompletionSheet
+          isOpen={showStageCompletionSheet}
+          onClose={() => {
+            setShowStageCompletionSheet(false);
+            setCompletedStageData(null);
+          }}
+          completedStage={completedStageData.stage}
+          nextStage={completedStageData.nextStage}
+          pointsEarned={completedStageData.pointsEarned}
+          onContinueToNext={() => {
+            if (completedStageData.nextStage) {
+              // Navigate to next stage
+              const nextStageIndex = stages.findIndex(
+                s => s.id === completedStageData.nextStage!.id
+              );
+              if (nextStageIndex >= 0) {
+                setSelectedStageIndex(nextStageIndex);
+              }
+            }
+          }}
+        />
+      )}
     </div>
   );
 }

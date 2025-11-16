@@ -32,14 +32,15 @@ export interface WorkoutProfile {
 }
 
 export interface NutritionProfile {
-  gender: string;
+  gender_he: string;
   age: number;
-  heightCm: number;
-  weight: number;
-  targetWeight: number;
-  activityDisplay: string;
-  goalDisplay: string;
-  startDateISO: string;
+  height_cm: number;
+  weight_kg: number;
+  target_weight_kg: number;
+  activity_level_he: string;
+  goal_he: string;
+  diet_type_he: string;
+  days: number;
 }
 
 export interface ProgramPayload {
@@ -81,8 +82,21 @@ async function safePost(url: string, payload: any): Promise<{ ok: boolean; data?
 
     if (!res.ok || !data?.ok) {
       // Extract the most specific error message
-      const msg = data?.message || data?.error || data?.error_code || (text && text.slice(0, 200)) || `HTTP ${res.status}`;
-      console.error("❌ API Error:", msg, data);
+      let msg = data?.message || data?.error || data?.error_code || `HTTP ${res.status}`;
+
+      // If we received raw text instead of proper JSON error, truncate it
+      if (msg === `HTTP ${res.status}` && text && text.length > 0) {
+        msg = text.slice(0, 200);
+      }
+
+      // Log full error details for debugging
+      console.error("❌ API Error:", {
+        status: res.status,
+        message: msg,
+        fullData: data,
+        responsePreview: text.slice(0, 300)
+      });
+
       return { ok: false, error: msg, data };
     }
 
@@ -128,7 +142,8 @@ export async function getWorkout(profile: WorkoutProfile): Promise<{ ok: boolean
 export async function getNutrition(profile: NutritionProfile): Promise<{ ok: boolean; json?: any; error?: string }> {
   const result = await safePost(`${API_BASE}/ai/nutrition`, profile);
   if (!result.ok) return { ok: false, error: result.error };
-  return { ok: true, json: result.data.json };
+  // Handle both old (json wrapper) and new (plan) response formats
+  return { ok: true, json: result.data.plan || result.data.json };
 }
 
 /**

@@ -1,0 +1,107 @@
+{
+  "timestamp": "2025-11-11T10:37:02.692Z",
+  "totalUsers": 2,
+  "totalDuration": 74546,
+  "results": [
+    {
+      "user": {
+        "id": 1,
+        "email": "test1@gymbro-test.com",
+        "password": "Test123!",
+        "gender": "female",
+        "age": 62,
+        "height_cm": 198,
+        "weight_kg": 47,
+        "target_weight_kg": 45,
+        "birthdate": "1963-09-19",
+        "bmi": 12,
+        "goal": "ירידה במשקל",
+        "goals": [
+          "loss"
+        ],
+        "experience": "time",
+        "training_frequency_actual": "medium",
+        "diet": "vegetarian",
+        "motivation": "Test motivation for user 1",
+        "pace": "slow",
+        "activity": "בינונית",
+        "category": "edge_case"
+      },
+      "success": false,
+      "steps": {
+        "nutritionGeneration": {
+          "success": true,
+          "duration": 34069
+        },
+        "registration": {
+          "success": false,
+          "duration": 442,
+          "error": "User already registered"
+        },
+        "avatarBootstrap": {
+          "success": false,
+          "duration": 0
+        },
+        "sessionAttach": {
+          "success": false,
+          "duration": 0
+        },
+        "stagesBootstrap": {
+          "success": false,
+          "duration": 0
+        }
+      },
+      "totalDuration": 34513
+    },
+    {
+      "user": {
+        "id": 2,
+        "email": "test2@gymbro-test.com",
+        "password": "Test123!",
+        "gender": "female",
+        "age": 19,
+        "height_cm": 150,
+        "weight_kg": 49,
+        "target_weight_kg": 45,
+        "birthdate": "2006-12-22",
+        "bmi": 21.8,
+        "goal": "ירידה במשקל",
+        "goals": [
+          "loss"
+        ],
+        "experience": "sure",
+        "training_frequency_actual": "medium",
+        "diet": "paleo",
+        "motivation": "Test motivation for user 2",
+        "pace": "fast",
+        "activity": "בינונית",
+        "category": "edge_case"
+      },
+      "success": false,
+      "steps": {
+        "nutritionGeneration": {
+          "success": true,
+          "duration": 38608
+        },
+        "registration": {
+          "success": false,
+          "duration": 421,
+          "error": "User already registered"
+        },
+        "avatarBootstrap": {
+          "success": false,
+          "duration": 0
+        },
+        "sessionAttach": {
+          "success": false,
+          "duration": 0
+        },
+        "stagesBootstrap": {
+          "success": false,
+          "duration": 0
+        }
+      },
+      "totalDuration": 39030
+    }
+  ]
+}

@@ -312,7 +312,7 @@ async function processBatch(
 // ============================================================================
 
 async function importExercises(filePath: string): Promise<void> {
-  console.log(chalk.bold.cyan("\n🏋️‍♂️  GymBro Exercise Import Started\n"));
+  console.log(chalk.bold.cyan("\n🏋️‍♂️  FitJourney Exercise Import Started\n"));
   console.log(chalk.gray("=".repeat(60)) + "\n");
 
   const stats: ImportStats = {

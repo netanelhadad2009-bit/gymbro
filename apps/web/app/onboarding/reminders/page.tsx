@@ -1,8 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import Image from "next/image";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { saveOnboardingData } from "@/lib/onboarding-storage";
 import {
   subscribePush,
@@ -14,6 +13,17 @@ import {
 } from "@/lib/push-client";
 import { registerServiceWorker, getServiceWorkerRegistration } from "@/lib/register-sw";
 import { useOnboardingGender } from "@/lib/onboarding/useOnboardingGender";
+import { Capacitor } from '@capacitor/core';
+import {
+  getPushStatus,
+  requestPushPermission,
+  registerForPush,
+  openAppSettings,
+  shouldShowPrompt,
+  markPromptShown,
+  type PushPermissionStatus
+} from '@/lib/notifications/permissions';
+import { Settings } from 'lucide-react';
 
 interface DiagnosticsData {
   permission: NotificationPermission;
@@ -36,11 +46,33 @@ export default function RemindersPage() {
   const [subscribeResult, setSubscribeResult] = useState<PushSubscribeResult | null>(null);
   const { getGenderedText } = useOnboardingGender();
 
-  // Initialize service worker and load diagnostics on mount
+  // New state for native permission flow
+  const [permissionStatus, setPermissionStatus] = useState<PushPermissionStatus>('prompt');
+  const requestInProgress = useRef(false);
+  const isNative = Capacitor.isNativePlatform();
+
+  // Initialize and check permission status
   useEffect(() => {
-    registerServiceWorker();
-    loadDiagnostics();
-  }, []);
+    async function initPermissions() {
+      registerServiceWorker();
+      await loadDiagnostics();
+
+      // Check current permission status
+      const status = await getPushStatus();
+      setPermissionStatus(status);
+      console.log('[RemindersPage] Current permission status:', status);
+
+      // If already granted, proceed to next step immediately
+      // (This is a fallback - normally the readiness page skips to generating directly)
+      if (status === 'granted') {
+        console.log('[RemindersPage] Permission already granted, proceeding to next step');
+        saveOnboardingData({ notifications_opt_in: true });
+        router.push("/onboarding/generating");
+      }
+    }
+
+    initPermissions();
+  }, [router]);
 
   // Reload diagnostics when subscription changes
   useEffect(() => {
@@ -69,49 +101,126 @@ export default function RemindersPage() {
     setDiagnostics(data);
   }
 
-  async function handleEnable() {
+  /**
+   * Request permission via native system sheet (iOS) or web API
+   */
+  async function handleRequestPermission() {
+    // Prevent duplicate requests
+    if (requestInProgress.current || loading) {
+      console.log('[RemindersPage] Request already in progress, skipping');
+      return;
+    }
+
     try {
+      requestInProgress.current = true;
       setLoading(true);
       setMsg(null);
+      markPromptShown();
 
-      const result = await subscribePush();
-      setSubscribeResult(result);
+      console.log('[RemindersPage] Requesting push permission');
+      const status = await requestPushPermission();
+      setPermissionStatus(status);
 
-      // Save to localStorage
-      saveOnboardingData({ notifications_opt_in: result.success });
+      console.log('[RemindersPage] Permission result:', status);
 
-      if (!result.supported) {
-        // Show the specific error message returned
-        setMsg(result.error || 'התראות לא נתמכות במכשיר/דפדפן זה. אפשר להמשיך.');
-        setMsgType('info');
-      } else if (!result.success) {
-        if (result.permission === 'denied') {
-          setMsg('התראות נחסמו. תוכל להפעיל אותן בהגדרות הדפדפן מאוחר יותר.');
-        } else {
-          setMsg(result.error || 'משהו השתבש. נסה שוב או המשך בלי התראות.');
-        }
-        setMsgType('error');
+      if (status === 'granted') {
+        await handleGrantedPermission();
+      } else if (status === 'denied') {
+        handleDeniedPermission();
       } else {
-        setMsg('התראות הופעלו בהצלחה! ✓');
-        setMsgType('success');
+        setMsg('לא הצלחנו לקבל אישור להתראות');
+        setMsgType('error');
+        saveOnboardingData({ notifications_opt_in: false });
+        setTimeout(() => router.push("/onboarding/generating"), 2000);
       }
-
-      // Proceed to generating page after completing onboarding
-      setTimeout(() => {
-        router.push("/onboarding/generating");
-      }, result.success ? 1500 : 2500);
     } catch (e: any) {
-      console.error('Notification error:', e);
+      console.error('[RemindersPage] Permission error:', e);
       setMsg('משהו השתבש. תוכל להמשיך ולהפעיל התראות מאוחר יותר.');
       setMsgType('error');
       saveOnboardingData({ notifications_opt_in: false });
-      setTimeout(() => {
-        router.push("/onboarding/generating");
-      }, 2000);
+      setTimeout(() => router.push("/onboarding/generating"), 2000);
     } finally {
       setLoading(false);
-      await loadDiagnostics();
+      requestInProgress.current = false;
     }
+  }
+
+  /**
+   * Handle permission granted - register device token
+   */
+  async function handleGrantedPermission() {
+    try {
+      console.log('[RemindersPage] Permission granted, registering device');
+
+      if (isNative) {
+        // Native platform - register for push with token callback
+        await registerForPush(async (token) => {
+          console.log('[RemindersPage] Received push token:', token.value);
+
+          // Send token to backend
+          try {
+            const response = await fetch('/api/push/subscribe', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                token: token.value,
+                platform: Capacitor.getPlatform()
+              })
+            });
+
+            if (response.ok) {
+              console.log('[RemindersPage] Token registered with backend');
+            } else {
+              console.error('[RemindersPage] Failed to register token:', await response.text());
+            }
+          } catch (err) {
+            console.error('[RemindersPage] Error sending token to backend:', err);
+          }
+        });
+      } else {
+        // Web platform - use existing subscribePush flow
+        const result = await subscribePush();
+        setSubscribeResult(result);
+
+        if (!result.success) {
+          setMsg(result.error || 'משהו השתבש בהרשמה להתראות');
+          setMsgType('error');
+          saveOnboardingData({ notifications_opt_in: false });
+          setTimeout(() => router.push("/onboarding/generating"), 2000);
+          return;
+        }
+      }
+
+      // Success!
+      setMsg('התראות הופעלו בהצלחה! ✓');
+      setMsgType('success');
+      saveOnboardingData({ notifications_opt_in: true });
+
+      // Navigate to next step
+      setTimeout(() => {
+        router.push("/onboarding/generating");
+      }, 1500);
+
+    } catch (e: any) {
+      console.error('[RemindersPage] Registration error:', e);
+      setMsg('ההרשמה להתראות נכשלה, אבל אפשר להמשיך');
+      setMsgType('error');
+      saveOnboardingData({ notifications_opt_in: false });
+      setTimeout(() => router.push("/onboarding/generating"), 2000);
+    }
+  }
+
+  /**
+   * Handle permission denied
+   */
+  function handleDeniedPermission() {
+    console.log('[RemindersPage] Permission denied by user');
+    setMsg('התראות נדחו. תוכל להפעיל אותן מההגדרות מאוחר יותר.');
+    setMsgType('info');
+    saveOnboardingData({ notifications_opt_in: false });
+
+    // Don't auto-navigate - let user see the denied state
+    // They can manually skip or open settings
   }
 
   async function handleTestNotification() {
@@ -152,85 +261,110 @@ export default function RemindersPage() {
   const isDev = process.env.NODE_ENV === 'development';
 
   return (
-    <main dir="rtl" className="min-h-screen bg-[#0e0f12] text-white flex flex-col">
-
-      {/* Title and Subtitle */}
-      <div className="px-6 pb-4" style={{ paddingTop: 'max(env(safe-area-inset-top), 3.5rem)' }}>
-        <h1 className="text-3xl font-bold text-center mb-3">{getGenderedText("מתמידים", "מתמידות", "מתמידים/ות")} ביחד {getGenderedText("איתך", "איתך", "איתך")}</h1>
-        <p className="text-center text-white/60 text-base">
-          האפליקציה תשלח {getGenderedText("לך", "לך", "לך")} תזכורות שיעזרו {getGenderedText("לך", "לך", "לך")} להישאר במסלול, ולהתקדם לעבר המטרות {getGenderedText("שלך", "שלך", "שלך")}.
-        </p>
+    <main dir="rtl" className="min-h-screen bg-[#0B0D0E] flex flex-col items-center justify-center px-6">
+      {/* Main heading */}
+      <div className="text-center mb-16">
+        <h1 className="text-4xl font-bold text-white leading-tight">
+          {getGenderedText(
+            'הישאר במסלול עם התראות',
+            'הישארי במסלול עם התראות',
+            'הישאר/י במסלול עם התראות'
+          )}
+        </h1>
       </div>
 
-      {/* Phone mockup */}
-      <div className="flex-1 flex items-center justify-center py-4">
-        <Image
-          src="/onboarding/phone-reminders.png"
-          alt="Phone mockup with reminders"
-          width={300}
-          height={600}
-          className="w-[300px] md:w-[340px]"
-          priority
-        />
-      </div>
+      {/* Permission denied state */}
+      {permissionStatus === 'denied' && !loading && (
+        <div className="w-full max-w-md space-y-4">
+          <div className="bg-red-500/10 text-red-400 border border-red-500/20 p-4 rounded-2xl text-sm text-center mb-6">
+            התראות נדחו. תוכל להפעיל אותן מההגדרות מאוחר יותר.
+          </div>
 
-      {/* Footnote */}
-      <p className="text-center text-white/60 text-sm px-6 mb-6">
-        *משתמשים שמקבלים התראות מתמידים ב־36% יותר.
-      </p>
+          <button
+            onClick={() => openAppSettings()}
+            className="w-full h-14 bg-[#E2F163] text-[#0B0D0E] font-bold text-lg rounded-full transition-all duration-200 hover:bg-[#d4e350] active:scale-95 flex items-center justify-center gap-2 shadow-lg"
+          >
+            <Settings className="w-5 h-5" strokeWidth={2.5} />
+            <span>פתח הגדרות</span>
+          </button>
 
-      {/* Message */}
-      {msg && (
-        <div className={`mx-6 mb-4 p-3 rounded-xl text-sm text-center ${
-          msgType === 'success' ? 'bg-green-500/10 text-green-400' :
-          msgType === 'error' ? 'bg-red-500/10 text-red-400' :
-          'bg-white/5 text-white/70'
-        }`}>
-          {msg}
+          <button
+            onClick={handleSkip}
+            className="w-full h-12 text-white/60 font-medium text-base hover:text-white/80 transition-colors"
+          >
+            המשך בלי התראות
+          </button>
         </div>
       )}
 
-      {/* Actions */}
-      <div className="px-6 pb-4 space-y-4">
-        <button
-          onClick={handleEnable}
-          disabled={loading}
-          className="w-full h-14 bg-[#E2F163] text-black font-bold text-lg rounded-full transition hover:bg-[#d4e350] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {loading ? getGenderedText('מפעיל התראות...', 'מפעילה התראות...', 'מפעיל/ה התראות...') : getGenderedText('מאשר לקבל התראות', 'מאשרת לקבל התראות', 'מאשר/ת לקבל התראות')}
-        </button>
+      {/* Initial prompt state - iOS-style permission card */}
+      {permissionStatus === 'prompt' && (
+        <div className="w-full max-w-sm px-6 relative">
+          {/* iOS native-style permission dialog */}
+          <div className="bg-[#E8E8E8] rounded-[28px] overflow-hidden shadow-2xl">
+            {/* Header */}
+            <div className="pt-8 pb-6 px-6 text-center">
+              <h2 className="text-black font-semibold text-[17px] leading-snug">
+                "FitJourney" {getGenderedText('מבקש לשלוח לך עדכונים', 'מבקשת לשלוח לך עדכונים', 'מבקש/ת לשלוח לך עדכונים')}
+              </h2>
+            </div>
 
-        {canTest && isDev && (
+            {/* Action buttons - iOS native style */}
+            <div className="flex gap-3 px-4 pb-4">
+              <button
+                onClick={handleSkip}
+                disabled={loading}
+                data-testid="notif-skip"
+                className="flex-1 h-[50px] bg-gray-300/60 hover:bg-gray-300/80 active:bg-gray-300 text-black font-semibold text-[17px] rounded-[14px] transition-colors disabled:opacity-50"
+              >
+                סירוב
+              </button>
+
+              <button
+                onClick={handleRequestPermission}
+                disabled={loading}
+                data-testid="notif-allow"
+                className="flex-1 h-[50px] bg-[#007AFF] hover:bg-[#0051D5] active:bg-[#004DBD] text-white font-semibold text-[17px] rounded-[14px] transition-colors disabled:opacity-50"
+              >
+                {loading ? getGenderedText('מפעיל...', 'מפעילה...', 'מפעיל/ה...') : 'אישור'}
+              </button>
+            </div>
+          </div>
+
+          {/* Pointing hand icon - below pointing up at confirmation button */}
+          {!loading && (
+            <div className="absolute -bottom-20 left-16 text-5xl animate-bounce">
+              👆
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Test notification button (Development Only) */}
+      {canTest && isDev && (
+        <div className="fixed bottom-24 left-1/2 -translate-x-1/2 z-50">
           <button
             onClick={handleTestNotification}
             disabled={testLoading}
-            className="w-full h-12 bg-white/5 text-white font-bold text-base rounded-full transition hover:bg-white/10 active:scale-[0.98] disabled:opacity-50"
+            className="px-6 py-3 bg-white/10 text-white font-bold text-sm rounded-full transition hover:bg-white/20 active:translate-y-1 disabled:opacity-50 backdrop-blur-sm"
           >
             {testLoading ? 'שולח...' : 'שלח התראת בדיקה 🧪'}
           </button>
-        )}
-
-        <button
-          onClick={handleSkip}
-          disabled={loading}
-          className="w-full text-white/70 text-base hover:underline transition disabled:opacity-50"
-        >
-          אולי אחר כך
-        </button>
-      </div>
+        </div>
+      )}
 
       {/* Diagnostics Panel (Development Only) */}
       {isDev && (
-        <div className="px-6 pb-8">
+        <div className="fixed bottom-4 left-4 right-4 z-40">
           <button
             onClick={() => setShowDiagnostics(!showDiagnostics)}
-            className="w-full text-xs text-white/40 hover:text-white/60 transition mb-2"
+            className="w-full text-xs text-white/40 hover:text-white/60 transition mb-2 text-center"
           >
             {showDiagnostics ? '▼' : '▶'} Diagnostics
           </button>
 
           {showDiagnostics && diagnostics && (
-            <div className="bg-black/30 rounded-xl p-4 text-xs font-mono space-y-2">
+            <div className="bg-black/80 backdrop-blur-md rounded-xl p-4 text-xs font-mono space-y-2 border border-white/10">
               <div className="grid grid-cols-2 gap-2">
                 <DiagnosticItem
                   label="Permission"

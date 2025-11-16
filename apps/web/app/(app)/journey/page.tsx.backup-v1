@@ -1,0 +1,277 @@
+/**
+ * Journey Page - Game-style Map with Stage Engine
+ *
+ * Features:
+ * - Lock → Active → Complete → Unlock Next logic
+ * - Real progress tracking from Supabase
+ * - Points & streaks system
+ * - No emojis - proper SVG icons only
+ * - Safe-area layout for notch/status bar
+ */
+
+"use client";
+
+import "./journey.css";
+import { useState } from "react";
+import { useJourney, useJourneyHeader } from "@/lib/journey/useJourney";
+import { completeNode } from "@/lib/journey/actions";
+import { motion } from "framer-motion";
+import {
+  AlertTriangle,
+  Map,
+  CheckCircle2,
+  Zap,
+  Lock,
+  Scale,
+  UtensilsCrossed,
+  TrendingUp,
+  CalendarDays,
+  Trophy
+} from "lucide-react";
+import { Icon } from "@/components/ui/Icon";
+import { EnergyPath } from "@/components/journey/EnergyPath";
+import { Confetti } from "@/components/journey/Confetti";
+import { XPCounter } from "@/components/journey/XPCounter";
+import { Header } from "@/components/journey/Header";
+import { KpiStrip } from "@/components/journey/KpiStrip";
+
+// Helper to get icon for node type
+function getNodeIcon(nodeType: string, status: string) {
+  if (status === "COMPLETED") return CheckCircle2;
+  if (status === "LOCKED") return Lock;
+
+  // Active node - show type-specific icon
+  if (nodeType.includes("WEIGH")) return Scale;
+  if (nodeType.includes("MEAL")) return UtensilsCrossed;
+  if (nodeType.includes("PROTEIN")) return TrendingUp;
+  if (nodeType.includes("STREAK")) return CalendarDays;
+
+  return Zap; // default for active
+}
+
+export default function JourneyPage() {
+  const { nodes, states, activeIndex, loading, error } = useJourney();
+  const headerData = useJourneyHeader();
+  const [showConfetti, setShowConfetti] = useState(false);
+  const [completingNode, setCompletingNode] = useState<string | null>(null);
+
+  const handleNodeClick = async (nodeId: string, idx: number) => {
+    const state = states[nodeId];
+    const isActive = idx === activeIndex && state?.status !== "COMPLETED";
+    const canComplete = state?.progress >= 1;
+
+    if (isActive && canComplete && !completingNode) {
+      try {
+        setCompletingNode(nodeId);
+        const result = await completeNode(nodeId);
+        console.log("[Journey] Node completed:", result);
+
+        // Show confetti
+        setShowConfetti(true);
+        setTimeout(() => setShowConfetti(false), 3000);
+
+        // Reload to see new progress
+        setTimeout(() => window.location.reload(), 1500);
+      } catch (e) {
+        console.error("[Journey] Failed to complete node:", e);
+        alert("שגיאה בסיום השלב. נסה שוב.");
+      } finally {
+        setCompletingNode(null);
+      }
+    }
+  };
+
+  // Error state
+  if (error) {
+    return (
+      <div className="fixed inset-0 bg-gradient-to-b from-[#0e0f12] to-[#1a1b20] flex items-center justify-center" dir="rtl">
+        <motion.div
+          initial={{ scale: 0.9, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          className="relative z-10 text-center p-8 rounded-3xl bg-gradient-to-br from-neutral-900/95 to-black/95 backdrop-blur-xl border border-orange-500/20"
+        >
+          <Icon as={AlertTriangle} className="w-16 h-16 text-orange-400 mx-auto mb-4" />
+          <h2 className="text-2xl font-black text-white mb-3">שגיאת חיבור</h2>
+          <p className="text-neutral-400 mb-8">לא הצלחנו לטעון את המסע שלך</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-8 py-4 bg-gradient-to-r from-orange-400 to-orange-500 text-black font-bold rounded-2xl"
+          >
+            נסה שוב
+          </button>
+        </motion.div>
+      </div>
+    );
+  }
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="fixed inset-0 bg-gradient-to-b from-[#0e0f12] to-[#1a1b20] flex items-center justify-center" dir="rtl">
+        <div className="relative">
+          {[0, 1, 2].map((i) => (
+            <motion.div
+              key={i}
+              className="absolute rounded-full border-2 border-[#E2F163]/30"
+              style={{
+                width: 80 + i * 30,
+                height: 80 + i * 30,
+                left: `50%`,
+                top: `50%`,
+                transform: "translate(-50%, -50%)"
+              }}
+              animate={{
+                scale: [1, 1.2, 1],
+                opacity: [0.3, 0.6, 0.3],
+                rotate: i % 2 === 0 ? [0, 360] : [360, 0]
+              }}
+              transition={{
+                duration: 3,
+                repeat: Infinity,
+                delay: i * 0.3
+              }}
+            />
+          ))}
+          <div className="relative z-10 w-20 h-20 rounded-full bg-gradient-to-br from-[#E2F163] to-[#d4e350] flex items-center justify-center">
+            <Icon as={Map} className="w-10 h-10 text-black" />
+          </div>
+        </div>
+        <p className="absolute bottom-32 text-neutral-400 font-semibold">טוען את המסע שלך...</p>
+      </div>
+    );
+  }
+
+  const sortedNodes = [...nodes].sort((a, b) => a.order - b.order);
+
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-[#0e0f12] to-[#1a1b20] safe-top" dir="rtl">
+      {/* Confetti */}
+      <Confetti trigger={showConfetti} />
+
+      {/* New Premium Header */}
+      <Header
+        points={headerData.points}
+        streak={headerData.streak}
+        chapterName={headerData.chapterName}
+        progress={headerData.progress}
+      />
+
+      {/* KPI Strip */}
+      <div className="px-4 mt-4">
+        <KpiStrip />
+      </div>
+
+      {/* Journey Rail */}
+      <main className="px-4 mt-6 pb-32">
+        <div className="relative max-w-md mx-auto">
+          <div className="space-y-12">
+            {sortedNodes.map((node, idx) => {
+              const state = states[node.id];
+              const locked = state?.status === "LOCKED";
+              const active = idx === activeIndex && state?.status !== "COMPLETED";
+              const completed = state?.status === "COMPLETED";
+              const progress = state?.progress ?? 0;
+
+              const NodeIconComponent = getNodeIcon(node.type, state?.status || "ACTIVE");
+
+              // Position for energy paths
+              const nextNode = sortedNodes[idx + 1];
+              const hasNext = !!nextNode;
+
+              return (
+                <div key={node.id} className="relative">
+                  {/* Energy Path to next node */}
+                  {hasNext && (
+                    <div className="absolute left-1/2 top-32 -translate-x-1/2 w-1 h-24">
+                      <EnergyPath
+                        startY={0}
+                        endY={100}
+                        isActive={!locked && !completed}
+                        isCompleted={completed}
+                        index={idx}
+                        direction="straight"
+                      />
+                    </div>
+                  )}
+
+                  {/* Node */}
+                  <motion.div
+                    initial={{ scale: 0.8, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ delay: idx * 0.1 }}
+                    className="flex flex-col items-center"
+                  >
+                    <button
+                      disabled={locked || completed || completingNode === node.id}
+                      onClick={() => handleNodeClick(node.id, idx)}
+                      className={[
+                        "w-48 h-48 rounded-full transition-all duration-300",
+                        "flex flex-col items-center justify-center gap-2",
+                        "relative overflow-hidden",
+                        locked && "opacity-40 bg-zinc-800/50",
+                        active && "bg-[#E2F163]/10 ring-4 ring-[#E2F163] shadow-[0_0_40px_#E2F16360] hover:scale-105",
+                        completed && "bg-emerald-400/10 ring-4 ring-emerald-400 shadow-[0_0_40px_rgba(16,185,129,0.4)]",
+                        !locked && !active && !completed && "bg-zinc-800/30"
+                      ].filter(Boolean).join(" ")}
+                    >
+                      {/* Icon */}
+                      <Icon
+                        as={NodeIconComponent}
+                        className={[
+                          "w-12 h-12",
+                          completed && "text-emerald-400",
+                          active && "text-[#E2F163]",
+                          locked && "text-zinc-600"
+                        ].filter(Boolean).join(" ")}
+                      />
+
+                      {/* Title */}
+                      <div className="text-white font-bold text-sm text-center px-4">
+                        {node.title}
+                      </div>
+
+                      {/* Subtitle */}
+                      {node.subtitle && (
+                        <div className="text-white/60 text-xs text-center px-4">
+                          {node.subtitle}
+                        </div>
+                      )}
+
+                      {/* Progress for active nodes */}
+                      {active && (
+                        <div className="mt-2">
+                          <div className="text-[#E2F163] font-bold text-lg">
+                            {Math.round(progress * 100)}%
+                          </div>
+                          {progress >= 1 && (
+                            <div className="text-[#E2F163] text-xs animate-pulse">
+                              לחץ להשלמה!
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Points */}
+                      <div className={[
+                        "absolute bottom-2 right-2 px-2 py-1 rounded-full text-xs font-bold flex items-center gap-1",
+                        completed ? "bg-emerald-400/20 text-emerald-300" : "bg-white/10 text-white/60"
+                      ].join(" ")}>
+                        <Icon as={Trophy} className="w-3 h-3" />
+                        {node.points}
+                      </div>
+                    </button>
+                  </motion.div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </main>
+
+      {/* XP Counter for completed nodes */}
+      {showConfetti && (
+        <XPCounter points={sortedNodes[activeIndex]?.points || 10} />
+      )}
+    </div>
+  );
+}

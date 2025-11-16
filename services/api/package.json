@@ -1,5 +1,5 @@
 {
-  "name": "@gymbro/api",
+  "name": "@fitjourney/api",
   "private": true,
   "type": "module",
   "scripts": {
@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.65.0",
-    "@gymbro/db": "workspace:^",
+    "@fitjourney/db": "workspace:^",
     "@paralleldrive/cuid2": "^2.2.2",
     "@supabase/supabase-js": "^2.58.0",
     "anthropic": "^0.0.0",

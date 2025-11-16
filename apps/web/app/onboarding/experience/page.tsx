@@ -15,23 +15,23 @@ export default function ExperiencePage() {
   const experienceOptions = [
     {
       value: "never",
-      label: getGenderedText("לא הצלחתי להתמיד לאורך זמן", "לא הצלחתי להתמיד לאורך זמן")
+      label: "לא הצלחתי להתמיד לאורך זמן"
     },
     {
       value: "results",
-      label: getGenderedText("לא הצלחתי לראות תוצאות", "לא הצלחתי לראות תוצאות")
+      label: "לא הצלחתי לראות תוצאות"
     },
     {
       value: "knowledge",
-      label: getGenderedText("אין לי מספיק ידע תזונתי", "אין לי מספיק ידע תזונתי")
+      label: "אין לי מספיק ידע תזונתי"
     },
     {
       value: "time",
-      label: getGenderedText("לא מצאתי מספיק זמן", "לא מצאתי מספיק זמן")
+      label: "לא מצאתי מספיק זמן"
     },
     {
       value: "sure",
-      label: getGenderedText("אני לא בטוח", "אני לא בטוחה")
+      label: getGenderedText("אני לא בטוח", "אני לא בטוחה", "אני לא בטוח/ה")
     },
   ];
 
@@ -47,8 +47,8 @@ export default function ExperiencePage() {
 
   const titleNode = (
     <>
-      {getGenderedText("מה עצר אותך עד עכשיו", "מה עצר אותך עד עכשיו")}<br />
-      {getGenderedText("מלהגיע למטרה שלך?", "מלהגיע למטרה שלך?")}
+      מה עצר אותך עד עכשיו<br />
+      {getGenderedText("מלהגיע למטרה שלך?", "מלהגיע למטרה שלך?", "מלהגיע למטרה שלך?")}
     </>
   );
 

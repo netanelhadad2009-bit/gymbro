@@ -1,0 +1,140 @@
+"use client";
+import React from "react";
+
+type Props = {
+  rtl?: boolean; // defaults to true for Hebrew
+  title?: string; // e.g., "המשקל שלך"
+  gymbroLabel?: string; // "GymBro"
+  traditionalLabel?: string; // "דיאטה מסורתית"
+  month1Label?: string; // "חודש 1"
+  month6Label?: string; // "חודש 6"
+  className?: string; // let the page control padding/border
+};
+
+export default function CalStyleResultsChart({
+  rtl = true,
+  title = "המשקל שלך",
+  gymbroLabel = "GymBro",
+  traditionalLabel = "דיאטה מסורתית",
+  month1Label = "חודש 1",
+  month6Label = "חודש 6",
+  className = "",
+}: Props) {
+  // Keep the canvas independent of page styling
+  const w = 360,
+    h = 210,
+    padX = 22,
+    padY = 18;
+
+  // Path shapes chosen to visually match the Cal-AI screenshot
+  const gymPath = `M ${padX},${h - 70} C ${w * 0.33},${h - 60} ${w * 0.55},${h - 120} ${w * 0.66},${h - 100} S ${w - 44},${h - 14} ${w - padX},${h - 16}`;
+  const tradPath = `M ${padX},${h - 66} C ${w * 0.35},${h - 82} ${w * 0.5},${h - 124} ${w * 0.62},${h - 112} S ${w - 64},${h - 40} ${w - padX},${h - 44}`;
+
+  return (
+    <div dir={rtl ? "rtl" : "ltr"} className={className}>
+      {/* Title stays inside the component so we don't change page layout */}
+      <div className="text-[15px] font-semibold mb-2">{title}</div>
+
+      <svg viewBox={`0 0 ${w} ${h}`} className="w-full h-auto">
+        <defs>
+          <linearGradient id="calArea" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="currentColor" stopOpacity="0.12" />
+            <stop offset="100%" stopColor="currentColor" stopOpacity="0.00" />
+          </linearGradient>
+        </defs>
+
+        {/* subtle grid */}
+        <g stroke="currentColor" opacity="0.10">
+          {[0, 1, 2, 3].map((i) => {
+            const y = padY + i * ((h - padY * 2) / 4);
+            return <line key={i} x1={padX} y1={y} x2={w - padX} y2={y} />;
+          })}
+        </g>
+
+        {/* soft area under GymBro line */}
+        <path
+          d={`${gymPath} L ${w - padX},${h - padY} L ${padX},${h - padY} Z`}
+          fill="url(#calArea)"
+        />
+
+        {/* Lines */}
+        <path
+          d={gymPath}
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="3"
+          strokeLinecap="round"
+          opacity="0.9"
+        />
+        <path
+          d={tradPath}
+          fill="none"
+          stroke="#D06A6A"
+          strokeWidth="3"
+          strokeLinecap="round"
+        />
+
+        {/* Endpoints */}
+        <circle
+          cx={padX}
+          cy={h - 70}
+          r="6"
+          fill="#fff"
+          stroke="currentColor"
+          strokeWidth="3"
+          opacity="0.9"
+        />
+        <circle
+          cx={w - padX}
+          cy={h - 16}
+          r="6"
+          fill="#fff"
+          stroke="currentColor"
+          strokeWidth="3"
+          opacity="0.9"
+        />
+
+        {/* Traditional label (near red curve) */}
+        <text
+          x={w - padX - 4}
+          y={h - 138}
+          fontSize="14"
+          fill="#D06A6A"
+          textAnchor="end"
+          opacity="0.85"
+        >
+          {traditionalLabel}
+        </text>
+
+        {/* X-axis labels */}
+        <text
+          x={padX}
+          y={h - 4}
+          fontSize="13"
+          fill="currentColor"
+          opacity="0.6"
+        >
+          {month1Label}
+        </text>
+        <text
+          x={w - padX}
+          y={h - 4}
+          fontSize="13"
+          fill="currentColor"
+          opacity="0.6"
+          textAnchor="end"
+        >
+          {month6Label}
+        </text>
+
+        {/* tiny GymBro chip (bottom-left) */}
+        <g transform={`translate(${padX}, ${h - 28})`}>
+          <rect rx="10" width="74" height="22" fill="currentColor" opacity="0.9" />
+          <text x="37" y="15" fill="#000" fontSize="12" textAnchor="middle">
+            {gymbroLabel}
+          </text>
+        </g>
+      </svg>
+    </div>
+  );
+}

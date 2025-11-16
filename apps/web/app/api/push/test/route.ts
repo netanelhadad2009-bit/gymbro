@@ -26,8 +26,8 @@ export async function POST(req: Request) {
 
     // Send test notification
     const payload = {
-      title: 'GymBro 💪',
-      body: 'זוהי תזכורת בדיקה מ-GymBro!',
+      title: 'FitJourney 💪',
+      body: 'זוהי תזכורת בדיקה מ-FitJourney!',
       icon: '/icon-192.png',
       badge: '/icon-192.png',
       tag: 'test-notification',

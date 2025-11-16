@@ -1,0 +1,50 @@
+{
+  "timestamp": "2025-11-11T11:19:54.548Z",
+  "totalUsers": 50,
+  "successfulRegistrations": 50,
+  "successRate": 100,
+  "totalDuration": 1896897,
+  "avgDurations": {
+    "nutritionGeneration": 26919,
+    "registration": 651,
+    "avatarBootstrap": 1677,
+    "sessionAttach": 635,
+    "stagesBootstrap": 5430,
+    "total": 35958
+  },
+  "stepSuccessRates": {
+    "nutritionGeneration": 50,
+    "registration": 50,
+    "avatarBootstrap": 50,
+    "sessionAttach": 50,
+    "stagesBootstrap": 50
+  },
+  "validationStats": {
+    "authUserExists": 50,
+    "profileExists": 50,
+    "avatarExists": 50,
+    "nutritionPlanExists": 0,
+    "nutritionStatusReady": 0,
+    "avatarMatches": 1,
+    "stagesExist": 0,
+    "nutritionQuality": 0,
+    "caloriesInRange": 0
+  },
+  "errorCounts": {
+    "Nutrition plan is null": 50,
+    "Nutrition status is 'null', expected 'ready'": 50,
+    "Avatar diet mismatch: balanced vs expected vegan": 11,
+    "Avatar frequency mismatch: medium vs expected high": 25,
+    "Avatar gender mismatch: male vs expected female": 22,
+    "Avatar experience mismatch: beginner vs expected intermediate": 20,
+    "Avatar frequency mismatch: medium vs expected low": 14,
+    "Avatar experience mismatch: beginner vs expected advanced": 10,
+    "Avatar diet mismatch: balanced vs expected keto": 4,
+    "Avatar diet mismatch: balanced vs expected vegetarian": 9,
+    "Avatar diet mismatch: balanced vs expected paleo": 1
+  },
+  "warningCounts": {
+    "Stages query error: Could not find the table 'public.journey_stages' in the schema cache": 50
+  },
+  "failedUserCount": 0
+}

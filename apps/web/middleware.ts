@@ -1,98 +1,78 @@
-/**
- * Middleware for auth and onboarding flow protection
- * Handles redirects for authenticated/unauthenticated users
- */
-
+import { NextResponse, NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
 
 export async function middleware(req: NextRequest) {
-  let res = NextResponse.next({
-    request: req,
-  });
+  const res = NextResponse.next();
 
-  const { pathname } = req.nextUrl;
+  const url = new URL(req.url);
+  const path = url.pathname;
 
-  // Allow onboarding pages without authentication (guest flow)
-  // Skip all auth checks for onboarding to avoid Supabase calls
-  if (pathname.startsWith("/onboarding")) {
+  console.log(`[Middleware] Request: ${path}`);
+
+  // Allow static assets, API calls, and mobile-boot without auth check
+  if (
+    path.startsWith("/_next") ||
+    path.startsWith("/api") ||
+    path.startsWith("/images") ||
+    path === "/favicon.ico" ||
+    path === "/mobile-boot" ||
+    // Skip static files (images, fonts, etc.)
+    /\.(svg|png|jpg|jpeg|gif|webp|ico|woff|woff2|ttf|eot)$/i.test(path)
+  ) {
+    console.log(`[Middleware] Skipping auth check for: ${path}`);
     return res;
   }
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return req.cookies.getAll();
+  try {
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          get(name) { return req.cookies.get(name)?.value; },
+          set() {},
+          remove() {},
         },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value }) => req.cookies.set(name, value));
-          res = NextResponse.next({
-            request: req,
-          });
-          cookiesToSet.forEach(({ name, value, options }) =>
-            res.cookies.set(name, value, options)
-          );
-        },
-      },
-    }
-  );
-
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
-
-  // If accessing root path with a session
-  if (pathname === "/" && session) {
-    // Get onboarding progress
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (user) {
-      const progress = user.user_metadata?.onboarding_progress || {
-        lastCompletedIndex: -1,
-      };
-      const TOTAL_STEPS = 15; // Updated: added longterm and reminders pages
-
-      // If onboarding not complete, redirect to next step
-      if (progress.lastCompletedIndex < TOTAL_STEPS - 1) {
-        const ONBOARDING_STEPS = [
-          "gender",
-          "goals",
-          "frequency",
-          "experience",
-          "motivation",
-          "longterm",
-          "metrics",
-          "birthdate",
-          "target-weight",
-          "goal-summary",
-          "pace",
-          "activity",
-          "diet",
-          "readiness",
-          "reminders",
-        ];
-
-        const nextStepIndex = progress.lastCompletedIndex + 1;
-        const nextStep = ONBOARDING_STEPS[nextStepIndex];
-        return NextResponse.redirect(
-          new URL(`/onboarding/${nextStep}`, req.url)
-        );
-      } else {
-        // Onboarding complete, go to dashboard
-        return NextResponse.redirect(new URL("/dashboard", req.url));
       }
-    }
-  }
+    );
 
-  return res;
+    // Check if user is logged in
+    const { data: { session }, error } = await supabase.auth.getSession();
+
+    // If there's an error getting session, let the request through
+    // The client-side will handle auth state
+    if (error) {
+      console.warn("[Middleware] Error getting session:", error);
+      return res;
+    }
+
+    if (!session) {
+      // ❌ Not logged in → show landing page
+      console.log(`[Middleware] No session, path: ${path}`);
+      if (path === "/" || path.startsWith("/auth") || path.startsWith("/signup") || path.startsWith("/login") || path.startsWith("/onboarding")) {
+        return res;
+      }
+      console.log(`[Middleware] Redirecting to / (no session)`);
+      return NextResponse.redirect(new URL("/", req.url));
+    }
+
+    // ✅ Logged in → always go to main app
+    console.log(`[Middleware] Has session, path: ${path}`);
+    if (path === "/" || path.startsWith("/onboarding") || path.startsWith("/auth") || path.startsWith("/signup")) {
+      console.log(`[Middleware] Redirecting to /journey (has session)`);
+      return NextResponse.redirect(new URL("/journey", req.url));
+    }
+
+    return res;
+  } catch (e) {
+    // If middleware fails, let the request through
+    console.error("[Middleware] Error:", e);
+    return res;
+  }
 }
 
 export const config = {
-  matcher: ["/", "/onboarding/:path*"],
+  matcher: [
+    "/((?!_next|api|favicon.ico|images|assets).*)"
+  ],
 };

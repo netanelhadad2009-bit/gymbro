@@ -23,7 +23,7 @@ export default function WhatsappSupportCard() {
     : "rtl";
 
   const number = process.env.NEXT_PUBLIC_WA_NUMBER ?? "972509999999";
-  const preset = encodeURIComponent("היי GymBro, יש לי שאלה:");
+  const preset = encodeURIComponent("היי FitJourney, יש לי שאלה:");
   const href = number ? `https://wa.me/${number}?text=${preset}` : "#";
 
   const Content = (
@@ -34,7 +34,7 @@ export default function WhatsappSupportCard() {
         px-5 py-4
         shadow-[0_8px_24px_rgba(0,0,0,0.25)]
         text-white
-        active:scale-[0.98] active:opacity-95
+        active:translate-y-1 active:brightness-90 active:opacity-95
         transition-transform
       "
     >

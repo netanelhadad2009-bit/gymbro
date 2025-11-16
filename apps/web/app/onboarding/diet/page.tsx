@@ -1,8 +1,9 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { saveOnboardingData } from "@/lib/onboarding-storage";
+import { useState, useRef, startTransition } from "react";
+import { saveOnboardingDraft } from "@/lib/onboarding/saveDraft";
+import { queueDraftRetry } from "@/lib/onboarding/retryQueue";
 import { useOnboardingNav } from "@/lib/onboarding/client";
 import { useOnboardingGender } from "@/lib/onboarding/useOnboardingGender";
 import OnboardingShell from "../components/OnboardingShell";
@@ -58,7 +59,7 @@ const iconMap: Record<string, () => JSX.Element> = {
 export default function DietPage() {
   const router = useRouter();
   const [selectedDiet, setSelectedDiet] = useState<DietType | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const submittedRef = useRef(false);
   const { nextHref } = useOnboardingNav("diet");
   const { getGenderedText } = useOnboardingGender();
 
@@ -98,9 +99,27 @@ export default function DietPage() {
   const handleContinue = () => {
     if (!selectedDiet) return;
 
-    setIsLoading(true);
-    saveOnboardingData({ diet: selectedDiet });
-    router.push(nextHref);
+    // Prevent double submissions
+    if (submittedRef.current) return;
+    submittedRef.current = true;
+
+    const formData = { diet: selectedDiet };
+
+    // 1) Navigate immediately (no loading state!)
+    startTransition(() => {
+      router.push(nextHref);
+    });
+
+    // 2) Save in background (fire-and-forget)
+    (async () => {
+      try {
+        await saveOnboardingDraft(formData);
+      } catch (error) {
+        console.warn('[Diet] Background save failed:', error);
+        // Queue for retry
+        queueDraftRetry('diet', formData);
+      }
+    })();
   };
 
   return (
@@ -118,10 +137,10 @@ export default function DietPage() {
       footer={
         <PrimaryButton
           onClick={handleContinue}
-          disabled={!selectedDiet || isLoading}
+          disabled={!selectedDiet}
           className="h-14 text-lg"
         >
-          {isLoading ? "שומר..." : "הבא"}
+          הבא
         </PrimaryButton>
       }
     >
@@ -138,7 +157,7 @@ export default function DietPage() {
                 onClick={() => setSelectedDiet(option.key)}
                 className={[
                   "w-full rounded-3xl p-5 flex items-center gap-4 transition-all duration-150",
-                  "active:scale-[0.98] cursor-pointer",
+                  "active:translate-y-1 active:brightness-90 cursor-pointer",
                   isSelected
                     ? "bg-[#E2F163] text-black"
                     : "bg-white/5 text-white ring-1 ring-white/10 hover:bg-white/[0.07]",

@@ -1,8 +1,8 @@
 /* eslint-disable no-undef */
-// GymBro Service Worker for Push Notifications
+// FitJourney Service Worker for Push Notifications
 // Production-ready implementation
 
-const CACHE_NAME = 'gymbro-v1';
+const CACHE_NAME = 'fitjourney-v1';
 const DEBUG = false; // Set to true for console logging
 
 function log(...args) {
@@ -36,12 +36,12 @@ self.addEventListener('push', (event) => {
     log('Error parsing push data:', e);
   }
 
-  const title = data.title || 'GymBro';
+  const title = data.title || 'FitJourney';
   const options = {
-    body: data.body || 'תזכורת חדשה מ-GymBro',
+    body: data.body || 'תזכורת חדשה מ-FitJourney',
     icon: data.icon || '/icon-192.png',
     badge: data.badge || '/icon-192.png',
-    tag: data.tag || 'gymbro-notification',
+    tag: data.tag || 'fitjourney-notification',
     data: data.data || { url: '/' },
     requireInteraction: data.requireInteraction || false,
     vibrate: data.vibrate || [200, 100, 200],

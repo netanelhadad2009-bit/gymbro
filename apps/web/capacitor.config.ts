@@ -1,46 +1,34 @@
-import type { CapacitorConfig } from '@capacitor/cli';
+// apps/web/capacitor.config.ts
+import type { CapacitorConfig } from "@capacitor/cli";
 
-// Helper to determine dev server URL based on target
-function getDevServerUrl(): string | undefined {
-  const target = process.env.CAP_TARGET || 'sim';
+const isDev = process.env.CAP_DEV === "1";
 
-  if (target === 'sim') {
-    // Simulator can access localhost directly
-    return 'http://localhost:3000';
-  } else {
-    // Physical device needs LAN IP
-    const lanIp = process.env.LAN_IP || 'http://192.168.0.10:3000';
-    return lanIp;
-  }
-}
+// Use local network IP for physical devices, localhost for simulator
+const devServerUrl = process.env.DEV_SERVER_URL || "http://172.20.10.6:3000";
 
-function getAllowedHosts(): string[] {
-  const hosts = ['localhost', '127.0.0.1'];
-  const lanIp = process.env.LAN_IP;
-
-  if (lanIp) {
-    // Extract hostname from LAN_IP (e.g., "http://192.168.0.10:3000" -> "192.168.0.10")
-    try {
-      const url = new URL(lanIp);
-      hosts.push(url.hostname);
-    } catch {
-      // If not a valid URL, assume it's just an IP
-      hosts.push(lanIp.replace(/^https?:\/\//, '').split(':')[0]);
-    }
-  }
-
-  return hosts;
-}
+console.log(
+  isDev
+    ? `🧪 Capacitor Dev URL: ${devServerUrl}`
+    : "📦 Capacitor: Using bundled web assets"
+);
 
 const config: CapacitorConfig = {
-  appId: 'com.gymbro.app',
-  appName: 'GymBro',
-  webDir: 'public',
-  server: {
-    url: getDevServerUrl(),
-    cleartext: true, // Allow http during development
-    allowNavigation: getAllowedHosts(),
-  }
+  // TODO: On full store rebrand, consider changing this to "com.fitjourney.app"
+  // and update all corresponding store / OAuth / deep link configurations.
+  appId: "com.gymbro.app",
+  appName: "FitJourney",
+  webDir: "public",
+  server: isDev
+    ? {
+        url: devServerUrl,
+        cleartext: true,
+      }
+    : undefined,
+  ios: {
+    backgroundColor: "#0B0D0E",
+    contentInset: "always",
+    allowsLinkPreview: false,
+  },
 };
 
 export default config;

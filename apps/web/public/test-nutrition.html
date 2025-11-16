@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nutrition API Test</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 20px;
+      background: #1a1a1a;
+      color: #e0e0e0;
+    }
+    h1 {
+      color: #E2F163;
+    }
+    button {
+      background: #E2F163;
+      color: black;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      margin: 10px 5px;
+    }
+    button:hover {
+      background: #d4e350;
+    }
+    button:active {
+      transform: scale(0.98);
+    }
+    .output {
+      background: #2a2a2a;
+      border: 1px solid #444;
+      border-radius: 8px;
+      padding: 20px;
+      margin-top: 20px;
+      font-family: 'Monaco', 'Courier New', monospace;
+      font-size: 13px;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+    .success {
+      color: #4ade80;
+    }
+    .error {
+      color: #f87171;
+    }
+    .info {
+      color: #60a5fa;
+    }
+    .instructions {
+      background: #2a2a2a;
+      border-left: 4px solid #E2F163;
+      padding: 15px;
+      margin: 20px 0;
+      border-radius: 4px;
+    }
+    .instructions ul {
+      margin: 10px 0;
+      padding-right: 20px;
+    }
+    .instructions li {
+      margin: 8px 0;
+    }
+  </style>
+</head>
+<body>
+  <h1>🧪 Nutrition API Test Utility</h1>
+
+  <div class="instructions">
+    <h3>הוראות שימוש:</h3>
+    <ol>
+      <li><strong>פתח את DevTools</strong> (F12 / Cmd+Option+I)</li>
+      <li><strong>לחץ על "Run Test"</strong> כדי לבדוק את ה-API</li>
+      <li><strong>בדוק את Console</strong> עבור לוגים מפורטים</li>
+      <li><strong>בדוק את ה-terminal של הסרבר</strong> עבור לוגים עם <code>[AI][Nutrition]</code></li>
+    </ol>
+    <p><strong>Note:</strong> Server logs with <code>[AI][Nutrition]</code> prefix will appear in the terminal where you ran <code>pnpm dev</code>, not in the browser console.</p>
+  </div>
+
+  <button onclick="runTest()">▶️ Run Test</button>
+  <button onclick="clearOutput()">🗑️ Clear Output</button>
+  <button onclick="window.open('/api/ai/nutrition', '_blank')">📄 Open API Route</button>
+
+  <div id="output" class="output">Click "Run Test" to start...</div>
+
+  <script src="/test-nutrition.js"></script>
+  <script>
+    const output = document.getElementById('output');
+
+    function log(message, type = 'info') {
+      const timestamp = new Date().toISOString().split('T')[1].slice(0, -1);
+      const className = type === 'error' ? 'error' : type === 'success' ? 'success' : 'info';
+      output.innerHTML += `<span class="${className}">[${timestamp}] ${message}</span>\n`;
+      output.scrollTop = output.scrollHeight;
+    }
+
+    function clearOutput() {
+      output.innerHTML = '';
+    }
+
+    async function runTest() {
+      clearOutput();
+      log('🚀 Starting nutrition API test...', 'info');
+      log('⏰ This may take 15-30 seconds...', 'info');
+      log('', 'info');
+
+      try {
+        const result = await testNutrition();
+        log('', 'info');
+        if (result.ok) {
+          log('✅ TEST PASSED - Nutrition plan generated successfully!', 'success');
+          log(`📊 Calories: ${result.calories}`, 'success');
+          log(`📅 Days: ${result.plan?.days?.length || 0}`, 'success');
+          log(`🍽️ First meal: ${result.plan?.days?.[0]?.meals?.[0]?.name || 'N/A'}`, 'success');
+        } else {
+          log('❌ TEST FAILED - Server returned error', 'error');
+          log(`Error: ${result.error}`, 'error');
+          log(`Message: ${result.message}`, 'error');
+          if (result.details) {
+            log(`Details: ${JSON.stringify(result.details, null, 2)}`, 'error');
+          }
+        }
+        log('', 'info');
+        log('💡 Check the browser DevTools Console for detailed logs', 'info');
+        log('💡 Check your terminal for server logs with [AI][Nutrition] prefix', 'info');
+      } catch (error) {
+        log('', 'info');
+        log('❌ EXCEPTION during test:', 'error');
+        log(`Name: ${error?.name}`, 'error');
+        log(`Message: ${error?.message}`, 'error');
+        if (error?.stack) {
+          log(`Stack: ${error.stack.split('\n').slice(0, 3).join('\n')}`, 'error');
+        }
+      }
+    }
+
+    // Log that the page is ready
+    console.log('✅ Nutrition API Test page loaded');
+    console.log('✅ testNutrition() function is available globally');
+    console.log('💡 You can also run testNutrition() directly in the console');
+  </script>
+</body>
+</html>

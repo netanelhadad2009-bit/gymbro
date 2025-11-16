@@ -1,0 +1,107 @@
+{
+  "timestamp": "2025-11-11T09:10:26.689Z",
+  "totalUsers": 2,
+  "totalDuration": 1012,
+  "results": [
+    {
+      "user": {
+        "id": 1,
+        "email": "test1@gymbro-test.com",
+        "password": "Test123!",
+        "gender": "female",
+        "age": 19,
+        "height_cm": 152,
+        "weight_kg": 47,
+        "target_weight_kg": 45,
+        "birthdate": "2006-06-23",
+        "bmi": 20.3,
+        "goal": "ירידה במשקל",
+        "goals": [
+          "loss"
+        ],
+        "experience": "time",
+        "training_frequency_actual": "medium",
+        "diet": "balanced",
+        "motivation": "Test motivation for user 1",
+        "pace": "fast",
+        "activity": "בינונית",
+        "category": "edge_case"
+      },
+      "success": false,
+      "steps": {
+        "nutritionGeneration": {
+          "success": false,
+          "duration": 10,
+          "error": "fetch failed"
+        },
+        "registration": {
+          "success": false,
+          "duration": 0
+        },
+        "avatarBootstrap": {
+          "success": false,
+          "duration": 0
+        },
+        "sessionAttach": {
+          "success": false,
+          "duration": 0
+        },
+        "stagesBootstrap": {
+          "success": false,
+          "duration": 0
+        }
+      },
+      "totalDuration": 10
+    },
+    {
+      "user": {
+        "id": 2,
+        "email": "test2@gymbro-test.com",
+        "password": "Test123!",
+        "gender": "female",
+        "age": 18,
+        "height_cm": 152,
+        "weight_kg": 46,
+        "target_weight_kg": 45,
+        "birthdate": "2007-04-18",
+        "bmi": 19.9,
+        "goal": "ירידה במשקל",
+        "goals": [
+          "loss"
+        ],
+        "experience": "sure",
+        "training_frequency_actual": "high",
+        "diet": "balanced",
+        "motivation": "Test motivation for user 2",
+        "pace": "slow",
+        "activity": "גבוהה",
+        "category": "edge_case"
+      },
+      "success": false,
+      "steps": {
+        "nutritionGeneration": {
+          "success": false,
+          "duration": 2,
+          "error": "fetch failed"
+        },
+        "registration": {
+          "success": false,
+          "duration": 0
+        },
+        "avatarBootstrap": {
+          "success": false,
+          "duration": 0
+        },
+        "sessionAttach": {
+          "success": false,
+          "duration": 0
+        },
+        "stagesBootstrap": {
+          "success": false,
+          "duration": 0
+        }
+      },
+      "totalDuration": 2
+    }
+  ]
+}

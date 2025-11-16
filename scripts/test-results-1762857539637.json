@@ -1,0 +1,215 @@
+{
+  "timestamp": "2025-11-11T10:38:59.634Z",
+  "totalUsers": 2,
+  "totalDuration": 84656,
+  "results": [
+    {
+      "user": {
+        "id": 1,
+        "email": "test1@gymbro-test.com",
+        "password": "Test123!",
+        "gender": "male",
+        "age": 18,
+        "height_cm": 200,
+        "weight_kg": 53,
+        "target_weight_kg": 45,
+        "birthdate": "2007-05-25",
+        "bmi": 13.3,
+        "goal": "ירידה במשקל",
+        "goals": [
+          "loss"
+        ],
+        "experience": "time",
+        "training_frequency_actual": "medium",
+        "diet": "balanced",
+        "motivation": "Test motivation for user 1",
+        "pace": "moderate",
+        "activity": "בינונית",
+        "category": "edge_case"
+      },
+      "success": false,
+      "steps": {
+        "nutritionGeneration": {
+          "success": true,
+          "duration": 40548
+        },
+        "registration": {
+          "success": true,
+          "duration": 571,
+          "userId": "354f7595-a3d3-428b-83cd-9006081b170c"
+        },
+        "avatarBootstrap": {
+          "success": false,
+          "duration": 423,
+          "error": "HTTP 401: {\"ok\":false,\"error\":\"unauthorized\",\"message\":\"Authentication required\"}"
+        },
+        "sessionAttach": {
+          "success": false,
+          "duration": 433,
+          "error": "HTTP 401: {\"ok\":false,\"error\":\"unauthorized\",\"message\":\"Authentication required\"}"
+        },
+        "stagesBootstrap": {
+          "success": false,
+          "duration": 329,
+          "error": "HTTP 401: {\"ok\":false,\"error\":\"Unauthorized\",\"message\":\"Authentication required\"}"
+        }
+      },
+      "totalDuration": 42808,
+      "validation": {
+        "userId": "354f7595-a3d3-428b-83cd-9006081b170c",
+        "email": "test1@gymbro-test.com",
+        "checks": {
+          "authUserExists": true,
+          "profileExists": false,
+          "avatarExists": false,
+          "nutritionPlanExists": false,
+          "nutritionStatusReady": false,
+          "avatarMatches": false,
+          "stagesExist": false,
+          "nutritionQuality": false,
+          "caloriesInRange": false
+        },
+        "errors": [
+          "Profile not found: Cannot coerce the result to a single JSON object",
+          "Avatar not found: Cannot coerce the result to a single JSON object"
+        ],
+        "warnings": [
+          "Stages query error: Could not find the table 'public.journey_stages' in the schema cache"
+        ],
+        "details": {
+          "authUser": {
+            "id": "354f7595-a3d3-428b-83cd-9006081b170c",
+            "email": "test1@gymbro-test.com",
+            "created_at": "2025-11-11T10:38:16.234216Z",
+            "user_metadata": {
+              "activity": "בינונית",
+              "birthdate": "2007-05-25",
+              "bmi": 13.3,
+              "diet": "balanced",
+              "email": "test1@gymbro-test.com",
+              "email_verified": true,
+              "experience": "time",
+              "gender": "male",
+              "goals": [
+                "loss"
+              ],
+              "height_cm": 200,
+              "motivation": "Test motivation for user 1",
+              "notifications_opt_in": true,
+              "pace": "moderate",
+              "phone_verified": false,
+              "sub": "354f7595-a3d3-428b-83cd-9006081b170c",
+              "target_weight_kg": 45,
+              "training_frequency_actual": "medium",
+              "weight_kg": 53
+            }
+          }
+        }
+      }
+    },
+    {
+      "user": {
+        "id": 2,
+        "email": "test2@gymbro-test.com",
+        "password": "Test123!",
+        "gender": "female",
+        "age": 62,
+        "height_cm": 150,
+        "weight_kg": 47,
+        "target_weight_kg": 45,
+        "birthdate": "1963-04-09",
+        "bmi": 20.9,
+        "goal": "ירידה במשקל",
+        "goals": [
+          "loss"
+        ],
+        "experience": "sure",
+        "training_frequency_actual": "high",
+        "diet": "vegetarian",
+        "motivation": "Test motivation for user 2",
+        "pace": "slow",
+        "activity": "גבוהה",
+        "category": "edge_case"
+      },
+      "success": false,
+      "steps": {
+        "nutritionGeneration": {
+          "success": true,
+          "duration": 36247
+        },
+        "registration": {
+          "success": true,
+          "duration": 426,
+          "userId": "ee1c3960-84ef-4d73-8652-bbd0bd80cb76"
+        },
+        "avatarBootstrap": {
+          "success": false,
+          "duration": 90,
+          "error": "HTTP 401: {\"ok\":false,\"error\":\"unauthorized\",\"message\":\"Authentication required\"}"
+        },
+        "sessionAttach": {
+          "success": false,
+          "duration": 62,
+          "error": "HTTP 401: {\"ok\":false,\"error\":\"unauthorized\",\"message\":\"Authentication required\"}"
+        },
+        "stagesBootstrap": {
+          "success": false,
+          "duration": 57,
+          "error": "HTTP 401: {\"ok\":false,\"error\":\"Unauthorized\",\"message\":\"Authentication required\"}"
+        }
+      },
+      "totalDuration": 37339,
+      "validation": {
+        "userId": "ee1c3960-84ef-4d73-8652-bbd0bd80cb76",
+        "email": "test2@gymbro-test.com",
+        "checks": {
+          "authUserExists": true,
+          "profileExists": false,
+          "avatarExists": false,
+          "nutritionPlanExists": false,
+          "nutritionStatusReady": false,
+          "avatarMatches": false,
+          "stagesExist": false,
+          "nutritionQuality": false,
+          "caloriesInRange": false
+        },
+        "errors": [
+          "Profile not found: Cannot coerce the result to a single JSON object",
+          "Avatar not found: Cannot coerce the result to a single JSON object"
+        ],
+        "warnings": [
+          "Stages query error: Could not find the table 'public.journey_stages' in the schema cache"
+        ],
+        "details": {
+          "authUser": {
+            "id": "ee1c3960-84ef-4d73-8652-bbd0bd80cb76",
+            "email": "test2@gymbro-test.com",
+            "created_at": "2025-11-11T10:38:56.789493Z",
+            "user_metadata": {
+              "activity": "גבוהה",
+              "birthdate": "1963-04-09",
+              "bmi": 20.9,
+              "diet": "vegetarian",
+              "email": "test2@gymbro-test.com",
+              "email_verified": true,
+              "experience": "sure",
+              "gender": "female",
+              "goals": [
+                "loss"
+              ],
+              "height_cm": 150,
+              "motivation": "Test motivation for user 2",
+              "notifications_opt_in": true,
+              "pace": "slow",
+              "phone_verified": false,
+              "sub": "ee1c3960-84ef-4d73-8652-bbd0bd80cb76",
+              "target_weight_kg": 45,
+              "training_frequency_actual": "high",
+              "weight_kg": 47
+            }
+          }
+        }
+      }
+    }
+  ]
+}

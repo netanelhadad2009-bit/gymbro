@@ -1,0 +1,167 @@
+/**
+ * Safe Area Insets - Global Solution for iOS Notch & Android Status Bar
+ * Ensures headers/titles are never hidden behind device UI elements
+ * WITH EXTRA VISUAL BUFFER beyond safe area
+ */
+
+/* Apply background on html too (fixes iOS PWA background bug) */
+html,
+body {
+  background-color: #0D0E0F;
+}
+
+/* CSS Variables for safe areas with visual buffer */
+:root {
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+
+  /* Header layout constants */
+  --header-h: 56px;           /* logical header row height */
+  --title-top-buffer: 12px;   /* extra visual gap above title beyond safe area */
+}
+
+/* iOS specific: add more buffer on mobile devices */
+@supports (padding-top: env(safe-area-inset-top)) {
+  @media (max-width: 768px) {
+    :root {
+      --title-top-buffer: 32px; /* INCREASED from 16px to 32px for more space above title */
+    }
+  }
+}
+
+/* Sticky header container with safe area + visual buffer */
+.header-safe {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 150;
+  background: #0D0E0F;
+  will-change: transform;
+
+  /* Ensure header stays visible on keyboard open */
+  transform: translateZ(0);
+  backface-visibility: hidden;
+
+  /* Total top padding = safe area + visual buffer */
+  padding-top: calc(var(--safe-top) + var(--title-top-buffer));
+
+  /* Tiny bottom padding to avoid crowding the divider */
+  padding-bottom: 6px;
+
+  /* Consistent inner row height */
+  --inner-h: var(--header-h);
+}
+
+/* Header inner container - centers content vertically */
+.header-inner {
+  height: var(--inner-h);
+  display: flex;
+  align-items: center;        /* vertical centering of title */
+  justify-content: center;
+  position: relative;
+}
+
+/* Header title styling */
+.header-title {
+  line-height: 1;
+  font-weight: 700;
+  font-size: 24px; /* Increased from 18px to 24px */
+  color: white;
+}
+
+/* Right slot positioning */
+.header-right {
+  position: absolute;
+  inset-inline-end: 0;
+}
+
+/* Left slot positioning */
+.header-left {
+  position: absolute;
+  inset-inline-start: 0;
+}
+
+/* Main content offset for pages with sticky headers */
+.main-offset {
+  /*
+   * Total spacing needed:
+   * - Header top padding: var(--safe-top) + var(--title-top-buffer)
+   * - Header inner height: var(--header-h) = 56px
+   * - Header bottom padding: 6px ONLY - NO extra gap
+   */
+  padding-top: calc(var(--safe-top) + var(--title-top-buffer) + var(--header-h) + 6px);
+}
+
+/* For pages without fixed header, just add safe top padding with buffer */
+.main-safe {
+  padding-top: calc(var(--safe-top) + var(--title-top-buffer));
+}
+
+/* Safe area utilities - direct usage */
+.safe-top {
+  padding-top: calc(var(--safe-top) + 12px);
+}
+
+.safe-bottom {
+  padding-bottom: var(--safe-bottom);
+}
+
+.safe-left {
+  padding-left: var(--safe-left);
+}
+
+.safe-right {
+  padding-right: var(--safe-right);
+}
+
+/* Bottom navigation safe area */
+.bottom-nav-safe {
+  padding-bottom: calc(12px + var(--safe-bottom));
+}
+
+/* Legacy support - kept for backward compatibility */
+.has-bottom-nav {
+  padding-bottom: 6rem; /* 24 in Tailwind = 96px */
+}
+
+@supports (padding: env(safe-area-inset-bottom)) {
+  .has-bottom-nav {
+    padding-bottom: calc(6rem + env(safe-area-inset-bottom));
+  }
+}
+
+/* New safe-area utilities for Progress page and other pages */
+.safe-area-page {
+  min-height: 100dvh;
+  padding-top: max(16px, var(--safe-top));
+  padding-bottom: max(16px, var(--safe-bottom));
+  background: #0E0F10;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.safe-area-sticky-top {
+  position: sticky;
+  top: var(--safe-top);
+  z-index: 50;
+  padding-top: 8px;
+  backdrop-filter: saturate(120%) blur(6px);
+}
+
+.safe-area-fixed-bottom {
+  position: fixed;
+  bottom: var(--safe-bottom);
+  left: 0;
+  right: 0;
+  z-index: 40;
+}
+
+/* Scroll area with proper iOS behavior */
+.scroll-area {
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}

@@ -6,15 +6,12 @@
 export type StageStatus = 'locked' | 'available' | 'in_progress' | 'completed';
 
 export type MetricType =
-  | 'workouts_per_week'
-  | 'nutrition_adherence_pct'
-  | 'weigh_ins'
+  | 'meals_logged'
   | 'protein_avg_g'
-  | 'cardio_minutes'
+  | 'calorie_adherence_pct'
+  | 'weigh_ins'
   | 'log_streak_days'
-  | 'upper_body_workouts'
-  | 'kcal_deficit_avg'
-  | 'steps_avg';
+  | 'habit_streak_days';
 
 export interface MetricRule {
   metric: MetricType;
@@ -30,15 +27,12 @@ export interface Requirements {
 }
 
 export interface UserMetrics {
-  workouts_per_week?: number;
-  nutrition_adherence_pct?: number;
-  weigh_ins?: number;
+  meals_logged?: number;
   protein_avg_g?: number;
-  cardio_minutes?: number;
+  calorie_adherence_pct?: number;
+  weigh_ins?: number;
   log_streak_days?: number;
-  upper_body_workouts?: number;
-  kcal_deficit_avg?: number;
-  steps_avg?: number;
+  habit_streak_days?: number;
 }
 
 export interface Stage {
@@ -46,11 +40,12 @@ export interface Stage {
   order_index: number;
   title_he: string;
   summary_he: string;
-  type: 'workout' | 'nutrition' | 'habit' | 'mixed';
+  type: 'nutrition' | 'habit' | 'mixed';
   requirements: Requirements;
   xp_reward: number;
   icon: string;
   bg_color: string;
+  avatar_id?: string;
 }
 
 export interface UserStage {
@@ -177,14 +172,16 @@ export function deriveStageState(
 }
 
 /**
- * XP award amounts for micro-events
+ * XP award amounts for micro-events (nutrition/habits only)
  */
 export const XP_AWARDS = {
-  WORKOUT: 10,
-  NUTRITION_DAY: 5,
-  WEIGH_IN: 2,
-  CARDIO_SESSION: 8,
-  STREAK_DAY: 3,
+  MEAL_LOG: 5,
+  PROTEIN_TARGET: 8,
+  CALORIE_WINDOW: 7,
+  WEIGH_IN: 3,
+  STREAK_DAY: 10,
+  HABIT_CHECK: 6,
+  EDU_READ: 4,
 } as const;
 
 /**
@@ -203,59 +200,62 @@ export function calculateNewXP(
  * Returns user-friendly Hebrew suggestions
  */
 export function getNextSteps(
-  stage: Stage,
   evaluation: EvaluationResult,
   metrics: UserMetrics
 ): string[] {
   const steps: string[] = [];
-  
+
   for (const rule of evaluation.unmetRules) {
     const current = metrics[rule.metric] || 0;
     const target = rule.gte || 0;
     const remaining = target - current;
-    
+
     switch (rule.metric) {
-      case 'workouts_per_week':
-        steps.push(`נותר לך ${remaining} אימון${remaining > 1 ? 'ים' : ''} השבוע`);
-        break;
-      case 'nutrition_adherence_pct':
-        steps.push(`שפר את העמידה בתזונה ל-${target}%`);
-        break;
-      case 'weigh_ins':
-        steps.push(`בצע עוד ${remaining} שקילה השבוע`);
+      case 'meals_logged':
+        steps.push(`תעד עוד ${remaining} ארוחה${remaining > 1 ? 'ות' : ''}`);
         break;
       case 'protein_avg_g':
         steps.push(`הגדל את צריכת החלבון ל-${target} גרם ליום`);
         break;
-      case 'cardio_minutes':
-        steps.push(`נותרו ${remaining} דקות קרדיו השבוע`);
+      case 'calorie_adherence_pct':
+        steps.push(`שפר את העמידה בקלוריות ל-${target}%`);
+        break;
+      case 'weigh_ins':
+        steps.push(`בצע עוד ${remaining} שקילה${remaining > 1 ? 'ות' : ''} השבוע`);
         break;
       case 'log_streak_days':
         steps.push(`המשך רצף תיעוד - עוד ${remaining} ימים`);
+        break;
+      case 'habit_streak_days':
+        steps.push(`המשך רצף הרגלים - עוד ${remaining} ימים`);
         break;
       default:
         steps.push(`השג ${target} ב${rule.metric}`);
     }
   }
-  
+
   return steps;
 }
 
 /**
  * Initialize user stages on first journey visit
- * Picks 5-8 stages based on user goal/level
+ * Picks 3-5 stages based on avatar
  */
 export function selectStagesForUser(
   allStages: Stage[],
-  userGoal: 'bulk' | 'cut' | 'recomp',
-  userLevel: number
+  avatarId: string
 ): Stage[] {
-  // Beginners: 5 stages, Advanced: 8 stages
-  const stageCount = userLevel <= 1 ? 5 : userLevel === 2 ? 6 : 8;
-  
-  // Filter relevant stages (could add goal-specific filtering here)
-  const relevantStages = allStages
+  // Filter stages for this specific avatar
+  const avatarStages = allStages
+    .filter(stage => stage.avatar_id === avatarId)
     .sort((a, b) => a.order_index - b.order_index);
-  
-  return relevantStages.slice(0, stageCount);
+
+  return avatarStages;
+}
+
+/**
+ * Extended Stage interface with avatar_id
+ */
+export interface ExtendedStage extends Stage {
+  avatar_id?: string;
 }

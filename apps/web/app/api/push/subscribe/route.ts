@@ -1,11 +1,18 @@
 import { NextResponse } from 'next/server';
-import { subscriptions } from '../subscriptions-store';
+import { createServerSupabaseClientWithAuth } from '@/lib/supabase-server';
 
+/**
+ * POST /api/push/subscribe
+ *
+ * Registers a web push subscription (Service Worker based)
+ * Saves subscription to push_subscriptions table with endpoint, p256dh, and auth keys
+ */
 export async function POST(req: Request) {
   try {
     const body = await req.json();
     const { subscription, userId, resubscribe } = body;
 
+    // Validate subscription object
     if (!subscription || !subscription.endpoint) {
       return NextResponse.json(
         { ok: false, error: 'Invalid subscription object' },
@@ -13,34 +20,71 @@ export async function POST(req: Request) {
       );
     }
 
-    // Store subscription (using endpoint as key for upsert behavior)
+    if (!subscription.keys || !subscription.keys.p256dh || !subscription.keys.auth) {
+      return NextResponse.json(
+        { ok: false, error: 'Invalid subscription keys' },
+        { status: 400 }
+      );
+    }
+
+    // Authenticate user
+    const supabase = await createServerSupabaseClientWithAuth();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+
+    if (authError || !user) {
+      console.error('[API] Auth error:', authError?.message || 'No user');
+      return NextResponse.json(
+        { ok: false, error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
     const endpoint = subscription.endpoint;
-    subscriptions.set(endpoint, {
-      subscription,
-      userId,
-      createdAt: new Date()
-    });
 
-    console.log('[API] Push subscription saved:', {
+    console.log('[API] Web push subscription registration:', {
+      userId: user.id.substring(0, 8),
       endpoint: endpoint.substring(0, 50) + '...',
-      userId,
-      resubscribe,
-      totalSubscriptions: subscriptions.size
+      resubscribe
     });
 
-    // TODO: In production, persist to Supabase:
-    // const supabase = await createServerSupabaseClient();
-    // await supabase.from('push_subscriptions').upsert({
-    //   endpoint,
-    //   p256dh: subscription.keys.p256dh,
-    //   auth: subscription.keys.auth,
-    //   user_id: userId ?? null,
-    //   created_at: new Date().toISOString()
-    // }, { onConflict: 'endpoint' });
+    // Save or update subscription in database
+    // Use upsert to handle re-subscriptions (e.g., browser updates)
+    const { data: savedSubscription, error: dbError } = await supabase
+      .from('push_subscriptions')
+      .upsert({
+        user_id: user.id,
+        platform: 'web',
+        endpoint,
+        p256dh: subscription.keys.p256dh,
+        auth: subscription.keys.auth,
+        user_agent: req.headers.get('user-agent') || undefined,
+        active: true,
+        last_used_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      }, {
+        onConflict: 'user_id,platform,endpoint',
+        ignoreDuplicates: false
+      })
+      .select()
+      .single();
+
+    if (dbError) {
+      console.error('[API] Database error saving subscription:', dbError);
+      return NextResponse.json(
+        { ok: false, error: 'Failed to save subscription' },
+        { status: 500 }
+      );
+    }
+
+    console.log('[API] Web push subscription saved successfully:', {
+      subscriptionId: savedSubscription.id.substring(0, 8),
+      userId: user.id.substring(0, 8)
+    });
 
     return NextResponse.json({
       ok: true,
-      message: 'Subscription saved successfully'
+      message: 'Subscription saved successfully',
+      subscriptionId: savedSubscription.id
     });
   } catch (e: any) {
     console.error('[API] Error saving push subscription:', e);
@@ -50,5 +94,3 @@ export async function POST(req: Request) {
     );
   }
 }
-
-// Note: subscriptions store is in-memory and should be replaced with Supabase in production

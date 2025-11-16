@@ -1,0 +1,107 @@
+{
+  "timestamp": "2025-11-11T09:11:10.494Z",
+  "totalUsers": 2,
+  "totalDuration": 2304,
+  "results": [
+    {
+      "user": {
+        "id": 1,
+        "email": "test1@gymbro-test.com",
+        "password": "Test123!",
+        "gender": "male",
+        "age": 19,
+        "height_cm": 198,
+        "weight_kg": 54,
+        "target_weight_kg": 45,
+        "birthdate": "2006-03-23",
+        "bmi": 13.8,
+        "goal": "ירידה במשקל",
+        "goals": [
+          "loss"
+        ],
+        "experience": "time",
+        "training_frequency_actual": "medium",
+        "diet": "keto",
+        "motivation": "Test motivation for user 1",
+        "pace": "slow",
+        "activity": "בינונית",
+        "category": "edge_case"
+      },
+      "success": false,
+      "steps": {
+        "nutritionGeneration": {
+          "success": false,
+          "duration": 1199,
+          "error": "Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"
+        },
+        "registration": {
+          "success": false,
+          "duration": 0
+        },
+        "avatarBootstrap": {
+          "success": false,
+          "duration": 0
+        },
+        "sessionAttach": {
+          "success": false,
+          "duration": 0
+        },
+        "stagesBootstrap": {
+          "success": false,
+          "duration": 0
+        }
+      },
+      "totalDuration": 1200
+    },
+    {
+      "user": {
+        "id": 2,
+        "email": "test2@gymbro-test.com",
+        "password": "Test123!",
+        "gender": "female",
+        "age": 65,
+        "height_cm": 200,
+        "weight_kg": 49,
+        "target_weight_kg": 45,
+        "birthdate": "1960-11-17",
+        "bmi": 12.3,
+        "goal": "ירידה במשקל",
+        "goals": [
+          "loss"
+        ],
+        "experience": "sure",
+        "training_frequency_actual": "medium",
+        "diet": "balanced",
+        "motivation": "Test motivation for user 2",
+        "pace": "fast",
+        "activity": "בינונית",
+        "category": "edge_case"
+      },
+      "success": false,
+      "steps": {
+        "nutritionGeneration": {
+          "success": false,
+          "duration": 103,
+          "error": "Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"
+        },
+        "registration": {
+          "success": false,
+          "duration": 0
+        },
+        "avatarBootstrap": {
+          "success": false,
+          "duration": 0
+        },
+        "sessionAttach": {
+          "success": false,
+          "duration": 0
+        },
+        "stagesBootstrap": {
+          "success": false,
+          "duration": 0
+        }
+      },
+      "totalDuration": 103
+    }
+  ]
+}

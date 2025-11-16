@@ -25,7 +25,7 @@ export default function MobileShell({ header, footer, children, className, noHea
     }
   }, [pathname]);
   return (
-    <div className="screen min-h-[100dvh] flex flex-col bg-[#0B0D0F] text-white relative">
+    <div className="screen min-h-[100dvh] min-h-[100svh] flex flex-col bg-[#0b0d0e] text-white relative overflow-hidden">
       {/* Full-screen background image */}
       {background && (
         <div className="absolute inset-0 -z-10">
@@ -36,7 +36,7 @@ export default function MobileShell({ header, footer, children, className, noHea
 
       {/* Fixed header + safe area */}
       {(header || title) && (
-        <div className={`sticky top-0 z-40 safe-pt ${noHeaderShadow ? 'bg-transparent' : 'bg-[#0B0D0F]/95 backdrop-blur supports-[backdrop-filter]:bg-[#0B0D0F]/75'}`}>
+        <div className={`pt-safe shrink-0 sticky top-0 z-40 ${noHeaderShadow ? 'bg-transparent' : 'bg-[#0b0d0e]/95 backdrop-blur supports-[backdrop-filter]:bg-[#0b0d0e]/75'}`}>
           {header || (title && (
             <div className="px-4 py-3">
               <h1 className="text-lg font-bold text-center">{title}</h1>
@@ -45,21 +45,21 @@ export default function MobileShell({ header, footer, children, className, noHea
         </div>
       )}
 
-      {/* Scrollable content - add padding when footer exists */}
+      {/* Scrollable content */}
       <div
         ref={scrollContainerRef}
         className={`flex-1 ${
           disableScroll
             ? 'overflow-hidden'
-            : 'overflow-y-auto'
-        } ${footer ? 'pb-24' : ''} ${className ?? ""}`}
+            : 'overflow-y-auto overscroll-contain'
+        } ${className ?? ""}`}
       >
         {children}
       </div>
 
       {/* Fixed footer + safe area */}
       {footer && (
-        <div className={`fixed bottom-0 left-0 right-0 z-50 safe-pb px-4 pb-4 pt-3 ${noHeaderShadow ? 'bg-transparent' : 'bg-[#0B0D0F]/95 backdrop-blur supports-[backdrop-filter]:bg-[#0B0D0F]/75'}`}>
+        <div className={`pb-safe shrink-0 sticky bottom-0 z-50 px-4 py-4 pt-3 ${noHeaderShadow ? 'bg-[#0b0d0e]/80' : 'bg-[#0b0d0e]/95 backdrop-blur supports-[backdrop-filter]:bg-[#0b0d0e]/75'}`}>
           {footer}
         </div>
       )}

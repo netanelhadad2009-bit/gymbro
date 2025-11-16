@@ -15,17 +15,25 @@ interface StickyHeaderProps {
  */
 export default function StickyHeader({ title, rightSlot, leftSlot }: StickyHeaderProps) {
   return (
-    <header className="header-safe w-full">
+    <header id="coach-header" className="header-safe w-full">
       <div className="mx-auto max-w-screen-sm px-4">
-        <div className="header-inner">
-          {/* Left slot (e.g., back button) */}
-          {leftSlot && <div className="header-left">{leftSlot}</div>}
+        <div className="header-inner relative flex items-center justify-center">
+          {/* Left slot - absolute positioned */}
+          {leftSlot && (
+            <div className="absolute left-0 top-1/2 -translate-y-1/2">
+              {leftSlot}
+            </div>
+          )}
 
-          {/* Center title */}
+          {/* Centered page title */}
           <h1 className="header-title text-center">{title}</h1>
 
-          {/* Right slot (e.g., action buttons) */}
-          {rightSlot && <div className="header-right">{rightSlot}</div>}
+          {/* Right slot - absolute positioned */}
+          {rightSlot && (
+            <div className="absolute right-0 top-1/2 -translate-y-1/2">
+              {rightSlot}
+            </div>
+          )}
         </div>
       </div>
 

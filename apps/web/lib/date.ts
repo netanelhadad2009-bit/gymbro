@@ -26,3 +26,8 @@ export function calculateDaysRemaining(startDate: string, totalDays: number): nu
     return totalDays;
   }
 }
+
+/**
+ * Returns today's date in ISO format (YYYY-MM-DD)
+ */
+export const todayISO = () => new Date().toISOString().slice(0, 10);

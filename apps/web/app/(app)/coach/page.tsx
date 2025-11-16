@@ -192,10 +192,13 @@ export default function CoachPage() {
           height_cm: merged.height_cm || merged.height || null,
           weight_kg: merged.weight_kg || merged.weight || null,
           target_weight_kg: merged.target_weight_kg || merged.target_weight || null,
+          bmi: merged.bmi || null,
           goal: merged.goal || null,
           diet: merged.diet_type || merged.diet || null,
           activityLevel: merged.activity_level || null,
           workout_days_per_week: merged.workout_days_per_week || merged.workout_days || null,
+          frequency: merged.frequency || null,
+          experience: merged.experience || null,
           injuries: merged.injuries || merged.limitations || null,
         });
       } catch (error) {
@@ -387,7 +390,7 @@ export default function CoachPage() {
           >
             <div className="flex items-center gap-3">
               <div className="text-2xl">
-                {profile.gender === "male" ? "♂" : profile.gender === "female" ? "♀" : "👤"}
+                {profile?.gender === "male" ? "♂" : profile?.gender === "female" ? "♀" : "👤"}
               </div>
               <div>
                 {profileSummary ? (

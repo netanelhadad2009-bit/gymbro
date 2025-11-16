@@ -1,5 +1,5 @@
 /**
- * Centralized text strings for the GymBro app
+ * Centralized text strings for the FitJourney app
  * All static text (Hebrew and English) should be defined here
  * for easy maintenance and future localization
  */
@@ -85,7 +85,7 @@ const he = {
   profile: {
     title: "פרופיל",
     subtitle: "פרטי המשתמש שלי",
-    member: "חבר GymBro",
+    member: "חבר FitJourney",
     user: "משתמש",
     email: "אימייל",
     userId: "מזהה משתמש",
@@ -107,7 +107,7 @@ const he = {
     termsOfUse: "תנאי שימוש",
     deleteAccount: "מחיקת חשבון",
     whatsappContact: "כל דבר שיש לך להגיד,\nנשמח שתדברו איתנו.",
-    whatsappHelp: "כל דבר שיש לך להגיד, נשמח שתדברו איתנו.",
+    whatsappHelp: "כל דבר שיש לך להגיד,\nנשמח שתדברו איתנו.",
   },
 
   // Login Page
@@ -134,11 +134,25 @@ const he = {
     title: "מה אתה רוצה להשיג",
     titleFemale: "מה את רוצה להשיג",
     titleNeutral: "מה את/ה רוצה להשיג",
-    withGymBro: "עם GymBro?",
+    withGymBro: "עם FitJourney?",
     subtitle: "כל תשובה כאן היא לגיטימית - ומאתנו\nנבנה איתך תהליך שמתאים בדיוק לך.",
     muscleGain: "לעלות במסת שריר",
     weightLoss: "לרדת באחוזי שומן ולהתחטב",
     bodyMaintenance: "לשפר הרגלים ולשמור על הגוף",
+  },
+
+  // Onboarding - Training Frequency (Actual)
+  onboardingTrainingFrequency: {
+    title: "כמה אימונים אתה עושה בשבוע?",
+    titleFemale: "כמה אימונים את עושה בשבוע?",
+    titleNeutral: "כמה אימונים את/ה עושה בשבוע?",
+    subtitle: "זה יעזור לנו להבין את רמת הפעילות שלך\nולהתאים את התוכנית האישית.",
+    lowLabel: "0–2 אימונים",
+    lowCaption: "מתאמן לפעמים",
+    mediumLabel: "3–5 אימונים",
+    mediumCaption: "מתאמן באופן קבוע",
+    highLabel: "6+ אימונים",
+    highCaption: "מתאמן מקצועי / ספורטאי ייעודי",
   },
 
   // Generating Page
@@ -260,7 +274,7 @@ const en = {
   profile: {
     title: "Profile",
     subtitle: "My user details",
-    member: "GymBro Member",
+    member: "FitJourney Member",
     user: "User",
     email: "Email",
     userId: "User ID",
@@ -294,11 +308,25 @@ const en = {
     title: "What do you want to achieve",
     titleFemale: "What do you want to achieve",
     titleNeutral: "What do you want to achieve",
-    withGymBro: "with GymBro?",
+    withGymBro: "with FitJourney?",
     subtitle: "Every answer here is legitimate - and we'll\nbuild a process that fits you exactly.",
     muscleGain: "Gain muscle mass",
     weightLoss: "Lose body fat and get toned",
     bodyMaintenance: "Improve habits and maintain body",
+  },
+
+  // Onboarding - Training Frequency (Actual)
+  onboardingTrainingFrequency: {
+    title: "How many workouts do you do per week?",
+    titleFemale: "How many workouts do you do per week?",
+    titleNeutral: "How many workouts do you do per week?",
+    subtitle: "This will help us understand your activity level\nand tailor your personalized program.",
+    lowLabel: "0–2 workouts",
+    lowCaption: "Train occasionally",
+    mediumLabel: "3–5 workouts",
+    mediumCaption: "Train regularly",
+    highLabel: "6+ workouts",
+    highCaption: "Professional / dedicated athlete",
   },
 
   // Generating Page

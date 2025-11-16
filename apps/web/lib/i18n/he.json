@@ -1,0 +1,84 @@
+{
+  "auth": {
+    "login": {
+      "title": "התחברות",
+      "emailLabel": "אימייל",
+      "emailPlaceholder": "your@email.com",
+      "passwordLabel": "סיסמה",
+      "passwordPlaceholder": "סיסמה",
+      "loginButton": "התחבר",
+      "loggingIn": "מתחבר...",
+      "or": "או",
+      "signupLink": "אין לך חשבון? הירשם",
+      "forgotPassword": "שכחת סיסמה?"
+    },
+    "signup": {
+      "title": "הרשמה",
+      "emailLabel": "אימייל",
+      "emailPlaceholder": "your@email.com",
+      "passwordLabel": "סיסמה",
+      "passwordPlaceholder": "סיסמה",
+      "confirmPasswordLabel": "אשר סיסמה",
+      "confirmPasswordPlaceholder": "אשר סיסמה",
+      "signupButton": "הרשמה",
+      "signingUp": "רושם...",
+      "or": "או",
+      "loginLink": "כבר יש לך חשבון? התחבר",
+      "marketingConsent": "אני מאשר/ת לקבל טיפים ומידע שימושי בתחום הכושר והתזונה למייל.",
+      "savingPlan": "שומר את התוכנית שלך...",
+      "termsAgreement": "בהרשמה, אני מסכים/ה לתנאי השימוש ולמדיניות הפרטיות"
+    },
+    "reset": {
+      "title": "איפוס סיסמה",
+      "emailLabel": "אימייל",
+      "emailPlaceholder": "your@email.com",
+      "resetButton": "שלח קישור לאיפוס",
+      "sending": "שולח...",
+      "successMessage": "נשלח אליך מייל עם קישור לאיפוס הסיסמה.",
+      "backToLogin": "חזרה להתחברות"
+    },
+    "otp": {
+      "title": "הזן קוד אימות",
+      "otpLabel": "קוד אימות",
+      "otpPlaceholder": "הזן קוד",
+      "verifyButton": "אמת",
+      "verifying": "מאמת...",
+      "resendCode": "שלח קוד מחדש",
+      "codeExpired": "הקוד פג תוקף"
+    },
+    "social": {
+      "signupWith": "הרשמה באמצעות",
+      "loginWith": "התחברות באמצעות",
+      "google": "Google",
+      "apple": "Apple"
+    },
+    "errors": {
+      "invalidEmail": "האימייל שהוזן אינו תקין.",
+      "weakPassword": "הסיסמה חייבת להיות באורך 8 תווים לפחות.",
+      "passwordComplexity": "הסיסמה חייבת לכלול אות ומספר.",
+      "passwordMismatch": "הסיסמאות אינן תואמות.",
+      "emailAlreadyUsed": "האימייל כבר רשום במערכת.",
+      "invalidCredentials": "האימייל או הסיסמה שגויים.",
+      "userNotFound": "לא נמצא משתמש עם האימייל הזה.",
+      "emailNotConfirmed": "יש לאשר את כתובת האימייל לפני התחברות.",
+      "otpExpired": "הקוד פג תוקף. בקש/י קוד חדש.",
+      "tooManyRequests": "נשלחו יותר מדי בקשות. נסה/י שוב מאוחר יותר.",
+      "networkError": "שגיאת רשת. בדוק/בדקי חיבור לאינטרנט.",
+      "providerCancelled": "התחברות בוטלה.",
+      "sessionExpired": "פג תוקף ההתחברות. יש להתחבר מחדש.",
+      "serverError": "אירעה שגיאה בשרת. נסה/י שוב מאוחר יותר.",
+      "genericError": "אירעה שגיאה. נסה/י שוב."
+    }
+  },
+  "general": {
+    "or": "או",
+    "loading": "טוען...",
+    "saving": "שומר...",
+    "cancel": "ביטול",
+    "confirm": "אישור",
+    "close": "סגור",
+    "back": "חזרה",
+    "continue": "המשך",
+    "done": "סיום"
+  }
+}

@@ -1,0 +1,263 @@
+{
+  "avatars": [
+    {
+      "id": "rookie-cut",
+      "title": "המתחיל בירידה",
+      "tagline": "התחלה חדשה לשינוי",
+      "profile_badge": "🌱",
+      "color_token": "#4CAF50",
+      "who_is_it_for": [
+        "מתחילים באימונים",
+        "מעוניינים בירידה במשקל",
+        "מתאמנים 2-3 פעמים בשבוע"
+      ],
+      "fit_rules": {
+        "goal": ["loss"],
+        "frequency": [2, 3],
+        "experience": ["never", "time", "sure"]
+      },
+      "kpi_focus": ["weight", "workouts", "streak"],
+      "training_split_hint": "3x full-body beginner",
+      "nutrition_pattern_hint": "moderate deficit (~300-500 kcal), high protein (1.6g/kg), focus on habit building",
+      "tone_of_voice": "supportive, educational, encouraging"
+    },
+    {
+      "id": "rookie-gain",
+      "title": "המתחיל בעלייה",
+      "tagline": "בונים בסיס חזק",
+      "profile_badge": "💪",
+      "color_token": "#2196F3",
+      "who_is_it_for": [
+        "מתחילים באימונים",
+        "מעוניינים בהעלאת מסת שריר",
+        "מתאמנים 2-3 פעמים בשבוע"
+      ],
+      "fit_rules": {
+        "goal": ["gain"],
+        "frequency": [2, 3],
+        "experience": ["never", "time", "sure"]
+      },
+      "kpi_focus": ["weight", "strength", "workouts"],
+      "training_split_hint": "3x full-body compound focus",
+      "nutrition_pattern_hint": "modest surplus (~300 kcal), high protein (1.8g/kg), whole foods emphasis",
+      "tone_of_voice": "supportive, educational, motivating"
+    },
+    {
+      "id": "busy-3day-cut",
+      "title": "העסוק בירידה",
+      "tagline": "תוצאות בזמן מינימלי",
+      "profile_badge": "⚡",
+      "color_token": "#FF9800",
+      "who_is_it_for": [
+        "מתאמנים עם זמן מוגבל",
+        "מעוניינים בירידה במשקל",
+        "מתאמנים 3 פעמים בשבוע"
+      ],
+      "fit_rules": {
+        "goal": ["loss"],
+        "frequency": [3],
+        "experience": ["time", "results", "knowledge"]
+      },
+      "kpi_focus": ["weight", "efficiency", "adherence"],
+      "training_split_hint": "3x efficient full-body, 45min sessions",
+      "nutrition_pattern_hint": "moderate deficit (~400-500 kcal), meal prep friendly, simple tracking",
+      "tone_of_voice": "efficient, practical, results-focused"
+    },
+    {
+      "id": "busy-3day-gain",
+      "title": "העסוק בעלייה",
+      "tagline": "מקסימום תוצאות במינימום זמן",
+      "profile_badge": "🚀",
+      "color_token": "#9C27B0",
+      "who_is_it_for": [
+        "מתאמנים עם זמן מוגבל",
+        "מעוניינים בהעלאת מסה",
+        "מתאמנים 3 פעמים בשבוע"
+      ],
+      "fit_rules": {
+        "goal": ["gain"],
+        "frequency": [3],
+        "experience": ["time", "results", "knowledge"]
+      },
+      "kpi_focus": ["strength", "weight", "efficiency"],
+      "training_split_hint": "3x upper/lower split, compound-focused",
+      "nutrition_pattern_hint": "moderate surplus (~350-400 kcal), nutrient-dense convenience foods ok",
+      "tone_of_voice": "efficient, practical, motivating"
+    },
+    {
+      "id": "gym-regular-cut",
+      "title": "הקבוע בירידה",
+      "tagline": "מסור למטרה",
+      "profile_badge": "🔥",
+      "color_token": "#F44336",
+      "who_is_it_for": [
+        "מתאמנים 4-5 פעמים בשבוע",
+        "מעוניינים בירידה במשקל",
+        "יש ניסיון אימונים קודם"
+      ],
+      "fit_rules": {
+        "goal": ["loss"],
+        "frequency": [4, 5],
+        "experience": ["results", "knowledge"]
+      },
+      "kpi_focus": ["weight", "body_composition", "strength_retention"],
+      "training_split_hint": "4-5x upper/lower or push/pull/legs",
+      "nutrition_pattern_hint": "moderate to aggressive deficit (~500-600 kcal), protein emphasized (2g/kg), carb cycling optional",
+      "tone_of_voice": "motivating, analytical, performance-focused"
+    },
+    {
+      "id": "gym-regular-gain",
+      "title": "הקבוע בעלייה",
+      "tagline": "בונה גוף חלומות",
+      "profile_badge": "💎",
+      "color_token": "#3F51B5",
+      "who_is_it_for": [
+        "מתאמנים 4-5 פעמים בשבוע",
+        "מעוניינים בהעלאת מסה",
+        "יש ניסיון אימונים קודם"
+      ],
+      "fit_rules": {
+        "goal": ["gain"],
+        "frequency": [4, 5],
+        "experience": ["results", "knowledge"]
+      },
+      "kpi_focus": ["weight", "strength", "volume"],
+      "training_split_hint": "4-5x push/pull/legs or upper/lower",
+      "nutrition_pattern_hint": "controlled surplus (~400-500 kcal), high protein (2g/kg), timing emphasized",
+      "tone_of_voice": "motivating, analytical, performance-focused"
+    },
+    {
+      "id": "athlete-cut",
+      "title": "הספורטאי בחיתוך",
+      "tagline": "מתקדם ומחויב",
+      "profile_badge": "🏆",
+      "color_token": "#FF5722",
+      "who_is_it_for": [
+        "מתאמנים 5-6 פעמים בשבוע",
+        "יש ניסיון רב באימונים",
+        "מטרה להגיע לבניית גוף/אתלטיות גבוהה"
+      ],
+      "fit_rules": {
+        "goal": ["loss"],
+        "frequency": [5, 6],
+        "experience": ["knowledge", "results"]
+      },
+      "kpi_focus": ["body_fat", "strength", "conditioning"],
+      "training_split_hint": "5-6x body-part split or push/pull/legs + accessories",
+      "nutrition_pattern_hint": "periodized deficit, macro cycling, supplement protocol",
+      "tone_of_voice": "technical, performance-driven, competitive"
+    },
+    {
+      "id": "athlete-gain",
+      "title": "הספורטאי בבנייה",
+      "tagline": "בניית מסה ברמה גבוהה",
+      "profile_badge": "🦁",
+      "color_token": "#00BCD4",
+      "who_is_it_for": [
+        "מתאמנים 5-6 פעמים בשבוע",
+        "יש ניסיון רב באימונים",
+        "מטרה להגיע לרמה תחרותית"
+      ],
+      "fit_rules": {
+        "goal": ["gain"],
+        "frequency": [5, 6],
+        "experience": ["knowledge", "results"]
+      },
+      "kpi_focus": ["weight", "strength", "volume", "recovery"],
+      "training_split_hint": "5-6x body-part split, high volume progressive overload",
+      "nutrition_pattern_hint": "aggressive surplus (~500-600 kcal), periodized macros, meal timing critical",
+      "tone_of_voice": "technical, performance-driven, competitive"
+    },
+    {
+      "id": "plant-powered-cut",
+      "title": "הצמחוני בירידה",
+      "tagline": "בריא וצמחי",
+      "profile_badge": "🌿",
+      "color_token": "#8BC34A",
+      "who_is_it_for": [
+        "טבעוניים/צמחוניים",
+        "מעוניינים בירידה במשקל",
+        "מתאמנים בכל תדירות"
+      ],
+      "fit_rules": {
+        "goal": ["loss"],
+        "diet": ["vegan", "vegetarian"],
+        "frequency": [2, 3, 4, 5, 6]
+      },
+      "kpi_focus": ["weight", "nutrition_variety", "protein_intake"],
+      "training_split_hint": "flexible based on frequency",
+      "nutrition_pattern_hint": "deficit with plant protein emphasis (tofu, tempeh, legumes), B12 supplementation, complete amino acid sources",
+      "tone_of_voice": "health-conscious, ethical, supportive"
+    },
+    {
+      "id": "plant-powered-gain",
+      "title": "הצמחוני בעלייה",
+      "tagline": "בונים שריר צמחי",
+      "profile_badge": "🥬",
+      "color_token": "#689F38",
+      "who_is_it_for": [
+        "טבעוניים/צמחוניים",
+        "מעוניינים בהעלאת מסה",
+        "מתאמנים בכל תדירות"
+      ],
+      "fit_rules": {
+        "goal": ["gain"],
+        "diet": ["vegan", "vegetarian"],
+        "frequency": [2, 3, 4, 5, 6]
+      },
+      "kpi_focus": ["weight", "strength", "protein_intake"],
+      "training_split_hint": "flexible based on frequency",
+      "nutrition_pattern_hint": "surplus with diverse plant proteins, leucine-rich sources emphasized, creatine supplementation recommended",
+      "tone_of_voice": "health-conscious, ethical, supportive"
+    },
+    {
+      "id": "recomp-balanced",
+      "title": "השיפור המאוזן",
+      "tagline": "שיפור הרכב הגוף",
+      "profile_badge": "⚖️",
+      "color_token": "#607D8B",
+      "who_is_it_for": [
+        "מעוניינים בשיפור הרכב גוף",
+        "שמירה על משקל יחסית קבוע",
+        "מתאמנים 3-5 פעמים בשבוע"
+      ],
+      "fit_rules": {
+        "goal": ["recomp"],
+        "frequency": [3, 4, 5],
+        "experience": ["results", "knowledge"]
+      },
+      "kpi_focus": ["strength", "body_composition", "consistency"],
+      "training_split_hint": "3-5x progressive resistance training",
+      "nutrition_pattern_hint": "maintenance calories, high protein (2g/kg), nutrient timing around training",
+      "tone_of_voice": "patient, analytical, sustainable"
+    },
+    {
+      "id": "comeback-cut",
+      "title": "החוזר בירידה",
+      "tagline": "חזרה לכושר עם ניסיון",
+      "profile_badge": "🔄",
+      "color_token": "#795548",
+      "who_is_it_for": [
+        "היה ניסיון קודם אך הפסקה ממושכת",
+        "מעוניינים בירידה במשקל",
+        "מתאמנים 2-4 פעמים בשבוע"
+      ],
+      "fit_rules": {
+        "goal": ["loss"],
+        "frequency": [2, 3, 4],
+        "experience": ["never", "results"]
+      },
+      "kpi_focus": ["consistency", "weight", "muscle_memory"],
+      "training_split_hint": "progressive return to volume, 2-4x full-body or upper/lower",
+      "nutrition_pattern_hint": "moderate deficit (~400 kcal), muscle preservation focus, gradual calorie adjustment",
+      "tone_of_voice": "understanding, encouraging, realistic"
+    }
+  ],
+  "metadata": {
+    "version": "1.0",
+    "total_avatars": 12,
+    "last_updated": "2025-10-30",
+    "supported_languages": ["he"],
+    "default_fallback": "rookie-cut"
+  }
+}

@@ -231,8 +231,8 @@ export async function POST(req: Request) {
       const ctxHe = serializeContextHe(ctx);
       console.debug("[Coach][SystemCtx] →", ctxHe.slice(0, 250), "... len=", ctxHe.length);
 
-      // Strict Hebrew-first system prompt template (context injected below)
-      const systemPromptTemplate = `אתה "המאמן האישי של GymBro" — עוזר אימונים ותזונה בעברית.
+      // Strict Hebrew-first system prompt template (context injected below) - Updated for FitJourney brand
+      const systemPromptTemplate = `אתה "המאמן האישי של FitJourney" — עוזר אימונים ותזונה בעברית.
 
 נתוני המשתמש שלך: {contextHe}
 

@@ -6,7 +6,7 @@
 export type OnboardingStepId =
   | "gender"
   | "goals"
-  | "frequency"
+  | "training-frequency"
   | "experience"
   | "motivation"
   | "longterm"
@@ -23,7 +23,7 @@ export type OnboardingStepId =
 export const ONBOARDING_STEPS: OnboardingStepId[] = [
   "gender",
   "goals",
-  "frequency",
+  "training-frequency",
   "experience",
   "motivation",
   "longterm",
@@ -41,7 +41,7 @@ export const ONBOARDING_STEPS: OnboardingStepId[] = [
 export const STEP_INDEX: Record<OnboardingStepId, number> = {
   gender: 0,
   goals: 1,
-  frequency: 2,
+  "training-frequency": 2,
   experience: 3,
   motivation: 4,
   longterm: 5,

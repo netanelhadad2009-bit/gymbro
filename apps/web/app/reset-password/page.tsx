@@ -30,7 +30,7 @@ export default function ResetPasswordPage() {
     <main dir="rtl" className="min-h-screen bg-[#0e0f12] text-white">
       <div className="mx-auto max-w-md px-5 pt-10 pb-20 flex flex-col gap-8">
         {/* Brand Title */}
-        <h1 className="text-[#e2f163] text-4xl font-bold text-center">GYMBRO</h1>
+        <h1 className="text-[#e2f163] text-4xl font-bold text-center">FITJOURNEY</h1>
 
         {/* Reset Password Form */}
         <form className="flex flex-col gap-4" onSubmit={handleSubmit}>

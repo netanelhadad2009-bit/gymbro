@@ -1,0 +1,507 @@
+{
+  "timestamp": "2025-11-11T11:44:33.184Z",
+  "totalUsers": 10,
+  "totalDuration": 237676,
+  "results": [
+    {
+      "user": {
+        "id": 1,
+        "email": "test1@gymbro-test.com",
+        "password": "Test123!",
+        "gender": "male",
+        "age": 65,
+        "height_cm": 198,
+        "weight_kg": 50,
+        "target_weight_kg": 45,
+        "birthdate": "1960-01-18",
+        "bmi": 12.8,
+        "goal": "ירידה במשקל",
+        "goals": [
+          "loss"
+        ],
+        "experience": "time",
+        "training_frequency_actual": "high",
+        "diet": "vegetarian",
+        "motivation": "Test motivation for user 1",
+        "pace": "slow",
+        "activity": "גבוהה",
+        "category": "edge_case"
+      },
+      "success": false,
+      "steps": {
+        "nutritionGeneration": {
+          "success": true,
+          "duration": 21957
+        },
+        "registration": {
+          "success": false,
+          "duration": 614,
+          "error": "User already registered"
+        },
+        "avatarBootstrap": {
+          "success": false,
+          "duration": 0
+        },
+        "sessionAttach": {
+          "success": false,
+          "duration": 0
+        },
+        "stagesBootstrap": {
+          "success": false,
+          "duration": 0
+        }
+      },
+      "totalDuration": 22573
+    },
+    {
+      "user": {
+        "id": 2,
+        "email": "test2@gymbro-test.com",
+        "password": "Test123!",
+        "gender": "female",
+        "age": 19,
+        "height_cm": 152,
+        "weight_kg": 50,
+        "target_weight_kg": 45,
+        "birthdate": "2006-11-25",
+        "bmi": 21.6,
+        "goal": "ירידה במשקל",
+        "goals": [
+          "loss"
+        ],
+        "experience": "sure",
+        "training_frequency_actual": "low",
+        "diet": "balanced",
+        "motivation": "Test motivation for user 2",
+        "pace": "moderate",
+        "activity": "נמוכה",
+        "category": "edge_case"
+      },
+      "success": false,
+      "steps": {
+        "nutritionGeneration": {
+          "success": true,
+          "duration": 30844
+        },
+        "registration": {
+          "success": false,
+          "duration": 326,
+          "error": "User already registered"
+        },
+        "avatarBootstrap": {
+          "success": false,
+          "duration": 0
+        },
+        "sessionAttach": {
+          "success": false,
+          "duration": 0
+        },
+        "stagesBootstrap": {
+          "success": false,
+          "duration": 0
+        }
+      },
+      "totalDuration": 31171
+    },
+    {
+      "user": {
+        "id": 3,
+        "email": "test3@gymbro-test.com",
+        "password": "Test123!",
+        "gender": "female",
+        "age": 22,
+        "height_cm": 164,
+        "weight_kg": 53,
+        "target_weight_kg": 45,
+        "birthdate": "2003-06-05",
+        "bmi": 19.7,
+        "goal": "ירידה במשקל",
+        "goals": [
+          "loss"
+        ],
+        "experience": "results",
+        "training_frequency_actual": "high",
+        "diet": "balanced",
+        "motivation": "Test motivation for user 3",
+        "pace": "moderate",
+        "activity": "גבוהה",
+        "category": "happy_path"
+      },
+      "success": false,
+      "steps": {
+        "nutritionGeneration": {
+          "success": true,
+          "duration": 24613
+        },
+        "registration": {
+          "success": false,
+          "duration": 375,
+          "error": "User already registered"
+        },
+        "avatarBootstrap": {
+          "success": false,
+          "duration": 0
+        },
+        "sessionAttach": {
+          "success": false,
+          "duration": 0
+        },
+        "stagesBootstrap": {
+          "success": false,
+          "duration": 0
+        }
+      },
+      "totalDuration": 24989
+    },
+    {
+      "user": {
+        "id": 4,
+        "email": "test4@gymbro-test.com",
+        "password": "Test123!",
+        "gender": "female",
+        "age": 53,
+        "height_cm": 161,
+        "weight_kg": 77,
+        "target_weight_kg": 61,
+        "birthdate": "1972-06-21",
+        "bmi": 29.7,
+        "goal": "ירידה במשקל",
+        "goals": [
+          "loss"
+        ],
+        "experience": "knowledge",
+        "training_frequency_actual": "medium",
+        "diet": "balanced",
+        "motivation": "Test motivation for user 4",
+        "pace": "fast",
+        "activity": "בינונית",
+        "category": "happy_path"
+      },
+      "success": false,
+      "steps": {
+        "nutritionGeneration": {
+          "success": true,
+          "duration": 22539
+        },
+        "registration": {
+          "success": false,
+          "duration": 640,
+          "error": "User already registered"
+        },
+        "avatarBootstrap": {
+          "success": false,
+          "duration": 0
+        },
+        "sessionAttach": {
+          "success": false,
+          "duration": 0
+        },
+        "stagesBootstrap": {
+          "success": false,
+          "duration": 0
+        }
+      },
+      "totalDuration": 23179
+    },
+    {
+      "user": {
+        "id": 5,
+        "email": "test5@gymbro-test.com",
+        "password": "Test123!",
+        "gender": "male",
+        "age": 57,
+        "height_cm": 159,
+        "weight_kg": 95,
+        "target_weight_kg": 82,
+        "birthdate": "1968-10-05",
+        "bmi": 37.6,
+        "goal": "ירידה במשקל",
+        "goals": [
+          "loss"
+        ],
+        "experience": "never",
+        "training_frequency_actual": "low",
+        "diet": "balanced",
+        "motivation": "Test motivation for user 5",
+        "pace": "moderate",
+        "activity": "נמוכה",
+        "category": "happy_path"
+      },
+      "success": false,
+      "steps": {
+        "nutritionGeneration": {
+          "success": true,
+          "duration": 22165
+        },
+        "registration": {
+          "success": false,
+          "duration": 341,
+          "error": "User already registered"
+        },
+        "avatarBootstrap": {
+          "success": false,
+          "duration": 0
+        },
+        "sessionAttach": {
+          "success": false,
+          "duration": 0
+        },
+        "stagesBootstrap": {
+          "success": false,
+          "duration": 0
+        }
+      },
+      "totalDuration": 22507
+    },
+    {
+      "user": {
+        "id": 6,
+        "email": "test6@gymbro-test.com",
+        "password": "Test123!",
+        "gender": "male",
+        "age": 40,
+        "height_cm": 155,
+        "weight_kg": 79,
+        "target_weight_kg": 59,
+        "birthdate": "1985-02-28",
+        "bmi": 32.9,
+        "goal": "ירידה במשקל",
+        "goals": [
+          "loss"
+        ],
+        "experience": "time",
+        "training_frequency_actual": "low",
+        "diet": "vegetarian",
+        "motivation": "Test motivation for user 6",
+        "pace": "fast",
+        "activity": "נמוכה",
+        "category": "happy_path"
+      },
+      "success": false,
+      "steps": {
+        "nutritionGeneration": {
+          "success": true,
+          "duration": 24397
+        },
+        "registration": {
+          "success": false,
+          "duration": 296,
+          "error": "User already registered"
+        },
+        "avatarBootstrap": {
+          "success": false,
+          "duration": 0
+        },
+        "sessionAttach": {
+          "success": false,
+          "duration": 0
+        },
+        "stagesBootstrap": {
+          "success": false,
+          "duration": 0
+        }
+      },
+      "totalDuration": 24693
+    },
+    {
+      "user": {
+        "id": 7,
+        "email": "test7@gymbro-test.com",
+        "password": "Test123!",
+        "gender": "male",
+        "age": 51,
+        "height_cm": 175,
+        "weight_kg": 103,
+        "target_weight_kg": 84,
+        "birthdate": "1974-09-14",
+        "bmi": 33.6,
+        "goal": "ירידה במשקל",
+        "goals": [
+          "loss"
+        ],
+        "experience": "sure",
+        "training_frequency_actual": "medium",
+        "diet": "vegan",
+        "motivation": "Test motivation for user 7",
+        "pace": "moderate",
+        "activity": "בינונית",
+        "category": "happy_path"
+      },
+      "success": false,
+      "steps": {
+        "nutritionGeneration": {
+          "success": true,
+          "duration": 22469
+        },
+        "registration": {
+          "success": false,
+          "duration": 379,
+          "error": "User already registered"
+        },
+        "avatarBootstrap": {
+          "success": false,
+          "duration": 0
+        },
+        "sessionAttach": {
+          "success": false,
+          "duration": 0
+        },
+        "stagesBootstrap": {
+          "success": false,
+          "duration": 0
+        }
+      },
+      "totalDuration": 22850
+    },
+    {
+      "user": {
+        "id": 8,
+        "email": "test8@gymbro-test.com",
+        "password": "Test123!",
+        "gender": "male",
+        "age": 42,
+        "height_cm": 192,
+        "weight_kg": 89,
+        "target_weight_kg": 82,
+        "birthdate": "1983-10-13",
+        "bmi": 24.1,
+        "goal": "ירידה במשקל",
+        "goals": [
+          "loss"
+        ],
+        "experience": "results",
+        "training_frequency_actual": "medium",
+        "diet": "balanced",
+        "motivation": "Test motivation for user 8",
+        "pace": "slow",
+        "activity": "בינונית",
+        "category": "happy_path"
+      },
+      "success": false,
+      "steps": {
+        "nutritionGeneration": {
+          "success": true,
+          "duration": 19086
+        },
+        "registration": {
+          "success": false,
+          "duration": 341,
+          "error": "User already registered"
+        },
+        "avatarBootstrap": {
+          "success": false,
+          "duration": 0
+        },
+        "sessionAttach": {
+          "success": false,
+          "duration": 0
+        },
+        "stagesBootstrap": {
+          "success": false,
+          "duration": 0
+        }
+      },
+      "totalDuration": 19427
+    },
+    {
+      "user": {
+        "id": 9,
+        "email": "test9@gymbro-test.com",
+        "password": "Test123!",
+        "gender": "female",
+        "age": 41,
+        "height_cm": 180,
+        "weight_kg": 66,
+        "target_weight_kg": 61,
+        "birthdate": "1984-06-12",
+        "bmi": 20.4,
+        "goal": "ירידה במשקל",
+        "goals": [
+          "loss"
+        ],
+        "experience": "knowledge",
+        "training_frequency_actual": "low",
+        "diet": "vegan",
+        "motivation": "Test motivation for user 9",
+        "pace": "fast",
+        "activity": "נמוכה",
+        "category": "happy_path"
+      },
+      "success": false,
+      "steps": {
+        "nutritionGeneration": {
+          "success": true,
+          "duration": 20907
+        },
+        "registration": {
+          "success": false,
+          "duration": 742,
+          "error": "User already registered"
+        },
+        "avatarBootstrap": {
+          "success": false,
+          "duration": 0
+        },
+        "sessionAttach": {
+          "success": false,
+          "duration": 0
+        },
+        "stagesBootstrap": {
+          "success": false,
+          "duration": 0
+        }
+      },
+      "totalDuration": 21650
+    },
+    {
+      "user": {
+        "id": 10,
+        "email": "test10@gymbro-test.com",
+        "password": "Test123!",
+        "gender": "male",
+        "age": 28,
+        "height_cm": 173,
+        "weight_kg": 92,
+        "target_weight_kg": 87,
+        "birthdate": "1997-05-06",
+        "bmi": 30.7,
+        "goal": "ירידה במשקל",
+        "goals": [
+          "loss"
+        ],
+        "experience": "never",
+        "training_frequency_actual": "medium",
+        "diet": "balanced",
+        "motivation": "Test motivation for user 10",
+        "pace": "moderate",
+        "activity": "בינונית",
+        "category": "happy_path"
+      },
+      "success": false,
+      "steps": {
+        "nutritionGeneration": {
+          "success": true,
+          "duration": 19307
+        },
+        "registration": {
+          "success": false,
+          "duration": 318,
+          "error": "User already registered"
+        },
+        "avatarBootstrap": {
+          "success": false,
+          "duration": 0
+        },
+        "sessionAttach": {
+          "success": false,
+          "duration": 0
+        },
+        "stagesBootstrap": {
+          "success": false,
+          "duration": 0
+        }
+      },
+      "totalDuration": 19625
+    }
+  ]
+}

@@ -20,6 +20,10 @@ body {
   /* Header layout constants */
   --header-h: 56px;           /* logical header row height */
   --title-top-buffer: 12px;   /* extra visual gap above title beyond safe area */
+
+  /* Global app header height (dynamically calculated) */
+  /* Total = safe-top + title-top-buffer + header-h + header-bottom-padding */
+  --app-header-total-h: calc(var(--safe-top) + var(--title-top-buffer) + var(--header-h) + 6px);
 }
 
 /* iOS specific: add more buffer on mobile devices */
@@ -33,10 +37,17 @@ body {
 
 /* Sticky header container with safe area + visual buffer */
 .header-safe {
-  position: sticky;
+  position: fixed;
   top: 0;
-  z-index: 50;
+  left: 0;
+  right: 0;
+  z-index: 150;
   background: #0D0E0F;
+  will-change: transform;
+
+  /* Ensure header stays visible on keyboard open */
+  transform: translateZ(0);
+  backface-visibility: hidden;
 
   /* Total top padding = safe area + visual buffer */
   padding-top: calc(var(--safe-top) + var(--title-top-buffer));
@@ -85,7 +96,13 @@ body {
    * - Header inner height: var(--header-h) = 56px
    * - Header bottom padding: 6px ONLY - NO extra gap
    */
-  padding-top: calc(var(--safe-top) + var(--title-top-buffer) + var(--header-h) + 6px);
+  padding-top: var(--app-header-total-h);
+}
+
+/* Page root container with automatic header offset */
+[data-page-root] {
+  padding-top: var(--app-header-total-h);
+  min-height: 100svh;
 }
 
 /* For pages without fixed header, just add safe top padding with buffer */
@@ -124,4 +141,37 @@ body {
   .has-bottom-nav {
     padding-bottom: calc(6rem + env(safe-area-inset-bottom));
   }
+}
+
+/* New safe-area utilities for Progress page and other pages */
+.safe-area-page {
+  min-height: 100dvh;
+  padding-top: max(16px, var(--safe-top));
+  padding-bottom: max(16px, var(--safe-bottom));
+  background: #0E0F10;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.safe-area-sticky-top {
+  position: sticky;
+  top: var(--safe-top);
+  z-index: 50;
+  padding-top: 8px;
+  backdrop-filter: saturate(120%) blur(6px);
+}
+
+.safe-area-fixed-bottom {
+  position: fixed;
+  bottom: var(--safe-bottom);
+  left: 0;
+  right: 0;
+  z-index: 40;
+}
+
+/* Scroll area with proper iOS behavior */
+.scroll-area {
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 }

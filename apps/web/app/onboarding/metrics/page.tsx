@@ -1,8 +1,10 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState, useRef, useEffect } from "react";
-import { saveOnboardingData, getOnboardingData } from "@/lib/onboarding-storage";
+import { useState, useRef, useEffect, startTransition } from "react";
+import { getOnboardingData } from "@/lib/onboarding-storage";
+import { saveOnboardingDraft } from "@/lib/onboarding/saveDraft";
+import { queueDraftRetry } from "@/lib/onboarding/retryQueue";
 import OnboardingShell from "../components/OnboardingShell";
 import PrimaryButton from "@/components/PrimaryButton";
 
@@ -10,7 +12,7 @@ export default function MetricsPage() {
   const router = useRouter();
   const [height, setHeight] = useState(173);
   const [weight, setWeight] = useState(55);
-  const [isLoading, setIsLoading] = useState(false);
+  const submittedRef = useRef(false);
 
   const heightRef = useRef<HTMLDivElement>(null);
   const weightRef = useRef<HTMLDivElement>(null);
@@ -84,21 +86,31 @@ export default function MetricsPage() {
   }, []);
 
   const handleContinue = () => {
-    setIsLoading(true);
-    try {
-      // Save to localStorage for guest users
-      saveOnboardingData({
-        height_cm: height,
-        weight_kg: weight,
-        bmi: parseFloat(bmi.toFixed(1))
-      });
+    // Prevent double submissions
+    if (submittedRef.current) return;
+    submittedRef.current = true;
 
+    const formData = {
+      height_cm: height,
+      weight_kg: weight,
+      bmi: parseFloat(bmi.toFixed(1))
+    };
+
+    // 1) Navigate immediately (no loading state!)
+    startTransition(() => {
       router.push("/onboarding/birthdate");
-    } catch (error) {
-      console.error("Error saving data:", error);
-      alert("אירעה שגיאה, נסה שוב");
-      setIsLoading(false);
-    }
+    });
+
+    // 2) Save in background (fire-and-forget)
+    (async () => {
+      try {
+        await saveOnboardingDraft(formData);
+      } catch (error) {
+        console.warn('[Metrics] Background save failed:', error);
+        // Queue for retry
+        queueDraftRetry('metrics', formData);
+      }
+    })();
   };
 
   const heightValues = Array.from({ length: 71 }, (_, i) => 140 + i);
@@ -116,14 +128,13 @@ export default function MetricsPage() {
           נתחשב בזה כדי לחשב את<br />נקודת הפתיחה המותאמת שלך.
         </>
       }
-      disableContentScroll={true}
+      disableContentScroll={false}
       footer={
         <PrimaryButton
           onClick={handleContinue}
-          disabled={isLoading}
           className="h-14 text-lg"
         >
-          {isLoading ? "שומר..." : "הבא"}
+          הבא
         </PrimaryButton>
       }
     >

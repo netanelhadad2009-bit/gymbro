@@ -191,3 +191,59 @@ END;
 $$ LANGUAGE plpgsql STABLE;
 
 -- DONE! You can now use the normalized program schema with proper RLS policies
+
+-- ==============================================================================
+-- MIGRATION 012: Add 'plan' meal source type for nutrition plan meals
+-- ==============================================================================
+-- This migration allows meals marked as eaten from the nutrition plan to be
+-- saved to the database, so they appear in the graphs/progress page calorie count
+
+-- Update the source check constraint to include 'plan'
+ALTER TABLE IF EXISTS public.meals
+DROP CONSTRAINT IF EXISTS meals_source_check;
+
+ALTER TABLE IF EXISTS public.meals
+ADD CONSTRAINT meals_source_check
+CHECK (source IN ('manual', 'ai_vision', 'plan'));
+
+-- Add optional plan_meal_id to track which plan meal this refers to
+-- Format: "dayIndex_mealIndex" (e.g., "0_1" for Sunday, second meal)
+ALTER TABLE IF EXISTS public.meals
+ADD COLUMN IF NOT EXISTS plan_meal_id text;
+
+-- Create index for plan meal lookups
+CREATE INDEX IF NOT EXISTS idx_meals_plan_meal_id ON public.meals (user_id, plan_meal_id, date)
+WHERE plan_meal_id IS NOT NULL;
+
+-- Verify the changes
+DO $$
+BEGIN
+  RAISE NOTICE 'Migration 012 applied: plan meals can now be saved to database';
+END $$;
+
+-- ==============================================================================
+-- MIGRATION 021: Add meal_type column for categorizing meals
+-- ==============================================================================
+-- This migration adds a meal_type column to categorize meals by time of day
+-- (breakfast, lunch, dinner, snack) for better organization and tracking
+
+-- Add meal_type column to meals table
+ALTER TABLE public.meals
+ADD COLUMN IF NOT EXISTS meal_type text CHECK (meal_type IN ('breakfast', 'lunch', 'dinner', 'snack')) DEFAULT 'snack';
+
+-- Create index for meal_type for better query performance
+CREATE INDEX IF NOT EXISTS idx_meals_meal_type ON public.meals (meal_type);
+
+-- Update the source constraint to include new source types
+ALTER TABLE public.meals
+DROP CONSTRAINT IF EXISTS meals_source_check;
+
+ALTER TABLE public.meals
+ADD CONSTRAINT meals_source_check
+CHECK (source IN ('manual', 'ai_vision', 'plan', 'israel_moh', 'saved_meal'));
+
+-- Verify the changes
+DO $$
+BEGIN
+  RAISE NOTICE 'Migration 021 applied: meal_type column added and source constraint updated';
+END $$;

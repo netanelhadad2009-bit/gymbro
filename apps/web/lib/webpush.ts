@@ -19,7 +19,7 @@ export function initializeWebPush() {
 
   const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
   const vapidPrivateKey = process.env.VAPID_PRIVATE_KEY;
-  const vapidSubject = process.env.VAPID_SUBJECT || 'mailto:support@gymbro.app';
+  const vapidSubject = process.env.VAPID_SUBJECT || 'mailto:support@fitjourney.app';
 
   if (!vapidPublicKey || vapidPublicKey === 'REPLACE_WITH_YOUR_BASE64URL_VAPID_PUBLIC_KEY') {
     throw new Error('NEXT_PUBLIC_VAPID_PUBLIC_KEY is not configured');

@@ -1,0 +1,109 @@
+/* Shared tokens */
+:root {
+  --jy-accent: #E2F163;
+  --jy-bg: #0B0D0E;
+}
+
+/* Subtle starfield + grid for the header only */
+.jy-depth {
+  position: relative;
+  isolation: isolate;
+}
+.jy-depth::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(1200px 400px at 50% -200px, rgba(226,241,99,0.08), transparent 70%),
+    radial-gradient(600px 200px at 85% 0%, rgba(226,241,99,0.06), transparent 55%),
+    radial-gradient(700px 240px at 15% 0%, rgba(255,255,255,0.05), transparent 60%);
+  pointer-events: none;
+  z-index: -1;
+  mask-image: linear-gradient(to bottom, rgba(0,0,0,0.9), rgba(0,0,0,0.2));
+}
+
+/* soft grid, very faint */
+.jy-grid {
+  background-image:
+    linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+  background-size: 28px 28px;
+  background-position: center;
+  mask-image: linear-gradient(to bottom, rgba(0,0,0,0.7), transparent);
+}
+
+/* Premium chip */
+.jy-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  height: 40px;
+  padding: 0 14px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.05);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border: 1px solid rgba(255,255,255,0.10);
+  box-shadow:
+    0 0 0 1px rgba(226,241,99,0.07) inset,
+    0 8px 24px rgba(0,0,0,0.35);
+  transition: all 0.2s ease;
+}
+
+/* Clickable chip styles */
+a .jy-chip {
+  cursor: pointer;
+}
+
+a .jy-chip:hover {
+  border-color: rgba(226,241,99,0.3);
+  background: rgba(255,255,255,0.08);
+  box-shadow:
+    0 0 0 1px rgba(226,241,99,0.15) inset,
+    0 8px 24px rgba(0,0,0,0.35),
+    0 0 20px rgba(226,241,99,0.15);
+}
+
+a .jy-chip:active {
+  transform: scale(0.97);
+}
+
+.jy-chip__icon {
+  display: grid; place-items: center;
+  width: 24px; height: 24px; border-radius: 999px;
+  background: radial-gradient(120% 120% at 50% 20%, rgba(226,241,99,0.25), rgba(226,241,99,0.06));
+  box-shadow: 0 0 12px rgba(226,241,99,0.18);
+}
+
+.jy-chip__value { font-weight: 800; font-size: 16px; line-height: 1; color: #ffffff; }
+.jy-chip__label { font-size: 12px; color: rgba(255,255,255,0.72); }
+
+/* tiny divider dot between value and label (RTL-safe) */
+.jy-chip__dot {
+  width: 4px; height: 4px; border-radius: 999px;
+  background: rgba(255,255,255,0.25);
+  margin-inline: 2px;
+}
+
+/* Progress bar upgrade to match chips */
+.jy-progress {
+  position: relative; height: 6px; border-radius: 999px;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.10);
+  overflow: hidden;
+}
+.jy-progress__fill {
+  position: absolute; inset-block: 0; inset-inline-end: 0;
+  background: linear-gradient(90deg, var(--jy-accent) 0%, #BEEB3A 60%, #8FD327 100%);
+  box-shadow: 0 0 18px rgba(226,241,99,0.35);
+}
+.jy-progress__spark {
+  position: absolute; top: -2px; width: 8px; height: 8px; border-radius: 999px;
+  background: #fff; opacity: .9; mix-blend-mode: screen;
+  box-shadow: 0 0 10px #fff, 0 0 24px rgba(226,241,99,.6);
+}
+
+/* Responsive wrapping for small screens */
+.jy-chip-row {
+  display: flex; gap: 12px; flex-wrap: wrap;
+}
