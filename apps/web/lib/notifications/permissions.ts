@@ -122,13 +122,7 @@ export async function openAppSettings(): Promise<void> {
 
     // iOS uses app-settings: URL scheme
     if (Capacitor.getPlatform() === 'ios') {
-      // Cast to any: openUrl exists at runtime on iOS but not in TypeScript types
-      const appAny = App as any;
-      if (typeof appAny.openUrl === 'function') {
-        await appAny.openUrl({ url: 'app-settings:' });
-      } else {
-        console.warn('[Permissions] App.openUrl not available');
-      }
+      await App.openUrl({ url: 'app-settings:' });
     } else {
       // Android - open app info settings
       console.log('[Permissions] Opening Android app settings not yet implemented');

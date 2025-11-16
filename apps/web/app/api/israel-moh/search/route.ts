@@ -165,11 +165,8 @@ export async function GET(request: NextRequest) {
     // Take top N results
     const finalResults = filteredResults.slice(0, MAX_RETURN_RESULTS);
 
-    // Remove _score field and convert id to string before returning
-    const cleanResults = finalResults.map(({ _score, id, ...rest }) => ({
-      ...rest,
-      id: id.toString(),
-    }));
+    // Remove _score field before returning
+    const cleanResults = finalResults.map(({ _score, ...rest }) => rest);
 
     console.log(`[IsraelSearch] Returning ${cleanResults.length} results`);
     console.log('[IsraelSearch] Top 5 names:', cleanResults.slice(0, 5).map((r) => r.name_he));

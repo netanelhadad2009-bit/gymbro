@@ -8,8 +8,28 @@
       "schedule": "0 7 * * *"
     },
     {
+      "path": "/api/cron/notifications/inactivity-check",
+      "schedule": "0 10 * * *"
+    },
+    {
+      "path": "/api/cron/notifications/journey-nudge",
+      "schedule": "0 12 * * *"
+    },
+    {
+      "path": "/api/cron/notifications/midday-protein",
+      "schedule": "0 14 * * *"
+    },
+    {
+      "path": "/api/cron/notifications/stage-completion",
+      "schedule": "*/15 * * * *"
+    },
+    {
       "path": "/api/cron/notifications/daily-targets",
       "schedule": "0 20 * * *"
+    },
+    {
+      "path": "/api/cron/notifications/streak-celebration",
+      "schedule": "0 21 * * *"
     }
   ]
 }
