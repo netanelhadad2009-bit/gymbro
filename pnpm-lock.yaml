@@ -264,7 +264,7 @@ importers:
       '@anthropic-ai/sdk':
         specifier: ^0.65.0
         version: 0.65.0(zod@4.1.11)
-      '@gymbro/db':
+      '@fitjourney/db':
         specifier: workspace:^
         version: link:../../packages/db
       '@paralleldrive/cuid2':
