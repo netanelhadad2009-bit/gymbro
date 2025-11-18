@@ -7,8 +7,8 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { createClient } from '@/lib/supabase/server';
 import type { BarcodeProduct, Per100g } from '@/types/barcode';
+import { requireAuth, checkRateLimit, validateBody, RateLimitPresets, ErrorResponses, handleApiError } from '@/lib/api/security';
 
 // Request validation schema
 const createFoodSchema = z.object({
@@ -26,38 +26,33 @@ const createFoodSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createClient();
+    // Rate limiting check (STRICT - prevents points farming via manual food creation)
+    const rateLimit = await checkRateLimit(request, {
+      ...RateLimitPresets.strict,
+      keyPrefix: 'nutrition-foods-post',
+    });
 
-    // Auth check
-    const { data: { session }, error: authError } = await supabase.auth.getSession();
-
-    if (authError || !session?.user) {
-      console.error('[ManualFood] Auth error:', authError?.message || 'No session');
-      return NextResponse.json(
-        { ok: false, error: 'Unauthorized' },
-        { status: 401 }
-      );
+    if (!rateLimit.allowed) {
+      console.log('[ManualFood] Rate limit exceeded');
+      return ErrorResponses.rateLimited(rateLimit.resetAt, rateLimit.limit);
     }
 
-    const userId = session.user.id;
-    const body = await request.json();
+    // Authentication check
+    const auth = await requireAuth();
+    if (!auth.success) {
+      return auth.response;
+    }
+    const { user, supabase } = auth;
 
-    // Validate input
-    const validationResult = createFoodSchema.safeParse(body);
+    const userId = user.id;
 
-    if (!validationResult.success) {
-      console.error('[ManualFood] Validation error:', validationResult.error.issues);
-      return NextResponse.json(
-        {
-          ok: false,
-          error: 'Invalid input',
-          details: validationResult.error.flatten().fieldErrors
-        },
-        { status: 400 }
-      );
+    // Validate request body
+    const validation = await validateBody(request, createFoodSchema);
+    if (!validation.success) {
+      return validation.response;
     }
 
-    const { barcode, name_he, brand, serving_grams, per100g } = validationResult.data;
+    const { barcode, name_he, brand, serving_grams, per100g } = validation.data;
 
     console.log('[ManualFood] Creating product:', { name_he, barcode, userId: userId.slice(0, 8) });
 
@@ -133,42 +128,34 @@ export async function POST(request: NextRequest) {
       food_id: userFood.id,
     });
 
-  } catch (error: any) {
-    console.error('[ManualFood] Fatal error:', {
-      message: error?.message,
-      stack: error?.stack,
-    });
-
-    if (error instanceof z.ZodError) {
-      return NextResponse.json(
-        { ok: false, error: 'Invalid input', details: error.issues },
-        { status: 400 }
-      );
-    }
-
-    return NextResponse.json(
-      { ok: false, error: error?.message || 'Unknown error' },
-      { status: 500 }
-    );
+  } catch (error) {
+    console.error('[ManualFood] Fatal error:', error);
+    return handleApiError(error, 'NutritionFoodsPost');
   }
 }
 
 // GET /api/nutrition/foods - Get user's custom foods
 export async function GET(request: NextRequest) {
   try {
-    const supabase = await createClient();
+    // Rate limiting check (STANDARD - read operation)
+    const rateLimit = await checkRateLimit(request, {
+      ...RateLimitPresets.standard,
+      keyPrefix: 'nutrition-foods-get',
+    });
 
-    // Auth check
-    const { data: { session }, error: authError } = await supabase.auth.getSession();
-
-    if (authError || !session?.user) {
-      return NextResponse.json(
-        { ok: false, error: 'Unauthorized' },
-        { status: 401 }
-      );
+    if (!rateLimit.allowed) {
+      console.log('[ManualFood GET] Rate limit exceeded');
+      return ErrorResponses.rateLimited(rateLimit.resetAt, rateLimit.limit);
     }
 
-    const userId = session.user.id;
+    // Authentication check
+    const auth = await requireAuth();
+    if (!auth.success) {
+      return auth.response;
+    }
+    const { user, supabase } = auth;
+
+    const userId = user.id;
 
     // Get user's custom foods
     const { data: foods, error } = await supabase
@@ -199,11 +186,8 @@ export async function GET(request: NextRequest) {
       products,
     });
 
-  } catch (error: any) {
-    console.error('[ManualFood] GET error:', error);
-    return NextResponse.json(
-      { ok: false, error: error?.message || 'Unknown error' },
-      { status: 500 }
-    );
+  } catch (error) {
+    console.error('[ManualFood GET] Error:', error);
+    return handleApiError(error, 'NutritionFoodsGet');
   }
 }

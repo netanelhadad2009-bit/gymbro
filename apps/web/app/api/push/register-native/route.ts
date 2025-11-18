@@ -1,5 +1,13 @@
-import { NextResponse } from 'next/server';
-import { createServerSupabaseClientWithAuth } from '@/lib/supabase-server';
+import { NextRequest, NextResponse } from 'next/server';
+import { requireAuth, checkRateLimit, validateBody, RateLimitPresets, ErrorResponses, handleApiError } from '@/lib/api/security';
+import { z } from 'zod';
+
+// Request validation schema
+const RegisterNativeSchema = z.object({
+  token: z.string().min(1, 'Token is required'),
+  platform: z.enum(['ios', 'android'], { errorMap: () => ({ message: 'Platform must be ios or android' }) }),
+  deviceId: z.string().optional(),
+});
 
 /**
  * POST /api/push/register-native
@@ -7,38 +15,33 @@ import { createServerSupabaseClientWithAuth } from '@/lib/supabase-server';
  * Registers a native push notification token (iOS APNS or Android FCM)
  * Saves token to push_subscriptions table associated with authenticated user
  */
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    const { token, platform, deviceId } = body;
+    // Rate limiting check (STANDARD - write operation)
+    const rateLimit = await checkRateLimit(request, {
+      ...RateLimitPresets.standard,
+      keyPrefix: 'push-register-native',
+    });
 
-    // Validate required fields
-    if (!token || !platform) {
-      return NextResponse.json(
-        { success: false, error: 'Token and platform are required' },
-        { status: 400 }
-      );
+    if (!rateLimit.allowed) {
+      console.log('[PushRegisterNative] Rate limit exceeded');
+      return ErrorResponses.rateLimited(rateLimit.resetAt, rateLimit.limit);
     }
 
-    // Validate platform
-    if (!['ios', 'android'].includes(platform)) {
-      return NextResponse.json(
-        { success: false, error: 'Platform must be ios or android' },
-        { status: 400 }
-      );
+    // Authentication check
+    const auth = await requireAuth();
+    if (!auth.success) {
+      return auth.response;
+    }
+    const { user, supabase } = auth;
+
+    // Validate request body
+    const validation = await validateBody(request, RegisterNativeSchema);
+    if (!validation.success) {
+      return validation.response;
     }
 
-    // Authenticate user
-    const supabase = await createServerSupabaseClientWithAuth();
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-
-    if (authError || !user) {
-      console.error('[API] Auth error:', authError?.message || 'No user');
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
+    const { token, platform, deviceId } = validation.data;
 
     console.log('[API] Native push token registration:', {
       userId: user.id.substring(0, 8),
@@ -68,14 +71,11 @@ export async function POST(request: Request) {
       .single();
 
     if (dbError) {
-      console.error('[API] Database error saving token:', dbError);
-      return NextResponse.json(
-        { success: false, error: 'Failed to save token' },
-        { status: 500 }
-      );
+      console.error('[PushRegisterNative] Database error saving token:', dbError);
+      throw new Error(`Failed to save token: ${dbError.message}`);
     }
 
-    console.log('[API] Token saved successfully:', {
+    console.log('[PushRegisterNative] Token saved successfully:', {
       subscriptionId: subscription.id.substring(0, 8),
       userId: user.id.substring(0, 8),
       platform
@@ -86,11 +86,8 @@ export async function POST(request: Request) {
       message: 'Token registered successfully',
       subscriptionId: subscription.id
     });
-  } catch (error: any) {
-    console.error('[API] Error registering native token:', error);
-    return NextResponse.json(
-      { success: false, error: error?.message || 'Failed to register token' },
-      { status: 500 }
-    );
+  } catch (error) {
+    console.error('[PushRegisterNative] Fatal error:', error);
+    return handleApiError(error, 'PushRegisterNative');
   }
 }

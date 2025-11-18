@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createSessionSchema } from "@/lib/schemas/coach";
 import { hasSessionOverlap } from "@/lib/coach/queries";
+import { requireAuth, checkRateLimit, validateBody, RateLimitPresets, ErrorResponses, handleApiError } from "@/lib/api/security";
 
 export const dynamic = "force-dynamic";
 
@@ -11,40 +12,38 @@ export const dynamic = "force-dynamic";
  */
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createClient();
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    // Rate limiting check
+    const rateLimit = await checkRateLimit(request, {
+      ...RateLimitPresets.standard,
+      keyPrefix: 'coach-sessions-post',
+    });
 
-    if (authError || !user) {
-      return NextResponse.json(
-        { error: "Authentication required" },
-        { status: 401 }
-      );
+    if (!rateLimit.allowed) {
+      console.log('[Coach Sessions POST] Rate limit exceeded');
+      return ErrorResponses.rateLimited(rateLimit.resetAt, rateLimit.limit);
     }
 
-    const body = await request.json();
-    const validationResult = createSessionSchema.safeParse(body);
+    // Authentication check
+    const auth = await requireAuth();
+    if (!auth.success) {
+      return auth.response;
+    }
+    const { user, supabase } = auth;
 
-    if (!validationResult.success) {
-      return NextResponse.json(
-        {
-          error: "Invalid input",
-          details: validationResult.error.flatten().fieldErrors
-        },
-        { status: 400 }
-      );
+    // Validate request body
+    const validation = await validateBody(request, createSessionSchema);
+    if (!validation.success) {
+      return validation.response;
     }
 
-    const data = validationResult.data;
+    const data = validation.data;
 
     // Validate time range
     const startTime = new Date(data.start_t);
     const endTime = new Date(data.end_t);
 
     if (endTime <= startTime) {
-      return NextResponse.json(
-        { error: "End time must be after start time" },
-        { status: 400 }
-      );
+      return ErrorResponses.badRequest("End time must be after start time");
     }
 
     // Verify assignment belongs to user
@@ -56,10 +55,8 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (assignmentError || !assignment) {
-      return NextResponse.json(
-        { error: "Assignment not found or access denied" },
-        { status: 404 }
-      );
+      console.log('[Coach Sessions POST] Assignment not found or access denied');
+      return ErrorResponses.notFound("Assignment not found or access denied");
     }
 
     // Check for overlapping sessions
@@ -100,7 +97,7 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (insertError) {
-      console.error("[POST /api/coach/sessions] Insert error:", insertError);
+      console.error("[Coach Sessions POST] Insert error:", insertError);
       return NextResponse.json(
         { error: "Failed to create session" },
         { status: 500 }
@@ -109,11 +106,8 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ ok: true, data: session });
   } catch (error) {
-    console.error("[POST /api/coach/sessions] Error:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    console.error("[Coach Sessions POST] Error:", error);
+    return handleApiError(error, 'CoachSessionsPost');
   }
 }
 
@@ -123,24 +117,29 @@ export async function POST(request: NextRequest) {
  */
 export async function GET(request: NextRequest) {
   try {
-    const supabase = await createClient();
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    // Rate limiting check
+    const rateLimit = await checkRateLimit(request, {
+      ...RateLimitPresets.standard,
+      keyPrefix: 'coach-sessions-get',
+    });
 
-    if (authError || !user) {
-      return NextResponse.json(
-        { error: "Authentication required" },
-        { status: 401 }
-      );
+    if (!rateLimit.allowed) {
+      console.log('[Coach Sessions GET] Rate limit exceeded');
+      return ErrorResponses.rateLimited(rateLimit.resetAt, rateLimit.limit);
     }
+
+    // Authentication check
+    const auth = await requireAuth();
+    if (!auth.success) {
+      return auth.response;
+    }
+    const { user, supabase } = auth;
 
     const { searchParams } = new URL(request.url);
     const assignmentId = searchParams.get("assignment_id");
 
     if (!assignmentId) {
-      return NextResponse.json(
-        { error: "assignment_id required" },
-        { status: 400 }
-      );
+      return ErrorResponses.badRequest("assignment_id required");
     }
 
     // Verify assignment belongs to user
@@ -152,10 +151,8 @@ export async function GET(request: NextRequest) {
       .single();
 
     if (assignmentError || !assignment) {
-      return NextResponse.json(
-        { error: "Assignment not found or access denied" },
-        { status: 404 }
-      );
+      console.log('[Coach Sessions GET] Assignment not found or access denied');
+      return ErrorResponses.notFound("Assignment not found or access denied");
     }
 
     // Fetch sessions
@@ -166,7 +163,7 @@ export async function GET(request: NextRequest) {
       .order("start_t", { ascending: false });
 
     if (error) {
-      console.error("[GET /api/coach/sessions] Error:", error);
+      console.error("[Coach Sessions GET] Error:", error);
       return NextResponse.json(
         { error: "Failed to fetch sessions" },
         { status: 500 }
@@ -175,10 +172,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ ok: true, data: sessions || [] });
   } catch (error) {
-    console.error("[GET /api/coach/sessions] Error:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    console.error("[Coach Sessions GET] Error:", error);
+    return handleApiError(error, 'CoachSessionsGet');
   }
 }

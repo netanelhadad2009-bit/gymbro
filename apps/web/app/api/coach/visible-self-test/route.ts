@@ -1,5 +1,6 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { supabaseServer } from "@/lib/supabase-server";
+import { requireDevelopment, requireAuth, handleApiError } from "@/lib/api/security";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -19,39 +20,21 @@ export const runtime = "nodejs";
  *   POST http://localhost:3000/api/coach/visible-self-test
  */
 
-function isDev() {
-  return process.env.NODE_ENV !== "production";
-}
-
-export async function POST() {
-  // SECURITY: Disable in production
-  if (!isDev()) {
-    return NextResponse.json(
-      { ok: false, error: "Disabled in production" },
-      { status: 403 }
-    );
+export async function POST(request: NextRequest) {
+  // Block in production
+  const devGuard = requireDevelopment(request);
+  if (devGuard) {
+    return devGuard;
   }
 
   try {
-    const supabase = supabaseServer();
-
-    // 1) Get current user from cookies
-    const {
-      data: { user },
-      error: authErr,
-    } = await supabase.auth.getUser();
-
-    if (authErr || !user) {
-      console.error("[Visible Self-Test] Auth failed:", authErr);
-      return NextResponse.json(
-        {
-          ok: false,
-          stage: "auth",
-          error: authErr?.message || "Not authenticated",
-        },
-        { status: 401 }
-      );
+    // Require authentication even in dev
+    const auth = await requireAuth();
+    if (!auth.success) {
+      console.error("[Visible Self-Test] Authentication failed");
+      return auth.response;
     }
+    const { user, supabase } = auth;
 
     console.log("[Visible Self-Test] Testing for user:", user.id);
 
@@ -172,14 +155,6 @@ export async function POST() {
     });
   } catch (error: any) {
     console.error("[Visible Self-Test] Unexpected error:", error);
-    return NextResponse.json(
-      {
-        ok: false,
-        stage: "unknown",
-        error: error.message || "Internal server error",
-        stack: isDev() ? error.stack : undefined,
-      },
-      { status: 500 }
-    );
+    return handleApiError(error, 'CoachVisibleSelfTest');
   }
 }

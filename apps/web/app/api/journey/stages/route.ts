@@ -6,9 +6,9 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
 import { getUserStages, getActiveStage } from '@/lib/journey/stages/persist';
 import { evaluateTaskCondition, type TaskCondition } from '@/lib/journey/rules/eval';
+import { requireAuth, checkRateLimit, RateLimitPresets, ErrorResponses, handleApiError } from '@/lib/api/security';
 
 export const dynamic = 'force-dynamic';
 
@@ -22,19 +22,25 @@ export async function GET(request: NextRequest) {
   try {
     console.log('[StagesAPI] GET /api/journey/stages - Start');
 
-    // Auth check
-    const supabase = await createClient();
-    const { data: { session }, error: authError } = await supabase.auth.getSession();
+    // Rate limiting check (STANDARD preset - read operation)
+    const rateLimit = await checkRateLimit(request, {
+      ...RateLimitPresets.standard,
+      keyPrefix: 'journey-stages-get',
+    });
 
-    if (authError || !session?.user) {
-      console.error('[StagesAPI] Auth error:', authError?.message || 'No session');
-      return NextResponse.json(
-        { ok: false, error: 'Unauthorized', message: 'Authentication required' },
-        { status: 401, headers: NO_CACHE_HEADERS }
-      );
+    if (!rateLimit.allowed) {
+      console.log('[StagesAPI] Rate limit exceeded');
+      return ErrorResponses.rateLimited(rateLimit.resetAt, rateLimit.limit);
     }
 
-    const userId = session.user.id;
+    // Authentication check
+    const auth = await requireAuth();
+    if (!auth.success) {
+      return auth.response;
+    }
+    const { user, supabase } = auth;
+
+    const userId = user.id;
     console.log('[StagesAPI] Authenticated:', userId.substring(0, 8));
 
     // Fetch stages with tasks
@@ -134,16 +140,7 @@ export async function GET(request: NextRequest) {
   } catch (err: any) {
     console.error('[StagesAPI] Fatal error:', {
       message: err?.message,
-      stack: err?.stack,
     });
-
-    return NextResponse.json(
-      {
-        ok: false,
-        error: 'ServerError',
-        message: err?.message || 'Unknown error',
-      },
-      { status: 500, headers: NO_CACHE_HEADERS }
-    );
+    return handleApiError(err, 'JourneyStages');
   }
 }

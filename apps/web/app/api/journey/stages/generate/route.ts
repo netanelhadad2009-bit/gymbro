@@ -7,8 +7,22 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { buildStagesForAvatar, type AvatarProfile } from '@/lib/journey/stages/builder';
+import { checkRateLimit, validateBody, RateLimitPresets, handleApiError } from '@/lib/api/security';
+import { z } from 'zod';
 
 export const dynamic = 'force-dynamic';
+
+// Zod schema for validating avatar profile
+const GenerateStagesSchema = z.object({
+  avatar: z.object({
+    id: z.string().optional(),
+    goal: z.string().min(1, 'Goal is required'),
+    diet: z.string().optional(),
+    frequency: z.string().optional(),
+    experience: z.string().optional(),
+    gender: z.string().optional(),
+  }),
+});
 
 const NO_CACHE_HEADERS = {
   'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
@@ -20,17 +34,38 @@ export async function POST(request: NextRequest) {
   try {
     console.log('[StagesGenerate] POST /api/journey/stages/generate - Start');
 
-    // Parse request body
-    const body = await request.json();
-    const { avatar } = body;
+    // Rate limiting check (PUBLIC preset - can be called during signup)
+    const rateLimit = await checkRateLimit(request, {
+      ...RateLimitPresets.public,
+      keyPrefix: 'stages-generate',
+    });
 
-    if (!avatar || !avatar.goal) {
-      console.error('[StagesGenerate] Invalid request body:', { hasAvatar: !!avatar });
+    if (!rateLimit.allowed) {
+      console.log('[StagesGenerate] Rate limit exceeded');
       return NextResponse.json(
-        { ok: false, error: 'InvalidRequest', message: 'avatar with goal is required' },
-        { status: 400, headers: NO_CACHE_HEADERS }
+        {
+          ok: false,
+          error: 'RateLimitExceeded',
+          message: 'Too many requests. Please try again later.',
+          retryAfter: rateLimit.resetAt
+        },
+        {
+          status: 429,
+          headers: {
+            ...NO_CACHE_HEADERS,
+            'Retry-After': String(Math.ceil((rateLimit.resetAt - Date.now()) / 1000))
+          }
+        }
       );
     }
+
+    // Validate request body
+    const validation = await validateBody(request, GenerateStagesSchema);
+    if (!validation.success) {
+      return validation.response;
+    }
+
+    const { avatar } = validation.data;
 
     const avatarProfile: AvatarProfile = {
       id: avatar.id || 'temp-id',
@@ -62,16 +97,7 @@ export async function POST(request: NextRequest) {
   } catch (err: any) {
     console.error('[StagesGenerate] Fatal error:', {
       message: err?.message,
-      stack: err?.stack,
     });
-
-    return NextResponse.json(
-      {
-        ok: false,
-        error: 'ServerError',
-        message: err?.message || 'Unknown error',
-      },
-      { status: 500, headers: NO_CACHE_HEADERS }
-    );
+    return handleApiError(err, 'StagesGenerate');
   }
 }

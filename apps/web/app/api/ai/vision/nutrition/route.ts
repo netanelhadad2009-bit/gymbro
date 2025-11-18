@@ -1,6 +1,7 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { openai } from "@/lib/openai";
 import { createClient } from "@supabase/supabase-js";
+import { requireAuth, checkRateLimit, RateLimitPresets, ErrorResponses, handleApiError } from "@/lib/api/security";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -92,48 +93,27 @@ function toBuffer(arrayBuffer: ArrayBuffer) {
   return Buffer.from(new Uint8Array(arrayBuffer));
 }
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   try {
-    // A. Get Authorization header (Bearer token from client)
-    const authHeader = req.headers.get("authorization") || "";
-    const jwt = authHeader.replace(/^Bearer\s+/i, "");
-
-    if (!jwt) {
-      if (LOG_MEALS) console.log("[VISION] No Authorization header");
-      return NextResponse.json(
-        { ok: false, error: "Missing authorization token" },
-        { status: 401 }
-      );
-    }
-
-    // B. Create Supabase client with the user's token
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-
-    const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-      global: { headers: { Authorization: `Bearer ${jwt}` } },
+    // Rate limiting check (10 requests per minute for vision API)
+    const rateLimit = await checkRateLimit(req, {
+      maxRequests: 10,
+      windowMs: 60 * 1000,
+      keyPrefix: 'ai-vision-nutrition',
     });
 
-    // C. Verify user from token
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
-
-    if (userError || !user) {
-      if (LOG_MEALS) {
-        console.log("[VISION] Auth error:", {
-          stage: "getUser",
-          error: userError?.message,
-          hasToken: !!jwt,
-        });
-      }
-      return NextResponse.json(
-        {
-          ok: false,
-          error: "Unauthorized",
-          details: userError?.message
-        },
-        { status: 401 }
-      );
+    if (!rateLimit.allowed) {
+      if (LOG_MEALS) console.log("[VISION] Rate limit exceeded");
+      return ErrorResponses.rateLimited(rateLimit.resetAt, rateLimit.limit);
     }
+
+    // Authentication check using standardized helper
+    const auth = await requireAuth();
+    if (!auth.success) {
+      if (LOG_MEALS) console.log("[VISION] Authentication failed");
+      return auth.response;
+    }
+    const { user, supabase } = auth;
 
     if (LOG_MEALS) {
       console.log("[VISION] Authenticated user:", { userId: user.id });
@@ -324,13 +304,21 @@ export async function POST(req: Request) {
       message: err?.message,
       stack: err?.stack,
     });
-    return NextResponse.json(
-      {
-        ok: false,
-        code: "server_error",
-        message: err?.message || "Unknown error",
-      },
-      { status: 500 }
-    );
+
+    // Handle OpenAI/AI errors specifically
+    if (err?.name === 'APIError' || err?.message?.includes('OpenAI')) {
+      console.error('[VISION] OpenAI API error:', err);
+      return NextResponse.json(
+        {
+          ok: false,
+          code: "ai_service_error",
+          message: "AI service temporarily unavailable",
+        },
+        { status: 503 }
+      );
+    }
+
+    // Use standardized error handler for unknown errors
+    return handleApiError(err, 'AI-Vision-Nutrition');
   }
 }

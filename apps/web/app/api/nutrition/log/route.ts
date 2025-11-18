@@ -7,8 +7,8 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { createClient } from '@/lib/supabase/server';
 import type { Per100g, MealType } from '@/types/barcode';
+import { requireAuth, checkRateLimit, validateBody, RateLimitPresets, ErrorResponses, handleApiError } from '@/lib/api/security';
 
 // Request validation
 const logSchema = z.object({
@@ -41,23 +41,32 @@ function getMealTypeHebrew(type?: MealType): string {
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createClient();
+    // Rate limiting check (STANDARD - logging operation with points)
+    const rateLimit = await checkRateLimit(request, {
+      ...RateLimitPresets.standard,
+      keyPrefix: 'nutrition-log',
+    });
 
-    // Auth check
-    const { data: { session }, error: authError } = await supabase.auth.getSession();
-
-    if (authError || !session?.user) {
-      console.error('[NutritionLog] Auth error:', authError?.message || 'No session');
-      return NextResponse.json(
-        { ok: false, error: 'Unauthorized' },
-        { status: 401 }
-      );
+    if (!rateLimit.allowed) {
+      console.log('[NutritionLog] Rate limit exceeded');
+      return ErrorResponses.rateLimited(rateLimit.resetAt, rateLimit.limit);
     }
 
-    const userId = session.user.id;
-    const body = await request.json();
+    // Authentication check
+    const auth = await requireAuth();
+    if (!auth.success) {
+      return auth.response;
+    }
+    const { user, supabase } = auth;
 
-    // Validate input
+    const userId = user.id;
+
+    // Validate request body
+    const validation = await validateBody(request, logSchema);
+    if (!validation.success) {
+      return validation.response;
+    }
+
     const {
       barcode,
       productName,
@@ -65,7 +74,7 @@ export async function POST(request: NextRequest) {
       grams,
       mealType,
       per100g
-    } = logSchema.parse(body);
+    } = validation.data;
 
     // Scale macros to portion size
     const scale = grams / 100;
@@ -143,22 +152,8 @@ export async function POST(request: NextRequest) {
       }
     });
 
-  } catch (err: any) {
-    console.error('[NutritionLog] Fatal error:', {
-      message: err?.message,
-      stack: err?.stack,
-    });
-
-    if (err instanceof z.ZodError) {
-      return NextResponse.json(
-        { ok: false, error: 'Invalid input', details: err.issues },
-        { status: 400 }
-      );
-    }
-
-    return NextResponse.json(
-      { ok: false, error: err?.message || 'Unknown error' },
-      { status: 500 }
-    );
+  } catch (error) {
+    console.error('[NutritionLog] Fatal error:', error);
+    return handleApiError(error, 'NutritionLog');
   }
 }

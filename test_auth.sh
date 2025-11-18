@@ -1,7 +1,22 @@
 #!/bin/bash
+# test_auth.sh
+# Utility to inspect a Supabase JWT (for LOCAL DEV ONLY).
 
-# Decode JWT and check issuer
-JWT="eyJhbGciOiJIUzI1NiIsImtpZCI6IjZjY0F5V0x2NHJRYjFON1EiLCJ0eXAiOiJKV1QifQ.eyJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNzMwNTYxOTA3LCJpYXQiOjE3MzA1NTgzMDcsImlzcyI6Imh0dHBzOi8vbnlrbGR0enRiZ2xtemN4bWJxaGcuc3VwYWJhc2UuY28vYXV0aC92MSIsInN1YiI6IjhhZDdlOTBhLTM2NTEtNDY1OS05ZjZhLTY2YzU3NmVmYzg0YyIsImVtYWlsIjoibmV0YUBuZXRhLmNvbSIsInBob25lIjoiIiwiYXBwX21ldGFkYXRhIjp7InByb3ZpZGVyIjoiZW1haWwiLCJwcm92aWRlcnMiOlsiZW1haWwiXX0sInVzZXJfbWV0YWRhdGEiOnsiYWNjZXB0X21hcmtldGluZyI6dHJ1ZSwiYWN0aXZpdHlfbGV2ZWxfaGUiOiLXkdeZ16DXldeqIiwiYWdlIjoyNSwiZGlldF90eXBlX2hlIjoi15HXqNeV15kv15zXqden15wiLCJnZW5kZXJfaGUiOiLXm9er15wiLCJnb2FsX2hlIjoi15TXqdeZ16LXldeqINee15HXqSDXldei15bXnCIsImhlaWdodF9jbSI6MTU1LCJ0YXJnZXRfd2VpZ2h0X2tnIjo3MCwid2VpZ2h0X2tnIjo3MH0sInJvbGUiOiJhdXRoZW50aWNhdGVkIiwiYWFsIjoiYWFsMSIsImFtciI6W3sibWV0aG9kIjoicGFzc3dvcmQiLCJ0aW1lc3RhbXAiOjE3MzA1NTgzMDd9XSwic2Vzc2lvbl9pZCI6ImY5MWQ4NTBhLTU3M2QtNDZkMy04M2UwLWUzMzVjZmI5YzVhNyIsImlzX2Fub255bW91cyI6ZmFsc2V9.qXMIXc2VHqgL_aUmOkK-vXQlGOi7QHzAxFLqAeIuD7A"
+# JWT is taken from:
+# 1) First CLI argument, or
+# 2) TEST_JWT environment variable
+
+JWT="${1:-$TEST_JWT}"
+
+if [ -z "$JWT" ]; then
+  echo "❌ Error: JWT token required"
+  echo "Usage:"
+  echo "  export TEST_JWT='your-jwt-here'"
+  echo "  ./test_auth.sh \"\$TEST_JWT\""
+  echo "  # or:"
+  echo "  ./test_auth.sh 'your-jwt-here'"
+  exit 1
+fi
 
 PAYLOAD=$(echo "$JWT" | cut -d. -f2)
 DECODED=$(echo "$PAYLOAD" | base64 -d 2>/dev/null)

@@ -1,6 +1,7 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { generateNutritionPlan, NutritionPayloadSchema } from "@/lib/server/nutrition/generate";
 import { chaosMode } from "@/lib/chaos";
+import { requireAuth, checkRateLimit, RateLimitPresets, ErrorResponses, handleApiError } from "@/lib/api/security";
 
 export const dynamic = "force-dynamic";
 
@@ -25,9 +26,29 @@ const NO_CACHE_HEADERS = {
  * - 422: Invalid input or generation failed
  * - 500: Server error
  */
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   try {
     console.log('[AI][Nutrition] POST request received');
+
+    // Rate limiting check (5 requests per minute for AI routes)
+    const rateLimit = await checkRateLimit(req, {
+      ...RateLimitPresets.ai,
+      keyPrefix: 'ai-nutrition',
+    });
+
+    if (!rateLimit.allowed) {
+      console.log('[AI][Nutrition] Rate limit exceeded');
+      return ErrorResponses.rateLimited(rateLimit.resetAt, rateLimit.limit);
+    }
+
+    // Authentication check
+    const auth = await requireAuth();
+    if (!auth.success) {
+      console.log('[AI][Nutrition] Authentication failed');
+      return auth.response;
+    }
+    const { user } = auth;
+    console.log('[AI][Nutrition] Authenticated user:', user.id);
 
     // Chaos injection: Check for chaos query param
     const url = new URL(req.url);
@@ -120,14 +141,15 @@ export async function POST(req: Request) {
 
     // Handle OpenAI API errors
     if (err?.name === 'APIError' || err?.message?.includes('OpenAI')) {
+      // Log but don't expose OpenAI errors to client
+      console.error('[AI][Nutrition] OpenAI API error:', err);
       return NextResponse.json(
         {
           ok: false,
-          error: "OpenAIError",
-          message: err?.message || "OpenAI API request failed",
-          details: err?.message ?? "Unknown OpenAI error",
+          error: "AIServiceError",
+          message: "AI service temporarily unavailable",
         },
-        { status: 500, headers: NO_CACHE_HEADERS }
+        { status: 503, headers: NO_CACHE_HEADERS }
       );
     }
 
@@ -137,8 +159,7 @@ export async function POST(req: Request) {
         {
           ok: false,
           error: "GenerationError",
-          message: err?.message || "Failed to generate valid nutrition plan",
-          details: err?.message ?? "Unknown error",
+          message: "Failed to generate valid nutrition plan",
         },
         { status: 422, headers: NO_CACHE_HEADERS }
       );
@@ -151,21 +172,12 @@ export async function POST(req: Request) {
           ok: false,
           error: "TimeoutError",
           message: "Generation timed out",
-          details: err?.message ?? "Request timed out",
         },
         { status: 504, headers: NO_CACHE_HEADERS }
       );
     }
 
-    // Generic server error
-    return NextResponse.json(
-      {
-        ok: false,
-        error: err?.name || "ServerError",
-        message: err?.message || "Internal server error",
-        details: err?.message ?? "Unknown error",
-      },
-      { status: 500, headers: NO_CACHE_HEADERS }
-    );
+    // Use standardized error handler for unknown errors
+    return handleApiError(err, 'AI-Nutrition');
   }
 }

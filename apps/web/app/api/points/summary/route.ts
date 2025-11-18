@@ -4,8 +4,8 @@
  * Returns total points and breakdown by stage for the authenticated user
  */
 
-import { NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { requireAuth, checkRateLimit, RateLimitPresets, ErrorResponses, handleApiError } from '@/lib/api/security';
 
 export const dynamic = 'force-dynamic';
 
@@ -20,23 +20,29 @@ interface StagePoints {
   completedTasks: number;
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
     console.log('[PointsSummary] GET /api/points/summary - Start');
 
-    // Auth check
-    const supabase = await createClient();
-    const { data: { session }, error: authError } = await supabase.auth.getSession();
+    // Rate limiting check (STANDARD - read operation)
+    const rateLimit = await checkRateLimit(request, {
+      ...RateLimitPresets.standard,
+      keyPrefix: 'points-summary-get',
+    });
 
-    if (authError || !session?.user) {
-      console.error('[PointsSummary] Auth error:', authError?.message || 'No session');
-      return NextResponse.json(
-        { ok: false, error: 'Unauthorized', message: 'Authentication required' },
-        { status: 401 }
-      );
+    if (!rateLimit.allowed) {
+      console.log('[PointsSummary] Rate limit exceeded');
+      return ErrorResponses.rateLimited(rateLimit.resetAt, rateLimit.limit);
     }
 
-    const userId = session.user.id;
+    // Authentication check
+    const auth = await requireAuth();
+    if (!auth.success) {
+      return auth.response;
+    }
+    const { user, supabase } = auth;
+
+    const userId = user.id;
     console.log('[PointsSummary] Authenticated:', userId.substring(0, 8));
 
     // Get total points
@@ -102,19 +108,8 @@ export async function GET() {
       },
       { headers: CACHE_HEADERS }
     );
-  } catch (err: any) {
-    console.error('[PointsSummary] Fatal error:', {
-      message: err?.message,
-      stack: err?.stack,
-    });
-
-    return NextResponse.json(
-      {
-        ok: false,
-        error: 'ServerError',
-        message: err?.message || 'Unknown error',
-      },
-      { status: 500 }
-    );
+  } catch (error) {
+    console.error('[PointsSummary] Fatal error:', error);
+    return handleApiError(error, 'PointsSummary');
   }
 }

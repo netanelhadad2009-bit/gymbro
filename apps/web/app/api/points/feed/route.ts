@@ -9,12 +9,20 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { requireAuth, checkRateLimit, validateSearchParams, RateLimitPresets, ErrorResponses, handleApiError } from '@/lib/api/security';
+import { z } from 'zod';
 
 export const dynamic = 'force-dynamic';
 
 const DEFAULT_LIMIT = 20;
 const MAX_LIMIT = 50;
+
+// Query params validation schema
+const PointsFeedQuerySchema = z.object({
+  stageId: z.string().optional(),
+  cursor: z.string().optional(),
+  limit: z.coerce.number().int().min(1).max(MAX_LIMIT).optional().default(DEFAULT_LIMIT),
+});
 
 interface PointsFeedItem {
   id: string;
@@ -31,29 +39,28 @@ export async function GET(request: NextRequest) {
   try {
     console.log('[PointsFeed] GET /api/points/feed - Start');
 
-    // Auth check
-    const supabase = await createClient();
-    const { data: { session }, error: authError } = await supabase.auth.getSession();
+    // Rate limiting check (STANDARD - read operation)
+    const rateLimit = await checkRateLimit(request, {
+      ...RateLimitPresets.standard,
+      keyPrefix: 'points-feed-get',
+    });
 
-    if (authError || !session?.user) {
-      console.error('[PointsFeed] Auth error:', authError?.message || 'No session');
-      return NextResponse.json(
-        { ok: false, error: 'Unauthorized', message: 'Authentication required' },
-        { status: 401 }
-      );
+    if (!rateLimit.allowed) {
+      console.log('[PointsFeed] Rate limit exceeded');
+      return ErrorResponses.rateLimited(rateLimit.resetAt, rateLimit.limit);
     }
 
-    const userId = session.user.id;
+    // Authentication check
+    const auth = await requireAuth();
+    if (!auth.success) {
+      return auth.response;
+    }
+    const { user, supabase } = auth;
 
-    // Parse query params
-    const searchParams = request.nextUrl.searchParams;
-    const stageId = searchParams.get('stageId');
-    const cursor = searchParams.get('cursor');
-    const limitParam = searchParams.get('limit');
-    const limit = Math.min(
-      limitParam ? parseInt(limitParam, 10) : DEFAULT_LIMIT,
-      MAX_LIMIT
-    );
+    const userId = user.id;
+
+    // Validate query params
+    const { stageId, cursor, limit } = validateSearchParams(request, PointsFeedQuerySchema);
 
     console.log('[PointsFeed] Query:', { stageId, cursor, limit });
 
@@ -139,19 +146,8 @@ export async function GET(request: NextRequest) {
       nextCursor,
       hasMore,
     });
-  } catch (err: any) {
-    console.error('[PointsFeed] Fatal error:', {
-      message: err?.message,
-      stack: err?.stack,
-    });
-
-    return NextResponse.json(
-      {
-        ok: false,
-        error: 'ServerError',
-        message: err?.message || 'Unknown error',
-      },
-      { status: 500 }
-    );
+  } catch (error) {
+    console.error('[PointsFeed] Fatal error:', error);
+    return handleApiError(error, 'PointsFeed');
   }
 }

@@ -210,7 +210,9 @@ NOTIFY pgrst, 'reload config';
 -- ============================================
 
 -- View: RLS status for ai_messages
-CREATE OR REPLACE VIEW public.v_ai_messages_rls_status AS
+-- Always drop the view first to avoid column rename issues
+DROP VIEW IF EXISTS public.v_ai_messages_rls_status;
+CREATE VIEW public.v_ai_messages_rls_status AS
 SELECT
   tablename,
   rowsecurity AS rls_enabled
@@ -218,7 +220,9 @@ FROM pg_tables
 WHERE schemaname = 'public' AND tablename = 'ai_messages';
 
 -- View: All policies for ai_messages
-CREATE OR REPLACE VIEW public.v_ai_messages_policies AS
+-- Always drop the view first to avoid column rename issues
+DROP VIEW IF EXISTS public.v_ai_messages_policies;
+CREATE VIEW public.v_ai_messages_policies AS
 SELECT
   schemaname,
   tablename,

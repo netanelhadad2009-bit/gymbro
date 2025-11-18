@@ -10,23 +10,29 @@
  * }
  */
 
-import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { NextRequest, NextResponse } from "next/server";
+import { requireAuth, checkRateLimit, RateLimitPresets, ErrorResponses, handleApiError } from "@/lib/api/security";
 import { getStreakSummary } from "@/lib/streak";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const supabase = await createClient();
+    // Rate limiting check (STANDARD - read operation)
+    const rateLimit = await checkRateLimit(request, {
+      ...RateLimitPresets.standard,
+      keyPrefix: 'streak-get',
+    });
 
-    // Check authentication
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
-
-    if (authError || !user) {
-      return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
+    if (!rateLimit.allowed) {
+      console.log('[Streak] Rate limit exceeded');
+      return ErrorResponses.rateLimited(rateLimit.resetAt, rateLimit.limit);
     }
+
+    // Authentication check
+    const auth = await requireAuth();
+    if (!auth.success) {
+      return auth.response;
+    }
+    const { user } = auth;
 
     // Get streak summary
     const summary = await getStreakSummary(user.id);
@@ -36,13 +42,7 @@ export async function GET() {
       data: summary,
     });
   } catch (error) {
-    console.error("[API] GET /api/streak error:", error);
-    return NextResponse.json(
-      {
-        ok: false,
-        error: error instanceof Error ? error.message : "Internal server error",
-      },
-      { status: 500 }
-    );
+    console.error("[Streak] Fatal error:", error);
+    return handleApiError(error, 'Streak');
   }
 }

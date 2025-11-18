@@ -1,5 +1,5 @@
-import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { NextRequest, NextResponse } from "next/server";
+import { requireAuth, checkRateLimit, RateLimitPresets, ErrorResponses, handleApiError } from "@/lib/api/security";
 
 export const dynamic = "force-dynamic";
 
@@ -18,18 +18,25 @@ export const dynamic = "force-dynamic";
  * - 404: No plan found (nutrition_plan is null)
  * - 500: Server error
  */
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    // 1. Check authentication
-    const supabase = await createClient();
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    // Rate limiting check (STANDARD - read operation)
+    const rateLimit = await checkRateLimit(request, {
+      ...RateLimitPresets.standard,
+      keyPrefix: 'nutrition-plan-get',
+    });
 
-    if (authError || !user) {
-      return NextResponse.json(
-        { ok: false, error: "unauthorized", message: "Authentication required" },
-        { status: 401 }
-      );
+    if (!rateLimit.allowed) {
+      console.log('[NutritionPlan] Rate limit exceeded');
+      return ErrorResponses.rateLimited(rateLimit.resetAt, rateLimit.limit);
     }
+
+    // Authentication check
+    const auth = await requireAuth();
+    if (!auth.success) {
+      return auth.response;
+    }
+    const { user, supabase } = auth;
 
     const userId = user.id;
     console.log("[Nutrition Plan] GET request for user", userId.substring(0, 8));
@@ -98,15 +105,8 @@ export async function GET() {
       updatedAt: profile.nutrition_updated_at ?? null,
     });
 
-  } catch (err: any) {
-    console.error("[Nutrition Plan] Fatal error:", err?.message, err?.stack);
-    return NextResponse.json(
-      {
-        ok: false,
-        error: "server_error",
-        message: err?.message || "Unknown error"
-      },
-      { status: 500 }
-    );
+  } catch (error) {
+    console.error("[NutritionPlan] Fatal error:", error);
+    return handleApiError(error, 'NutritionPlan');
   }
 }

@@ -8,6 +8,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { saveUserStages } from '@/lib/journey/stages/persist';
+import { z } from 'zod';
+import { requireAuth, checkRateLimit, validateBody, RateLimitPresets, ErrorResponses, handleApiError } from '@/lib/api/security';
 
 export const dynamic = 'force-dynamic';
 
@@ -17,39 +19,45 @@ const NO_CACHE_HEADERS = {
   'Expires': '0',
 };
 
+// Zod schema for validating pre-generated stages
+const AttachStagesSchema = z.object({
+  stages: z.array(z.any()).min(1, 'At least one stage is required'),
+});
+
 export async function POST(request: NextRequest) {
   try {
     console.log('[StagesAttach] POST /api/journey/stages/attach - Start');
 
-    // Auth check
-    const supabase = await createClient();
-    const { data: { session }, error: authError } = await supabase.auth.getSession();
-
-    if (authError || !session?.user) {
-      console.error('[StagesAttach] Auth error:', authError?.message || 'No session');
-      return NextResponse.json(
-        { ok: false, error: 'Unauthorized', message: 'Authentication required' },
-        { status: 401, headers: NO_CACHE_HEADERS }
-      );
-    }
-
-    const userId = session.user.id;
-    console.log('[StagesAttach] Authenticated user:', {
-      userId: userId.substring(0, 8),
-      email: session.user.email,
+    // Rate limiting check (AUTH preset - one-time attach operation)
+    const rateLimit = await checkRateLimit(request, {
+      ...RateLimitPresets.auth,
+      keyPrefix: 'stages-attach',
     });
 
-    // Parse request body
-    const body = await request.json();
-    const { stages } = body;
-
-    if (!stages || !Array.isArray(stages)) {
-      console.error('[StagesAttach] Invalid request body:', { hasStages: !!stages, isArray: Array.isArray(stages) });
-      return NextResponse.json(
-        { ok: false, error: 'InvalidRequest', message: 'stages array is required' },
-        { status: 400, headers: NO_CACHE_HEADERS }
-      );
+    if (!rateLimit.allowed) {
+      console.log('[StagesAttach] Rate limit exceeded');
+      return ErrorResponses.rateLimited(rateLimit.resetAt, rateLimit.limit);
     }
+
+    // Authentication check
+    const auth = await requireAuth();
+    if (!auth.success) {
+      return auth.response;
+    }
+    const { user, supabase } = auth;
+
+    // Validate request body
+    const validation = await validateBody(request, AttachStagesSchema);
+    if (!validation.success) {
+      return validation.response;
+    }
+
+    const { stages } = validation.data;
+    const userId = user.id;
+    console.log('[StagesAttach] Authenticated user:', {
+      userId: userId.substring(0, 8),
+      email: user.email,
+    });
 
     console.log('[StagesAttach] Received pre-generated stages:', stages.length);
 
@@ -90,13 +98,6 @@ export async function POST(request: NextRequest) {
       stack: err?.stack,
     });
 
-    return NextResponse.json(
-      {
-        ok: false,
-        error: 'ServerError',
-        message: err?.message || 'Unknown error',
-      },
-      { status: 500, headers: NO_CACHE_HEADERS }
-    );
+    return handleApiError(err, 'StagesAttach');
   }
 }

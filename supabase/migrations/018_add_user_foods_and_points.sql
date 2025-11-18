@@ -29,19 +29,59 @@ CREATE TABLE IF NOT EXISTS public.points_events (
 ALTER TABLE public.user_foods ENABLE ROW LEVEL SECURITY;
 
 -- RLS Policies for user_foods
-CREATE POLICY "Users can manage own foods" ON public.user_foods
-    FOR ALL USING (auth.uid() = user_id)
-    WITH CHECK (auth.uid() = user_id);
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+    FROM pg_policies
+    WHERE schemaname = 'public'
+      AND tablename = 'user_foods'
+      AND policyname = 'Users can manage own foods'
+  ) THEN
+    CREATE POLICY "Users can manage own foods" ON public.user_foods
+      FOR ALL USING (auth.uid() = user_id)
+      WITH CHECK (auth.uid() = user_id);
+  END IF;
+END
+$$;
 
 -- Enable RLS on points_events
 ALTER TABLE public.points_events ENABLE ROW LEVEL SECURITY;
 
 -- RLS Policies for points_events
-CREATE POLICY "Users can view own points" ON public.points_events
-    FOR SELECT USING (auth.uid() = user_id);
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+    FROM pg_policies
+    WHERE schemaname = 'public'
+      AND tablename = 'points_events'
+      AND policyname = 'Users can view own points'
+  ) THEN
+    CREATE POLICY "Users can view own points"
+    ON public.points_events
+    FOR SELECT
+    USING (auth.uid() = user_id);
+  END IF;
+END
+$$;
 
-CREATE POLICY "Users can insert own points" ON public.points_events
-    FOR INSERT WITH CHECK (auth.uid() = user_id);
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+    FROM pg_policies
+    WHERE schemaname = 'public'
+      AND tablename = 'points_events'
+      AND policyname = 'Users can insert own points'
+  ) THEN
+    CREATE POLICY "Users can insert own points"
+    ON public.points_events
+    FOR INSERT
+    WITH CHECK (auth.uid() = user_id);
+  END IF;
+END
+$$;
 
 -- Indexes for performance
 CREATE INDEX IF NOT EXISTS idx_user_foods_user_barcode ON public.user_foods(user_id, barcode);

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { requireAuth, checkRateLimit, RateLimitPresets, ErrorResponses, handleApiError } from "@/lib/api/security";
 
 export const dynamic = "force-dynamic";
 
@@ -12,15 +13,23 @@ export async function POST(
   { params }: { params: { taskId: string } }
 ) {
   try {
-    const supabase = await createClient();
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    // Rate limiting check
+    const rateLimit = await checkRateLimit(request, {
+      ...RateLimitPresets.standard,
+      keyPrefix: 'coach-tasks-toggle',
+    });
 
-    if (authError || !user) {
-      return NextResponse.json(
-        { error: "Authentication required" },
-        { status: 401 }
-      );
+    if (!rateLimit.allowed) {
+      console.log('[Coach Tasks Toggle] Rate limit exceeded');
+      return ErrorResponses.rateLimited(rateLimit.resetAt, rateLimit.limit);
     }
+
+    // Authentication check
+    const auth = await requireAuth();
+    if (!auth.success) {
+      return auth.response;
+    }
+    const { user, supabase } = auth;
 
     const { taskId } = params;
     const body = await request.json().catch(() => ({}));
@@ -38,18 +47,14 @@ export async function POST(
       .single();
 
     if (taskError || !task) {
-      return NextResponse.json(
-        { error: "Task not found" },
-        { status: 404 }
-      );
+      console.log('[Coach Tasks Toggle] Task not found');
+      return ErrorResponses.notFound("Task not found");
     }
 
     const assignment = task.assignment as any;
     if (assignment.user_id !== user.id) {
-      return NextResponse.json(
-        { error: "Access denied" },
-        { status: 403 }
-      );
+      console.log('[Coach Tasks Toggle] Access denied: user does not own task');
+      return ErrorResponses.forbidden("Access denied");
     }
 
     // Check if completion exists
@@ -73,7 +78,7 @@ export async function POST(
         });
 
       if (insertError) {
-        console.error("[POST /api/coach/tasks/toggle] Insert error:", insertError);
+        console.error("[Coach Tasks Toggle] Insert error:", insertError);
         return NextResponse.json(
           { error: "Failed to complete task" },
           { status: 500 }
@@ -89,7 +94,7 @@ export async function POST(
         .eq("id", existingCompletion.id);
 
       if (deleteError) {
-        console.error("[POST /api/coach/tasks/toggle] Delete error:", deleteError);
+        console.error("[Coach Tasks Toggle] Delete error:", deleteError);
         return NextResponse.json(
           { error: "Failed to uncomplete task" },
           { status: 500 }
@@ -101,10 +106,7 @@ export async function POST(
 
     return NextResponse.json({ ok: true, data: { isCompleted } });
   } catch (error) {
-    console.error("[POST /api/coach/tasks/toggle] Error:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    console.error("[Coach Tasks Toggle] Error:", error);
+    return handleApiError(error, 'CoachTasksToggle');
   }
 }

@@ -1,4 +1,5 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 import OpenAI from "openai";
 import { supabaseServer } from "@/lib/supabase-server";
 import { getUserProfileSync } from "@/lib/profile/getProfile";
@@ -8,9 +9,18 @@ import { detectIntent, getIntentName } from "@/lib/coach/intent";
 import { generateDirectResponse } from "@/lib/coach/directResponse";
 import removeMarkdown from "remove-markdown";
 import { loadUserContext, type UserContext } from "@/lib/coach/loadUserContext";
+import { requireAuth, checkRateLimit, validateBody, RateLimitPresets, ErrorResponses, handleApiError } from "@/lib/api/security";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+
+// Input validation schema
+const ChatRequestSchema = z.object({
+  message: z.string().min(1).max(5000).optional(),
+  content: z.string().min(1).max(5000).optional(),
+}).refine(data => data.message || data.content, {
+  message: "Either 'message' or 'content' is required",
+});
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY!,
@@ -84,36 +94,34 @@ function buildDynamicNudge(ctx: UserContext): string {
   return parts.length > 0 ? `\n\nהערה: ${parts.join(' ')}` : '';
 }
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   try {
-    // Create Supabase client with user's session from cookies
-    const supabase = supabaseServer();
+    // Rate limiting check (strict for AI routes)
+    const rateLimit = await checkRateLimit(req, {
+      ...RateLimitPresets.ai,
+      keyPrefix: 'coach-chat',
+    });
 
-    // Verify user authentication
-    const {
-      data: { user },
-      error: userErr,
-    } = await supabase.auth.getUser();
-
-    if (userErr || !user) {
-      console.error("[AI Chat] Unauthorized:", userErr);
-      return NextResponse.json(
-        { ok: false, error: "Unauthorized" },
-        { status: 401 }
-      );
+    if (!rateLimit.allowed) {
+      console.log('[AI Coach] Rate limit exceeded');
+      return ErrorResponses.rateLimited(rateLimit.resetAt, rateLimit.limit);
     }
 
-    // Parse request body
-    const body = await req.json();
-    const { message, content } = body;
-    const userMessage = message || content;
-
-    if (!userMessage || typeof userMessage !== "string") {
-      return NextResponse.json(
-        { ok: false, error: "Message content is required" },
-        { status: 400 }
-      );
+    // Authentication check
+    const auth = await requireAuth();
+    if (!auth.success) {
+      console.error("[AI Coach] Authentication failed");
+      return auth.response;
     }
+    const { user, supabase } = auth;
+
+    // Validate request body
+    const validation = await validateBody(req, ChatRequestSchema);
+    if (!validation.success) {
+      return validation.response;
+    }
+    const { message, content } = validation.data;
+    const userMessage = message || content || "";
 
     const truncatedMsg = userMessage.length > 120 ? userMessage.slice(0, 120) + "..." : userMessage;
     console.log("[AI Coach] Processing message for user:", user.id.slice(0, 8) + "...");
@@ -191,10 +199,8 @@ export async function POST(req: Request) {
       return NextResponse.json(
         {
           ok: false,
-          stage: "insert_user",
-          error: insertError.message,
-          code: insertError.code,
-          details: insertError.details,
+          error: "DatabaseError",
+          message: "Failed to save message",
         },
         { status: 500 }
       );
@@ -351,10 +357,8 @@ export async function POST(req: Request) {
       return NextResponse.json(
         {
           ok: false,
-          stage: "insert_assistant",
-          error: replyError.message,
-          code: replyError.code,
-          details: replyError.details,
+          error: "DatabaseError",
+          message: "Failed to save response",
         },
         { status: 500 }
       );
@@ -382,14 +386,22 @@ export async function POST(req: Request) {
       assistantMessage: insertedAiMsg,
     });
   } catch (error: any) {
-    console.error("[AI Coach] Unexpected error:", error?.message || error);
-    return NextResponse.json(
-      {
-        ok: false,
-        stage: "unknown",
-        error: error.message || "Internal server error",
-      },
-      { status: 500 }
-    );
+    console.error("[AI Coach] Unexpected error:", error);
+
+    // Handle OpenAI/AI errors specifically
+    if (error?.name === 'APIError' || error?.message?.includes('OpenAI')) {
+      console.error('[AI Coach] OpenAI API error:', error);
+      return NextResponse.json(
+        {
+          ok: false,
+          error: "AIServiceError",
+          message: "AI service temporarily unavailable",
+        },
+        { status: 503 }
+      );
+    }
+
+    // Use standardized error handler for unknown errors
+    return handleApiError(error, 'AI-Coach-Chat');
   }
 }

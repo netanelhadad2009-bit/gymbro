@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createCheckinSchema } from "@/lib/schemas/coach";
+import { requireAuth, checkRateLimit, validateBody, RateLimitPresets, ErrorResponses, handleApiError } from "@/lib/api/security";
 
 export const dynamic = "force-dynamic";
 
@@ -10,30 +11,31 @@ export const dynamic = "force-dynamic";
  */
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createClient();
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    // Rate limiting check
+    const rateLimit = await checkRateLimit(request, {
+      ...RateLimitPresets.standard,
+      keyPrefix: 'coach-checkins-post',
+    });
 
-    if (authError || !user) {
-      return NextResponse.json(
-        { error: "Authentication required" },
-        { status: 401 }
-      );
+    if (!rateLimit.allowed) {
+      console.log('[Coach Checkins] Rate limit exceeded');
+      return ErrorResponses.rateLimited(rateLimit.resetAt, rateLimit.limit);
     }
 
-    const body = await request.json();
-    const validationResult = createCheckinSchema.safeParse(body);
+    // Authentication check
+    const auth = await requireAuth();
+    if (!auth.success) {
+      return auth.response;
+    }
+    const { user, supabase } = auth;
 
-    if (!validationResult.success) {
-      return NextResponse.json(
-        {
-          error: "Invalid input",
-          details: validationResult.error.flatten().fieldErrors
-        },
-        { status: 400 }
-      );
+    // Validate request body
+    const validation = await validateBody(request, createCheckinSchema);
+    if (!validation.success) {
+      return validation.response;
     }
 
-    const data = validationResult.data;
+    const data = validation.data;
 
     // Verify assignment belongs to user
     const { data: assignment, error: assignmentError } = await supabase
@@ -77,10 +79,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ ok: true, data: checkin });
   } catch (error) {
     console.error("[POST /api/coach/checkins] Error:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return handleApiError(error, 'CoachCheckinsPost');
   }
 }
 
@@ -90,15 +89,23 @@ export async function POST(request: NextRequest) {
  */
 export async function GET(request: NextRequest) {
   try {
-    const supabase = await createClient();
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    // Rate limiting check
+    const rateLimit = await checkRateLimit(request, {
+      ...RateLimitPresets.standard,
+      keyPrefix: 'coach-checkins-get',
+    });
 
-    if (authError || !user) {
-      return NextResponse.json(
-        { error: "Authentication required" },
-        { status: 401 }
-      );
+    if (!rateLimit.allowed) {
+      console.log('[Coach Checkins GET] Rate limit exceeded');
+      return ErrorResponses.rateLimited(rateLimit.resetAt, rateLimit.limit);
     }
+
+    // Authentication check
+    const auth = await requireAuth();
+    if (!auth.success) {
+      return auth.response;
+    }
+    const { user, supabase } = auth;
 
     const { searchParams } = new URL(request.url);
     const assignmentId = searchParams.get("assignment_id");
@@ -145,9 +152,6 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ ok: true, data: checkins || [] });
   } catch (error) {
     console.error("[GET /api/coach/checkins] Error:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return handleApiError(error, 'CoachCheckinsGet');
   }
 }

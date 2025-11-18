@@ -1,39 +1,38 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { supabaseServer } from "@/lib/supabase-server";
+import { requireDevelopment, requireAuth, handleApiError } from "@/lib/api/security";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 /**
- * Self-test endpoint to verify RLS policies work correctly
+ * Self-test endpoint to verify RLS policies work correctly (DEV ONLY)
  *
  * Tests:
  * 1. INSERT - Can insert message as authenticated user
  * 2. SELECT - Can read own messages
  * 3. DELETE - Can delete own messages
  *
- * Usage (in browser console while logged in):
+ * Usage (in dev mode while logged in):
  * fetch("/api/coach/self-test", { method: "POST" }).then(r => r.json()).then(console.log)
  *
  * Expected: { ok: true }
  */
-export async function POST() {
+export async function POST(request: NextRequest) {
+  // Block in production
+  const devGuard = requireDevelopment(request);
+  if (devGuard) {
+    return devGuard;
+  }
+
   try {
-    const supabase = supabaseServer();
-
-    // Verify authentication
-    const {
-      data: { user },
-      error: userErr,
-    } = await supabase.auth.getUser();
-
-    if (userErr || !user) {
-      console.error("[Self-Test] Unauthorized:", userErr);
-      return NextResponse.json(
-        { ok: false, error: "Unauthorized" },
-        { status: 401 }
-      );
+    // Require authentication even in dev
+    const auth = await requireAuth();
+    if (!auth.success) {
+      console.error("[Self-Test] Authentication failed");
+      return auth.response;
     }
+    const { user, supabase } = auth;
 
     console.log("[Self-Test] Testing RLS for user:", user.id);
 
@@ -121,13 +120,6 @@ export async function POST() {
     });
   } catch (error: any) {
     console.error("[Self-Test] Unexpected error:", error);
-    return NextResponse.json(
-      {
-        ok: false,
-        stage: "unknown",
-        error: error.message || "Internal server error",
-      },
-      { status: 500 }
-    );
+    return handleApiError(error, 'CoachSelfTest');
   }
 }

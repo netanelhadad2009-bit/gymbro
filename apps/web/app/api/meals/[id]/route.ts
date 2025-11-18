@@ -6,39 +6,38 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { requireAuth, checkRateLimit, RateLimitPresets, ErrorResponses, handleApiError } from '@/lib/api/security';
 
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
+    // Rate limiting check (STANDARD - read operation)
+    const rateLimit = await checkRateLimit(request, {
+      ...RateLimitPresets.standard,
+      keyPrefix: 'meals-id-get',
+    });
+
+    if (!rateLimit.allowed) {
+      console.log('[MealDetails] Rate limit exceeded');
+      return ErrorResponses.rateLimited(rateLimit.resetAt, rateLimit.limit);
+    }
+
+    // Authentication check
+    const auth = await requireAuth();
+    if (!auth.success) {
+      return auth.response;
+    }
+    const { user, supabase } = auth;
+
     const mealId = params.id;
 
     if (!mealId) {
-      return NextResponse.json(
-        {
-          ok: false,
-          error: 'Invalid meal ID',
-        },
-        { status: 400 }
-      );
+      return ErrorResponses.badRequest('Invalid meal ID');
     }
 
-    const supabase = await createClient();
-
-    // Auth check
-    const {
-      data: { session },
-      error: authError,
-    } = await supabase.auth.getSession();
-
-    if (authError || !session?.user) {
-      console.error('[MealDetails] Auth error:', authError?.message || 'No session');
-      return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 });
-    }
-
-    const userId = session.user.id;
+    const userId = user.id;
 
     console.log('[MealDetails] Fetching meal ID:', mealId);
 
@@ -54,26 +53,14 @@ export async function GET(
       console.error('[MealDetails] Database error:', error);
 
       if (error.code === 'PGRST116') {
-        return NextResponse.json(
-          {
-            ok: false,
-            error: 'Meal not found',
-          },
-          { status: 404 }
-        );
+        return ErrorResponses.notFound('Meal not found');
       }
 
       throw error;
     }
 
     if (!meal) {
-      return NextResponse.json(
-        {
-          ok: false,
-          error: 'Meal not found',
-        },
-        { status: 404 }
-      );
+      return ErrorResponses.notFound('Meal not found');
     }
 
     console.log('[MealDetails] Found meal:', meal.name);
@@ -89,14 +76,8 @@ export async function GET(
         },
       }
     );
-  } catch (error: any) {
-    console.error('[MealDetails] Error:', error);
-    return NextResponse.json(
-      {
-        ok: false,
-        error: error.message || 'Internal server error',
-      },
-      { status: 500 }
-    );
+  } catch (error) {
+    console.error('[MealDetails] Fatal error:', error);
+    return handleApiError(error, 'MealDetails');
   }
 }

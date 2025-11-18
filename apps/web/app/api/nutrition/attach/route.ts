@@ -1,9 +1,18 @@
-import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { NextRequest, NextResponse } from "next/server";
 import { profileFingerprint } from "@/lib/storage";
 import { generateNutritionPlanWithTimeout, type NutritionPayload } from "@/lib/server/nutrition/generate";
+import { requireAuth, checkRateLimit, validateBody, RateLimitPresets, ErrorResponses, handleApiError } from "@/lib/api/security";
+import { z } from "zod";
 
 export const dynamic = "force-dynamic";
+
+// Zod schema for nutrition draft validation
+const AttachDraftSchema = z.object({
+  fingerprint: z.string().min(1, "Fingerprint is required"),
+  status: z.enum(['ready', 'pending']).optional(),
+  plan: z.any().optional(),
+  calories: z.number().optional(),
+});
 
 /**
  * Helper: Finalize pending draft server-side with timeout and retry
@@ -139,30 +148,35 @@ async function finalizeServerSideIfNeeded(userId: string, draft: any, supabase: 
  * - 401: Not authenticated
  * - 500: Server error (only on unexpected DB failures)
  */
-export async function POST(req: Request) {
+export async function POST(request: NextRequest) {
   try {
-    // 1. Check authentication
-    const supabase = await createClient();
-    const { data: { session }, error: authError } = await supabase.auth.getSession();
+    // Rate limiting check (AI preset - expensive 60s AI operation with retry!)
+    const rateLimit = await checkRateLimit(request, {
+      ...RateLimitPresets.ai,
+      keyPrefix: 'nutrition-attach',
+    });
 
-    if (authError || !session?.user) {
-      return NextResponse.json(
-        { ok: false, error: "unauthorized", message: "Authentication required" },
-        { status: 401 }
-      );
+    if (!rateLimit.allowed) {
+      console.log('[NutritionAttach] Rate limit exceeded');
+      return ErrorResponses.rateLimited(rateLimit.resetAt, rateLimit.limit);
     }
 
-    const userId = session.user.id;
-    const body = await req.json();
-    const draft = body;
-
-    if (!draft || !draft.fingerprint) {
-      console.error("[Attach] Missing draft or fingerprint");
-      return NextResponse.json(
-        { ok: false, error: "invalid_input", message: "Missing draft or fingerprint" },
-        { status: 400 }
-      );
+    // Authentication check
+    const auth = await requireAuth();
+    if (!auth.success) {
+      return auth.response;
     }
+    const { user, supabase } = auth;
+
+    const userId = user.id;
+
+    // Validate request body
+    const validation = await validateBody(request, AttachDraftSchema);
+    if (!validation.success) {
+      return validation.response;
+    }
+
+    const draft = validation.data;
 
     console.log(`[Attach] POST user=${userId.substring(0, 8)} fp=${draft.fingerprint.substring(0, 12)}`);
 
@@ -279,15 +293,8 @@ export async function POST(req: Request) {
       });
     }
 
-  } catch (err: any) {
-    console.error("[Attach] Fatal error:", err?.message, err?.stack);
-    return NextResponse.json(
-      {
-        ok: false,
-        error: "database_error",
-        message: err?.message || "Unknown error"
-      },
-      { status: 500 }
-    );
+  } catch (error) {
+    console.error("[NutritionAttach] Fatal error:", error);
+    return handleApiError(error, 'NutritionAttach');
   }
 }

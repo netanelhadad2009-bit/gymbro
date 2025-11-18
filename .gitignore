@@ -14,3 +14,7 @@ playwright/.cache/
 # Stability test results
 scripts/stability-results-*.json
 scripts/stability-summary-*.md
+
+# Ignore Supabase temp files and generic .temp directories
+supabase/.temp/
+**/.temp/

@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
 import { z } from "zod";
 import { evaluateNode, UserContext } from "@/lib/journey/compute";
 import { validateTaskType, ALLOWED_TASK_TYPES } from "@/lib/journey/taskTypes";
+import { requireAuth, checkRateLimit, validateBody, RateLimitPresets, ErrorResponses, handleApiError } from "@/lib/api/security";
 import crypto from "crypto";
 
 export const dynamic = "force-dynamic";
@@ -30,24 +30,30 @@ export async function POST(request: NextRequest) {
   const startTime = Date.now();
 
   try {
-    const body = await request.json();
-    const bodyHash = crypto.createHash("md5").update(JSON.stringify(body)).digest("hex").substring(0, 8);
+    console.log("[JourneyTrack] POST /api/journey/track - Start");
 
-    console.log("[JourneyTrack] POST /api/journey/track - Start", { bodyHash });
+    // Rate limiting check (STANDARD preset - tracking operation)
+    const rateLimit = await checkRateLimit(request, {
+      ...RateLimitPresets.standard,
+      keyPrefix: 'journey-track-post',
+    });
 
-    // Validate body
-    const validation = TrackBodySchema.safeParse(body);
+    if (!rateLimit.allowed) {
+      console.log('[JourneyTrack] Rate limit exceeded');
+      return ErrorResponses.rateLimited(rateLimit.resetAt, rateLimit.limit);
+    }
+
+    // Authentication check
+    const auth = await requireAuth();
+    if (!auth.success) {
+      return auth.response;
+    }
+    const { user, supabase } = auth;
+
+    // Validate request body
+    const validation = await validateBody(request, TrackBodySchema);
     if (!validation.success) {
-      console.error("[JourneyTrack] Invalid body:", validation.error.flatten());
-      return NextResponse.json(
-        {
-          ok: false,
-          error: "InvalidInput",
-          message: "Missing or invalid required fields",
-          details: validation.error.flatten().fieldErrors
-        },
-        { status: 400, headers: NO_CACHE_HEADERS }
-      );
+      return validation.response;
     }
 
     const { task_key, task_type, value, node_id } = validation.data;
@@ -55,29 +61,12 @@ export async function POST(request: NextRequest) {
     // Validate task type if provided
     if (task_type && !validateTaskType(task_type)) {
       console.error("[JourneyTrack] Invalid task type:", task_type);
-      return NextResponse.json(
-        {
-          ok: false,
-          error: "InvalidTaskType",
-          message: `Invalid task type: ${task_type}. Allowed types: ${ALLOWED_TASK_TYPES.join(', ')}`,
-        },
-        { status: 400, headers: NO_CACHE_HEADERS }
+      return ErrorResponses.badRequest(
+        `Invalid task type: ${task_type}. Allowed types: ${ALLOWED_TASK_TYPES.join(', ')}`
       );
     }
 
-    // Auth check
-    const supabase = await createClient();
-    const { data: { session }, error: authError } = await supabase.auth.getSession();
-
-    if (authError || !session?.user) {
-      console.error("[JourneyTrack] Auth error:", authError?.message || "No session");
-      return NextResponse.json(
-        { ok: false, error: "Unauthorized", message: "Authentication required" },
-        { status: 401, headers: NO_CACHE_HEADERS }
-      );
-    }
-
-    const userId = session.user.id;
+    const userId = user.id;
     console.log("[JourneyTrack] Authenticated:", {
       userId: userId.substring(0, 8),
       task_key,
@@ -199,15 +188,7 @@ export async function POST(request: NextRequest) {
       message: err?.message,
       duration: `${duration}ms`
     });
-
-    return NextResponse.json(
-      {
-        ok: false,
-        error: "ServerError",
-        message: err?.message || "Unknown error"
-      },
-      { status: 500, headers: NO_CACHE_HEADERS }
-    );
+    return handleApiError(err, 'JourneyTrack');
   }
 }
 

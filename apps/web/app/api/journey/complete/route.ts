@@ -4,6 +4,7 @@ import { z } from "zod";
 import { evaluateNode, UserContext } from "@/lib/journey/compute";
 import { validateTaskType } from "@/lib/journey/taskTypes";
 import { progressCache, cacheKeys } from "@/lib/journey/cache";
+import { requireAuth, checkRateLimit, validateBody, RateLimitPresets, ErrorResponses, handleApiError } from "@/lib/api/security";
 import crypto from "crypto";
 
 export const dynamic = "force-dynamic";
@@ -28,41 +29,32 @@ export async function POST(request: NextRequest) {
   const startTime = Date.now();
 
   try {
-    const body = await request.json();
-    const bodyHash = crypto.createHash("md5").update(JSON.stringify(body)).digest("hex").substring(0, 8);
+    // Rate limiting check (STRICT - prevents point farming)
+    const rateLimit = await checkRateLimit(request, {
+      ...RateLimitPresets.strict,
+      keyPrefix: 'journey-complete',
+    });
 
-    console.log("[JourneyComplete] POST /api/journey/complete - Start", { bodyHash });
+    if (!rateLimit.allowed) {
+      console.log('[JourneyComplete] Rate limit exceeded');
+      return ErrorResponses.rateLimited(rateLimit.resetAt, rateLimit.limit);
+    }
 
-    // Validate body
-    const validation = CompleteBodySchema.safeParse(body);
+    // Authentication check
+    const auth = await requireAuth();
+    if (!auth.success) {
+      return auth.response;
+    }
+    const { user, supabase } = auth;
+
+    // Validate request body
+    const validation = await validateBody(request, CompleteBodySchema);
     if (!validation.success) {
-      console.error("[JourneyComplete] Invalid body:", validation.error.flatten());
-      return NextResponse.json(
-        {
-          ok: false,
-          error: "InvalidInput",
-          message: "Missing or invalid required fields",
-          details: validation.error.flatten().fieldErrors
-        },
-        { status: 400, headers: NO_CACHE_HEADERS }
-      );
+      return validation.response;
     }
 
     const { node_id } = validation.data;
-
-    // Auth check
-    const supabase = await createClient();
-    const { data: { session }, error: authError } = await supabase.auth.getSession();
-
-    if (authError || !session?.user) {
-      console.error("[JourneyComplete] Auth error:", authError?.message || "No session");
-      return NextResponse.json(
-        { ok: false, error: "Unauthorized", message: "Authentication required" },
-        { status: 401, headers: NO_CACHE_HEADERS }
-      );
-    }
-
-    const userId = session.user.id;
+    const userId = user.id;
     console.log("[JourneyComplete] Authenticated:", {
       userId: userId.substring(0, 8),
       node_id: node_id.substring(0, 8)
@@ -244,14 +236,7 @@ export async function POST(request: NextRequest) {
       duration: `${duration}ms`
     });
 
-    return NextResponse.json(
-      {
-        ok: false,
-        error: "ServerError",
-        message: err?.message || "Unknown error"
-      },
-      { status: 500, headers: NO_CACHE_HEADERS }
-    );
+    return handleApiError(err, 'JourneyComplete');
   }
 }
 

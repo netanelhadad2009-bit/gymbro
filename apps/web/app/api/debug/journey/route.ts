@@ -1,5 +1,6 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { requireDevelopment, requireAuth, handleApiError } from "@/lib/api/security";
 
 export const dynamic = "force-dynamic";
 
@@ -14,16 +15,22 @@ export const dynamic = "force-dynamic";
  *
  * Used by the Journey Inspector UI for debugging and visualization.
  */
-export async function GET() {
+export async function GET(request: NextRequest) {
+  // Block in production
+  const devGuard = requireDevelopment(request);
+  if (devGuard) {
+    return devGuard;
+  }
+
   try {
-    const supabase = await createClient();
-    const { data: { session }, error: authError } = await supabase.auth.getSession();
-
-    if (authError || !session?.user) {
-      return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+    // Require authentication even in dev
+    const auth = await requireAuth();
+    if (!auth.success) {
+      return auth.response;
     }
+    const { user, supabase } = auth;
 
-    const userId = session.user.id;
+    const userId = user.id;
 
     // 1. Check if there are avatar-sourced chapters (personalized journey)
     const { data: avatarChapters } = await supabase
@@ -176,10 +183,7 @@ export async function GET() {
     });
 
   } catch (err: any) {
-    console.error("[DebugJourney] Fatal error:", err?.message);
-    return NextResponse.json(
-      { error: "ServerError", message: err?.message || "Unknown error" },
-      { status: 500 }
-    );
+    console.error("[DebugJourney] Fatal error:", err);
+    return handleApiError(err, 'DebugJourney');
   }
 }

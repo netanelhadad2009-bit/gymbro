@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { progressCache, cacheKeys } from "@/lib/journey/cache";
+import { optionalAuth, checkRateLimit, RateLimitPresets, ErrorResponses, handleApiError } from "@/lib/api/security";
 
 export const dynamic = "force-dynamic";
 
@@ -22,25 +23,30 @@ export async function GET(request: NextRequest) {
   const startTime = Date.now();
 
   try {
+    // Rate limiting check (public preset for optional auth endpoints)
+    const rateLimit = await checkRateLimit(request, {
+      ...RateLimitPresets.public,
+      keyPrefix: 'journey-get',
+    });
+
+    if (!rateLimit.allowed) {
+      console.log('[Journey GET] Rate limit exceeded');
+      return ErrorResponses.rateLimited(rateLimit.resetAt, rateLimit.limit);
+    }
+
     const { searchParams } = new URL(request.url);
     const chapterId = searchParams.get('chapter_id');
     const chapterSlug = searchParams.get('chapter_slug');
 
     console.log("[JourneyAPI] GET /api/journey - Start", { chapterId, chapterSlug });
 
-    const supabase = await createClient();
-    const { data: { session }, error: authError } = await supabase.auth.getSession();
-
-    if (authError) {
-      console.error("[JourneyAPI] Auth error:", authError.message);
-      return NextResponse.json(
-        { ok: false, error: "AuthError", message: authError.message },
-        { status: 401, headers: NO_CACHE_HEADERS }
-      );
-    }
+    // Optional auth (public endpoint that enhances with user data if authenticated)
+    const auth = await optionalAuth();
+    const user = auth.user;
+    const supabase = auth.supabase;
 
     // Not authenticated - return empty structure
-    if (!session?.user) {
+    if (!user) {
       console.log("[JourneyAPI] No session - returning empty structure");
       return NextResponse.json(
         {
@@ -57,7 +63,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const userId = session.user.id;
+    const userId = user.id;
     console.log("[JourneyAPI] Authenticated user:", userId.substring(0, 8));
 
     // Check cache first (unless specific chapter filter is requested)
@@ -203,7 +209,7 @@ export async function GET(request: NextRequest) {
     if (nodesError) {
       console.error("[JourneyAPI] Nodes error:", nodesError.message);
       return NextResponse.json(
-        { ok: false, error: "DatabaseError", message: nodesError.message },
+        { ok: false, error: "Failed to fetch journey nodes" },
         { status: 500, headers: NO_CACHE_HEADERS }
       );
     }
@@ -293,13 +299,6 @@ export async function GET(request: NextRequest) {
       duration: `${duration}ms`
     });
 
-    return NextResponse.json(
-      {
-        ok: false,
-        error: "ServerError",
-        message: err?.message || "Unknown error"
-      },
-      { status: 500, headers: NO_CACHE_HEADERS }
-    );
+    return handleApiError(err, 'JourneyGet');
   }
 }

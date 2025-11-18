@@ -1,10 +1,17 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { supabaseServer } from "@/lib/supabase-server";
 import { createBrowserClient } from "@supabase/ssr";
+import { requireDevelopment, requireAuth, handleApiError } from "@/lib/api/security";
 
 export const dynamic = "force-dynamic";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  // Block in production
+  const devGuard = requireDevelopment(request);
+  if (devGuard) {
+    return devGuard;
+  }
+
   const startTime = Date.now();
   const diagnostics: any = {
     timestamp: new Date().toISOString(),
@@ -13,20 +20,19 @@ export async function GET() {
   };
 
   try {
-    // 1. Verify server-side authentication
-    const supabase = supabaseServer();
-    const { data: { user }, error: userErr } = await supabase.auth.getUser();
-    
-    diagnostics.checks.auth = {
-      authenticated: !!user,
-      userId: user?.id?.substring(0, 8) + "..." || null,
-      error: userErr?.message || null,
-    };
-
-    if (!user) {
+    // Require authentication even in dev
+    const auth = await requireAuth();
+    if (!auth.success) {
       diagnostics.errors.push("Not authenticated - cannot test realtime");
       return NextResponse.json({ ok: false, ...diagnostics }, { status: 401 });
     }
+    const { user, supabase } = auth;
+    
+    diagnostics.checks.auth = {
+      authenticated: true,
+      userId: user.id.substring(0, 8) + "...",
+      error: null,
+    };
 
     // 2. Check if ai_messages table has RLS SELECT policy
     const { data: messages, error: selectErr } = await supabase

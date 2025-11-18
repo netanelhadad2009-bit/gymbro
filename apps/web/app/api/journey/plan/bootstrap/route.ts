@@ -1,8 +1,9 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { buildPlanForAvatar, hasExistingPlan } from "@/lib/journey/planBootstrap";
 import { buildJourneyFromPersona, type Persona } from "@/lib/journey/builder";
 import { normalizePersona } from "@/lib/persona/normalize";
+import { requireAuth, checkRateLimit, RateLimitPresets, ErrorResponses, handleApiError } from "@/lib/api/security";
 import { randomUUID } from "crypto";
 
 /**
@@ -38,20 +39,27 @@ export const dynamic = "force-dynamic";
  * - 401: Not authenticated
  * - 500: Server error
  */
-export async function POST() {
+export async function POST(request: NextRequest) {
   try {
-    // 1. Check authentication
-    const supabase = await createClient();
-    const { data: { session }, error: authError } = await supabase.auth.getSession();
+    // Rate limiting check (AUTH preset - one-time bootstrap operation)
+    const rateLimit = await checkRateLimit(request, {
+      ...RateLimitPresets.auth,
+      keyPrefix: 'journey-plan-bootstrap',
+    });
 
-    if (authError || !session?.user) {
-      return NextResponse.json(
-        { ok: false, error: "unauthorized", message: "Authentication required" },
-        { status: 401 }
-      );
+    if (!rateLimit.allowed) {
+      console.log('[BootstrapAPI] Rate limit exceeded');
+      return ErrorResponses.rateLimited(rateLimit.resetAt, rateLimit.limit);
     }
 
-    const userId = session.user.id;
+    // Authentication check
+    const auth = await requireAuth();
+    if (!auth.success) {
+      return auth.response;
+    }
+    const { user, supabase } = auth;
+
+    const userId = user.id;
     console.log("[BootstrapAPI] POST request for user", userId.substring(0, 8));
 
     // 2. Check idempotency flag in profiles table
@@ -279,13 +287,6 @@ export async function POST() {
 
   } catch (err: any) {
     console.error("[BootstrapAPI] Fatal error:", err?.message, err?.stack);
-    return NextResponse.json(
-      {
-        ok: false,
-        error: "server_error",
-        message: err?.message || "Unknown error"
-      },
-      { status: 500 }
-    );
+    return handleApiError(err, 'JourneyPlanBootstrap');
   }
 }

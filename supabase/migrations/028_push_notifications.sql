@@ -35,30 +35,34 @@ CREATE TABLE IF NOT EXISTS public.push_subscriptions (
 
 -- Unique constraint: one active subscription per user+platform+endpoint/token
 -- Uses COALESCE to handle both native (token) and web (endpoint) subscriptions
-CREATE UNIQUE INDEX idx_push_subscriptions_unique
+CREATE UNIQUE INDEX IF NOT EXISTS idx_push_subscriptions_unique
 ON public.push_subscriptions(user_id, platform, COALESCE(endpoint, token))
 WHERE active = true;
 
 -- Performance indexes
-CREATE INDEX idx_push_subscriptions_user_id ON public.push_subscriptions(user_id);
-CREATE INDEX idx_push_subscriptions_active ON public.push_subscriptions(user_id, active)
+CREATE INDEX IF NOT EXISTS idx_push_subscriptions_user_id ON public.push_subscriptions(user_id);
+CREATE INDEX IF NOT EXISTS idx_push_subscriptions_active ON public.push_subscriptions(user_id, active)
 WHERE active = true;
 
 -- Row Level Security
 ALTER TABLE public.push_subscriptions ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users can view own subscriptions" ON public.push_subscriptions;
 CREATE POLICY "Users can view own subscriptions"
 ON public.push_subscriptions FOR SELECT
 USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can insert own subscriptions" ON public.push_subscriptions;
 CREATE POLICY "Users can insert own subscriptions"
 ON public.push_subscriptions FOR INSERT
 WITH CHECK (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can update own subscriptions" ON public.push_subscriptions;
 CREATE POLICY "Users can update own subscriptions"
 ON public.push_subscriptions FOR UPDATE
 USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can delete own subscriptions" ON public.push_subscriptions;
 CREATE POLICY "Users can delete own subscriptions"
 ON public.push_subscriptions FOR DELETE
 USING (auth.uid() = user_id);
@@ -117,14 +121,17 @@ CREATE TABLE IF NOT EXISTS public.notification_preferences (
 -- Row Level Security
 ALTER TABLE public.notification_preferences ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users can view own preferences" ON public.notification_preferences;
 CREATE POLICY "Users can view own preferences"
 ON public.notification_preferences FOR SELECT
 USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can insert own preferences" ON public.notification_preferences;
 CREATE POLICY "Users can insert own preferences"
 ON public.notification_preferences FOR INSERT
 WITH CHECK (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can update own preferences" ON public.notification_preferences;
 CREATE POLICY "Users can update own preferences"
 ON public.notification_preferences FOR UPDATE
 USING (auth.uid() = user_id);
@@ -157,20 +164,22 @@ CREATE TABLE IF NOT EXISTS public.notification_logs (
 );
 
 -- Performance indexes
-CREATE INDEX idx_notification_logs_user_id ON public.notification_logs(user_id);
-CREATE INDEX idx_notification_logs_user_type ON public.notification_logs(user_id, type);
-CREATE INDEX idx_notification_logs_status ON public.notification_logs(status);
-CREATE INDEX idx_notification_logs_created_at ON public.notification_logs(created_at DESC);
-CREATE INDEX idx_notification_logs_sent_at ON public.notification_logs(sent_at DESC) WHERE sent_at IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_notification_logs_user_id ON public.notification_logs(user_id);
+CREATE INDEX IF NOT EXISTS idx_notification_logs_user_type ON public.notification_logs(user_id, type);
+CREATE INDEX IF NOT EXISTS idx_notification_logs_status ON public.notification_logs(status);
+CREATE INDEX IF NOT EXISTS idx_notification_logs_created_at ON public.notification_logs(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_notification_logs_sent_at ON public.notification_logs(sent_at DESC) WHERE sent_at IS NOT NULL;
 
 -- Row Level Security
 ALTER TABLE public.notification_logs ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users can view own notification logs" ON public.notification_logs;
 CREATE POLICY "Users can view own notification logs"
 ON public.notification_logs FOR SELECT
 USING (auth.uid() = user_id);
 
 -- Only backend services can insert/update logs
+DROP POLICY IF EXISTS "Service role can manage logs" ON public.notification_logs;
 CREATE POLICY "Service role can manage logs"
 ON public.notification_logs FOR ALL
 USING (auth.jwt()->>'role' = 'service_role');
@@ -191,6 +200,7 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- Trigger to create preferences on user signup
+DROP TRIGGER IF EXISTS on_auth_user_created_notification_prefs ON auth.users;
 CREATE TRIGGER on_auth_user_created_notification_prefs
   AFTER INSERT ON auth.users
   FOR EACH ROW
@@ -206,11 +216,13 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- Triggers for updated_at
+DROP TRIGGER IF EXISTS update_push_subscriptions_updated_at ON public.push_subscriptions;
 CREATE TRIGGER update_push_subscriptions_updated_at
   BEFORE UPDATE ON public.push_subscriptions
   FOR EACH ROW
   EXECUTE FUNCTION public.update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_notification_preferences_updated_at ON public.notification_preferences;
 CREATE TRIGGER update_notification_preferences_updated_at
   BEFORE UPDATE ON public.notification_preferences
   FOR EACH ROW

@@ -10,6 +10,7 @@ import { createClient } from '@/lib/supabase/server';
 import { completeTask } from '@/lib/journey/stages/persist';
 import { evaluateTaskCondition, type TaskCondition } from '@/lib/journey/rules/eval';
 import { z } from 'zod';
+import { requireAuth, checkRateLimit, validateBody, RateLimitPresets, ErrorResponses, handleApiError } from '@/lib/api/security';
 
 export const dynamic = 'force-dynamic';
 
@@ -28,38 +29,32 @@ export async function POST(request: NextRequest) {
   try {
     console.log('[StagesComplete] POST /api/journey/stages/complete - Start');
 
-    // Parse body
-    const body = await request.json();
-    const validation = CompleteBodySchema.safeParse(body);
+    // Rate limiting check (STRICT - prevents point farming)
+    const rateLimit = await checkRateLimit(request, {
+      ...RateLimitPresets.strict,
+      keyPrefix: 'stages-complete',
+    });
 
+    if (!rateLimit.allowed) {
+      console.log('[StagesComplete] Rate limit exceeded');
+      return ErrorResponses.rateLimited(rateLimit.resetAt, rateLimit.limit);
+    }
+
+    // Authentication check
+    const auth = await requireAuth();
+    if (!auth.success) {
+      return auth.response;
+    }
+    const { user, supabase } = auth;
+
+    // Validate request body
+    const validation = await validateBody(request, CompleteBodySchema);
     if (!validation.success) {
-      console.error('[StagesComplete] Invalid body:', validation.error.flatten());
-      return NextResponse.json(
-        {
-          ok: false,
-          error: 'InvalidInput',
-          message: 'Missing or invalid required fields',
-          details: validation.error.flatten().fieldErrors,
-        },
-        { status: 400, headers: NO_CACHE_HEADERS }
-      );
+      return validation.response;
     }
 
     const { stageId, taskId } = validation.data;
-
-    // Auth check
-    const supabase = await createClient();
-    const { data: { session }, error: authError } = await supabase.auth.getSession();
-
-    if (authError || !session?.user) {
-      console.error('[StagesComplete] Auth error:', authError?.message || 'No session');
-      return NextResponse.json(
-        { ok: false, error: 'Unauthorized', message: 'Authentication required' },
-        { status: 401, headers: NO_CACHE_HEADERS }
-      );
-    }
-
-    const userId = session.user.id;
+    const userId = user.id;
     console.log('[StagesComplete] Authenticated:', {
       userId: userId.substring(0, 8),
       stageId: stageId.substring(0, 8),
@@ -177,13 +172,6 @@ export async function POST(request: NextRequest) {
       stack: err?.stack,
     });
 
-    return NextResponse.json(
-      {
-        ok: false,
-        error: 'ServerError',
-        message: err?.message || 'Unknown error',
-      },
-      { status: 500, headers: NO_CACHE_HEADERS }
-    );
+    return handleApiError(err, 'StagesComplete');
   }
 }

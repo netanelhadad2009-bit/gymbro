@@ -3,6 +3,11 @@
  * Generates 50 varied user profiles for automated registration testing
  */
 
+// Production guard: prevent running in production environment
+if (process.env.NODE_ENV === 'production') {
+  throw new Error('scripts/test-data-generator.ts cannot run in production (NODE_ENV=production).');
+}
+
 export interface TestUserProfile {
   id: number;
   email: string;
@@ -143,6 +148,9 @@ function generateTargetWeight(
 export function generateTestUsers(): TestUserProfile[] {
   const users: TestUserProfile[] = [];
 
+  // Test password from environment or default
+  const TEST_PASSWORD = process.env.TEST_USER_PASSWORD || 'Test123!';
+
   // Distribution targets
   const goalDistribution = [
     { goal: 'loss', count: 20 },      // 40%
@@ -206,7 +214,7 @@ export function generateTestUsers(): TestUserProfile[] {
       users.push({
         id: userId,
         email: `test${userId}@gymbro-test.com`,
-        password: 'Test123!',
+        password: TEST_PASSWORD,
 
         // Demographics
         gender,

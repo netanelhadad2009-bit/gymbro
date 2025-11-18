@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { requireAuth, checkRateLimit, validateBody, validateSearchParams, RateLimitPresets, ErrorResponses, handleApiError } from "@/lib/api/security";
 import { z } from "zod";
 
 export const dynamic = "force-dynamic";
@@ -35,22 +35,49 @@ const CreateMealSchema = z.object({
   is_partial: z.boolean().optional(),
 });
 
+// Schema for GET query params
+const GetMealsQuerySchema = z.object({
+  date: z.string().optional(),
+});
+
+// Schema for DELETE/PATCH query params
+const MealIdQuerySchema = z.object({
+  id: z.string().min(1, "Meal ID is required"),
+});
+
+// Schema for updating a meal
+const UpdateMealSchema = z.object({
+  name: z.string().optional(),
+  calories: Macro4.optional(),
+  protein: Macro4.optional(),
+  carbs: Macro4.optional(),
+  fat: Macro4.optional(),
+});
+
 // GET /api/meals - Fetch user's meals
 export async function GET(request: NextRequest) {
   try {
-    const supabase = await createClient();
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    // Rate limiting check (STANDARD - read operation)
+    const rateLimit = await checkRateLimit(request, {
+      ...RateLimitPresets.standard,
+      keyPrefix: 'meals-get',
+    });
 
-    if (authError || !user) {
-      return NextResponse.json(
-        { error: "Authentication required" },
-        { status: 401 }
-      );
+    if (!rateLimit.allowed) {
+      console.log('[Meals GET] Rate limit exceeded');
+      return ErrorResponses.rateLimited(rateLimit.resetAt, rateLimit.limit);
     }
 
-    // Get date from query params (default to today in local timezone)
-    const { searchParams } = new URL(request.url);
-    const date = searchParams.get("date") || getTodayLocalDate();
+    // Authentication check
+    const auth = await requireAuth();
+    if (!auth.success) {
+      return auth.response;
+    }
+    const { user, supabase } = auth;
+
+    // Validate query params
+    const { date: queryDate } = validateSearchParams(request, GetMealsQuerySchema);
+    const date = queryDate || getTodayLocalDate();
 
     // Fetch meals for the specified date
     const { data: meals, error } = await supabase
@@ -61,50 +88,45 @@ export async function GET(request: NextRequest) {
       .order("created_at", { ascending: false });
 
     if (error) {
-      console.error("Error fetching meals:", error);
-      return NextResponse.json(
-        { error: "Failed to fetch meals" },
-        { status: 500 }
-      );
+      console.error("[Meals GET] Error fetching meals:", error);
+      throw new Error(`Failed to fetch meals: ${error.message}`);
     }
 
     return NextResponse.json({ meals: meals || [] });
   } catch (error) {
-    console.error("Meals API error:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    console.error("[Meals GET] Fatal error:", error);
+    return handleApiError(error, 'MealsGet');
   }
 }
 
 // POST /api/meals - Create a new meal
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createClient();
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    // Rate limiting check (STANDARD - write operation)
+    const rateLimit = await checkRateLimit(request, {
+      ...RateLimitPresets.standard,
+      keyPrefix: 'meals-post',
+    });
 
-    if (authError || !user) {
-      return NextResponse.json(
-        { error: "Authentication required" },
-        { status: 401 }
-      );
+    if (!rateLimit.allowed) {
+      console.log('[Meals POST] Rate limit exceeded');
+      return ErrorResponses.rateLimited(rateLimit.resetAt, rateLimit.limit);
     }
 
-    const body = await request.json();
-    const validationResult = CreateMealSchema.safeParse(body);
+    // Authentication check
+    const auth = await requireAuth();
+    if (!auth.success) {
+      return auth.response;
+    }
+    const { user, supabase } = auth;
 
-    if (!validationResult.success) {
-      return NextResponse.json(
-        {
-          error: "Invalid input",
-          details: validationResult.error.flatten().fieldErrors
-        },
-        { status: 400 }
-      );
+    // Validate request body
+    const validation = await validateBody(request, CreateMealSchema);
+    if (!validation.success) {
+      return validation.response;
     }
 
-    const data = validationResult.data;
+    const data = validation.data;
     const date = data.date || getTodayLocalDate();
 
     const insertData = {
@@ -129,52 +151,46 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (insertError) {
-      console.error("Error inserting meal:", insertError);
-      console.error("Insert error details:", {
+      console.error("[Meals POST] Error inserting meal:", insertError);
+      console.error("[Meals POST] Insert error details:", {
         code: insertError.code,
         message: insertError.message,
         details: insertError.details,
         hint: insertError.hint,
       });
-      return NextResponse.json(
-        { error: "Failed to create meal", details: insertError.message },
-        { status: 500 }
-      );
+      throw new Error(`Failed to create meal: ${insertError.message}`);
     }
 
     return NextResponse.json({ success: true, meal });
   } catch (error) {
-    console.error("Meals API error:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    console.error("[Meals POST] Fatal error:", error);
+    return handleApiError(error, 'MealsPost');
   }
 }
 
 // DELETE /api/meals/:id - Delete a meal
 export async function DELETE(request: NextRequest) {
   try {
-    const supabase = await createClient();
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    // Rate limiting check (STANDARD - write operation)
+    const rateLimit = await checkRateLimit(request, {
+      ...RateLimitPresets.standard,
+      keyPrefix: 'meals-delete',
+    });
 
-    if (authError || !user) {
-      return NextResponse.json(
-        { error: "Authentication required" },
-        { status: 401 }
-      );
+    if (!rateLimit.allowed) {
+      console.log('[Meals DELETE] Rate limit exceeded');
+      return ErrorResponses.rateLimited(rateLimit.resetAt, rateLimit.limit);
     }
 
-    // Get meal ID from URL
-    const { searchParams } = new URL(request.url);
-    const mealId = searchParams.get("id");
-
-    if (!mealId) {
-      return NextResponse.json(
-        { error: "Meal ID required" },
-        { status: 400 }
-      );
+    // Authentication check
+    const auth = await requireAuth();
+    if (!auth.success) {
+      return auth.response;
     }
+    const { user, supabase } = auth;
+
+    // Validate query params
+    const { id: mealId } = validateSearchParams(request, MealIdQuerySchema);
 
     // Delete the meal (RLS ensures user can only delete their own)
     const { error: deleteError } = await supabase
@@ -184,100 +200,51 @@ export async function DELETE(request: NextRequest) {
       .eq("user_id", user.id);
 
     if (deleteError) {
-      console.error("Error deleting meal:", deleteError);
-      return NextResponse.json(
-        { error: "Failed to delete meal" },
-        { status: 500 }
-      );
+      console.error("[Meals DELETE] Error deleting meal:", deleteError);
+      throw new Error(`Failed to delete meal: ${deleteError.message}`);
     }
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("Meals API error:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    console.error("[Meals DELETE] Fatal error:", error);
+    return handleApiError(error, 'MealsDelete');
   }
 }
 
 // PATCH /api/meals?id=:id - Update a meal
 export async function PATCH(request: NextRequest) {
   try {
-    const supabase = await createClient();
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    // Rate limiting check (STANDARD - write operation)
+    const rateLimit = await checkRateLimit(request, {
+      ...RateLimitPresets.standard,
+      keyPrefix: 'meals-patch',
+    });
 
-    if (authError || !user) {
-      return NextResponse.json(
-        { error: "Authentication required" },
-        { status: 401 }
-      );
+    if (!rateLimit.allowed) {
+      console.log('[Meals PATCH] Rate limit exceeded');
+      return ErrorResponses.rateLimited(rateLimit.resetAt, rateLimit.limit);
     }
 
-    // Get meal ID from URL
-    const { searchParams } = new URL(request.url);
-    const mealId = searchParams.get("id");
+    // Authentication check
+    const auth = await requireAuth();
+    if (!auth.success) {
+      return auth.response;
+    }
+    const { user, supabase } = auth;
 
-    if (!mealId) {
-      return NextResponse.json(
-        { error: "Meal ID required" },
-        { status: 400 }
-      );
+    // Validate query params
+    const { id: mealId } = validateSearchParams(request, MealIdQuerySchema);
+
+    // Validate request body
+    const validation = await validateBody(request, UpdateMealSchema);
+    if (!validation.success) {
+      return validation.response;
     }
 
-    const body = await request.json();
-
-    // Build update object with only allowed fields
-    const updates: any = {};
-    if (body.name !== undefined) updates.name = body.name;
-
-    // Validate macro values if provided
-    if (body.calories !== undefined) {
-      const result = Macro4.safeParse(body.calories);
-      if (!result.success) {
-        return NextResponse.json(
-          { error: "Invalid calories value (must be 0-9999)" },
-          { status: 400 }
-        );
-      }
-      updates.calories = result.data;
-    }
-    if (body.protein !== undefined) {
-      const result = Macro4.safeParse(body.protein);
-      if (!result.success) {
-        return NextResponse.json(
-          { error: "Invalid protein value (must be 0-9999)" },
-          { status: 400 }
-        );
-      }
-      updates.protein = result.data;
-    }
-    if (body.carbs !== undefined) {
-      const result = Macro4.safeParse(body.carbs);
-      if (!result.success) {
-        return NextResponse.json(
-          { error: "Invalid carbs value (must be 0-9999)" },
-          { status: 400 }
-        );
-      }
-      updates.carbs = result.data;
-    }
-    if (body.fat !== undefined) {
-      const result = Macro4.safeParse(body.fat);
-      if (!result.success) {
-        return NextResponse.json(
-          { error: "Invalid fat value (must be 0-9999)" },
-          { status: 400 }
-        );
-      }
-      updates.fat = result.data;
-    }
+    const updates = validation.data;
 
     if (Object.keys(updates).length === 0) {
-      return NextResponse.json(
-        { error: "No valid fields to update" },
-        { status: 400 }
-      );
+      return ErrorResponses.badRequest("No valid fields to update");
     }
 
     // Update the meal (RLS ensures user can only update their own)
@@ -290,26 +257,17 @@ export async function PATCH(request: NextRequest) {
       .single();
 
     if (updateError) {
-      console.error("Error updating meal:", updateError);
-      return NextResponse.json(
-        { error: "Failed to update meal" },
-        { status: 500 }
-      );
+      console.error("[Meals PATCH] Error updating meal:", updateError);
+      throw new Error(`Failed to update meal: ${updateError.message}`);
     }
 
     if (!meal) {
-      return NextResponse.json(
-        { error: "Meal not found or unauthorized" },
-        { status: 404 }
-      );
+      return ErrorResponses.notFound("Meal not found or unauthorized");
     }
 
     return NextResponse.json({ success: true, meal });
   } catch (error) {
-    console.error("Meals API error:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    console.error("[Meals PATCH] Fatal error:", error);
+    return handleApiError(error, 'MealsPatch');
   }
 }

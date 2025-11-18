@@ -10,6 +10,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClientWithAuth } from '@/lib/supabase-server';
 import { buildStagesForAvatar, type AvatarProfile } from '@/lib/journey/stages/builder';
 import { saveUserStages } from '@/lib/journey/stages/persist';
+import { checkRateLimit, RateLimitPresets, ErrorResponses, handleApiError } from '@/lib/api/security';
 
 export const dynamic = 'force-dynamic';
 
@@ -23,16 +24,24 @@ export async function POST(request: NextRequest) {
   try {
     console.log('[StagesBootstrap] POST /api/journey/stages/bootstrap - Start');
 
+    // Rate limiting check (AUTH preset - one-time bootstrap operation)
+    const rateLimit = await checkRateLimit(request, {
+      ...RateLimitPresets.auth,
+      keyPrefix: 'stages-bootstrap',
+    });
+
+    if (!rateLimit.allowed) {
+      console.log('[StagesBootstrap] Rate limit exceeded');
+      return ErrorResponses.rateLimited(rateLimit.resetAt, rateLimit.limit);
+    }
+
     // Auth check (supports both cookies and Bearer tokens)
     const supabase = await createServerSupabaseClientWithAuth();
     const { data: { user }, error: authError } = await supabase.auth.getUser();
 
     if (authError || !user) {
       console.error('[StagesBootstrap] Auth error:', authError?.message || 'No user');
-      return NextResponse.json(
-        { ok: false, error: 'Unauthorized', message: 'Authentication required' },
-        { status: 401, headers: NO_CACHE_HEADERS }
-      );
+      return ErrorResponses.unauthorized('Authentication required');
     }
 
     const userId = user.id;
@@ -112,13 +121,6 @@ export async function POST(request: NextRequest) {
       stack: err?.stack,
     });
 
-    return NextResponse.json(
-      {
-        ok: false,
-        error: 'ServerError',
-        message: err?.message || 'Unknown error',
-      },
-      { status: 500, headers: NO_CACHE_HEADERS }
-    );
+    return handleApiError(err, 'StagesBootstrap');
   }
 }

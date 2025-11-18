@@ -1,25 +1,48 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { supabaseServer } from "@/lib/supabase-server";
+import { requireAuth, checkRateLimit, RateLimitPresets, ErrorResponses, handleApiError } from "@/lib/api/security";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-export async function GET() {
-  const sb = supabaseServer();
-  const { data: { user }, error: uErr } = await sb.auth.getUser();
-  if (uErr || !user) return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 });
+export async function GET(request: NextRequest) {
+  try {
+    // Rate limiting check
+    const rateLimit = await checkRateLimit(request, {
+      ...RateLimitPresets.standard,
+      keyPrefix: 'coach-messages',
+    });
 
-  const { data, error } = await sb
-    .from("ai_messages")
-    .select("id, role, content, created_at")
-    .eq("user_id", user.id)
-    .order("created_at", { ascending: true })
-    .limit(50);
+    if (!rateLimit.allowed) {
+      console.log('[Coach Messages] Rate limit exceeded');
+      return ErrorResponses.rateLimited(rateLimit.resetAt, rateLimit.limit);
+    }
 
-  if (error) {
-    console.error("[API/messages] select error:", error);
-    return NextResponse.json({ ok: false, error: error.message }, { status: 500 });
+    // Authentication check
+    const auth = await requireAuth();
+    if (!auth.success) {
+      return auth.response;
+    }
+    const { user, supabase } = auth;
+
+    const { data, error } = await supabase
+      .from("ai_messages")
+      .select("id, role, content, created_at")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: true })
+      .limit(50);
+
+    if (error) {
+      console.error("[Coach Messages] Select error:", error);
+      return NextResponse.json(
+        { ok: false, error: "Failed to fetch messages" },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json({ ok: true, messages: data ?? [] });
+  } catch (error) {
+    console.error("[Coach Messages] Error:", error);
+    return handleApiError(error, 'CoachMessages');
   }
-
-  return NextResponse.json({ ok: true, messages: data ?? [] });
 }

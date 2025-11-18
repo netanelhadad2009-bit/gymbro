@@ -1,12 +1,13 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { loadUserContext } from "@/lib/coach/loadUserContext";
 import { supabaseServer } from "@/lib/supabase-server";
+import { requireDevelopment, requireAuth, handleApiError } from "@/lib/api/security";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 /**
- * Debug endpoint to verify Coach API has access to user data
+ * Debug endpoint to verify Coach API has access to user data (DEV ONLY)
  *
  * GET /api/coach/context
  *
@@ -20,24 +21,23 @@ export const dynamic = "force-dynamic";
  *
  * Use this to debug missing height/weight or other profile fields.
  */
-export async function GET() {
+export async function GET(request: NextRequest) {
+  // Block in production
+  const devGuard = requireDevelopment(request);
+  if (devGuard) {
+    return devGuard;
+  }
+
   try {
-    const supabase = supabaseServer();
-
-    // Get authenticated user
-    const {
-      data: { user },
-      error: userErr,
-    } = await supabase.auth.getUser();
-
-    if (userErr || !user) {
-      return NextResponse.json(
-        { ok: false, error: "Unauthorized" },
-        { status: 401 }
-      );
+    // Require authentication even in dev
+    const auth = await requireAuth();
+    if (!auth.success) {
+      return auth.response;
     }
+    const { user, supabase } = auth;
 
     const userId = user.id;
+    console.log('[Coach Context Debug] Loading context for user:', userId);
 
     // 1) Load raw profile data
     const { data: rawProfile } = await supabase
@@ -86,13 +86,6 @@ export async function GET() {
     });
   } catch (error: any) {
     console.error("[Coach Context Debug] Unexpected error:", error?.message || error);
-    return NextResponse.json(
-      {
-        ok: false,
-        error: error.message || "Internal server error",
-        stage: "unknown",
-      },
-      { status: 500 }
-    );
+    return handleApiError(error, 'CoachContextDebug');
   }
 }

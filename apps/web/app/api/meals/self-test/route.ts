@@ -1,6 +1,6 @@
-import { NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
+import { NextRequest, NextResponse } from "next/server";
 import { todayISO } from "@/lib/date";
+import { requireAuth, checkRateLimit, requireDevelopment, RateLimitPresets, ErrorResponses, handleApiError } from "@/lib/api/security";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -12,40 +12,28 @@ export const dynamic = "force-dynamic";
  * 2. User can insert a meal row (RLS allows INSERT)
  * 3. User can delete their own meal row (RLS allows DELETE)
  */
-export async function POST(req: Request) {
+export async function POST(request: NextRequest) {
   try {
-    // A. Get Authorization header (Bearer token from client)
-    const authHeader = req.headers.get("authorization") || "";
-    const jwt = authHeader.replace(/^Bearer\s+/i, "");
+    // Development-only endpoint
+    requireDevelopment();
 
-    if (!jwt) {
-      return NextResponse.json(
-        { ok: false, error: "Missing authorization token" },
-        { status: 401 }
-      );
-    }
-
-    // B. Create Supabase client with the user's token
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-
-    const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-      global: { headers: { Authorization: `Bearer ${jwt}` } },
+    // Rate limiting check (STRICT - test endpoint)
+    const rateLimit = await checkRateLimit(request, {
+      ...RateLimitPresets.strict,
+      keyPrefix: 'meals-self-test',
     });
 
-    // C. Verify user from token
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
-
-    if (userError || !user) {
-      return NextResponse.json(
-        {
-          ok: false,
-          error: "Unauthorized",
-          details: userError?.message,
-        },
-        { status: 401 }
-      );
+    if (!rateLimit.allowed) {
+      console.log('[MealsSelfTest] Rate limit exceeded');
+      return ErrorResponses.rateLimited(rateLimit.resetAt, rateLimit.limit);
     }
+
+    // Authentication check
+    const auth = await requireAuth();
+    if (!auth.success) {
+      return auth.response;
+    }
+    const { user, supabase } = auth;
 
     console.log("[SELF-TEST] Testing RLS for user:", { userId: user.id });
 
@@ -134,19 +122,8 @@ export async function POST(req: Request) {
       },
       userId: user.id,
     });
-  } catch (err: any) {
-    console.error("[SELF-TEST] Unexpected error:", {
-      message: err?.message,
-      stack: err?.stack,
-    });
-
-    return NextResponse.json(
-      {
-        ok: false,
-        error: "Server error during self-test",
-        message: err?.message || "Unknown error",
-      },
-      { status: 500 }
-    );
+  } catch (error) {
+    console.error("[MealsSelfTest] Unexpected error:", error);
+    return handleApiError(error, 'MealsSelfTest');
   }
 }

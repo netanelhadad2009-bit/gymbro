@@ -17,32 +17,44 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { requireAuth, checkRateLimit, validateBody, RateLimitPresets, ErrorResponses, handleApiError } from "@/lib/api/security";
 import { markTodayDone } from "@/lib/streak";
+import { z } from "zod";
+
+// Request validation schema
+const MarkStreakSchema = z.object({
+  source: z.enum(['nutrition', 'weight', 'workout', 'auto']).optional().default('auto'),
+});
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createClient();
+    // Rate limiting check (STANDARD - write operation)
+    const rateLimit = await checkRateLimit(request, {
+      ...RateLimitPresets.standard,
+      keyPrefix: 'streak-mark-post',
+    });
 
-    // Check authentication
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
-
-    if (authError || !user) {
-      return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
+    if (!rateLimit.allowed) {
+      console.log('[StreakMark] Rate limit exceeded');
+      return ErrorResponses.rateLimited(rateLimit.resetAt, rateLimit.limit);
     }
 
-    // Parse optional source
-    let source = "auto";
+    // Authentication check
+    const auth = await requireAuth();
+    if (!auth.success) {
+      return auth.response;
+    }
+    const { user } = auth;
+
+    // Validate request body (optional body with source field)
+    let source = 'auto';
     try {
-      const body = await request.json();
-      if (body.source) {
-        source = body.source;
+      const validation = await validateBody(request, MarkStreakSchema);
+      if (validation.success) {
+        source = validation.data.source;
       }
     } catch {
-      // No body or invalid JSON - use default
+      // Empty body is allowed - use default
     }
 
     // Mark today and get updated summary
@@ -53,13 +65,7 @@ export async function POST(request: NextRequest) {
       data: summary,
     });
   } catch (error) {
-    console.error("[API] POST /api/streak/mark error:", error);
-    return NextResponse.json(
-      {
-        ok: false,
-        error: error instanceof Error ? error.message : "Internal server error",
-      },
-      { status: 500 }
-    );
+    console.error("[StreakMark] Fatal error:", error);
+    return handleApiError(error, 'StreakMark');
   }
 }

@@ -1,5 +1,19 @@
-import { NextResponse } from 'next/server';
-import { createServerSupabaseClientWithAuth } from '@/lib/supabase-server';
+import { NextRequest, NextResponse } from 'next/server';
+import { requireAuth, checkRateLimit, validateBody, RateLimitPresets, ErrorResponses, handleApiError } from '@/lib/api/security';
+import { z } from 'zod';
+
+// Request validation schema
+const PushSubscribeSchema = z.object({
+  subscription: z.object({
+    endpoint: z.string().url('Endpoint must be a valid URL'),
+    keys: z.object({
+      p256dh: z.string().min(1, 'p256dh key is required'),
+      auth: z.string().min(1, 'auth key is required'),
+    }),
+  }),
+  userId: z.string().optional(), // Legacy field, ignored
+  resubscribe: z.boolean().optional(),
+});
 
 /**
  * POST /api/push/subscribe
@@ -7,38 +21,33 @@ import { createServerSupabaseClientWithAuth } from '@/lib/supabase-server';
  * Registers a web push subscription (Service Worker based)
  * Saves subscription to push_subscriptions table with endpoint, p256dh, and auth keys
  */
-export async function POST(req: Request) {
+export async function POST(request: NextRequest) {
   try {
-    const body = await req.json();
-    const { subscription, userId, resubscribe } = body;
+    // Rate limiting check (STANDARD - write operation)
+    const rateLimit = await checkRateLimit(request, {
+      ...RateLimitPresets.standard,
+      keyPrefix: 'push-subscribe',
+    });
 
-    // Validate subscription object
-    if (!subscription || !subscription.endpoint) {
-      return NextResponse.json(
-        { ok: false, error: 'Invalid subscription object' },
-        { status: 400 }
-      );
+    if (!rateLimit.allowed) {
+      console.log('[PushSubscribe] Rate limit exceeded');
+      return ErrorResponses.rateLimited(rateLimit.resetAt, rateLimit.limit);
     }
 
-    if (!subscription.keys || !subscription.keys.p256dh || !subscription.keys.auth) {
-      return NextResponse.json(
-        { ok: false, error: 'Invalid subscription keys' },
-        { status: 400 }
-      );
+    // Authentication check
+    const auth = await requireAuth();
+    if (!auth.success) {
+      return auth.response;
+    }
+    const { user, supabase } = auth;
+
+    // Validate request body
+    const validation = await validateBody(request, PushSubscribeSchema);
+    if (!validation.success) {
+      return validation.response;
     }
 
-    // Authenticate user
-    const supabase = await createServerSupabaseClientWithAuth();
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-
-    if (authError || !user) {
-      console.error('[API] Auth error:', authError?.message || 'No user');
-      return NextResponse.json(
-        { ok: false, error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
-
+    const { subscription, resubscribe } = validation.data;
     const endpoint = subscription.endpoint;
 
     console.log('[API] Web push subscription registration:', {
@@ -57,7 +66,7 @@ export async function POST(req: Request) {
         endpoint,
         p256dh: subscription.keys.p256dh,
         auth: subscription.keys.auth,
-        user_agent: req.headers.get('user-agent') || undefined,
+        user_agent: request.headers.get('user-agent') || undefined,
         active: true,
         last_used_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
@@ -69,14 +78,11 @@ export async function POST(req: Request) {
       .single();
 
     if (dbError) {
-      console.error('[API] Database error saving subscription:', dbError);
-      return NextResponse.json(
-        { ok: false, error: 'Failed to save subscription' },
-        { status: 500 }
-      );
+      console.error('[PushSubscribe] Database error saving subscription:', dbError);
+      throw new Error(`Failed to save subscription: ${dbError.message}`);
     }
 
-    console.log('[API] Web push subscription saved successfully:', {
+    console.log('[PushSubscribe] Web push subscription saved successfully:', {
       subscriptionId: savedSubscription.id.substring(0, 8),
       userId: user.id.substring(0, 8)
     });
@@ -86,11 +92,8 @@ export async function POST(req: Request) {
       message: 'Subscription saved successfully',
       subscriptionId: savedSubscription.id
     });
-  } catch (e: any) {
-    console.error('[API] Error saving push subscription:', e);
-    return NextResponse.json(
-      { ok: false, error: e?.message ?? 'unknown' },
-      { status: 500 }
-    );
+  } catch (error) {
+    console.error('[PushSubscribe] Fatal error:', error);
+    return handleApiError(error, 'PushSubscribe');
   }
 }

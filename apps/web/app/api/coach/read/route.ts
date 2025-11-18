@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { z } from "zod";
+import { requireAuth, checkRateLimit, validateBody, RateLimitPresets, ErrorResponses, handleApiError } from "@/lib/api/security";
 
 export const dynamic = "force-dynamic";
 
@@ -16,37 +17,36 @@ const schema = z.object({
  */
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createClient();
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    // Rate limiting check
+    const rateLimit = await checkRateLimit(request, {
+      ...RateLimitPresets.standard,
+      keyPrefix: 'coach-read',
+    });
 
-    if (authError || !user) {
-      return NextResponse.json(
-        { error: "Authentication required" },
-        { status: 401 }
-      );
+    if (!rateLimit.allowed) {
+      console.log('[Coach Read] Rate limit exceeded');
+      return ErrorResponses.rateLimited(rateLimit.resetAt, rateLimit.limit);
     }
 
-    const body = await request.json();
-    const validationResult = schema.safeParse(body);
+    // Authentication check
+    const auth = await requireAuth();
+    if (!auth.success) {
+      return auth.response;
+    }
+    const { user, supabase } = auth;
 
-    if (!validationResult.success) {
-      return NextResponse.json(
-        {
-          error: "Invalid input",
-          details: validationResult.error.flatten().fieldErrors,
-        },
-        { status: 400 }
-      );
+    // Validate request body
+    const validation = await validateBody(request, schema);
+    if (!validation.success) {
+      return validation.response;
     }
 
-    const data = validationResult.data;
+    const data = validation.data;
 
     // Verify user is the client in this thread
     if (data.client_id !== user.id) {
-      return NextResponse.json(
-        { error: "Access denied" },
-        { status: 403 }
-      );
+      console.log('[Coach Read] Access denied: user is not the client');
+      return ErrorResponses.forbidden("Access denied");
     }
 
     // Verify client is assigned to this coach
@@ -58,10 +58,8 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (assignmentError || !assignment) {
-      return NextResponse.json(
-        { error: "No coach assignment found" },
-        { status: 404 }
-      );
+      console.log('[Coach Read] No coach assignment found');
+      return ErrorResponses.notFound("No coach assignment found");
     }
 
     // Call database function to mark messages as read
@@ -76,7 +74,7 @@ export async function POST(request: NextRequest) {
     );
 
     if (rpcError) {
-      console.error("[POST /api/coach/read] RPC error:", rpcError);
+      console.error("[Coach Read] RPC error:", rpcError);
       return NextResponse.json(
         { error: "Failed to mark messages as read" },
         { status: 500 }
@@ -90,10 +88,7 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error("[POST /api/coach/read] Error:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    console.error("[Coach Read] Error:", error);
+    return handleApiError(error, 'CoachRead');
   }
 }

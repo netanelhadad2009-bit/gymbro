@@ -1,8 +1,7 @@
-import { NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
-import { createServerClient } from '@supabase/ssr';
+import { NextRequest, NextResponse } from 'next/server';
 import { buildJourneyFromPersona, derivePersonaFromMetadata, type Persona } from '@/lib/journey/builder';
 import { normalizePersona } from '@/lib/persona/normalize';
+import { requireAuth, checkRateLimit, RateLimitPresets, ErrorResponses, handleApiError } from '@/lib/api/security';
 
 const LOG_PREFIX = '[JourneyAPI]';
 
@@ -27,48 +26,29 @@ export const dynamic = 'force-dynamic';
  *   401: Not authenticated
  *   500: Server error
  */
-export async function GET() {
+export async function GET(request: NextRequest) {
   let personaSource: 'avatar' | 'metadata_fallback' = 'metadata_fallback';
 
   try {
     console.log(`${LOG_PREFIX} GET request received`);
 
-    // Create Supabase server client
-    const cookieStore = await cookies();
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          getAll() {
-            return cookieStore.getAll();
-          },
-          setAll(cookiesToSet) {
-            try {
-              cookiesToSet.forEach(({ name, value, options }) =>
-                cookieStore.set(name, value, options)
-              );
-            } catch {
-              // Server Component context
-            }
-          },
-        },
-      }
-    );
+    // Rate limiting check (STANDARD preset - read operation)
+    const rateLimit = await checkRateLimit(request, {
+      ...RateLimitPresets.standard,
+      keyPrefix: 'journey-plan-get',
+    });
 
-    // Get authenticated user
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
-
-    if (authError || !user) {
-      console.error(`${LOG_PREFIX} Authentication failed:`, authError);
-      return NextResponse.json(
-        { ok: false, error: 'unauthorized', message: 'Not authenticated' },
-        { status: 401, headers: { 'Cache-Control': 'no-store' } }
-      );
+    if (!rateLimit.allowed) {
+      console.log(`${LOG_PREFIX} Rate limit exceeded`);
+      return ErrorResponses.rateLimited(rateLimit.resetAt, rateLimit.limit);
     }
+
+    // Authentication check
+    const auth = await requireAuth();
+    if (!auth.success) {
+      return auth.response;
+    }
+    const { user, supabase } = auth;
 
     console.log(`${LOG_PREFIX} user:`, user.id);
 
@@ -199,19 +179,7 @@ export async function GET() {
       name: error?.name,
       message: error?.message,
       code: error?.code,
-      stack: error?.stack?.split('\n').slice(0, 5).join('\n'),
     });
-
-    return NextResponse.json(
-      {
-        ok: false,
-        error: 'server_error',
-        message: error?.message || 'Internal server error',
-      },
-      {
-        status: 500,
-        headers: { 'Cache-Control': 'no-store' },
-      }
-    );
+    return handleApiError(error, 'JourneyPlan');
   }
 }

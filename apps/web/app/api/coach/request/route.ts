@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { requireAuth, checkRateLimit, RateLimitPresets, ErrorResponses, handleApiError } from "@/lib/api/security";
 
 export const dynamic = "force-dynamic";
 
@@ -11,15 +12,23 @@ export const dynamic = "force-dynamic";
  */
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createClient();
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    // Rate limiting check (stricter for coach requests)
+    const rateLimit = await checkRateLimit(request, {
+      ...RateLimitPresets.strict,
+      keyPrefix: 'coach-request',
+    });
 
-    if (authError || !user) {
-      return NextResponse.json(
-        { error: "Authentication required" },
-        { status: 401 }
-      );
+    if (!rateLimit.allowed) {
+      console.log('[Coach Request] Rate limit exceeded');
+      return ErrorResponses.rateLimited(rateLimit.resetAt, rateLimit.limit);
     }
+
+    // Authentication check
+    const auth = await requireAuth();
+    if (!auth.success) {
+      return auth.response;
+    }
+    const { user, supabase } = auth;
 
     const isDev =
       process.env.NODE_ENV === "development" ||
@@ -35,7 +44,7 @@ export async function POST(request: NextRequest) {
       );
 
       if (rpcError) {
-        console.error("[POST /api/coach/request] RPC error:", rpcError);
+        console.error("[Coach Request] RPC error:", rpcError);
         return NextResponse.json(
           { error: "Failed to assign coach" },
           { status: 500 }
@@ -50,7 +59,7 @@ export async function POST(request: NextRequest) {
         .single();
 
       if (coachError) {
-        console.error("[POST /api/coach/request] Coach fetch error:", coachError);
+        console.error("[Coach Request] Coach fetch error:", coachError);
         return NextResponse.json(
           { error: "Failed to fetch coach" },
           { status: 500 }
@@ -74,7 +83,7 @@ export async function POST(request: NextRequest) {
         });
 
       if (insertError) {
-        console.error("[POST /api/coach/request] Insert error:", insertError);
+        console.error("[Coach Request] Insert error:", insertError);
         return NextResponse.json(
           { error: "Failed to create request" },
           { status: 500 }
@@ -89,10 +98,7 @@ export async function POST(request: NextRequest) {
       });
     }
   } catch (error) {
-    console.error("[POST /api/coach/request] Error:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    console.error("[Coach Request] Error:", error);
+    return handleApiError(error, 'CoachRequest');
   }
 }

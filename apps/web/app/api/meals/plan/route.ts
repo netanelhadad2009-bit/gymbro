@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { requireAuth, checkRateLimit, validateBody, RateLimitPresets, ErrorResponses, handleApiError } from "@/lib/api/security";
 import { z } from "zod";
 
 export const dynamic = "force-dynamic";
@@ -24,30 +24,31 @@ const DeletePlanMealSchema = z.object({
 // POST /api/meals/plan - Create a new plan meal
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createClient();
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    // Rate limiting check (STANDARD - write operation)
+    const rateLimit = await checkRateLimit(request, {
+      ...RateLimitPresets.standard,
+      keyPrefix: 'meals-plan-post',
+    });
 
-    if (authError || !user) {
-      return NextResponse.json(
-        { error: "Authentication required" },
-        { status: 401 }
-      );
+    if (!rateLimit.allowed) {
+      console.log('[PlanMeals POST] Rate limit exceeded');
+      return ErrorResponses.rateLimited(rateLimit.resetAt, rateLimit.limit);
     }
 
-    const body = await request.json();
-    const validationResult = CreatePlanMealSchema.safeParse(body);
+    // Authentication check
+    const auth = await requireAuth();
+    if (!auth.success) {
+      return auth.response;
+    }
+    const { user, supabase } = auth;
 
-    if (!validationResult.success) {
-      return NextResponse.json(
-        {
-          error: "Invalid input",
-          details: validationResult.error.flatten().fieldErrors
-        },
-        { status: 400 }
-      );
+    // Validate request body
+    const validation = await validateBody(request, CreatePlanMealSchema);
+    if (!validation.success) {
+      return validation.response;
     }
 
-    const data = validationResult.data;
+    const data = validation.data;
 
     // Check if this plan meal already exists for this date
     const { data: existingMeal } = await supabase
@@ -81,50 +82,45 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (insertError) {
-      console.error("Error inserting plan meal:", insertError);
-      return NextResponse.json(
-        { error: "Failed to create plan meal" },
-        { status: 500 }
-      );
+      console.error("[PlanMeals POST] Error inserting plan meal:", insertError);
+      throw new Error(`Failed to create plan meal: ${insertError.message}`);
     }
 
     return NextResponse.json({ success: true, meal });
   } catch (error) {
-    console.error("Plan meals API error:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    console.error("[PlanMeals POST] Fatal error:", error);
+    return handleApiError(error, 'PlanMealsPost');
   }
 }
 
 // DELETE /api/meals/plan - Delete a plan meal
 export async function DELETE(request: NextRequest) {
   try {
-    const supabase = await createClient();
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    // Rate limiting check (STANDARD - write operation)
+    const rateLimit = await checkRateLimit(request, {
+      ...RateLimitPresets.standard,
+      keyPrefix: 'meals-plan-delete',
+    });
 
-    if (authError || !user) {
-      return NextResponse.json(
-        { error: "Authentication required" },
-        { status: 401 }
-      );
+    if (!rateLimit.allowed) {
+      console.log('[PlanMeals DELETE] Rate limit exceeded');
+      return ErrorResponses.rateLimited(rateLimit.resetAt, rateLimit.limit);
     }
 
-    const body = await request.json();
-    const validationResult = DeletePlanMealSchema.safeParse(body);
+    // Authentication check
+    const auth = await requireAuth();
+    if (!auth.success) {
+      return auth.response;
+    }
+    const { user, supabase } = auth;
 
-    if (!validationResult.success) {
-      return NextResponse.json(
-        {
-          error: "Invalid input",
-          details: validationResult.error.flatten().fieldErrors
-        },
-        { status: 400 }
-      );
+    // Validate request body
+    const validation = await validateBody(request, DeletePlanMealSchema);
+    if (!validation.success) {
+      return validation.response;
     }
 
-    const { planMealId, date } = validationResult.data;
+    const { planMealId, date } = validation.data;
 
     // Delete the plan meal
     const { error: deleteError } = await supabase
@@ -135,19 +131,13 @@ export async function DELETE(request: NextRequest) {
       .eq("date", date);
 
     if (deleteError) {
-      console.error("Error deleting plan meal:", deleteError);
-      return NextResponse.json(
-        { error: "Failed to delete plan meal" },
-        { status: 500 }
-      );
+      console.error("[PlanMeals DELETE] Error deleting plan meal:", deleteError);
+      throw new Error(`Failed to delete plan meal: ${deleteError.message}`);
     }
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("Plan meals API error:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    console.error("[PlanMeals DELETE] Fatal error:", error);
+    return handleApiError(error, 'PlanMealsDelete');
   }
 }

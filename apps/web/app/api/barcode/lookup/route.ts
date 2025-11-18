@@ -11,6 +11,7 @@ import { createClient } from '@/lib/supabase/server';
 import type { BarcodeProduct, Per100g, ProviderSource } from '@/types/barcode';
 import { searchByBarcode as searchFatSecret } from '@/lib/clients/fatsecret';
 import { lookupIsraelMoH, isIsraeliBarcode } from '@/lib/clients/israelMoH';
+import { checkRateLimit, RateLimitPresets, ErrorResponses, handleApiError } from '@/lib/api/security';
 
 // Request validation
 const lookupSchema = z.object({
@@ -122,6 +123,17 @@ function normalizeOpenFoodFactsData(offData: any): { product: BarcodeProduct | n
 
 export async function POST(request: NextRequest) {
   try {
+    // Rate limiting check (search preset for barcode lookups)
+    const rateLimit = await checkRateLimit(request, {
+      ...RateLimitPresets.search,
+      keyPrefix: 'barcode-lookup',
+    });
+
+    if (!rateLimit.allowed) {
+      console.log('[BarcodeAPI] Rate limit exceeded');
+      return ErrorResponses.rateLimited(rateLimit.resetAt, rateLimit.limit);
+    }
+
     const body = await request.json();
 
     // Validate input
@@ -407,17 +419,24 @@ export async function POST(request: NextRequest) {
   } catch (error: any) {
     console.error('[BarcodeAPI] Error:', error);
 
+    // Handle timeout errors
     if (error.name === 'AbortError') {
       return NextResponse.json(
-        { ok: false, reason: 'network' },
+        { ok: false, reason: 'timeout', message: 'Request timed out' },
         { status: 504 }
       );
     }
 
-    return NextResponse.json(
-      { ok: false, reason: 'network' },
-      { status: 500 }
-    );
+    // Handle Zod validation errors
+    if (error.name === 'ZodError') {
+      return NextResponse.json(
+        { ok: false, reason: 'validation', message: 'Invalid barcode format', errors: error.errors },
+        { status: 400 }
+      );
+    }
+
+    // Use standardized error handler
+    return handleApiError(error, 'BarcodeAPI');
   }
 }
 

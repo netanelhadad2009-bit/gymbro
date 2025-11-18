@@ -1,9 +1,39 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { sendPushNotification } from '@/lib/webpush';
 import { subscriptions as subscriptionsStore } from '../subscriptions-store';
+import { requireAuth, checkRateLimit, RateLimitPresets, requireDevelopment, handleApiError } from '@/lib/api/security';
 
-export async function POST(req: Request) {
+export async function POST(request: NextRequest) {
   try {
+    // Development-only endpoint
+    requireDevelopment();
+
+    // Rate limiting (STRICT - test endpoint)
+    const rateLimit = await checkRateLimit(request, {
+      ...RateLimitPresets.strict,
+      keyPrefix: 'push-test',
+    });
+
+    if (!rateLimit.allowed) {
+      return NextResponse.json(
+        {
+          ok: false,
+          error: 'Rate limit exceeded',
+          retryAfter: rateLimit.resetAt
+        },
+        { status: 429 }
+      );
+    }
+
+    // Authentication check
+    const auth = await requireAuth();
+    if (!auth.success) {
+      return auth.response;
+    }
+    const { user } = auth;
+
+    console.log('[PushTest] Test notification request from:', user.id.substring(0, 8));
+
     // Get the most recent subscription from our store
     if (!subscriptionsStore || subscriptionsStore.size === 0) {
       return NextResponse.json(
@@ -60,28 +90,20 @@ export async function POST(req: Request) {
 
       throw error;
     }
-  } catch (e: any) {
-    console.error('[API] Test notification error:', e);
-    return NextResponse.json(
-      {
-        ok: false,
-        error: e?.message || 'Failed to send test notification',
-        details: e?.body || e?.stack
-      },
-      { status: 500 }
-    );
+  } catch (error) {
+    console.error('[PushTest] Test notification error:', error);
+    return handleApiError(error, 'PushTest');
   }
 }
 
 // Also support GET for easy testing in browser
-export async function GET(req: Request) {
-  // Only allow in development
-  if (process.env.NODE_ENV !== 'development') {
-    return NextResponse.json(
-      { ok: false, error: 'GET endpoint only available in development' },
-      { status: 403 }
-    );
-  }
+export async function GET(request: NextRequest) {
+  try {
+    // Development-only endpoint
+    requireDevelopment();
 
-  return POST(req);
+    return POST(request);
+  } catch (error) {
+    return handleApiError(error, 'PushTestGet');
+  }
 }

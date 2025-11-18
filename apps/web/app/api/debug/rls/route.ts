@@ -1,6 +1,6 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase-admin';
-import { supabaseServer } from '@/lib/supabase-server';
+import { requireDevelopment, requireAuth, handleApiError } from '@/lib/api/security';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -19,26 +19,22 @@ export const runtime = 'nodejs';
  *   or: pnpm doctor:rls
  */
 
-function isDev() {
-  return process.env.NODE_ENV !== 'production';
-}
-
-export async function GET() {
-  // SECURITY: Disable in production
-  if (!isDev()) {
-    return NextResponse.json(
-      { ok: false, error: 'Disabled in production' },
-      { status: 403 }
-    );
+export async function GET(request: NextRequest) {
+  // Block in production
+  const devGuard = requireDevelopment(request);
+  if (devGuard) {
+    return devGuard;
   }
 
   try {
-    const admin = createAdminClient();
-    const userClient = supabaseServer();
+    // Require authentication even in dev
+    const auth = await requireAuth();
+    if (!auth.success) {
+      return auth.response;
+    }
+    const { user: currentUser, supabase: userClient } = auth;
 
-    // Who am I (current session)?
-    const { data: userRes } = await userClient.auth.getUser();
-    const currentUser = userRes?.user ?? null;
+    const admin = createAdminClient();
 
     console.log('[RLS Diagnostic] Current user:', currentUser?.id);
 
@@ -61,8 +57,8 @@ export async function GET() {
       console.error('[RLS Diagnostic] Failed to fetch policies:', polErr);
     }
 
-    // 3) Impersonation test: pick a target user id
-    const targetUserId = currentUser?.id ?? '00000000-0000-0000-0000-000000000000';
+    // 3) Impersonation test: use current user id
+    const targetUserId = currentUser.id;
 
     console.log('[RLS Diagnostic] Running impersonation test for user:', targetUserId);
 
@@ -78,60 +74,54 @@ export async function GET() {
     let liveSelect: any = null;
     let liveErr: any = null;
 
-    if (currentUser) {
-      console.log('[RLS Diagnostic] Running live app test...');
+    console.log('[RLS Diagnostic] Running live app test...');
 
-      const payload = {
-        user_id: currentUser.id,
-        role: 'user' as const,
-        content: '__diagnostic__',
-        profile_snapshot: {},
-      };
+    const payload = {
+      user_id: currentUser.id,
+      role: 'user' as const,
+      content: '__diagnostic__',
+      profile_snapshot: {},
+    };
 
-      // Test INSERT
-      const ins = await userClient
-        .from('ai_messages')
-        .insert(payload)
-        .select('id')
-        .single();
+    // Test INSERT
+    const ins = await userClient
+      .from('ai_messages')
+      .insert(payload)
+      .select('id')
+      .single();
 
-      if (ins.error) {
-        console.error('[RLS Diagnostic] Insert failed:', ins.error);
-        liveErr = { stage: 'insert', ...ins.error };
-      } else {
-        liveInsert = ins.data;
-        console.log('[RLS Diagnostic] Insert successful:', ins.data.id);
-      }
-
-      // Test SELECT
-      const sel = await userClient
-        .from('ai_messages')
-        .select('id, role, content, created_at')
-        .eq('user_id', currentUser.id)
-        .order('created_at', { ascending: false })
-        .limit(3);
-
-      if (sel.error) {
-        console.error('[RLS Diagnostic] Select failed:', sel.error);
-        liveErr = liveErr || { stage: 'select', ...sel.error };
-      } else {
-        liveSelect = sel.data;
-        console.log('[RLS Diagnostic] Select successful, rows:', sel.data.length);
-      }
+    if (ins.error) {
+      console.error('[RLS Diagnostic] Insert failed:', ins.error);
+      liveErr = { stage: 'insert', ...ins.error };
     } else {
-      console.warn('[RLS Diagnostic] No current user, skipping live app test');
+      liveInsert = ins.data;
+      console.log('[RLS Diagnostic] Insert successful:', ins.data.id);
+    }
+
+    // Test SELECT
+    const sel = await userClient
+      .from('ai_messages')
+      .select('id, role, content, created_at')
+      .eq('user_id', currentUser.id)
+      .order('created_at', { ascending: false })
+      .limit(3);
+
+    if (sel.error) {
+      console.error('[RLS Diagnostic] Select failed:', sel.error);
+      liveErr = liveErr || { stage: 'select', ...sel.error };
+    } else {
+      liveSelect = sel.data;
+      console.log('[RLS Diagnostic] Select successful, rows:', sel.data.length);
     }
 
     // Build response
     const response = {
       ok: true,
       timestamp: new Date().toISOString(),
-      currentUser: currentUser
-        ? {
-            id: currentUser.id,
-            email: currentUser.email,
-          }
-        : null,
+      currentUser: {
+        id: currentUser.id,
+        email: currentUser.email,
+      },
       rlsStatus: {
         data: rlsStatus,
         error: rlsErr,
@@ -159,13 +149,6 @@ export async function GET() {
     return NextResponse.json(response);
   } catch (e: any) {
     console.error('[RLS Diagnostic] Unexpected error:', e);
-    return NextResponse.json(
-      {
-        ok: false,
-        error: e?.message ?? 'unknown',
-        stack: isDev() ? e?.stack : undefined,
-      },
-      { status: 500 }
-    );
+    return handleApiError(e, 'RLS-Diagnostic');
   }
 }
