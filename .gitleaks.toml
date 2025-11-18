@@ -1,0 +1,22 @@
+# Gitleaks configuration for gymbro/fitjourney
+# Ignores documented false positives while maintaining security
+
+title = "gitleaks config for gymbro"
+
+# Global allowlist for all rules
+[allowlist]
+description = "Allowlist for documented false positives"
+
+# Ignore all markdown documentation files
+# These contain curl examples with placeholder tokens like "$YOUR_JWT_TOKEN"
+paths = [
+    '''.*\.md$''',
+    '''Podfile\.lock$''',
+]
+
+# Note: test_auth.sh JWT token
+# The current working tree version of test_auth.sh is clean (uses env var).
+# However, one JWT exists in git history (commit 9f59a29ba) which would require
+# git-filter-repo to remove. Since we're avoiding history rewrites this pass,
+# this historical finding is documented here.
+# To fully clean: run git-filter-repo to scrub the history.
