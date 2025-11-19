@@ -13,6 +13,7 @@ export default function EditTargetsPage() {
   const router = useRouter();
   const [userId, setUserId] = useState<string>("");
   const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
   const [targets, setTargets] = useState({
     calories: "",
     protein: "",
@@ -64,18 +65,49 @@ export default function EditTargetsPage() {
     });
   }, []);
 
-  const handleSave = () => {
-    if (userId) {
-      // Convert strings to numbers before saving
+  const handleSave = async () => {
+    if (!userId || isSaving) return;
+
+    setIsSaving(true);
+
+    try {
+      // Convert strings to numbers
       const numericTargets = {
         calories: Number(targets.calories) || 0,
         protein: Number(targets.protein) || 0,
         carbs: Number(targets.carbs) || 0,
         fat: Number(targets.fat) || 0,
       };
+
+      console.log('[EditTargets] Saving targets to API:', numericTargets);
+
+      // Save to database via API (primary source of truth for backend)
+      const response = await fetch('/api/nutrition/plan', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(numericTargets),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to save targets');
+      }
+
+      console.log('[EditTargets] API save successful');
+
+      // Also save to localStorage (for frontend immediate updates)
       storage.setJson(userId, "customNutritionTargets", numericTargets);
+
+      console.log('[EditTargets] localStorage save successful');
+
+      router.back();
+    } catch (error) {
+      console.error('[EditTargets] Failed to save targets:', error);
+      alert('שגיאה בשמירת היעדים. נסה שוב.');
+      setIsSaving(false);
     }
-    router.back();
   };
 
   const handleCancel = () => {
@@ -191,9 +223,10 @@ export default function EditTargetsPage() {
           </button>
           <button
             onClick={handleSave}
-            className="flex-1 bg-[#E2F163] text-black font-semibold py-4 rounded-xl hover:bg-[#d4e350] active:translate-y-1 active:brightness-90 transition-all"
+            disabled={isSaving}
+            className="flex-1 bg-[#E2F163] text-black font-semibold py-4 rounded-xl hover:bg-[#d4e350] active:translate-y-1 active:brightness-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            שמור
+            {isSaving ? 'שומר...' : 'שמור'}
           </button>
         </div>
         </>

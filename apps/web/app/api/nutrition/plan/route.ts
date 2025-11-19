@@ -1,7 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireAuth, checkRateLimit, RateLimitPresets, ErrorResponses, handleApiError } from "@/lib/api/security";
+import { requireAuth, checkRateLimit, RateLimitPresets, ErrorResponses, handleApiError, validateBody } from "@/lib/api/security";
+import { z } from "zod";
 
 export const dynamic = "force-dynamic";
+
+const UpdateTargetsSchema = z.object({
+  calories: z.number().min(0).max(10000),
+  protein: z.number().min(0).max(1000),
+  carbs: z.number().min(0).max(2000),
+  fat: z.number().min(0).max(1000),
+});
 
 /**
  * GET /api/nutrition/plan
@@ -108,5 +116,133 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error("[NutritionPlan] Fatal error:", error);
     return handleApiError(error, 'NutritionPlan');
+  }
+}
+
+/**
+ * PUT /api/nutrition/plan
+ *
+ * Updates the user's nutrition plan dailyTargets
+ * Merges custom targets into existing nutrition_plan.dailyTargets
+ *
+ * Requirements:
+ * - User must be authenticated
+ * - User must have an existing nutrition plan
+ *
+ * Request body:
+ * - calories: number (0-10000)
+ * - protein: number (0-1000)
+ * - carbs: number (0-2000)
+ * - fat: number (0-1000)
+ *
+ * Returns:
+ * - 200: Targets updated successfully
+ * - 400: Invalid request body
+ * - 401: Not authenticated
+ * - 404: No nutrition plan found
+ * - 500: Server error
+ */
+export async function PUT(request: NextRequest) {
+  try {
+    console.log('[NutritionPlan] PUT /api/nutrition/plan - Start');
+
+    // Rate limiting check (STRICT - write operation)
+    const rateLimit = await checkRateLimit(request, {
+      ...RateLimitPresets.strict,
+      keyPrefix: 'nutrition-plan-update',
+    });
+
+    if (!rateLimit.allowed) {
+      console.log('[NutritionPlan] Rate limit exceeded');
+      return ErrorResponses.rateLimited(rateLimit.resetAt, rateLimit.limit);
+    }
+
+    // Authentication check
+    const auth = await requireAuth();
+    if (!auth.success) {
+      return auth.response;
+    }
+    const { user, supabase } = auth;
+
+    const userId = user.id;
+    console.log('[NutritionPlan] PUT request for user', userId.substring(0, 8));
+
+    // Validate request body
+    const validation = await validateBody(request, UpdateTargetsSchema);
+    if (!validation.success) {
+      return validation.response;
+    }
+
+    const { calories, protein, carbs, fat } = validation.data;
+    console.log('[NutritionPlan] Updating targets:', { calories, protein, carbs, fat });
+
+    // Fetch existing nutrition plan
+    const { data, error: fetchError } = await supabase
+      .from('profiles')
+      .select('nutrition_plan')
+      .eq('id', userId)
+      .single();
+
+    if (fetchError) {
+      console.error('[NutritionPlan] Failed to fetch plan:', fetchError);
+      return NextResponse.json(
+        { ok: false, error: 'database_error', message: fetchError.message },
+        { status: 500 }
+      );
+    }
+
+    if (!data || !data.nutrition_plan) {
+      console.warn(`[NutritionPlan] No plan found for user ${userId.substring(0, 8)}`);
+      return NextResponse.json(
+        { ok: false, error: 'not_found', message: 'No nutrition plan found. Complete onboarding first.' },
+        { status: 404 }
+      );
+    }
+
+    // Merge custom targets into existing dailyTargets
+    const existingPlan = data.nutrition_plan as any;
+    const updatedPlan = {
+      ...existingPlan,
+      dailyTargets: {
+        ...existingPlan.dailyTargets,
+        calories,
+        protein_g: protein,
+        carbs_g: carbs,
+        fat_g: fat,
+      },
+    };
+
+    // Update nutrition plan in database
+    const { error: updateError } = await supabase
+      .from('profiles')
+      .update({
+        nutrition_plan: updatedPlan,
+        nutrition_updated_at: new Date().toISOString(),
+      })
+      .eq('id', userId);
+
+    if (updateError) {
+      console.error('[NutritionPlan] Failed to update plan:', updateError);
+      return NextResponse.json(
+        { ok: false, error: 'database_error', message: updateError.message },
+        { status: 500 }
+      );
+    }
+
+    console.log('[NutritionPlan] Targets updated successfully');
+
+    return NextResponse.json({
+      ok: true,
+      message: 'Nutrition targets updated successfully',
+      updatedTargets: {
+        calories,
+        protein,
+        carbs,
+        fat,
+      },
+    });
+  } catch (error) {
+    console.error('[NutritionPlan] Fatal error:', error);
+    return handleApiError(error, 'NutritionPlanUpdate');
   }
 }
