@@ -309,16 +309,21 @@ export default function DayStreakPage({ initialData }: DayStreakPageProps) {
             <h2 className="text-white font-bold text-lg mb-4 text-right">השבוע</h2>
             <div className="flex items-center justify-center gap-3">
                 {(() => {
+                  // Get today's index first
+                  const jsDay = new Date().getDay();
+                  const todayHebrewIndex = jsToHebrewIndex[jsDay];
+
                   // Calculate which days are part of current streak
                   // Only show flames on days that are actually part of the active streak
                   const currentStreakDays = new Set<string>();
 
-                  if (data.current > 0) {
-                    // Find the most recent consecutive streak days
+                  if (data.current >= 0) {
+                    // Streak is 0-indexed, so current=0 means 1 day, current=1 means 2 days, etc.
+                    const maxStreakDays = data.current + 1;
                     let streakCount = 0;
 
-                    // Work backwards from today to find consecutive done days
-                    for (let i = data.thisWeek.length - 1; i >= 0 && streakCount < data.current; i--) {
+                    // Work backwards from TODAY's index (not from end of week)
+                    for (let i = todayHebrewIndex; i >= 0 && streakCount < maxStreakDays; i--) {
                       const day = data.thisWeek[i];
                       if (day.done) {
                         currentStreakDays.add(day.date);
@@ -333,18 +338,19 @@ export default function DayStreakPage({ initialData }: DayStreakPageProps) {
                   // Debug logging
                   console.log('[WeekStreak] Streak calculation:', {
                     currentStreak: data.current,
+                    todayIndex: todayHebrewIndex,
+                    todayLabel: HEBREW_DAYS[todayHebrewIndex],
+                    maxStreakDays: data.current + 1,
                     currentStreakDays: Array.from(currentStreakDays),
                     thisWeek: data.thisWeek.map((d, i) => ({
                       idx: i,
                       label: HEBREW_DAYS[i],
                       date: d.date,
                       done: d.done,
+                      isToday: i === todayHebrewIndex,
                       inCurrentStreak: currentStreakDays.has(d.date),
                     })),
                   });
-
-                  const jsDay = new Date().getDay();
-                  const todayHebrewIndex = jsToHebrewIndex[jsDay];
 
                   return data.thisWeek.map((day, idx) => {
                     const isToday = idx === todayHebrewIndex;
