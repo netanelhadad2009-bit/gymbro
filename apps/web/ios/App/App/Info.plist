@@ -65,38 +65,7 @@
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsArbitraryLoads</key>
-		<true/>
-		<key>NSAllowsArbitraryLoadsForMedia</key>
-		<true/>
-		<key>NSAllowsArbitraryLoadsInWebContent</key>
-		<true/>
-		<key>NSAllowsLocalNetworking</key>
-		<true/>
-		<key>NSExceptionDomains</key>
-		<dict>
-			<key>localhost</key>
-			<dict>
-				<key>NSIncludesSubdomains</key>
-				<true/>
-				<key>NSTemporaryExceptionAllowsInsecureHTTPLoads</key>
-				<true/>
-			</dict>
-			<key>127.0.0.1</key>
-			<dict>
-				<key>NSTemporaryExceptionAllowsInsecureHTTPLoads</key>
-				<true/>
-			</dict>
-			<key>172.20.10.6</key>
-			<dict>
-				<key>NSTemporaryExceptionAllowsInsecureHTTPLoads</key>
-				<true/>
-			</dict>
-			<key>10.100.102.4</key>
-			<dict>
-				<key>NSTemporaryExceptionAllowsInsecureHTTPLoads</key>
-				<true/>
-			</dict>
-		</dict>
+		<false/>
 	</dict>
 	<key>NSCameraUsageDescription</key>
 	<string>This app needs access to camera to scan meals</string>
@@ -104,11 +73,6 @@
 	<string>This app needs access to photos to upload meal images</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>This app needs access to save workout photos</string>
-	<key>WKAppBoundDomains</key>
-	<array>
-		<string>localhost</string>
-		<string>172.20.10.6</string>
-	</array>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
