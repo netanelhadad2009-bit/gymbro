@@ -19,11 +19,11 @@ export const LEGACY_BRAND_MAPPING = {
 // Storage key prefixes
 export const STORAGE_PREFIX = `${BRAND_SLUG}:`;
 
-// Bundle identifiers (update these when ready for store changes)
+// Bundle identifiers - updated to FitJourney across all platforms
 export const BUNDLE_ID = {
-  ios: 'com.fitjourney.app',  // Will require App Store update
-  android: 'com.fitjourney.app',  // Will require Play Store update
-  current: 'com.gymbro.app'  // Keep for compatibility during transition
+  ios: 'com.fitjourney.app',
+  android: 'com.fitjourney.app',
+  current: 'com.fitjourney.app'  // Updated from com.gymbro.app
 };
 
 // Analytics event prefixes

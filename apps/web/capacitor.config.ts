@@ -13,9 +13,9 @@ console.log(
 );
 
 const config: CapacitorConfig = {
-  // TODO: On full store rebrand, consider changing this to "com.fitjourney.app"
-  // and update all corresponding store / OAuth / deep link configurations.
-  appId: "com.gymbro.app",
+  // Bundle ID updated to match FitJourney rebrand
+  // Ensure App Store Connect, OAuth providers, and deep links are configured for this ID
+  appId: "com.fitjourney.app",
   appName: "FitJourney",
   webDir: "public",
   server: isDev

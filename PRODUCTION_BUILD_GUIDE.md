@@ -5,7 +5,7 @@ This guide documents the steps required to create a production-ready iOS build f
 
 **Last Updated:** 2025-11-19
 **App Version:** 1.0 (Build 1)
-**Bundle ID:** com.gymbro.app
+**Bundle ID:** com.fitjourney.app
 
 ---
 
