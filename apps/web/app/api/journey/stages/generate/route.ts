@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
 
     const avatarProfile: AvatarProfile = {
       id: avatar.id || 'temp-id',
-      goal: avatar.goal,
+      goal: avatar.goal as 'loss' | 'gain' | 'recomp' | 'maintain',
       diet: avatar.diet,
       frequency: avatar.frequency,
       experience: avatar.experience,

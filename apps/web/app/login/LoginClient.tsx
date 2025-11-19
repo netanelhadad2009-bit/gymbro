@@ -62,8 +62,9 @@ export default function LoginClient() {
       if (err) {
         setError(translateAuthError(err, 'sign_in'));
       } else if (data?.user) {
-        // Success - redirect to onboarding
-        router.push("/onboarding/gender");
+        console.log("[LoginClient] Login successful, redirecting to /journey");
+        // Success - redirect to journey (middleware will handle if onboarding needed)
+        router.push("/journey");
       }
     } catch (err) {
       setLoading(false);

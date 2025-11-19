@@ -5,7 +5,7 @@ import { z } from 'zod';
 // Request validation schema
 const RegisterNativeSchema = z.object({
   token: z.string().min(1, 'Token is required'),
-  platform: z.enum(['ios', 'android'], { errorMap: () => ({ message: 'Platform must be ios or android' }) }),
+  platform: z.enum(['ios', 'android']),
   deviceId: z.string().optional(),
 });
 

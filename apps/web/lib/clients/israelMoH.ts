@@ -5,16 +5,14 @@
  */
 
 import { createClient } from '@supabase/supabase-js';
+import { serverEnv, clientEnv } from '@/lib/env';
 import type { BarcodeProduct, Per100g, IsraelMoHProductRaw, IsraelMoHMatchMeta } from '@/types/barcode';
 
 // Supabase admin client for ETL operations
 function getSupabaseAdmin() {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-  if (!supabaseUrl || !serviceRoleKey) {
-    throw new Error('Supabase credentials not configured');
-  }
+  // Use centralized env validation
+  const supabaseUrl = clientEnv.NEXT_PUBLIC_SUPABASE_URL;
+  const serviceRoleKey = serverEnv.SUPABASE_SERVICE_ROLE_KEY;
 
   return createClient(supabaseUrl, serviceRoleKey);
 }

@@ -5,6 +5,7 @@ import { evaluateNode, UserContext } from "@/lib/journey/compute";
 import { validateTaskType } from "@/lib/journey/taskTypes";
 import { progressCache, cacheKeys } from "@/lib/journey/cache";
 import { requireAuth, checkRateLimit, validateBody, RateLimitPresets, ErrorResponses, handleApiError } from "@/lib/api/security";
+import { logger, logRateLimitViolation, sanitizeUserId } from "@/lib/logger";
 import crypto from "crypto";
 
 export const dynamic = "force-dynamic";
@@ -36,7 +37,11 @@ export async function POST(request: NextRequest) {
     });
 
     if (!rateLimit.allowed) {
-      console.log('[JourneyComplete] Rate limit exceeded');
+      logRateLimitViolation({
+        endpoint: '/api/journey/complete',
+        limit: rateLimit.limit,
+        current: rateLimit.limit + 1,
+      });
       return ErrorResponses.rateLimited(rateLimit.resetAt, rateLimit.limit);
     }
 
@@ -55,9 +60,10 @@ export async function POST(request: NextRequest) {
 
     const { node_id } = validation.data;
     const userId = user.id;
-    console.log("[JourneyComplete] Authenticated:", {
-      userId: userId.substring(0, 8),
-      node_id: node_id.substring(0, 8)
+    logger.info("Journey node completion attempt", {
+      userId: sanitizeUserId(userId),
+      nodeId: node_id,
+      endpoint: '/api/journey/complete',
     });
 
     // Fetch node and current progress
@@ -68,7 +74,11 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (nodeError) {
-      console.error("[JourneyComplete] Node fetch error:", nodeError.message);
+      logger.error("Journey node fetch error", {
+        userId: sanitizeUserId(userId),
+        nodeId: node_id,
+        error: nodeError.message,
+      });
       return NextResponse.json(
         { ok: false, error: "DatabaseError", message: nodeError.message },
         { status: 500, headers: NO_CACHE_HEADERS }
@@ -83,7 +93,11 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (progressError && progressError.code !== "PGRST116") {
-      console.error("[JourneyComplete] Progress fetch error:", progressError.message);
+      logger.error("Journey progress fetch error", {
+        userId: sanitizeUserId(userId),
+        nodeId: node_id,
+        error: progressError.message,
+      });
       return NextResponse.json(
         { ok: false, error: "DatabaseError", message: progressError.message },
         { status: 500, headers: NO_CACHE_HEADERS }
@@ -101,10 +115,11 @@ export async function POST(request: NextRequest) {
     );
 
     if (!evaluation.canComplete) {
-      console.log("[JourneyComplete] Conditions not met:", {
-        userId: userId.substring(0, 8),
-        node_id: node_id.substring(0, 8),
-        missing: evaluation.missing
+      logger.warn("Journey node conditions not met", {
+        userId: sanitizeUserId(userId),
+        nodeId: node_id,
+        missing: evaluation.missing,
+        satisfied: evaluation.satisfied,
       });
 
       return NextResponse.json(
@@ -133,7 +148,11 @@ export async function POST(request: NextRequest) {
       });
 
     if (updateError) {
-      console.error("[JourneyComplete] Update error:", updateError.message);
+      logger.error("Journey node update error", {
+        userId: sanitizeUserId(userId),
+        nodeId: node_id,
+        error: updateError.message,
+      });
       return NextResponse.json(
         { ok: false, error: "DatabaseError", message: updateError.message },
         { status: 500, headers: NO_CACHE_HEADERS }
@@ -151,7 +170,11 @@ export async function POST(request: NextRequest) {
       });
 
     if (pointsError) {
-      console.warn("[JourneyComplete] Points error:", pointsError.message);
+      logger.warn("Points award error (non-fatal)", {
+        userId: sanitizeUserId(userId),
+        nodeId: node_id,
+        error: pointsError.message,
+      });
       // Non-fatal - continue
     }
 
@@ -168,7 +191,11 @@ export async function POST(request: NextRequest) {
         .single();
 
       if (badgeError && badgeError.code !== "23505") { // Ignore duplicate constraint
-        console.warn("[JourneyComplete] Badge error:", badgeError.message);
+        logger.warn("Badge award error (non-fatal)", {
+          userId: sanitizeUserId(userId),
+          nodeId: node_id,
+          error: badgeError.message,
+        });
       }
     }
 
@@ -200,7 +227,11 @@ export async function POST(request: NextRequest) {
         });
 
       if (unlockError) {
-        console.warn("[JourneyComplete] Unlock error:", unlockError.message);
+        logger.warn("Next node unlock error (non-fatal)", {
+          userId: sanitizeUserId(userId),
+          nextNodeId: nextNode.id,
+          error: unlockError.message,
+        });
         // Non-fatal
       }
     }
@@ -208,15 +239,14 @@ export async function POST(request: NextRequest) {
     // Invalidate cache to force fresh data on next journey load
     progressCache.invalidate(cacheKeys.journey(userId));
     progressCache.invalidate(cacheKeys.userPoints(userId));
-    console.log("[JourneyComplete] Invalidated cache for user:", userId.substring(0, 8));
 
     const duration = Date.now() - startTime;
-    console.log("[JourneyComplete] Success:", {
-      userId: userId.substring(0, 8),
-      node_id: node_id.substring(0, 8),
-      points: pointsAwarded,
-      next_node_id: nextNodeId?.substring(0, 8),
-      duration: `${duration}ms`
+    logger.info("Journey node completed successfully", {
+      userId: sanitizeUserId(userId),
+      nodeId: node_id,
+      pointsAwarded,
+      nextNodeId,
+      durationMs: duration,
     });
 
     return NextResponse.json(
@@ -231,9 +261,10 @@ export async function POST(request: NextRequest) {
 
   } catch (err: any) {
     const duration = Date.now() - startTime;
-    console.error("[JourneyComplete] Fatal error:", {
-      message: err?.message,
-      duration: `${duration}ms`
+    logger.error("Fatal error in journey complete endpoint", {
+      endpoint: '/api/journey/complete',
+      errorMessage: err?.message,
+      durationMs: duration,
     });
 
     return handleApiError(err, 'JourneyComplete');

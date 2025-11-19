@@ -7,6 +7,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAuth, checkRateLimit, RateLimitPresets, ErrorResponses, handleApiError } from '@/lib/api/security';
+import { logger, logRateLimitViolation, sanitizeUserId } from '@/lib/logger';
 
 export async function GET(
   request: NextRequest,
@@ -20,7 +21,11 @@ export async function GET(
     });
 
     if (!rateLimit.allowed) {
-      console.log('[MealDetails] Rate limit exceeded');
+      logRateLimitViolation({
+        endpoint: '/api/meals/[id]',
+        limit: rateLimit.limit,
+        current: rateLimit.limit + 1,
+      });
       return ErrorResponses.rateLimited(rateLimit.resetAt, rateLimit.limit);
     }
 
@@ -39,7 +44,11 @@ export async function GET(
 
     const userId = user.id;
 
-    console.log('[MealDetails] Fetching meal ID:', mealId);
+    logger.debug('Fetching meal by ID', {
+      userId: sanitizeUserId(userId),
+      mealId,
+      endpoint: '/api/meals/[id]',
+    });
 
     // Fetch the meal
     const { data: meal, error } = await supabase
@@ -50,7 +59,12 @@ export async function GET(
       .single();
 
     if (error) {
-      console.error('[MealDetails] Database error:', error);
+      logger.error('Database error fetching meal', {
+        userId: sanitizeUserId(userId),
+        mealId,
+        errorCode: error.code,
+        errorMessage: error.message,
+      });
 
       if (error.code === 'PGRST116') {
         return ErrorResponses.notFound('Meal not found');
@@ -60,10 +74,18 @@ export async function GET(
     }
 
     if (!meal) {
+      logger.warn('Meal not found', {
+        userId: sanitizeUserId(userId),
+        mealId,
+      });
       return ErrorResponses.notFound('Meal not found');
     }
 
-    console.log('[MealDetails] Found meal:', meal.name);
+    logger.info('Meal retrieved successfully', {
+      userId: sanitizeUserId(userId),
+      mealId,
+      mealName: meal.name,
+    });
 
     return NextResponse.json(
       {
@@ -77,7 +99,10 @@ export async function GET(
       }
     );
   } catch (error) {
-    console.error('[MealDetails] Fatal error:', error);
+    logger.error('Fatal error in meal details endpoint', {
+      endpoint: '/api/meals/[id]',
+      error: error instanceof Error ? error.message : String(error),
+    });
     return handleApiError(error, 'MealDetails');
   }
 }

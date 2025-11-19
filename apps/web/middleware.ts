@@ -7,7 +7,10 @@ export async function middleware(req: NextRequest) {
   const url = new URL(req.url);
   const path = url.pathname;
 
-  console.log(`[Middleware] Request: ${path}`);
+  console.log(`[Middleware] Request: ${path}`, {
+    userAgent: req.headers.get('user-agent')?.slice(0, 50),
+    timestamp: new Date().toISOString(),
+  });
 
   // Allow static assets, API calls, and mobile-boot without auth check
   if (
@@ -16,6 +19,9 @@ export async function middleware(req: NextRequest) {
     path.startsWith("/images") ||
     path === "/favicon.ico" ||
     path === "/mobile-boot" ||
+    path === "/minimal-test" ||
+    path === "/test" ||
+    path === "/ios-test" ||
     // Skip static files (images, fonts, etc.)
     /\.(svg|png|jpg|jpeg|gif|webp|ico|woff|woff2|ttf|eot)$/i.test(path)
   ) {
@@ -42,26 +48,29 @@ export async function middleware(req: NextRequest) {
     // If there's an error getting session, let the request through
     // The client-side will handle auth state
     if (error) {
-      console.warn("[Middleware] Error getting session:", error);
+      console.warn("[Middleware] Error getting session:", error.message);
       return res;
     }
 
     if (!session) {
       // ❌ Not logged in → show landing page
-      console.log(`[Middleware] No session, path: ${path}`);
+      console.log(`[Middleware] No session detected for path: ${path}`);
       if (path === "/" || path.startsWith("/auth") || path.startsWith("/signup") || path.startsWith("/login") || path.startsWith("/onboarding")) {
+        console.log(`[Middleware] Allowing unauthenticated access to: ${path}`);
         return res;
       }
-      console.log(`[Middleware] Redirecting to / (no session)`);
+      console.log(`[Middleware] Redirecting to / (no session, protected route attempted)`);
       return NextResponse.redirect(new URL("/", req.url));
     }
 
     // ✅ Logged in → always go to main app
-    console.log(`[Middleware] Has session, path: ${path}`);
+    console.log(`[Middleware] Session found for user: ${session.user.id.slice(0, 8)}...`);
     if (path === "/" || path.startsWith("/onboarding") || path.startsWith("/auth") || path.startsWith("/signup")) {
-      console.log(`[Middleware] Redirecting to /journey (has session)`);
+      console.log(`[Middleware] Authenticated user accessing public route, redirecting to /journey`);
       return NextResponse.redirect(new URL("/journey", req.url));
     }
+
+    console.log(`[Middleware] Allowing authenticated access to: ${path}`);
 
     return res;
   } catch (e) {

@@ -1,7 +1,8 @@
 import OpenAI from "openai";
 import { ZodType } from "zod";
+import { serverEnv } from "@/lib/env";
 
-const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+const client = new OpenAI({ apiKey: serverEnv.OPENAI_API_KEY });
 
 /**
  * Timeout wrapper for OpenAI calls
@@ -54,9 +55,7 @@ export async function generateJson<T>({
   temperature = 0.2,
   maxOutputTokens = 4000,
 }: GenerateJsonArgs<T>): Promise<T> {
-  if (!process.env.OPENAI_API_KEY) {
-    throw new Error("Missing OPENAI_API_KEY");
-  }
+  // serverEnv.OPENAI_API_KEY is already validated at startup
 
   if (process.env.LOG_PROMPT === "1") {
     console.log("🤖 [AI Request]", {

@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { serverEnv, clientEnv } from '@/lib/env';
 
 /**
  * Supabase admin client using service role key
@@ -11,15 +12,9 @@ import { createClient } from '@supabase/supabase-js';
  * NEVER expose service role key to the client!
  */
 export function createAdminClient() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-  if (!url || !serviceRoleKey) {
-    throw new Error(
-      'Missing SUPABASE environment variables for admin client. ' +
-      'Ensure NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are set.'
-    );
-  }
+  // Use centralized env validation (throws if missing)
+  const url = clientEnv.NEXT_PUBLIC_SUPABASE_URL;
+  const serviceRoleKey = serverEnv.SUPABASE_SERVICE_ROLE_KEY;
 
   return createClient(url, serviceRoleKey, {
     auth: {

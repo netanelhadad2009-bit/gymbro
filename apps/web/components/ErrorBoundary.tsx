@@ -14,33 +14,34 @@ interface ErrorBoundaryProps {
 }
 
 // Test instrumentation: Push events to global error log
-function pushErrorEvent(event: any) {
-  if (typeof window !== 'undefined') {
-    (window as any).__gbErrorEvents = (window as any).__gbErrorEvents || [];
-    (window as any).__gbErrorEvents.push({ ...event, ts: Date.now() });
-  }
-}
+// DISABLED for iOS compatibility
+// function pushErrorEvent(event: any) {
+//   if (typeof window !== 'undefined') {
+//     (window as any).__gbErrorEvents = (window as any).__gbErrorEvents || [];
+//     (window as any).__gbErrorEvents.push({ ...event, ts: Date.now() });
+//   }
+// }
 
 export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
   constructor(props: ErrorBoundaryProps) {
     super(props);
     this.state = { hasError: false };
 
-    // Test hook: Track boundary mount
-    if (typeof window !== 'undefined') {
-      pushErrorEvent({ type: 'boundary-mount' });
-    }
+    // Test hook: Track boundary mount - DISABLED for iOS compatibility
+    // if (typeof window !== 'undefined') {
+    //   pushErrorEvent({ type: 'boundary-mount' });
+    // }
   }
 
   static getDerivedStateFromError(error: Error): ErrorBoundaryState {
     console.error('[ErrorBoundary] Caught error:', error);
 
-    // Test hook: Track error caught
-    pushErrorEvent({
-      type: 'boundary-caught',
-      errorName: error.name,
-      message: error.message,
-    });
+    // Test hook: Track error caught - DISABLED for iOS compatibility
+    // pushErrorEvent({
+    //   type: 'boundary-caught',
+    //   errorName: error.name,
+    //   message: error.message,
+    // });
 
     return { hasError: true, error };
   }
@@ -66,7 +67,7 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
   handleReload = () => {
     // Clear potentially corrupted storage before reload
     try {
-      if (typeof window !== 'undefined') {
+      if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
         console.log('[ErrorBoundary] Clearing storage before reload');
         // Don't clear everything, just plan session which might be corrupted
         const planSessionKey = 'plan_session';
@@ -75,7 +76,9 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
     } catch (e) {
       console.error('[ErrorBoundary] Failed to clear storage:', e);
     }
-    window.location.reload();
+    if (typeof window !== 'undefined') {
+      window.location.reload();
+    }
   };
 
   render() {

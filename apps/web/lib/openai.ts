@@ -1,5 +1,6 @@
 import OpenAI from 'openai';
+import { serverEnv } from '@/lib/env';
 
 export const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY!,
+  apiKey: serverEnv.OPENAI_API_KEY,
 });

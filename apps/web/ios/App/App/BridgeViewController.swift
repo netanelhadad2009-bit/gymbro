@@ -3,7 +3,7 @@ import UIKit
 import WebKit
 
 class BridgeViewController: CAPBridgeViewController, WKNavigationDelegate {
-    private let allowedHosts: Set<String> = ["127.0.0.1", "localhost"]
+    private let allowedHosts: Set<String> = ["127.0.0.1", "localhost", "172.20.10.6", "0.0.0.0"]
 
     override func viewDidLoad() {
         super.viewDidLoad() // MUST be first so Capacitor builds WKWebView

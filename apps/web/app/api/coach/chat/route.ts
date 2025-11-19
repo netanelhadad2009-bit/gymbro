@@ -291,7 +291,7 @@ export async function POST(req: NextRequest) {
       ];
 
       // Prepare messages for OpenAI
-      const prior = (history || []).map((msg) => ({
+      const prior = (history || []).map((msg: { role: string; content: string }) => ({
         role: msg.role as "user" | "assistant",
         content: msg.content,
       }));

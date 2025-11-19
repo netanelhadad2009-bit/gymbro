@@ -27,6 +27,7 @@ async function finalizeServerSideIfNeeded(userId: string, draft: any, supabase: 
   // If status is pending without plan, generate server-side
   if (draft.status === 'pending' && !draft.plan) {
     const days = 1; // Always force days=1
+    console.log(`[Security][NutritionPlan] userId=${userId.substring(0, 8)} source=onboarding status=pending - triggering server-side generation`);
     console.log(`[Attach] Server-side generate start (days=${days})`);
 
     // Fetch user profile for generation

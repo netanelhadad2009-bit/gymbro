@@ -95,7 +95,7 @@ export async function GET(request: NextRequest) {
         .select("id")
         .contains("metadata", { source: "avatar" });
 
-      validChapterIds = avatarChapterList?.map(c => c.id) || [];
+      validChapterIds = avatarChapterList?.map((c: { id: string }) => c.id) || [];
       console.log("[JourneyAPI] Valid avatar chapter IDs:", validChapterIds.length);
     } else {
       console.log("[JourneyAPI] No avatar chapters - showing seed chapters");
@@ -104,7 +104,7 @@ export async function GET(request: NextRequest) {
         .select("id")
         .contains("metadata", { source: "seed" });
 
-      validChapterIds = seedChapterList?.map(c => c.id) || [];
+      validChapterIds = seedChapterList?.map((c: { id: string }) => c.id) || [];
       console.log("[JourneyAPI] Valid seed chapter IDs:", validChapterIds.length);
     }
 
@@ -119,7 +119,7 @@ export async function GET(request: NextRequest) {
 
     // Filter chapters to only valid chapter IDs (avatar OR seed, not both)
     if (validChapterIds.length > 0) {
-      chapters = chapters.filter(ch => validChapterIds.includes(ch.chapter_id));
+      chapters = chapters.filter((ch: any) => validChapterIds.includes(ch.chapter_id));
       console.log("[JourneyAPI] Filtered to", chapters.length, "chapters from", chapterStatus?.length || 0, "total");
     }
 
@@ -145,7 +145,7 @@ export async function GET(request: NextRequest) {
       if (baseError) {
         console.error("[JourneyAPI] Base chapters error:", baseError.message);
       } else {
-        chapters = (baseChapters || []).map(c => ({
+        chapters = (baseChapters || []).map((c: any) => ({
           user_id: userId,
           chapter_id: c.id,
           chapter_slug: c.slug,
@@ -215,7 +215,7 @@ export async function GET(request: NextRequest) {
     }
 
     // 5. Fetch user progress for these nodes
-    const nodeIds = nodes?.map(n => n.id) || [];
+    const nodeIds = nodes?.map((n: any) => n.id) || [];
     const { data: progress, error: progressError } = await supabase
       .from("user_progress")
       .select("*")
@@ -232,7 +232,7 @@ export async function GET(request: NextRequest) {
       .select("points")
       .eq("user_id", userId);
 
-    const totalPoints = pointsData?.reduce((sum, p) => sum + (p.points || 0), 0) || 0;
+    const totalPoints = pointsData?.reduce((sum: number, p: { points: number | null }) => sum + (p.points || 0), 0) || 0;
 
     // 7. Fetch total badges
     const { data: badgesData, error: badgesError } = await supabase
@@ -243,8 +243,8 @@ export async function GET(request: NextRequest) {
     const totalBadges = badgesData?.length || 0;
 
     // 8. Merge nodes with progress
-    const nodesWithProgress = nodes?.map(node => {
-      const nodeProgress = progress?.find(p => p.node_id === node.id);
+    const nodesWithProgress = nodes?.map((node: any) => {
+      const nodeProgress = progress?.find((p: any) => p.node_id === node.id);
       return {
         ...node,
         progress: nodeProgress || {
@@ -260,7 +260,7 @@ export async function GET(request: NextRequest) {
       userId: userId.substring(0, 8),
       source: hasAvatarChapters ? "avatar" : "seed",
       chapters: chapters.length,
-      chapterTitles: chapters.map(c => c.chapter_name),
+      chapterTitles: chapters.map((c: any) => c.chapter_name),
       nodes: nodesWithProgress.length,
       totalPoints,
       totalBadges,

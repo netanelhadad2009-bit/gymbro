@@ -18,3 +18,9 @@ scripts/stability-summary-*.md
 # Ignore Supabase temp files and generic .temp directories
 supabase/.temp/
 **/.temp/
+
+# Backup and sensitive files
+*.bak
+*.backup
+gitleaks-*.json
+secrets-replacements.txt

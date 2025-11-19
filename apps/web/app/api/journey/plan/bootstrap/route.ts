@@ -104,7 +104,7 @@ export async function POST(request: NextRequest) {
       const { data: nodes } = await supabase
         .from("journey_nodes")
         .select("id")
-        .in("chapter_id", chapters?.map(c => c.id) || []);
+        .in("chapter_id", chapters?.map((c: any) => c.id) || []);
 
       return NextResponse.json({
         ok: true,
@@ -113,7 +113,7 @@ export async function POST(request: NextRequest) {
         data: {
           userId,
           personaKey: chapters?.[0]?.metadata?.persona_key || "unknown",
-          chapters: chapters?.map(c => ({
+          chapters: chapters?.map((c: any) => ({
             id: c.id,
             title: c.title,
             subtitle: c.subtitle,
@@ -275,7 +275,7 @@ export async function POST(request: NextRequest) {
         userId,
         personaKey,
         persona,
-        chapters: insertedChapters.map(c => ({
+        chapters: insertedChapters.map((c: any) => ({
           id: c.id,
           title: c.title,
           subtitle: c.subtitle,

@@ -5,6 +5,8 @@
  */
 
 import webpush from 'web-push';
+import { serverEnv, clientEnv } from '@/lib/env';
+import { logger } from '@/lib/logger';
 
 let isInitialized = false;
 
@@ -17,17 +19,10 @@ export function initializeWebPush() {
     return;
   }
 
-  const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
-  const vapidPrivateKey = process.env.VAPID_PRIVATE_KEY;
-  const vapidSubject = process.env.VAPID_SUBJECT || 'mailto:support@fitjourney.app';
-
-  if (!vapidPublicKey || vapidPublicKey === 'REPLACE_WITH_YOUR_BASE64URL_VAPID_PUBLIC_KEY') {
-    throw new Error('NEXT_PUBLIC_VAPID_PUBLIC_KEY is not configured');
-  }
-
-  if (!vapidPrivateKey || vapidPrivateKey === 'REPLACE_WITH_YOUR_VAPID_PRIVATE_KEY') {
-    throw new Error('VAPID_PRIVATE_KEY is not configured');
-  }
+  // Use centralized env validation
+  const vapidPublicKey = clientEnv.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
+  const vapidPrivateKey = serverEnv.VAPID_PRIVATE_KEY;
+  const vapidSubject = serverEnv.VAPID_SUBJECT;
 
   webpush.setVapidDetails(
     vapidSubject,
@@ -36,7 +31,7 @@ export function initializeWebPush() {
   );
 
   isInitialized = true;
-  console.log('[WebPush] Initialized successfully');
+  logger.info('WebPush initialized successfully');
 }
 
 export interface PushPayload {
@@ -68,14 +63,14 @@ export async function sendPushNotification(
 
   try {
     const result = await webpush.sendNotification(subscription, payloadString);
-    console.log('[WebPush] Notification sent successfully');
+    logger.debug('WebPush notification sent successfully');
     return result;
   } catch (error: any) {
-    console.error('[WebPush] Send error:', error);
+    logger.error('WebPush send error', { error: error.message, statusCode: error.statusCode });
 
     // Handle expired subscriptions
     if (error.statusCode === 410 || error.statusCode === 404) {
-      console.log('[WebPush] Subscription expired (410/404)');
+      logger.debug('WebPush subscription expired (410/404)');
     }
 
     throw error;
@@ -116,7 +111,7 @@ export async function sendPushNotificationToMultiple(
 
   await Promise.allSettled(promises);
 
-  console.log('[WebPush] Batch send complete:', results);
+  logger.info('WebPush batch send complete', results);
   return results;
 }
 

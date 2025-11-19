@@ -52,7 +52,7 @@
       </BuildableProductRunnable>
       <EnvironmentVariables>
          <EnvironmentVariable
-            key = " CAP_DEV"
+            key = "CAP_DEV"
             value = "1"
             isEnabled = "YES">
          </EnvironmentVariable>

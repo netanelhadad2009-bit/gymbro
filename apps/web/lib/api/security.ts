@@ -322,22 +322,28 @@ export const ErrorResponses = {
     { status: 409 }
   ),
 
-  rateLimited: (resetAt: number, limit?: number) => NextResponse.json(
-    {
-      ok: false,
-      error: 'RateLimitExceeded',
-      message: 'Too many requests',
-      retryAfter: Math.ceil((resetAt - Date.now()) / 1000),
-      limit
-    },
-    {
-      status: 429,
-      headers: {
-        'Retry-After': String(Math.ceil((resetAt - Date.now()) / 1000)),
-        'X-RateLimit-Reset': new Date(resetAt).toISOString(),
+  rateLimited: (resetAt: number, limit?: number) => {
+    // Defensive: handle invalid resetAt values
+    const safeResetAt = resetAt && !isNaN(resetAt) ? resetAt : Date.now() + 60000;
+    const retryAfterSeconds = Math.ceil(Math.max(0, (safeResetAt - Date.now()) / 1000));
+
+    return NextResponse.json(
+      {
+        ok: false,
+        error: 'RateLimitExceeded',
+        message: 'Too many requests',
+        retryAfter: retryAfterSeconds,
+        limit
+      },
+      {
+        status: 429,
+        headers: {
+          'Retry-After': String(retryAfterSeconds),
+          'X-RateLimit-Reset': new Date(safeResetAt).toISOString(),
+        }
       }
-    }
-  ),
+    );
+  },
 
   serverError: (message = 'Internal server error') => {
     // Never expose internal error details to client
@@ -373,7 +379,7 @@ export function handleApiError(err: any, context: string): NextResponse {
   // Check for known error types
   if (err instanceof z.ZodError) {
     return ErrorResponses.badRequest('Invalid request data', {
-      errors: err.errors.map(e => ({
+      errors: err.issues.map((e: z.ZodIssue) => ({
         field: e.path.join('.'),
         message: e.message
       }))

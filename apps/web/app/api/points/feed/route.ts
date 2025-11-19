@@ -60,7 +60,11 @@ export async function GET(request: NextRequest) {
     const userId = user.id;
 
     // Validate query params
-    const { stageId, cursor, limit } = validateSearchParams(request, PointsFeedQuerySchema);
+    const paramsValidation = validateSearchParams(request, PointsFeedQuerySchema);
+    if (!paramsValidation.success) {
+      return paramsValidation.response;
+    }
+    const { stageId, cursor, limit } = paramsValidation.data;
 
     console.log('[PointsFeed] Query:', { stageId, cursor, limit });
 

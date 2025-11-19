@@ -51,16 +51,34 @@ export default function RemindersPage() {
   const requestInProgress = useRef(false);
   const isNative = Capacitor.isNativePlatform();
 
+  // Simulator mock dialog state
+  const [showSimulatorDialog, setShowSimulatorDialog] = useState(false);
+
   // Initialize and check permission status
   useEffect(() => {
     async function initPermissions() {
+      console.log('[RemindersPage] Initializing permissions...');
+      console.log('[RemindersPage] Is Native:', isNative);
+
       registerServiceWorker();
       await loadDiagnostics();
 
       // Check current permission status
       const status = await getPushStatus();
+      console.log('[RemindersPage] Permission status from API:', status);
+
+      // In development, always show prompt for iOS native to allow testing
+      const isDev = process.env.NODE_ENV === 'development';
+      console.log('[RemindersPage] Is Development:', isDev);
+
+      if (isDev && isNative) {
+        console.log('[RemindersPage] iOS Development mode - forcing prompt state');
+        setPermissionStatus('prompt');
+        return;
+      }
+
       setPermissionStatus(status);
-      console.log('[RemindersPage] Current permission status:', status);
+      console.log('[RemindersPage] Setting permission status to:', status);
 
       // If already granted, proceed to next step immediately
       // (This is a fallback - normally the readiness page skips to generating directly)
@@ -72,7 +90,7 @@ export default function RemindersPage() {
     }
 
     initPermissions();
-  }, [router]);
+  }, [router, isNative]);
 
   // Reload diagnostics when subscription changes
   useEffect(() => {
@@ -111,6 +129,14 @@ export default function RemindersPage() {
       return;
     }
 
+    // In development on iOS Simulator, show mock system dialog
+    const isDev = process.env.NODE_ENV === 'development';
+    if (isDev && isNative) {
+      console.log('[RemindersPage] iOS Simulator - showing mock system dialog');
+      setShowSimulatorDialog(true);
+      return;
+    }
+
     try {
       requestInProgress.current = true;
       setLoading(true);
@@ -143,6 +169,27 @@ export default function RemindersPage() {
       setLoading(false);
       requestInProgress.current = false;
     }
+  }
+
+  /**
+   * Handle simulator mock dialog - Allow
+   */
+  function handleSimulatorAllow() {
+    setShowSimulatorDialog(false);
+    console.log('[RemindersPage] Simulator mock: User clicked Allow');
+    saveOnboardingData({ notifications_opt_in: true });
+    setMsg('התראות הופעלו בהצלחה! ✓');
+    setMsgType('success');
+    setTimeout(() => router.push("/onboarding/generating"), 1500);
+  }
+
+  /**
+   * Handle simulator mock dialog - Don't Allow
+   */
+  function handleSimulatorDeny() {
+    setShowSimulatorDialog(false);
+    console.log('[RemindersPage] Simulator mock: User clicked Don\'t Allow');
+    setPermissionStatus('denied');
   }
 
   /**
@@ -262,6 +309,57 @@ export default function RemindersPage() {
 
   return (
     <main dir="rtl" className="min-h-screen bg-[#0B0D0E] flex flex-col items-center justify-center px-6">
+      {/* Simulator Mock iOS System Dialog */}
+      {showSimulatorDialog && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center px-4" style={{ backgroundColor: 'rgba(0, 0, 0, 0.4)' }}>
+          <div className="bg-[#F2F2F7] rounded-[14px] w-full max-w-[270px] overflow-hidden">
+            {/* Dialog Content */}
+            <div className="px-4 pt-5 pb-4 text-center">
+              <h3 className="text-[17px] font-semibold text-black mb-2">
+                "FitJourney" {getGenderedText('מבקש לשלוח לך עדכונים', 'מבקשת לשלוח לך עדכונים', 'מבקש/ת לשלוח לך עדכונים')}
+              </h3>
+              <p className="text-[13px] text-black/60 leading-[16px]">
+                התראות עשויות לכלול התראות, צלילים וסמלים על סמל האפליקציה
+              </p>
+            </div>
+
+            {/* Buttons */}
+            <div className="border-t border-black/10">
+              <button
+                onClick={handleSimulatorDeny}
+                className="w-full h-[44px] text-[#007AFF] text-[17px] font-normal border-b border-black/10 active:bg-black/5 transition"
+              >
+                לא לאפשר
+              </button>
+              <button
+                onClick={handleSimulatorAllow}
+                className="w-full h-[44px] text-[#007AFF] text-[17px] font-semibold active:bg-black/5 transition"
+              >
+                אישור
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Development bypass banner */}
+      {isDev && isNative && permissionStatus === 'prompt' && !showSimulatorDialog && (
+        <div className="fixed top-4 left-4 right-4 z-50 bg-yellow-500/20 border border-yellow-500 text-yellow-200 p-3 rounded-lg text-xs text-center">
+          ⚠️ iOS Simulator: Mock dialog will appear. Test the permission flow.
+        </div>
+      )}
+
+      {/* Debug status banner */}
+      {isDev && (
+        <div className="fixed top-20 left-4 right-4 z-50 bg-blue-500/20 border border-blue-500 text-blue-200 p-3 rounded-lg text-xs">
+          <p>Permission Status: <strong>{permissionStatus}</strong></p>
+          <p>Is Native: <strong>{isNative ? 'Yes' : 'No'}</strong></p>
+          <p>Loading: <strong>{loading ? 'Yes' : 'No'}</strong></p>
+          <p>Platform: <strong>{Capacitor.getPlatform()}</strong></p>
+          <p>Has Capacitor: <strong>{typeof window !== 'undefined' && (window as any).Capacitor ? 'Yes' : 'No'}</strong></p>
+        </div>
+      )}
+
       {/* Main heading */}
       <div className="text-center mb-16">
         <h1 className="text-4xl font-bold text-white leading-tight">
@@ -276,6 +374,11 @@ export default function RemindersPage() {
       {/* Permission denied state */}
       {permissionStatus === 'denied' && !loading && (
         <div className="w-full max-w-md space-y-4">
+          {isDev && isNative && (
+            <div className="bg-yellow-500/20 border border-yellow-500 text-yellow-200 p-3 rounded-lg text-xs text-center mb-4">
+              ⚠️ Simulator limitation - Click "המשך בלי התראות" to continue testing
+            </div>
+          )}
           <div className="bg-red-500/10 text-red-400 border border-red-500/20 p-4 rounded-2xl text-sm text-center mb-6">
             התראות נדחו. תוכל להפעיל אותן מההגדרות מאוחר יותר.
           </div>
@@ -298,7 +401,7 @@ export default function RemindersPage() {
       )}
 
       {/* Initial prompt state - iOS-style permission card */}
-      {permissionStatus === 'prompt' && (
+      {(permissionStatus === 'prompt' || (isDev && permissionStatus === 'unavailable')) && (
         <div className="w-full max-w-sm px-6 relative">
           {/* iOS native-style permission dialog */}
           <div className="bg-[#E8E8E8] rounded-[28px] overflow-hidden shadow-2xl">

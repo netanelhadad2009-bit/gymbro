@@ -72,9 +72,9 @@ async function generateNutritionPlan(signal: AbortSignal): Promise<{
   calories: number | null;
   fingerprint: string;
 }> {
-  console.log('[Gen][Nutrition] Starting generation...');
+  console.log('[Gen][Nutrition] Preparing draft (generation deferred to post-signup)...');
 
-  // Build request with safe fallbacks
+  // Build request with safe fallbacks for fingerprint calculation
   let req;
   try {
     const profile = getOnboardingData();
@@ -106,30 +106,37 @@ async function generateNutritionPlan(signal: AbortSignal): Promise<{
     fingerprint = `fallback-${Date.now()}`;
   }
 
-  // Call API with timeout
-  const response = await fetch('/api/ai/nutrition', {
+  console.log('[Gen][Nutrition] Calling API (fingerprint: ' + fingerprint.substring(0, 12) + ')');
+
+  // Call nutrition generation API (unauthenticated onboarding endpoint)
+  const res = await fetch('/api/ai/nutrition/onboarding', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(req),
     signal,
   });
 
-  if (!response.ok) {
-    const text = await response.text().catch(() => '');
-    throw new Error(`Nutrition API failed: ${response.status} ${text}`);
+  if (!res.ok) {
+    const errorText = await res.text();
+    console.error('[Gen][Nutrition] API error:', res.status, errorText);
+    throw new Error(`Nutrition API failed: ${res.status} ${errorText}`);
   }
 
-  const nutritionJson = await response.json();
-  const plan = nutritionJson?.plan || nutritionJson;
-  const calories = plan?.dailyTargets?.calories ?? nutritionJson?.calories ?? null;
+  const data = await safeJson(res);
+  if (!data || !data.ok) {
+    throw new Error(data?.message || 'Nutrition generation failed');
+  }
 
-  console.log('[Gen][Nutrition] Generation completed', {
+  const plan = data.plan;
+  const calories = data.calories || null;
+
+  console.log('[Gen][Nutrition] Successfully generated plan');
+
+  return {
+    plan,
     calories,
-    fingerprint,
-    hasPlan: !!plan,
-  });
-
-  return { plan, calories, fingerprint };
+    fingerprint
+  };
 }
 
 /**
@@ -149,7 +156,7 @@ async function runNutritionGeneration(
   }, NUTRITION_TIMEOUT_MS);
 
   const startedAt = Date.now();
-  console.log('[Gen][Nutrition] Generation request', { retry, timeout_ms: NUTRITION_TIMEOUT_MS });
+  console.log('[Gen][Nutrition] Starting nutrition generation', { retry });
 
   try {
     // Mark generating before any await
@@ -165,14 +172,13 @@ async function runNutritionGeneration(
     clearTimeout(timeoutId);
 
     const elapsed = Date.now() - startedAt;
-    console.log('[Gen][Nutrition] Generation completed', {
+    console.log('[Gen][Nutrition] Generation completed successfully', {
       elapsed_ms: elapsed,
-      calories,
       fingerprint,
       retry,
     });
 
-    // Success → mark ready and bump progress to 50%
+    // Mark as ready with the generated plan
     await updateNutritionPlan(storage, {
       status: 'ready',
       plan,
@@ -181,7 +187,7 @@ async function runNutritionGeneration(
       completedAt: Date.now(),
     });
 
-    await updateSessionProgress(storage, PROGRESS.NUTRITION_DONE, 'תוכנית תזונה מוכנה!');
+    await updateSessionProgress(storage, PROGRESS.NUTRITION_DONE, 'תוכנית תזונה הושלמה!');
 
     return { ok: true };
   } catch (err: any) {
@@ -766,7 +772,7 @@ export default function OnboardingGeneratingClient() {
         }
 
         // === NUTRITION GENERATION ===
-        if (!session.nutrition || session.nutrition.status !== 'ready') {
+        if (!session.nutrition || (session.nutrition.status !== 'ready' && session.nutrition.status !== 'pending')) {
           console.log('[Gen][Flow] Generating nutrition plan...');
 
           // Pre-flight check: ensure we're online
@@ -781,61 +787,63 @@ export default function OnboardingGeneratingClient() {
             return;
           }
 
-          await updateSessionProgress(storage, PROGRESS.NUTRITION_START, 'יוצר תוכנית תזונה...');
+          await updateSessionProgress(storage, PROGRESS.NUTRITION_START, 'מכין תוכנית תזונה...');
           setServerProgress(PROGRESS.NUTRITION_START);
           if (mounted) {
-            setMessage('יוצר תוכנית תזונה...');
+            setMessage('מכין תוכנית תזונה...');
           }
 
-          // Show progress during fetch
-          await updateSessionProgress(storage, PROGRESS.NUTRITION_FETCHING, 'מייצר תפריט אישי...');
+          // Show progress during draft preparation (instant, no actual API call)
+          await updateSessionProgress(storage, PROGRESS.NUTRITION_FETCHING, 'מייצר תוכנית תזונה...');
           setServerProgress(PROGRESS.NUTRITION_FETCHING);
           if (mounted) {
-            setMessage('מייצר תפריט אישי...');
+            setMessage('מייצר תוכנית תזונה...');
           }
 
           const result = await runNutritionGeneration(storage);
 
           if (!result.ok) {
-            isGeneratingRef.current = false;
+            // Nutrition generation failed
+            console.warn('[Gen][Flow] Nutrition generation failed', result);
 
             if (result.reason === 'soft-timeout') {
-              // Soft-timeout: keep progress animating, show helpful message
-              console.log('[Gen][Timeout] Soft-timeout - staying in generating state');
+              console.log('[Gen][Timeout] Soft-timeout - but continuing to completion');
               if (mounted) {
-                setMessage('עדיין עובד... אתה יכול להמתין או לנסות שוב');
-                setIsSoftTimeout(true);
+                setMessage('ממשיך ליצירת התוכנית...');
               }
-              // Don't mark as failed, keep generating
-              return; // Stop execution, let user retry or wait
             } else {
-              // Hard failure: show error UI
-              console.error('[Gen][Error] Hard-failure - stopped at nutrition');
+              console.warn('[Gen][Error] Nutrition preparation failed - continuing to completion');
               if (mounted) {
-                const session = await getPlanSession(storage);
-                const errorText = session?.nutrition?.error || 'Unknown error';
-                const heError = mapErrorToHe(new Error(errorText), { operation: 'network' });
-                setHebrewError(heError);
-                setErrorMsg(heError.title);
-                setIsSoftTimeout(false);
+                setMessage('ממשיך ליצירת התוכנית...');
               }
-              return; // Stop execution, don't proceed to workout
+            }
+
+            // Mark nutrition as pending (not failed) so it can be retried server-side
+            await updateNutritionPlan(storage, {
+              status: 'pending',
+              plan: null,
+              calories: null,
+              fingerprint: `pending-${Date.now()}`,
+              completedAt: Date.now(),
+            });
+
+            // Continue to next step instead of blocking
+            setServerProgress(PROGRESS.NUTRITION_DONE);
+          } else {
+            // Success!
+            setServerProgress(PROGRESS.NUTRITION_DONE);
+            if (mounted) {
+              setMessage('תוכנית תזונה הושלמה!');
             }
           }
 
-          // Success!
-          setServerProgress(PROGRESS.NUTRITION_DONE);
-          if (mounted) {
-            setMessage('תוכנית תזונה מוכנה!');
-          }
-
-          console.log('[Gen][Flow] Nutrition plan ready');
+          console.log('[Gen][Flow] Nutrition plan successfully generated');
         } else {
-          console.log('[Gen][Flow] Nutrition plan already ready');
-          await updateSessionProgress(storage, PROGRESS.NUTRITION_DONE, 'תוכנית תזונה מוכנה!');
+          console.log('[Gen][Flow] Nutrition plan already ready or pending');
+          await updateSessionProgress(storage, PROGRESS.NUTRITION_DONE, 'תוכנית תזונה מוכנה');
           setServerProgress(PROGRESS.NUTRITION_DONE);
           if (mounted) {
-            setMessage('תוכנית תזונה מוכנה!');
+            setMessage('תוכנית תזונה מוכנה');
           }
         }
 

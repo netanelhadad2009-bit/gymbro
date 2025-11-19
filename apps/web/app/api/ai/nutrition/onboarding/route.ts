@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { generateNutritionPlan, NutritionPayloadSchema } from "@/lib/server/nutrition/generate";
-import { chaosMode } from "@/lib/chaos";
-import { requireAuth, checkRateLimit, RateLimitPresets, ErrorResponses, handleApiError } from "@/lib/api/security";
-import { logger, logRateLimitViolation, sanitizeUserId, sanitizeRequestBody } from "@/lib/logger";
+import { checkRateLimit, RateLimitPresets, ErrorResponses, handleApiError } from "@/lib/api/security";
+import { logger, sanitizeRequestBody } from "@/lib/logger";
 
 export const dynamic = "force-dynamic";
 
@@ -13,14 +12,15 @@ const NO_CACHE_HEADERS = {
 };
 
 /**
- * POST /api/ai/nutrition
+ * POST /api/ai/nutrition/onboarding
  *
- * Generate a nutrition plan using AI
- * This endpoint is called by the onboarding flow
+ * Generate a nutrition plan during onboarding (unauthenticated)
+ * This endpoint is called by the onboarding flow BEFORE user signup
  *
  * Requirements:
  * - All profile fields must be provided
  * - days parameter is forced to 1
+ * - Stricter rate limiting since unauthenticated
  *
  * Returns:
  * - 200: Plan generated successfully
@@ -29,50 +29,23 @@ const NO_CACHE_HEADERS = {
  */
 export async function POST(req: NextRequest) {
   try {
-    logger.info('AI nutrition generation request received', {
-      endpoint: '/api/ai/nutrition',
+    logger.info('Onboarding nutrition generation request received', {
+      endpoint: '/api/ai/nutrition/onboarding',
     });
 
-    // Rate limiting check (5 requests per minute for AI routes)
+    // Stricter rate limiting for unauthenticated requests (3 per minute per IP)
     const rateLimit = await checkRateLimit(req, {
-      ...RateLimitPresets.ai,
-      keyPrefix: 'ai-nutrition',
+      maxRequests: 3,
+      windowMs: 60 * 1000, // 60 seconds in milliseconds
+      keyPrefix: 'ai-nutrition-onboarding',
     });
 
     if (!rateLimit.allowed) {
-      logRateLimitViolation({
-        endpoint: '/api/ai/nutrition',
+      logger.warn('Rate limit exceeded for onboarding nutrition', {
+        endpoint: '/api/ai/nutrition/onboarding',
         limit: rateLimit.limit,
-        current: rateLimit.limit + 1,
       });
       return ErrorResponses.rateLimited(rateLimit.resetAt, rateLimit.limit);
-    }
-
-    // Authentication check
-    const auth = await requireAuth();
-    if (!auth.success) {
-      logger.warn('AI nutrition authentication failed', {
-        endpoint: '/api/ai/nutrition',
-      });
-      return auth.response;
-    }
-    const { user } = auth;
-    logger.debug('User authenticated for AI nutrition', {
-      userId: sanitizeUserId(user.id),
-      endpoint: '/api/ai/nutrition',
-    });
-
-    // Chaos injection: Check for chaos query param
-    const url = new URL(req.url);
-    const chaosFlag = url.searchParams.get('chaos');
-
-    // Chaos: stall (to trigger timeout)
-    if (chaosFlag === 'stall') {
-      logger.warn('Chaos mode: Stalling nutrition request', {
-        userId: sanitizeUserId(user.id),
-        chaosFlag,
-      });
-      await chaosMode.stall(70_000);
     }
 
     const rawBody = await req.json();
@@ -80,8 +53,7 @@ export async function POST(req: NextRequest) {
     // Hard clamp: force days to 1 before validation (ignore any input)
     const bodyWithForcedDays = { ...rawBody, days: 1 };
 
-    logger.debug('AI nutrition request payload', {
-      userId: sanitizeUserId(user.id),
+    logger.debug('Onboarding nutrition request payload', {
       payload: sanitizeRequestBody(bodyWithForcedDays),
     });
 
@@ -89,8 +61,7 @@ export async function POST(req: NextRequest) {
     const validationResult = NutritionPayloadSchema.safeParse(bodyWithForcedDays);
 
     if (!validationResult.success) {
-      logger.warn('AI nutrition invalid input', {
-        userId: sanitizeUserId(user.id),
+      logger.warn('Onboarding nutrition invalid input', {
         errors: validationResult.error.flatten().fieldErrors,
       });
       return NextResponse.json(
@@ -107,34 +78,36 @@ export async function POST(req: NextRequest) {
     const payload = validationResult.data;
     const model = process.env.OPENAI_MODEL_NUTRITION || "gpt-4o-mini";
 
-    logger.info('Starting AI nutrition generation', {
-      userId: sanitizeUserId(user.id),
+    logger.info('Starting onboarding nutrition generation', {
       model,
       days: payload.days,
     });
 
-    // Generate nutrition plan using shared utility with VERBOSE LOGGING ALWAYS ENABLED
+    // Generate nutrition plan using shared utility with verbose logging
     const result = await generateNutritionPlan(payload, {
-      logPrefix: '[AI][Nutrition]',
-      enableVerboseLogging: true, // Always enable verbose logging for diagnostics
+      logPrefix: '[AI][Nutrition][Onboarding]',
+      enableVerboseLogging: true,
     });
 
-    logger.info('AI nutrition generation successful', {
-      userId: sanitizeUserId(user.id),
+    logger.info('Onboarding nutrition generation successful', {
       calories: result.calories,
       protein_g: result.plan.dailyTargets?.protein_g,
       daysGenerated: result.plan.days?.length || 0,
       fingerprint: result.fingerprint.substring(0, 12),
     });
 
-    // Chaos: malformed response
-    const responseData = { ok: true, plan: result.plan, calories: result.calories, fingerprint: result.fingerprint };
-    const finalData = chaosMode.maybeCorruptPayload(responseData, chaosFlag ?? undefined);
-
-    return NextResponse.json(finalData, { headers: NO_CACHE_HEADERS });
+    return NextResponse.json(
+      {
+        ok: true,
+        plan: result.plan,
+        calories: result.calories,
+        fingerprint: result.fingerprint
+      },
+      { headers: NO_CACHE_HEADERS }
+    );
   } catch (err: any) {
-    logger.error("AI nutrition generation failed", {
-      endpoint: '/api/ai/nutrition',
+    logger.error("Onboarding nutrition generation failed", {
+      endpoint: '/api/ai/nutrition/onboarding',
       errorName: err?.name,
       errorMessage: err?.message,
       cause: err?.cause,
@@ -155,9 +128,8 @@ export async function POST(req: NextRequest) {
 
     // Handle OpenAI API errors
     if (err?.name === 'APIError' || err?.message?.includes('OpenAI')) {
-      // Log but don't expose OpenAI errors to client
-      logger.error('OpenAI API error in nutrition generation', {
-        endpoint: '/api/ai/nutrition',
+      logger.error('OpenAI API error in onboarding nutrition generation', {
+        endpoint: '/api/ai/nutrition/onboarding',
         errorName: err?.name,
         errorMessage: err?.message,
       });
@@ -196,6 +168,6 @@ export async function POST(req: NextRequest) {
     }
 
     // Use standardized error handler for unknown errors
-    return handleApiError(err, 'AI-Nutrition');
+    return handleApiError(err, 'AI-Nutrition-Onboarding');
   }
 }

@@ -29,7 +29,14 @@ export default function ProgramReadyPage() {
     }
   }
 
-  if (!mounted) return null;
+  // Show loading state instead of null to prevent black screen
+  if (!mounted) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-gray-900 via-gray-800 to-black flex items-center justify-center">
+        <div className="text-white text-lg">טוען...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 via-gray-800 to-black flex flex-col items-center justify-center text-white px-6">

@@ -76,8 +76,11 @@ export async function GET(request: NextRequest) {
     const { user, supabase } = auth;
 
     // Validate query params
-    const { date: queryDate } = validateSearchParams(request, GetMealsQuerySchema);
-    const date = queryDate || getTodayLocalDate();
+    const validation = validateSearchParams(request, GetMealsQuerySchema);
+    if (!validation.success) {
+      return validation.response;
+    }
+    const date = validation.data.date || getTodayLocalDate();
 
     // Fetch meals for the specified date
     const { data: meals, error } = await supabase
@@ -190,7 +193,11 @@ export async function DELETE(request: NextRequest) {
     const { user, supabase } = auth;
 
     // Validate query params
-    const { id: mealId } = validateSearchParams(request, MealIdQuerySchema);
+    const paramsValidation = validateSearchParams(request, MealIdQuerySchema);
+    if (!paramsValidation.success) {
+      return paramsValidation.response;
+    }
+    const mealId = paramsValidation.data.id;
 
     // Delete the meal (RLS ensures user can only delete their own)
     const { error: deleteError } = await supabase
@@ -233,7 +240,11 @@ export async function PATCH(request: NextRequest) {
     const { user, supabase } = auth;
 
     // Validate query params
-    const { id: mealId } = validateSearchParams(request, MealIdQuerySchema);
+    const paramsValidation = validateSearchParams(request, MealIdQuerySchema);
+    if (!paramsValidation.success) {
+      return paramsValidation.response;
+    }
+    const mealId = paramsValidation.data.id;
 
     // Validate request body
     const validation = await validateBody(request, UpdateMealSchema);

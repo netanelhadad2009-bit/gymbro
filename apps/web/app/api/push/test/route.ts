@@ -6,7 +6,10 @@ import { requireAuth, checkRateLimit, RateLimitPresets, requireDevelopment, hand
 export async function POST(request: NextRequest) {
   try {
     // Development-only endpoint
-    requireDevelopment();
+    const devCheck = requireDevelopment(request);
+    if (devCheck) {
+      return devCheck;
+    }
 
     // Rate limiting (STRICT - test endpoint)
     const rateLimit = await checkRateLimit(request, {
@@ -100,7 +103,10 @@ export async function POST(request: NextRequest) {
 export async function GET(request: NextRequest) {
   try {
     // Development-only endpoint
-    requireDevelopment();
+    const devCheck = requireDevelopment(request);
+    if (devCheck) {
+      return devCheck;
+    }
 
     return POST(request);
   } catch (error) {

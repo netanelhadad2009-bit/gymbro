@@ -6,7 +6,6 @@ import { AuthProvider } from "@/contexts/AuthProvider";
 import { PlatformProvider } from "@/lib/platform";
 import { Toaster } from "@/components/ui/toaster";
 import MobileBoot from "./mobile-boot";
-import { ClientLayout } from "@/components/ClientLayout";
 
 const assistant = Assistant({
   subsets: ["hebrew", "latin"],
@@ -40,18 +39,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <meta name="color-scheme" content="dark light" />
       </head>
       <body className={`${assistant.className} font-sans bg-[#0b0d0e] text-white antialiased`}>
-        <ClientLayout>
-          <PlatformProvider>
-            <MobileBoot>
-              <AuthProvider>
-                <GenderProvider>
-                  {children}
-                  <Toaster />
-                </GenderProvider>
-              </AuthProvider>
-            </MobileBoot>
-          </PlatformProvider>
-        </ClientLayout>
+        {/* All providers successfully re-enabled */}
+        <PlatformProvider>
+          <MobileBoot>
+            <AuthProvider>
+              <GenderProvider>
+                {children}
+                <Toaster />
+              </GenderProvider>
+            </AuthProvider>
+          </MobileBoot>
+        </PlatformProvider>
       </body>
     </html>
   );

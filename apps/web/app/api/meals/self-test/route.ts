@@ -15,7 +15,10 @@ export const dynamic = "force-dynamic";
 export async function POST(request: NextRequest) {
   try {
     // Development-only endpoint
-    requireDevelopment();
+    const devCheck = requireDevelopment(request);
+    if (devCheck) {
+      return devCheck;
+    }
 
     // Rate limiting check (STRICT - test endpoint)
     const rateLimit = await checkRateLimit(request, {

@@ -170,7 +170,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Convert to BarcodeProduct format
-    const products: BarcodeProduct[] = (foods || []).map((food) => ({
+    const products: BarcodeProduct[] = (foods || []).map((food: any) => ({
       barcode: food.barcode || undefined,
       name: food.name_he,
       name_he: food.name_he,

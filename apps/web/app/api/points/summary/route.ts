@@ -6,6 +6,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAuth, checkRateLimit, RateLimitPresets, ErrorResponses, handleApiError } from '@/lib/api/security';
+import { logger, logRateLimitViolation, sanitizeUserId } from '@/lib/logger';
 
 export const dynamic = 'force-dynamic';
 
@@ -22,7 +23,9 @@ interface StagePoints {
 
 export async function GET(request: NextRequest) {
   try {
-    console.log('[PointsSummary] GET /api/points/summary - Start');
+    logger.debug('Points summary request received', {
+      endpoint: '/api/points/summary',
+    });
 
     // Rate limiting check (STANDARD - read operation)
     const rateLimit = await checkRateLimit(request, {
@@ -31,19 +34,29 @@ export async function GET(request: NextRequest) {
     });
 
     if (!rateLimit.allowed) {
-      console.log('[PointsSummary] Rate limit exceeded');
+      logRateLimitViolation({
+        endpoint: '/api/points/summary',
+        limit: rateLimit.limit,
+        current: rateLimit.limit + 1,
+      });
       return ErrorResponses.rateLimited(rateLimit.resetAt, rateLimit.limit);
     }
 
     // Authentication check
     const auth = await requireAuth();
     if (!auth.success) {
+      logger.warn('Points summary authentication failed', {
+        endpoint: '/api/points/summary',
+      });
       return auth.response;
     }
     const { user, supabase } = auth;
 
     const userId = user.id;
-    console.log('[PointsSummary] Authenticated:', userId.substring(0, 8));
+    logger.debug('User authenticated for points summary', {
+      userId: sanitizeUserId(userId),
+      endpoint: '/api/points/summary',
+    });
 
     // Get total points
     const { data: pointsData, error: pointsError } = await supabase
@@ -52,11 +65,14 @@ export async function GET(request: NextRequest) {
       .eq('user_id', userId);
 
     if (pointsError) {
-      console.error('[PointsSummary] Error fetching points:', pointsError);
+      logger.error('Points summary error fetching points', {
+        userId: sanitizeUserId(userId),
+        error: pointsError.message,
+      });
       throw new Error(`Failed to fetch points: ${pointsError.message}`);
     }
 
-    const total = pointsData?.reduce((sum, record) => sum + (record.points || 0), 0) || 0;
+    const total = pointsData?.reduce((sum: number, record: { points: number | null }) => sum + (record.points || 0), 0) || 0;
 
     // Get user stages with task completion counts
     const { data: stages, error: stagesError } = await supabase
@@ -75,7 +91,10 @@ export async function GET(request: NextRequest) {
       .order('stage_index', { ascending: true });
 
     if (stagesError) {
-      console.error('[PointsSummary] Error fetching stages:', stagesError);
+      logger.error('Points summary error fetching stages', {
+        userId: sanitizeUserId(userId),
+        error: stagesError.message,
+      });
       throw new Error(`Failed to fetch stages: ${stagesError.message}`);
     }
 
@@ -95,7 +114,7 @@ export async function GET(request: NextRequest) {
       };
     }).filter((s: StagePoints) => s.points > 0); // Only include stages with points
 
-    console.log('[PointsSummary] Success:', {
+    logger.debug('Points summary success', {
       total,
       stagesWithPoints: byStage.length,
     });
@@ -109,7 +128,9 @@ export async function GET(request: NextRequest) {
       { headers: CACHE_HEADERS }
     );
   } catch (error) {
-    console.error('[PointsSummary] Fatal error:', error);
+    logger.error('Points summary fatal error', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
     return handleApiError(error, 'PointsSummary');
   }
 }

@@ -28,12 +28,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    console.log("[AuthProvider] Initializing auth state...");
+
     // Clean legacy keys on first load
     cleanLegacyKeys();
 
     // Get initial session
     supabase.auth.getSession()
       .then(({ data: { session } }) => {
+        console.log("[AuthProvider] Initial session loaded:", session ? `User: ${session.user.id.slice(0, 8)}...` : "No session");
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);

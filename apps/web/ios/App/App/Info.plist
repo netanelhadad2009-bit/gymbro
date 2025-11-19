@@ -107,6 +107,7 @@
 	<key>WKAppBoundDomains</key>
 	<array>
 		<string>localhost</string>
+		<string>172.20.10.6</string>
 	</array>
 	<key>CFBundleURLTypes</key>
 	<array>
