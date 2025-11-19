@@ -235,24 +235,26 @@ export async function evaluateTaskCondition(
       const lookback = condition.lookback_days || 7;
       const buffer = (condition as any).buffer_kcal || 100; // ±100 kcal tolerance
 
-      let dailyCaloriesTarget = 2000;
+      // ALWAYS use user's current personalized calorie target for calorie goals
+      // This ensures that if user changes their daily calorie target in settings,
+      // the mission automatically uses the updated value (not the static value
+      // from when the mission was originally created)
+      let dailyCaloriesTarget = 2000; // fallback only
+      const userTargets = await getUserNutritionTargets(supabase, userId);
 
-      // Use user's personalized target if specified
-      if (condition.use_user_target) {
-        const userTargets = await getUserNutritionTargets(supabase, userId);
-        if (userTargets) {
-          dailyCaloriesTarget = userTargets.calories; // Daily eating target from plan
-        }
+      if (userTargets && userTargets.calories > 0) {
+        dailyCaloriesTarget = userTargets.calories;
+        console.log('[RulesEval] WEEKLY_DEFICIT using current user target', {
+          userId: userId.substring(0, 8),
+          currentTarget: dailyCaloriesTarget,
+          source: 'nutrition_plan.dailyTargets',
+        });
       } else {
-        // Get user's calories from nutrition plan
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('nutrition_plan')
-          .eq('id', userId)
-          .single();
-
-        const plan = profile?.nutrition_plan as any;
-        dailyCaloriesTarget = plan?.dailyTargets?.calories || 2000;
+        console.log('[RulesEval] WEEKLY_DEFICIT using fallback target', {
+          userId: userId.substring(0, 8),
+          fallbackTarget: dailyCaloriesTarget,
+          warning: 'Could not fetch user nutrition targets, using fallback',
+        });
       }
 
       // Get meals for the lookback period
@@ -321,24 +323,26 @@ export async function evaluateTaskCondition(
       const lookback = condition.lookback_days || 7;
       const buffer = (condition as any).buffer_kcal || 100; // ±100 kcal tolerance
 
-      let dailyCaloriesTarget = 2500;
+      // ALWAYS use user's current personalized calorie target for calorie goals
+      // This ensures that if user changes their daily calorie target in settings,
+      // the mission automatically uses the updated value (not the static value
+      // from when the mission was originally created)
+      let dailyCaloriesTarget = 2500; // fallback only
+      const userTargets = await getUserNutritionTargets(supabase, userId);
 
-      // Use user's personalized target if specified
-      if (condition.use_user_target) {
-        const userTargets = await getUserNutritionTargets(supabase, userId);
-        if (userTargets) {
-          dailyCaloriesTarget = userTargets.calories; // Daily eating target from plan
-        }
+      if (userTargets && userTargets.calories > 0) {
+        dailyCaloriesTarget = userTargets.calories;
+        console.log('[RulesEval] WEEKLY_SURPLUS using current user target', {
+          userId: userId.substring(0, 8),
+          currentTarget: dailyCaloriesTarget,
+          source: 'nutrition_plan.dailyTargets',
+        });
       } else {
-        // Get user's calories from nutrition plan
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('nutrition_plan')
-          .eq('id', userId)
-          .single();
-
-        const plan = profile?.nutrition_plan as any;
-        dailyCaloriesTarget = plan?.dailyTargets?.calories || 2500;
+        console.log('[RulesEval] WEEKLY_SURPLUS using fallback target', {
+          userId: userId.substring(0, 8),
+          fallbackTarget: dailyCaloriesTarget,
+          warning: 'Could not fetch user nutrition targets, using fallback',
+        });
       }
 
       // Get meals for the lookback period
@@ -407,24 +411,26 @@ export async function evaluateTaskCondition(
       const lookback = condition.lookback_days || 7;
       const buffer = (condition as any).buffer_kcal || condition.target || 200; // ±tolerance
 
-      let dailyCaloriesTarget = 2200;
+      // ALWAYS use user's current personalized calorie target for calorie goals
+      // This ensures that if user changes their daily calorie target in settings,
+      // the mission automatically uses the updated value (not the static value
+      // from when the mission was originally created)
+      let dailyCaloriesTarget = 2200; // fallback only
+      const userTargets = await getUserNutritionTargets(supabase, userId);
 
-      // Use user's personalized target if specified
-      if (condition.use_user_target) {
-        const userTargets = await getUserNutritionTargets(supabase, userId);
-        if (userTargets) {
-          dailyCaloriesTarget = userTargets.calories; // Use plan's calories as target
-        }
+      if (userTargets && userTargets.calories > 0) {
+        dailyCaloriesTarget = userTargets.calories;
+        console.log('[RulesEval] WEEKLY_BALANCED using current user target', {
+          userId: userId.substring(0, 8),
+          currentTarget: dailyCaloriesTarget,
+          source: 'nutrition_plan.dailyTargets',
+        });
       } else {
-        // Get user's calories from nutrition plan
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('nutrition_plan')
-          .eq('id', userId)
-          .single();
-
-        const plan = profile?.nutrition_plan as any;
-        dailyCaloriesTarget = plan?.dailyTargets?.calories || 2200;
+        console.log('[RulesEval] WEEKLY_BALANCED using fallback target', {
+          userId: userId.substring(0, 8),
+          fallbackTarget: dailyCaloriesTarget,
+          warning: 'Could not fetch user nutrition targets, using fallback',
+        });
       }
 
       // Get meals for the lookback period
