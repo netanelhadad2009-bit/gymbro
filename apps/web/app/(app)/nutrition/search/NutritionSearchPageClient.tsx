@@ -1,5 +1,5 @@
 /**
- * Food Search Page Client Component
+ * Food Search Page
  * Full-page search with two tabs: All (Israeli MoH) and My Foods
  */
 
@@ -22,7 +22,7 @@ const TAB_LABELS: Record<TabType, string> = {
   mine: 'מנות שלי',
 };
 
-export default function NutritionSearchPageClient() {
+export default function FoodSearchPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const inputRef = useRef<HTMLInputElement>(null);

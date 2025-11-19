@@ -18,7 +18,7 @@ interface QuickAddSheetProps {
   isOpen: boolean;
   onClose: () => void;
   food: {
-    id: string;
+    id: string | number;
     name_he: string;
     brand?: string | null;
     calories_per_100g?: number | null;

@@ -118,11 +118,11 @@ export async function openAppSettings(): Promise<void> {
   }
 
   try {
-    const { App } = await import('@capacitor/app');
+    const { Browser } = await import('@capacitor/browser');
 
     // iOS uses app-settings: URL scheme
     if (Capacitor.getPlatform() === 'ios') {
-      await App.openUrl({ url: 'app-settings:' });
+      await Browser.open({ url: 'app-settings:' });
     } else {
       // Android - open app info settings
       console.log('[Permissions] Opening Android app settings not yet implemented');

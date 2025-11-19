@@ -26,7 +26,7 @@ import { useSheet } from "@/contexts/SheetContext";
 import { useToast } from "@/components/ui/use-toast";
 import { getVisionError, he } from "@/lib/i18n/he";
 
-export default function NutritionPageClient() {
+export default function NutritionPage() {
   const { user, session } = useAuth();
   const searchParams = useSearchParams();
   const router = useRouter();

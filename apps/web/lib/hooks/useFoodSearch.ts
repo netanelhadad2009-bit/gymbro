@@ -6,7 +6,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 
 export interface FoodSearchResult {
-  id: number;
+  id: string | number;
   name_he: string;
   name_en?: string | null;
   brand?: string | null;
@@ -19,6 +19,7 @@ export interface FoodSearchResult {
   sodium_mg_per_100g?: number | null;
   fiber_g_per_100g?: number | null;
   is_partial?: boolean;
+  source?: string;
 }
 
 interface SearchResponse {
