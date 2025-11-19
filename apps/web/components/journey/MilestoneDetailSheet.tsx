@@ -40,6 +40,7 @@ import {
   computeCaloriesTarget,
   getTaskEffectiveProgress,
 } from '@/lib/journey/progress';
+import { useToast } from '@/components/ui/use-toast';
 
 interface MilestoneDetailSheetProps {
   task: StageTask | null;
@@ -240,6 +241,7 @@ export function MilestoneDetailSheet({
   const [userTargets, setUserTargets] = useState<UserNutritionTargets | null>(null);
   const [todaysCalories, setTodaysCalories] = useState<number>(0);
   const router = useRouter();
+  const { toast } = useToast();
 
   // Fetch user's nutrition targets and today's calories when sheet opens
   useEffect(() => {
@@ -402,10 +404,20 @@ export function MilestoneDetailSheet({
           setHasCompletedInSession(false);
         }, 500);
       }, 2000);
-    } catch (error) {
-      console.error('Failed to complete task:', error);
+    } catch (error: any) {
+      console.error('[MilestoneDetailSheet] Failed to complete task:', error);
       hapticError();
-      alert('שגיאה בסיום המשימה. נסה שוב.');
+
+      // Extract error message from Error object or use fallback
+      const errorMessage = error?.message || 'שגיאה בסיום המשימה. נסה שוב.';
+
+      // Show error toast with the actual error message from API
+      toast({
+        title: 'לא ניתן להשלים משימה',
+        description: errorMessage,
+        variant: 'destructive',
+        duration: 5000,
+      });
     } finally {
       setIsCompleting(false);
     }
@@ -729,7 +741,7 @@ export function MilestoneDetailSheet({
                         <button
                           onClick={handleComplete}
                           disabled={isCompleting}
-                          className="w-full h-12 rounded-2xl font-semibold transition-transform text-black active:scale-[0.98]"
+                          className="w-full h-12 rounded-2xl font-semibold transition-transform text-black active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed"
                           style={{ backgroundColor: avatarColor }}
                         >
                           {isCompleting ? (

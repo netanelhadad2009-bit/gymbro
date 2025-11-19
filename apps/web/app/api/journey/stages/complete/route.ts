@@ -103,7 +103,7 @@ export async function POST(request: NextRequest) {
           alreadyCompleted: true,
           unlockedNext: false,
           stageCompleted: false,
-          message: 'Task already completed',
+          message: 'המשימה כבר הושלמה!',
         },
         { headers: NO_CACHE_HEADERS }
       );
@@ -115,16 +115,34 @@ export async function POST(request: NextRequest) {
 
     if (!evaluation.canComplete) {
       console.log('[StagesComplete] Conditions not met:', {
+        taskType: condition.type,
         progress: evaluation.progress,
         current: evaluation.current,
         target: evaluation.target,
       });
 
+      // Generate user-friendly Hebrew error message based on task type
+      let userMessage = 'המשימה טרם הושלמה. ';
+
+      if (condition.type === 'HIT_PROTEIN_GOAL') {
+        userMessage += `צריך להגיע ל-${evaluation.target || 120} גרם חלבון היום. כרגע: ${evaluation.current || 0} גרם.`;
+      } else if (condition.type === 'LOG_MEALS_TODAY') {
+        userMessage += `צריך לתעד ${evaluation.target || 3} ארוחות היום. כרגע: ${evaluation.current || 0} ארוחות.`;
+      } else if (condition.type === 'WEEKLY_DEFICIT' || condition.type === 'WEEKLY_SURPLUS' || condition.type === 'WEEKLY_BALANCED') {
+        userMessage += `צריך ${evaluation.target || 7} ימים בטווח היעד. כרגע: ${evaluation.current || 0} ימים.`;
+      } else if (condition.type === 'FIRST_WEIGH_IN') {
+        userMessage += 'צריך לבצע שקילה ראשונה במסך ההתקדמות.';
+      } else if (condition.type === 'STREAK_DAYS') {
+        userMessage += `צריך רצף של ${evaluation.target || 7} ימים. כרגע: ${evaluation.current || 0} ימים.`;
+      } else {
+        userMessage += `התקדמות: ${Math.round((evaluation.progress || 0) * 100)}%`;
+      }
+
       return NextResponse.json(
         {
           ok: false,
           error: 'ConditionsNotMet',
-          message: 'Task conditions not satisfied',
+          message: userMessage,
           progress: evaluation.progress,
           current: evaluation.current,
           target: evaluation.target,
