@@ -151,27 +151,26 @@ export async function evaluateTaskCondition(
     }
 
     case 'HIT_PROTEIN_GOAL': {
-      let target = condition.target || 120;
-      let originalTarget = target;
+      // ALWAYS use user's current personalized protein target for protein goals
+      // This ensures that if user changes their daily protein target in settings,
+      // the mission automatically uses the updated value (not the static value
+      // from when the mission was originally created)
+      let target = condition.target || 120; // fallback only
+      const userTargets = await getUserNutritionTargets(supabase, userId);
 
-      // Use user's personalized protein target if specified
-      if (condition.use_user_target) {
-        const userTargets = await getUserNutritionTargets(supabase, userId);
-        if (userTargets) {
-          target = userTargets.protein;
-          console.log('[RulesEval] HIT_PROTEIN_GOAL using user target', {
-            userId: userId.substring(0, 8),
-            originalTarget,
-            userTarget: target,
-            use_user_target: true,
-          });
-        }
-      } else {
-        console.log('[RulesEval] HIT_PROTEIN_GOAL using condition target', {
+      if (userTargets && userTargets.protein > 0) {
+        target = userTargets.protein;
+        console.log('[RulesEval] HIT_PROTEIN_GOAL using current user target', {
           userId: userId.substring(0, 8),
-          conditionTarget: target,
-          use_user_target: false,
-          warning: 'Task condition missing use_user_target flag!',
+          staticTarget: condition.target,
+          currentTarget: target,
+          source: 'nutrition_plan.dailyTargets',
+        });
+      } else {
+        console.log('[RulesEval] HIT_PROTEIN_GOAL using fallback target', {
+          userId: userId.substring(0, 8),
+          fallbackTarget: target,
+          warning: 'Could not fetch user nutrition targets, using fallback',
         });
       }
 
