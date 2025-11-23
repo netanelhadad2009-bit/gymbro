@@ -64,11 +64,9 @@ const nextConfig = {
 
     // Externalize Capacitor native plugins so Next.js doesn't try to bundle them
     // These are native modules that only work in the Capacitor runtime
-    if (!isServer) {
-      config.resolve.fallback = {
-        ...config.resolve.fallback,
-        '@capgo/capacitor-social-login': false,
-      };
+    config.externals = config.externals || {};
+    if (typeof config.externals === 'object' && !Array.isArray(config.externals)) {
+      config.externals['@capgo/capacitor-social-login'] = 'commonjs @capgo/capacitor-social-login';
     }
 
     return config;
