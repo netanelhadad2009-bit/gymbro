@@ -11,13 +11,8 @@ export const isNative = () => {
     return false;
   }
 
-  // Check if running in a browser (window location has http/https protocol)
-  if (window.location.protocol.startsWith('http')) {
-    console.log('[Platform] Detected web environment (http/https protocol)');
-    return false;
-  }
-
-  // Check Capacitor's native platform detection
+  // Use Capacitor's built-in native platform detection
+  // This correctly identifies native apps even when loading from remote URLs (e.g., Vercel)
   const isCapacitorNative = Capacitor.isNativePlatform();
   console.log('[Platform] Capacitor.isNativePlatform():', isCapacitorNative);
 
