@@ -129,20 +129,41 @@ export default function ProfilePage() {
   };
 
   useEffect(() => {
+    console.log('[Profile] 🔷 useEffect triggered - starting loadProfile()');
+
     async function loadProfile() {
       try {
+        console.log('[Profile] 📍 Step 1: Setting loading state');
         setLoading(true);
         setError(null);
 
         // 1. Get current user from auth
+        console.log('[Profile] 📍 Step 2: Fetching user from Supabase auth');
         const {
           data: { user },
           error: userError,
         } = await supabase.auth.getUser();
 
+        console.log('[Profile] 📍 Step 3: User fetch result:', {
+          hasUser: !!user,
+          userEmail: user?.email,
+          userId: user?.id,
+          userError: userError?.message,
+        });
+
         if (userError || !user) {
+          console.warn('[Profile] ⚠️  No user found, setting loading=false and returning');
           setLoading(false);
           return;
+        }
+
+        // 1.5. Migrate birthdate for returning users if needed
+        try {
+          const { ensureUserHasBirthdate } = await import('@/lib/auth/migrate-birthdate');
+          const birthdate = await ensureUserHasBirthdate(supabase);
+          console.log('[Profile] User birthdate migration check:', birthdate ? 'has birthdate' : 'no birthdate');
+        } catch (err) {
+          console.warn('[Profile] Failed to migrate birthdate:', err);
         }
 
         // 2. Try to get data from profiles table
@@ -151,6 +172,20 @@ export default function ProfilePage() {
           .select("*")
           .eq("id", user.id)
           .single();
+
+        console.log('[Profile] Database fetch result:', {
+          hasProfileData: !!profileData,
+          profileError: profileError?.message,
+          profileKeys: profileData ? Object.keys(profileData) : [],
+          profileSnippet: profileData ? {
+            age: profileData.age,
+            gender: profileData.gender,
+            height_cm: profileData.height_cm,
+            weight_kg: profileData.weight_kg,
+            goal: profileData.goal,
+            diet: profileData.diet,
+          } : null,
+        });
 
         // 3. Fetch goal from latest program
         const { data: programData } = await supabase
@@ -163,6 +198,20 @@ export default function ProfilePage() {
 
         // 4. Build profile object with fallback to user_metadata and localStorage
         const metadata = user.user_metadata || {};
+
+        console.log('[Profile] User metadata:', {
+          hasMetadata: !!user.user_metadata,
+          metadataKeys: user.user_metadata ? Object.keys(user.user_metadata) : [],
+          metadataSnippet: {
+            age: metadata.age,
+            gender: metadata.gender,
+            height_cm: metadata.height_cm,
+            weight_kg: metadata.weight_kg,
+            goal: metadata.goal,
+            diet: metadata.diet,
+            birthdate: metadata.birthdate,
+          },
+        });
 
         // Get goal from localStorage (onboarding data)
         let onboardingGoal: string | null = null;
@@ -211,14 +260,47 @@ export default function ProfilePage() {
           rawGoal,
         });
 
+        // Build profile with data from database and fallbacks
+        // Priority: Database birthdate (most accurate) > metadata birthdate > age fallback
+        const birthdateFromDB = profileData?.birthdate;
+        const birthdateFromMetadata = metadata.birthdate || metadata.date_of_birth;
+        const ageFromProfile = profileData?.age;
+        const ageFromMetadata = metadata.age;
+
+        // Determine effective birthdate with priority:
+        // 1. Database birthdate (most accurate, added in migration 036)
+        // 2. Metadata birthdate (fallback for legacy users or recent saves)
+        // 3. Convert age to approximate birthdate (last resort for very old accounts)
+        let effectiveBirthdate: string | undefined;
+        if (birthdateFromDB) {
+          // Use database birthdate (highest priority)
+          effectiveBirthdate = birthdateFromDB;
+        } else if (birthdateFromMetadata) {
+          // Use metadata birthdate as fallback
+          effectiveBirthdate = birthdateFromMetadata;
+        } else if (ageFromProfile) {
+          // Convert database age to approximate birthdate (current year - age)
+          const currentYear = new Date().getFullYear();
+          effectiveBirthdate = `${currentYear - ageFromProfile}-01-01`;
+        } else if (ageFromMetadata) {
+          // Convert metadata age to approximate birthdate
+          const currentYear = new Date().getFullYear();
+          effectiveBirthdate = `${currentYear - ageFromMetadata}-01-01`;
+        }
+
+        console.log('[Profile] Birthdate/Age resolution:', {
+          dbBirthdate: birthdateFromDB,
+          metaBirthdate: birthdateFromMetadata,
+          dbAge: ageFromProfile,
+          metaAge: ageFromMetadata,
+          effectiveBirthdate,
+          calculatedAge: calculateAge(effectiveBirthdate),
+        });
+
         const profileResult: ProfileData = {
           email: user.email,
           gender: profileData?.gender || metadata.gender || "—",
-          date_of_birth:
-            profileData?.date_of_birth ||
-            profileData?.birthdate ||
-            metadata.birthdate ||
-            metadata.date_of_birth,
+          date_of_birth: effectiveBirthdate,
           weight:
             profileData?.weight ||
             profileData?.weight_kg ||
@@ -239,6 +321,27 @@ export default function ProfilePage() {
             metadata.diet_type,
         };
 
+        console.log('[Profile] Final profile result:', {
+          email: profileResult.email,
+          gender: profileResult.gender,
+          age: calculateAge(profileResult.date_of_birth),
+          weight: profileResult.weight,
+          target_weight: profileResult.target_weight,
+          height_cm: profileResult.height_cm,
+          goal: profileResult.goal,
+          diet_type: profileResult.diet_type,
+        });
+
+        console.log('[Profile] Translated values that will be displayed:', {
+          gender: genderToHe(profileResult.gender),
+          age: calculateAge(profileResult.date_of_birth),
+          weight: formatValue(profileResult.weight),
+          target_weight: formatValue(profileResult.target_weight),
+          height_cm: formatValue(profileResult.height_cm),
+          goal: getGoalLabelHe(profileResult.goal),
+          diet: dietLabel(profileResult.diet_type),
+        });
+
         setProfile(profileResult);
       } catch (err) {
         console.error("Error loading profile:", err);
@@ -255,7 +358,9 @@ export default function ProfilePage() {
   // RENDER: Not logged in
   // ============================================================================
 
-  if (!loading && !profile?.email) {
+  // Check if user is actually logged in by checking if we have profile data
+  // Don't rely on email as Apple sign-in may provide empty email
+  if (!loading && !profile) {
     return (
       <div className="h-[100dvh] overflow-y-auto overscroll-contain bg-[#0D0E0F]" dir="rtl">
         <StickyHeader title={texts.profile.title} />
