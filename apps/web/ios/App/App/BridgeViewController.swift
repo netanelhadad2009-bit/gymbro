@@ -3,8 +3,13 @@ import UIKit
 import WebKit
 
 class BridgeViewController: CAPBridgeViewController, WKNavigationDelegate {
-    private let allowedHosts: Set<String> = ["127.0.0.1", "localhost", "172.20.10.6", "0.0.0.0"]
-
+  private let allowedHosts: Set<String> = [
+      "127.0.0.1",
+      "localhost",
+      "172.20.10.6",
+      "0.0.0.0",
+      "gymbro-web-omega.vercel.app"  // Production Vercel domain
+  ]
     override func viewDidLoad() {
         super.viewDidLoad() // MUST be first so Capacitor builds WKWebView
 
@@ -58,10 +63,25 @@ class BridgeViewController: CAPBridgeViewController, WKNavigationDelegate {
             return
         }
 
+        // Allow OAuth callback URLs (from Google, Apple, etc.)
+        let path = url.path
+        if path.contains("/auth/callback") || path.contains("/api/auth/callback") {
+            decisionHandler(.allow)
+            return
+        }
+
         // Same-origin dev server stays in webview
         if let host = url.host, allowedHosts.contains(host) {
             decisionHandler(.allow)
             return
+        }
+
+        // Allow OAuth provider domains (Google, Apple sign-in)
+        if let host = url.host {
+            if host.contains("google.com") || host.contains("apple.com") || host.contains("appleid.") {
+                decisionHandler(.allow)
+                return
+            }
         }
 
         // If it's opening in a new frame (target=_blank), force same webview
@@ -71,8 +91,7 @@ class BridgeViewController: CAPBridgeViewController, WKNavigationDelegate {
             return
         }
 
-        // Default: keep in-app (cancel external, reload in same webview)
-        webView.load(URLRequest(url: url))
-        decisionHandler(.cancel)
+        // Default: allow navigation (let Capacitor Browser plugin handle external URLs)
+        decisionHandler(.allow)
     }
 }
