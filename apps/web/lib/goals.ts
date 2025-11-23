@@ -13,6 +13,7 @@ export function getGoalLabelHe(goal: GoalCode): string | null {
     muscle_gain: "לעלות במסת שריר",
     loss: "לרדת באחוזי שומן ולהתחטב",
     weight_loss: "לרדת באחוזי שומן ולהתחטב",
+    maintain: "לשפר הרגלים ולשמור על הגוף",
     recomp: "לשפר הרגלים ולשמור על הגוף",
     body_maintenance: "לשפר הרגלים ולשמור על הגוף",
   };
