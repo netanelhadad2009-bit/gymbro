@@ -55,6 +55,14 @@ if (process.env.NODE_ENV !== 'test') {
 const nextConfig = {
   reactStrictMode: true,
 
+  // Externalize Capacitor plugins so Next.js doesn't try to bundle them
+  // These are native modules that only work in the Capacitor runtime
+  serverComponentsExternalPackages: [
+    '@capgo/capacitor-social-login',
+    '@capacitor/core',
+    '@capacitor/browser',
+  ],
+
   // Prevent webpack cache corruption issues
   webpack: (config, { dev }) => {
     if (dev) {
