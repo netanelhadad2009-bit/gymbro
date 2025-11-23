@@ -1,7 +1,15 @@
 import { isNative } from '@/lib/platform/isNative';
 import { supabase } from '@/lib/supabase';
-import { SocialLogin } from '@capgo/capacitor-social-login';
 import { signInWithGoogleWeb, signInWithAppleWeb } from './oauth.web';
+
+/**
+ * Dynamically import SocialLogin plugin to avoid webpack bundling during SSR build
+ * This is safe because this file is only used on native platforms (detected at runtime)
+ */
+async function getSocialLogin() {
+  const { SocialLogin } = await import('@capgo/capacitor-social-login');
+  return SocialLogin;
+}
 
 const GOOGLE_WEB_CLIENT_ID =
   '122734915921-3kmos54i1erohqii9rtu6df0r3130obi.apps.googleusercontent.com';
@@ -284,6 +292,7 @@ async function ensureInitialized() {
   console.log('[OAuth Native] Apple Service ID:', APPLE_SERVICE_ID);
 
   try {
+    const SocialLogin = await getSocialLogin();
     await SocialLogin.initialize({
       google: {
         webClientId: GOOGLE_WEB_CLIENT_ID,
@@ -327,6 +336,9 @@ export async function signInWithGoogleNative() {
     console.log('[OAuth Native] Step 1: Ensuring SocialLogin plugin is initialized...');
     await ensureInitialized();
     console.log('[OAuth Native] ✅ Plugin initialized');
+
+    // Get SocialLogin plugin dynamically
+    const SocialLogin = await getSocialLogin();
 
     // Logout any previous Google session to force account picker
     console.log('[OAuth Native] Step 1.5: Logging out previous Google session to force account picker...');
@@ -498,6 +510,9 @@ export async function signInWithAppleNative() {
     console.log('[OAuth Native] Step 1: Ensuring SocialLogin plugin is initialized...');
     await ensureInitialized();
     console.log('[OAuth Native] ✅ Plugin initialized');
+
+    // Get SocialLogin plugin dynamically
+    const SocialLogin = await getSocialLogin();
 
     // Trigger native Apple sign-in sheet
     console.log('[OAuth Native] Step 2: Calling SocialLogin.login() for Apple...');
