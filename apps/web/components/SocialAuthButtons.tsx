@@ -5,9 +5,44 @@ import { translateAuthError } from "@/lib/i18n/authHe";
 import { startGoogleSignIn, startAppleSignIn } from "@/lib/auth/oauth";
 import { usePlatform } from "@/lib/platform";
 import { useToast } from "@/components/ui/use-toast";
+import { supabase } from "@/lib/supabase";
+import { runPostAuthFlow } from "@/lib/auth/post-auth";
+import { isNative } from "@/lib/platform/isNative";
+import { getOnboardingDataOrNull } from "@/lib/onboarding-storage";
+import type { Session, SupabaseClient } from "@supabase/supabase-js";
 
 type Size = "lg" | "md";
 type Variant = "signup" | "login";
+
+/**
+ * Wait for Supabase session to become available after OAuth
+ *
+ * OAuth flow on native can have a race condition where the session
+ * is not immediately available after signInWithIdToken succeeds.
+ * This helper polls for the session with retries before giving up.
+ *
+ * @param supabase Supabase client instance
+ * @param opts Retry configuration { retries: 10, delayMs: 150 }
+ * @returns Session object if found, null if not available after retries
+ */
+async function waitForSession(
+  supabase: SupabaseClient,
+  opts: { retries?: number; delayMs?: number } = {}
+): Promise<Session | null> {
+  const { retries = 10, delayMs = 150 } = opts;
+
+  for (let i = 0; i < retries; i++) {
+    const { data } = await supabase.auth.getSession();
+    if (data.session) {
+      console.log('[SocialAuthButtons] ✅ Session available after OAuth (attempt', i + 1, ')');
+      return data.session;
+    }
+    await new Promise((resolve) => setTimeout(resolve, delayMs));
+  }
+
+  console.warn('[SocialAuthButtons] ⚠️  No session available after OAuth (after', retries, 'retries)');
+  return null;
+}
 
 export default function SocialAuthButtons({
   size = "lg",
@@ -22,8 +57,8 @@ export default function SocialAuthButtons({
 
   const haptics = platform?.haptics;
 
-  const title =
-    variant === "signup" ? "הרשמה באמצעות" : "התחברות באמצעות";
+  // Unified label for both signup and login - OAuth handles both flows automatically
+  const title = "המשך באמצעות";
 
   async function handleGoogle() {
     if (loading) return;
@@ -38,17 +73,78 @@ export default function SocialAuthButtons({
 
       // Start OAuth flow (automatically selects native vs web)
       console.log("[SocialAuthButtons] Starting Google sign-in");
-      await startGoogleSignIn();
+      const oauthResult = await startGoogleSignIn();
 
-      // Success haptic
-      console.log("[SocialAuthButtons] Google sign-in successful, triggering success haptic");
-      await haptics?.success?.();
+      // On web: browser redirects to Google OAuth, code below never executes
+      // On native: we have session data and need to run post-auth flow
 
-      console.log("[SocialAuthButtons] Google OAuth completed successfully");
-      // Loading state will be cleared by redirect/navigation
+      console.log("[SocialAuthButtons] OAuth result received, checking for session...");
+
+      if (isNative()) {
+        console.log("[SocialAuthButtons] Native platform detected, running post-auth flow");
+
+        // Wait for session to become available (handles race condition)
+        const session = await waitForSession(supabase, { retries: 10, delayMs: 150 });
+
+        if (!session || !session.user) {
+          // Session not available after retries - navigate to main app anyway
+          // The session should be available, and if not, AuthProvider will redirect to login
+          console.warn('[SocialAuthButtons] Session not immediately available after native OAuth');
+          console.warn('[SocialAuthButtons] Navigating to /journey anyway - session should be available');
+          setLoading(null);
+          window.location.href = '/journey';
+          return;
+        }
+
+        // Success haptic
+        console.log("[SocialAuthButtons] Triggering success haptic");
+        await haptics?.success?.();
+
+        console.log("[SocialAuthButtons] Running post-auth flow for Google OAuth");
+
+        // Load onboarding data to pass to post-auth flow
+        const onboardingData = getOnboardingDataOrNull();
+        console.log("[SocialAuthButtons] Onboarding data loaded:", !!onboardingData);
+        if (onboardingData) {
+          console.log("[SocialAuthButtons] Onboarding summary:", {
+            goal: onboardingData.goals?.[0],
+            height: onboardingData.height_cm,
+            weight: onboardingData.weight_kg,
+            gender: onboardingData.gender,
+            diet: onboardingData.diet,
+            activity: onboardingData.activity,
+            birthdate: onboardingData.birthdate, // ADD birthdate to log
+            hasBirthdate: !!onboardingData.birthdate,
+          });
+        } else {
+          console.log("[SocialAuthButtons] WARNING: No onboarding data found!");
+        }
+
+        // Run unified post-auth flow
+        const targetRoute = await runPostAuthFlow({
+          user: session.user,
+          session,
+          provider: 'google',
+          storage: platform.storage,
+          supabase,
+          onboardingDataOverride: onboardingData,
+        });
+
+        console.log("[SocialAuthButtons] Post-auth flow completed, navigating to:", targetRoute);
+        window.location.href = targetRoute;
+      } else {
+        console.log("[SocialAuthButtons] Web platform - redirect should have occurred");
+        // On web, redirect happens automatically, this code shouldn't execute
+      }
     } catch (err: any) {
-      console.error("[SocialAuthButtons] Google OAuth error:", err);
+      console.error("[SocialAuthButtons] ❌ Google OAuth error");
+      console.error("[SocialAuthButtons] Error type:", err?.constructor?.name || typeof err);
+      console.error("[SocialAuthButtons] Error message:", err?.message);
+      console.error("[SocialAuthButtons] Error name:", err?.name);
+      console.error("[SocialAuthButtons] Error status:", (err as any)?.status);
+      console.error("[SocialAuthButtons] Error code:", (err as any)?.code);
       console.error("[SocialAuthButtons] Error stack:", err?.stack);
+      console.error("[SocialAuthButtons] Full error object:", JSON.stringify(err, null, 2));
 
       // Error haptic (triple vibration)
       try {
@@ -57,17 +153,22 @@ export default function SocialAuthButtons({
         console.error("[SocialAuthButtons] Haptic error feedback failed:", hapticErr);
       }
 
-      // Show error toast with Hebrew message
+      // Show error toast with REAL error message (temporarily for debugging)
       try {
         const hebrewError = translateAuthError(err, variant === 'signup' ? 'sign_up' : 'sign_in');
+
+        // TEMPORARY: Show both translated message AND raw error for debugging
+        const debugMessage = `${hebrewError}\n\n[DEBUG] ${err?.message || err?.name || 'Unknown error'}`;
+
         toast({
           title: "שגיאה בהתחברות עם Google",
-          description: hebrewError || "לא הצלחנו להשלים את ההתחברות. נסו שוב.",
+          description: debugMessage,
           variant: "destructive",
+          duration: 10000, // Show longer for debugging
         });
       } catch (toastErr) {
         console.error("[SocialAuthButtons] Toast error:", toastErr);
-        alert(`שגיאת התחברות: ${err?.message || "לא הצלחנו להשלים את ההתחברות"}`);
+        alert(`שגיאת התחברות Google:\n${err?.message || err?.name || "לא הצלחנו להשלים את ההתחברות"}`);
       }
 
       // Re-enable buttons
@@ -89,17 +190,78 @@ export default function SocialAuthButtons({
 
       // Start OAuth flow (automatically selects native vs web)
       console.log("[SocialAuthButtons] Starting Apple sign-in");
-      await startAppleSignIn();
+      const oauthResult = await startAppleSignIn();
 
-      // Success haptic
-      console.log("[SocialAuthButtons] Apple sign-in successful, triggering success haptic");
-      await haptics?.success?.();
+      // On web: browser redirects to Apple OAuth, code below never executes
+      // On native: we have session data and need to run post-auth flow
 
-      console.log("[SocialAuthButtons] Apple OAuth completed successfully");
-      // Loading state will be cleared by redirect/navigation
+      console.log("[SocialAuthButtons] OAuth result received, checking for session...");
+
+      if (isNative()) {
+        console.log("[SocialAuthButtons] Native platform detected, running post-auth flow");
+
+        // Wait for session to become available (handles race condition)
+        const session = await waitForSession(supabase, { retries: 10, delayMs: 150 });
+
+        if (!session || !session.user) {
+          // Session not available after retries - navigate to main app anyway
+          // The session should be available, and if not, AuthProvider will redirect to login
+          console.warn('[SocialAuthButtons] Session not immediately available after native OAuth');
+          console.warn('[SocialAuthButtons] Navigating to /journey anyway - session should be available');
+          setLoading(null);
+          window.location.href = '/journey';
+          return;
+        }
+
+        // Success haptic
+        console.log("[SocialAuthButtons] Triggering success haptic");
+        await haptics?.success?.();
+
+        console.log("[SocialAuthButtons] Running post-auth flow for Apple OAuth");
+
+        // Load onboarding data to pass to post-auth flow
+        const onboardingData = getOnboardingDataOrNull();
+        console.log("[SocialAuthButtons] Onboarding data loaded:", !!onboardingData);
+        if (onboardingData) {
+          console.log("[SocialAuthButtons] Onboarding summary:", {
+            goal: onboardingData.goals?.[0],
+            height: onboardingData.height_cm,
+            weight: onboardingData.weight_kg,
+            gender: onboardingData.gender,
+            diet: onboardingData.diet,
+            activity: onboardingData.activity,
+            birthdate: onboardingData.birthdate, // ADD birthdate to log
+            hasBirthdate: !!onboardingData.birthdate,
+          });
+        } else {
+          console.log("[SocialAuthButtons] WARNING: No onboarding data found!");
+        }
+
+        // Run unified post-auth flow
+        const targetRoute = await runPostAuthFlow({
+          user: session.user,
+          session,
+          provider: 'apple',
+          storage: platform.storage,
+          supabase,
+          onboardingDataOverride: onboardingData,
+        });
+
+        console.log("[SocialAuthButtons] Post-auth flow completed, navigating to:", targetRoute);
+        window.location.href = targetRoute;
+      } else {
+        console.log("[SocialAuthButtons] Web platform - redirect should have occurred");
+        // On web, redirect happens automatically, this code shouldn't execute
+      }
     } catch (err: any) {
-      console.error("[SocialAuthButtons] Apple OAuth error:", err);
+      console.error("[SocialAuthButtons] ❌ Apple OAuth error");
+      console.error("[SocialAuthButtons] Error type:", err?.constructor?.name || typeof err);
+      console.error("[SocialAuthButtons] Error message:", err?.message);
+      console.error("[SocialAuthButtons] Error name:", err?.name);
+      console.error("[SocialAuthButtons] Error status:", (err as any)?.status);
+      console.error("[SocialAuthButtons] Error code:", (err as any)?.code);
       console.error("[SocialAuthButtons] Error stack:", err?.stack);
+      console.error("[SocialAuthButtons] Full error object:", JSON.stringify(err, null, 2));
 
       // Error haptic (triple vibration)
       try {
@@ -108,17 +270,22 @@ export default function SocialAuthButtons({
         console.error("[SocialAuthButtons] Haptic error feedback failed:", hapticErr);
       }
 
-      // Show error toast with Hebrew message
+      // Show error toast with REAL error message (temporarily for debugging)
       try {
         const hebrewError = translateAuthError(err, variant === 'signup' ? 'sign_up' : 'sign_in');
+
+        // TEMPORARY: Show both translated message AND raw error for debugging
+        const debugMessage = `${hebrewError}\n\n[DEBUG] ${err?.message || err?.name || 'Unknown error'}`;
+
         toast({
           title: "שגיאה בהתחברות עם Apple",
-          description: hebrewError || "לא הצלחנו להשלים את ההתחברות. נסו שוב.",
+          description: debugMessage,
           variant: "destructive",
+          duration: 10000, // Show longer for debugging
         });
       } catch (toastErr) {
         console.error("[SocialAuthButtons] Toast error:", toastErr);
-        alert(`שגיאת התחברות: ${err?.message || "לא הצלחנו להשלים את ההתחברות"}`);
+        alert(`שגיאת התחברות Apple:\n${err?.message || err?.name || "לא הצלחנו להשלים את ההתחברות"}`);
       }
 
       // Re-enable buttons
