@@ -78,6 +78,11 @@ const config: CapacitorConfig = {
       resize: "native",  // Use native keyboard behavior (fixes constraint errors)
       style: "dark",     // Dark keyboard style to match app theme
     },
+    GoogleAuth: {
+      scopes: ['profile', 'email'],
+      serverClientId: '122734915921-3kmos54i1erohqii9rtu6df0r3130obi.apps.googleusercontent.com',
+      forceCodeForRefreshToken: true,
+    },
   },
 };
 
