@@ -5,9 +5,10 @@ import { signInWithGoogleWeb, signInWithAppleWeb } from './oauth.web';
 /**
  * Dynamically import SocialLogin plugin to avoid webpack bundling during SSR build
  * This is safe because this file is only used on native platforms (detected at runtime)
+ * webpackIgnore tells webpack to not resolve this module at build time
  */
 async function getSocialLogin() {
-  const { SocialLogin } = await import('@capgo/capacitor-social-login');
+  const { SocialLogin } = await import(/* webpackIgnore: true */ '@capgo/capacitor-social-login');
   return SocialLogin;
 }
 
