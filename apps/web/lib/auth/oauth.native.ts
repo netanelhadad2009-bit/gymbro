@@ -9,7 +9,6 @@ import { signInWithGoogleWeb, signInWithAppleWeb } from './oauth.web';
  */
 function getSocialLogin() {
   // Access plugin from Capacitor's global plugin registry
-  // @ts-expect-error - Capacitor plugins are dynamically registered at runtime
   const SocialLogin = (window as any).Capacitor?.Plugins?.SocialLogin;
 
   if (!SocialLogin) {
