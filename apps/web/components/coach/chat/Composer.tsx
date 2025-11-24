@@ -18,7 +18,7 @@ export function Composer({ onSend, onTyping, disabled }: Props) {
   const [uploading, setUploading] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { setIsKeyboardVisible } = useSheet();
+  const { setIsKeyboardVisible, isKeyboardVisible } = useSheet();
 
   // Listen for keyboard show/hide events
   useEffect(() => {
@@ -123,7 +123,7 @@ export function Composer({ onSend, onTyping, disabled }: Props) {
       data-role="composer"
       style={{
         bottom: 0,
-        paddingBottom: '80px',
+        paddingBottom: isKeyboardVisible ? '0px' : '80px',
         backgroundColor: '#000',
         margin: 0,
         border: 0,
