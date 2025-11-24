@@ -10,6 +10,8 @@ import { UserProfile, profileToSummaryString, hasCompleteProfile } from "@/lib/p
 import Link from "next/link";
 import CoachEmptyState from "@/components/coach/CoachEmptyState";
 import { useCoachHeaderOffset } from "@/hooks/useCoachHeaderOffset";
+import { useSheet } from "@/contexts/SheetContext";
+import { Keyboard } from "@capacitor/keyboard";
 
 type Msg = {
   id: string;
@@ -21,6 +23,7 @@ type Msg = {
 
 export default function CoachPage() {
   const { user, session } = useAuth();
+  const { setIsKeyboardVisible } = useSheet();
   const [userId, setUserId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
@@ -37,6 +40,37 @@ export default function CoachPage() {
 
   // Lock header height to prevent layout shifts
   useCoachHeaderOffset();
+
+  // Listen for keyboard show/hide to hide bottom nav (no positioning)
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const handleKeyboardShow = () => {
+      console.log('[Coach] Keyboard shown - hiding bottom nav');
+      setIsKeyboardVisible(true);
+    };
+
+    const handleKeyboardHide = () => {
+      console.log('[Coach] Keyboard hidden - showing bottom nav');
+      setIsKeyboardVisible(false);
+    };
+
+    let showListener: any;
+    let hideListener: any;
+
+    const setupListeners = async () => {
+      showListener = await Keyboard.addListener('keyboardWillShow', handleKeyboardShow);
+      hideListener = await Keyboard.addListener('keyboardWillHide', handleKeyboardHide);
+    };
+
+    setupListeners();
+
+    return () => {
+      setIsKeyboardVisible(false);
+      showListener?.remove();
+      hideListener?.remove();
+    };
+  }, [setIsKeyboardVisible]);
 
   // Scroll to bottom only if user is already near bottom (prevents layout jumps)
   useEffect(() => {
