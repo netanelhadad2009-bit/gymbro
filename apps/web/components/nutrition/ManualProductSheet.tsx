@@ -46,7 +46,6 @@ export function ManualProductSheet({
   const { setIsSheetOpen, setIsKeyboardVisible } = useSheet();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
-  const [keyboardHeight, setKeyboardHeight] = useState(0);
 
   const [formData, setFormData] = useState<FormData>({
     name_he: '',
@@ -81,15 +80,13 @@ export function ManualProductSheet({
   useEffect(() => {
     if (!open || typeof window === 'undefined') return;
 
-    const handleKeyboardShow = (info: any) => {
-      console.log('[ManualProductSheet] Keyboard shown, height:', info.keyboardHeight);
-      setKeyboardHeight(info.keyboardHeight);
+    const handleKeyboardShow = () => {
+      console.log('[] Keyboard shown');
       setIsKeyboardVisible(true);
     };
 
     const handleKeyboardHide = () => {
-      console.log('[ManualProductSheet] Keyboard hidden');
-      setKeyboardHeight(0);
+      console.log('[] Keyboard hidden');
       setIsKeyboardVisible(false);
     };
 
@@ -261,11 +258,8 @@ export function ManualProductSheet({
         />
 
         <Dialog.Content
-          className="fixed left-0 right-0 z-[201] max-h-[90vh] rounded-t-3xl bg-[#1a1b20] overflow-hidden transition-all duration-200"
+          className="fixed left-0 right-0 bottom-0 z-[201] max-h-[90vh] rounded-t-3xl bg-[#1a1b20] overflow-hidden"
           dir="rtl"
-          style={{
-            bottom: keyboardHeight > 0 ? `${keyboardHeight}px` : '0px',
-          }}
         >
           {/* Handle */}
           <div className="w-12 h-1 rounded-full bg-white/20 mx-auto mt-3" />

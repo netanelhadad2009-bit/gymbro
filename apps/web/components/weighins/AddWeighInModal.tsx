@@ -31,7 +31,6 @@ export function AddWeighInModal({ isOpen, onClose, userId, onSuccess }: AddWeigh
   const [note, setNote] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [keyboardHeight, setKeyboardHeight] = useState(0);
 
   // Reset date to current time when modal opens
   useEffect(() => {
@@ -51,17 +50,13 @@ export function AddWeighInModal({ isOpen, onClose, userId, onSuccess }: AddWeigh
 
     console.log('[AddWeighInModal] Setting up keyboard listeners');
 
-    const handleKeyboardShow = (info: any) => {
-      console.log('[AddWeighInModal] Keyboard shown, info:', JSON.stringify(info));
-      const height = info.keyboardHeight || 0;
-      console.log('[AddWeighInModal] Setting keyboard height to:', height);
-      setKeyboardHeight(height);
+    const handleKeyboardShow = () => {
+      console.log('[AddWeighInModal] Keyboard shown');
       setIsKeyboardVisible(true);
     };
 
     const handleKeyboardHide = () => {
       console.log('[AddWeighInModal] Keyboard hidden');
-      setKeyboardHeight(0);
       setIsKeyboardVisible(false);
     };
 
@@ -165,11 +160,8 @@ export function AddWeighInModal({ isOpen, onClose, userId, onSuccess }: AddWeigh
 
       {/* Modal */}
       <div
-        className="fixed inset-x-0 z-[61] animate-slide-up transition-all duration-200"
+        className="fixed inset-x-0 bottom-0 z-[61] animate-slide-up"
         dir="rtl"
-        style={{
-          bottom: keyboardHeight > 0 ? `${keyboardHeight}px` : '0px',
-        }}
       >
         <div
           className="bg-neutral-900 rounded-t-3xl p-6 max-h-[80vh] overflow-y-auto"

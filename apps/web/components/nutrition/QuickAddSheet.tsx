@@ -51,7 +51,7 @@ export function QuickAddSheet({
   const [portion, setPortion] = useState(100);
   const [mealType, setMealType] = useState<MealType>('snack');
   const [isAdding, setIsAdding] = useState(false);
-  const [keyboardHeight, setKeyboardHeight] = useState(0);
+
   const { toast } = useToast();
   const router = useRouter();
   const { setIsSheetOpen, setIsKeyboardVisible } = useSheet();
@@ -65,15 +65,13 @@ export function QuickAddSheet({
   useEffect(() => {
     if (!isOpen || typeof window === 'undefined') return;
 
-    const handleKeyboardShow = (info: any) => {
-      console.log('[QuickAddSheet] Keyboard shown, height:', info.keyboardHeight);
-      setKeyboardHeight(info.keyboardHeight);
+    const handleKeyboardShow = () => {
+      console.log('[] Keyboard shown');
       setIsKeyboardVisible(true);
     };
 
     const handleKeyboardHide = () => {
-      console.log('[QuickAddSheet] Keyboard hidden');
-      setKeyboardHeight(0);
+      console.log('[] Keyboard hidden');
       setIsKeyboardVisible(false);
     };
 
@@ -195,10 +193,9 @@ export function QuickAddSheet({
               damping: 30,
               stiffness: 300,
             }}
-            className="fixed inset-x-0 z-[99999] rounded-t-3xl bg-[#1a1b20] border-t border-white/10 max-h-[85vh] flex flex-col transition-all duration-200"
+            className="fixed inset-x-0 bottom-0 z-[99999] rounded-t-3xl bg-[#1a1b20] border-t border-white/10 max-h-[85vh] flex flex-col"
             style={{
               zIndex: 99999,
-              bottom: keyboardHeight > 0 ? `${keyboardHeight}px` : '0px',
             }}
             dir="rtl"
           >
