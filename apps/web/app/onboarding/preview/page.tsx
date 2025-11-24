@@ -107,13 +107,13 @@ export default function PreviewPage() {
       description: 'מפה אינטראקטיבית עם כל השלבים והמשימות במסך אחד.',
     },
     {
-      id: 'stages',
-      icon: '🎯',
-      title: 'כל השלבים והמשימות',
+      id: 'food-scan',
+      icon: '📸',
+      title: 'צילום וסריקת מזון',
       description: getGenderedText(
-        'מעקב מלא מכל משימה ועד היעד הסופי שלך.',
-        'מעקב מלא מכל משימה ועד היעד הסופי שלך.',
-        'מעקב מלא מכל משימה ועד היעד הסופי שלך.'
+        'צלם את האוכל או סרוק ברקוד - קבל ניתוח תזונתי מיידי ומדויק.',
+        'צלמי את האוכל או סרקי ברקוד - קבלי ניתוח תזונתי מיידי ומדויק.',
+        'צלם/י את האוכל או סרוק/י ברקוד - קבל/י ניתוח תזונתי מיידי ומדויק.'
       ),
     },
     {
