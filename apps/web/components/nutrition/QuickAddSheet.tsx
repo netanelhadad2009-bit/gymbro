@@ -54,7 +54,7 @@ export function QuickAddSheet({
   const [keyboardHeight, setKeyboardHeight] = useState(0);
   const { toast } = useToast();
   const router = useRouter();
-  const { setIsSheetOpen } = useSheet();
+  const { setIsSheetOpen, setIsKeyboardVisible } = useSheet();
 
   // Update sheet context when this sheet opens/closes
   useEffect(() => {
@@ -68,11 +68,13 @@ export function QuickAddSheet({
     const handleKeyboardShow = (info: any) => {
       console.log('[QuickAddSheet] Keyboard shown, height:', info.keyboardHeight);
       setKeyboardHeight(info.keyboardHeight);
+      setIsKeyboardVisible(true);
     };
 
     const handleKeyboardHide = () => {
       console.log('[QuickAddSheet] Keyboard hidden');
       setKeyboardHeight(0);
+      setIsKeyboardVisible(false);
     };
 
     let showListener: any;
@@ -86,10 +88,11 @@ export function QuickAddSheet({
     setupListeners();
 
     return () => {
+      setIsKeyboardVisible(false);
       showListener?.remove();
       hideListener?.remove();
     };
-  }, [isOpen]);
+  }, [isOpen, setIsKeyboardVisible]);
 
   // Haptic feedback
   const hapticSuccess = () => {

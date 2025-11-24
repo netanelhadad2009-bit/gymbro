@@ -23,7 +23,7 @@ export type CheckinData = {
 };
 
 export function AddCheckinSheet({ isOpen, onClose, onSubmit, assignmentId }: Props) {
-  const { setIsSheetOpen } = useSheet();
+  const { setIsSheetOpen, setIsKeyboardVisible } = useSheet();
   const [weight, setWeight] = useState("");
   const [mood, setMood] = useState<number>(0);
   const [energy, setEnergy] = useState<number>(0);
@@ -41,11 +41,13 @@ export function AddCheckinSheet({ isOpen, onClose, onSubmit, assignmentId }: Pro
     const handleKeyboardShow = (info: any) => {
       console.log('[AddCheckinSheet] Keyboard shown, height:', info.keyboardHeight);
       setKeyboardHeight(info.keyboardHeight);
+      setIsKeyboardVisible(true);
     };
 
     const handleKeyboardHide = () => {
       console.log('[AddCheckinSheet] Keyboard hidden');
       setKeyboardHeight(0);
+      setIsKeyboardVisible(false);
     };
 
     let showListener: any;
@@ -59,10 +61,11 @@ export function AddCheckinSheet({ isOpen, onClose, onSubmit, assignmentId }: Pro
     setupListeners();
 
     return () => {
+      setIsKeyboardVisible(false);
       showListener?.remove();
       hideListener?.remove();
     };
-  }, [isOpen]);
+  }, [isOpen, setIsKeyboardVisible]);
 
   const [note, setNote] = useState("");
   const [photos, setPhotos] = useState<File[]>([]);

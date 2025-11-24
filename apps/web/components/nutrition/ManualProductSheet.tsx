@@ -77,11 +77,13 @@ export function ManualProductSheet({
     const handleKeyboardShow = (info: any) => {
       console.log('[ManualProductSheet] Keyboard shown, height:', info.keyboardHeight);
       setKeyboardHeight(info.keyboardHeight);
+      setIsKeyboardVisible(true);
     };
 
     const handleKeyboardHide = () => {
       console.log('[ManualProductSheet] Keyboard hidden');
       setKeyboardHeight(0);
+      setIsKeyboardVisible(false);
     };
 
     let showListener: any;
@@ -95,6 +97,7 @@ export function ManualProductSheet({
     setupListeners();
 
     return () => {
+      setIsKeyboardVisible(false);
       showListener?.remove();
       hideListener?.remove();
     };

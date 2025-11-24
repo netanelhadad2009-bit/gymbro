@@ -22,7 +22,7 @@ export type SessionData = {
 };
 
 export function BookSessionSheet({ isOpen, onClose, onSubmit, assignmentId }: Props) {
-  const { setIsSheetOpen } = useSheet();
+  const { setIsSheetOpen, setIsKeyboardVisible } = useSheet();
   const [kind, setKind] = useState<SessionData["kind"]>("video");
   const [date, setDate] = useState("");
   const [startTime, setStartTime] = useState("");
@@ -44,11 +44,13 @@ export function BookSessionSheet({ isOpen, onClose, onSubmit, assignmentId }: Pr
     const handleKeyboardShow = (info: any) => {
       console.log('[BookSessionSheet] Keyboard shown, height:', info.keyboardHeight);
       setKeyboardHeight(info.keyboardHeight);
+      setIsKeyboardVisible(true);
     };
 
     const handleKeyboardHide = () => {
       console.log('[BookSessionSheet] Keyboard hidden');
       setKeyboardHeight(0);
+      setIsKeyboardVisible(false);
     };
 
     let showListener: any;
@@ -62,10 +64,11 @@ export function BookSessionSheet({ isOpen, onClose, onSubmit, assignmentId }: Pr
     setupListeners();
 
     return () => {
+      setIsKeyboardVisible(false);
       showListener?.remove();
       hideListener?.remove();
     };
-  }, [isOpen]);
+  }, [isOpen, setIsKeyboardVisible]);
 
   const handleSubmit = async () => {
     if (!date || !startTime) {

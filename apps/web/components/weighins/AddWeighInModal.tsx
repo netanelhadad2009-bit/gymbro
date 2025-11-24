@@ -25,7 +25,7 @@ function getCurrentLocalDatetime(): string {
 }
 
 export function AddWeighInModal({ isOpen, onClose, userId, onSuccess }: AddWeighInModalProps) {
-  const { setIsSheetOpen } = useSheet();
+  const { setIsSheetOpen, setIsKeyboardVisible } = useSheet();
   const [date, setDate] = useState(getCurrentLocalDatetime());
   const [weight, setWeight] = useState("");
   const [note, setNote] = useState("");
@@ -56,11 +56,13 @@ export function AddWeighInModal({ isOpen, onClose, userId, onSuccess }: AddWeigh
       const height = info.keyboardHeight || 0;
       console.log('[AddWeighInModal] Setting keyboard height to:', height);
       setKeyboardHeight(height);
+      setIsKeyboardVisible(true);
     };
 
     const handleKeyboardHide = () => {
       console.log('[AddWeighInModal] Keyboard hidden');
       setKeyboardHeight(0);
+      setIsKeyboardVisible(false);
     };
 
     let willShowListener: any;
@@ -80,12 +82,13 @@ export function AddWeighInModal({ isOpen, onClose, userId, onSuccess }: AddWeigh
 
     return () => {
       console.log('[AddWeighInModal] Removing keyboard listeners');
+      setIsKeyboardVisible(false);
       willShowListener?.remove();
       didShowListener?.remove();
       willHideListener?.remove();
       didHideListener?.remove();
     };
-  }, [isOpen]);
+  }, [isOpen, setIsKeyboardVisible]);
 
   if (!isOpen) return null;
 
