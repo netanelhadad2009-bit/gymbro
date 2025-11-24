@@ -10,7 +10,6 @@ import { UserProfile, profileToSummaryString, hasCompleteProfile } from "@/lib/p
 import Link from "next/link";
 import CoachEmptyState from "@/components/coach/CoachEmptyState";
 import { useCoachHeaderOffset } from "@/hooks/useCoachHeaderOffset";
-import { Keyboard } from "@capacitor/keyboard";
 
 type Msg = {
   id: string;
@@ -29,7 +28,6 @@ export default function CoachPage() {
   const [sending, setSending] = useState(false);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [fetchError, setFetchError] = useState<string | null>(null);
-  const [keyboardHeight, setKeyboardHeight] = useState(0);
   const lastInsertTsRef = useRef<number>(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -39,38 +37,6 @@ export default function CoachPage() {
 
   // Lock header height to prevent layout shifts
   useCoachHeaderOffset();
-
-  // Listen for keyboard show/hide events
-  useEffect(() => {
-    // Only add listeners in native environment
-    if (typeof window === 'undefined') return;
-
-    const handleKeyboardShow = (info: any) => {
-      console.log('[Keyboard] Keyboard shown, height:', info.keyboardHeight);
-      setKeyboardHeight(info.keyboardHeight);
-    };
-
-    const handleKeyboardHide = () => {
-      console.log('[Keyboard] Keyboard hidden');
-      setKeyboardHeight(0);
-    };
-
-    // Add keyboard listeners (they return promises)
-    let showListenerHandle: any;
-    let hideListenerHandle: any;
-
-    const setupListeners = async () => {
-      showListenerHandle = await Keyboard.addListener('keyboardWillShow', handleKeyboardShow);
-      hideListenerHandle = await Keyboard.addListener('keyboardWillHide', handleKeyboardHide);
-    };
-
-    setupListeners();
-
-    return () => {
-      showListenerHandle?.remove();
-      hideListenerHandle?.remove();
-    };
-  }, []);
 
   // Scroll to bottom only if user is already near bottom (prevents layout jumps)
   useEffect(() => {
@@ -485,10 +451,10 @@ export default function CoachPage() {
       {/* Messages */}
       <div
         id="coach-messages"
-        className="flex-1 overflow-y-auto px-4 space-y-3 bg-[#0D0E0F] transition-all duration-200"
+        className="flex-1 overflow-y-auto px-4 space-y-3 bg-[#0D0E0F]"
         style={{
           paddingTop: 'calc(var(--coach-top-offset, 110px) + 12px)',
-          paddingBottom: keyboardHeight > 0 ? `${keyboardHeight + 80}px` : '176px'
+          paddingBottom: '176px'
         }}
       >
         {loading ? (
@@ -540,9 +506,9 @@ export default function CoachPage() {
 
       {/* Composer with integrated spacer - Fixed above bottom nav */}
       <div
-        className="fixed left-0 right-0 pt-2 px-4 pb-4 mb-0 transition-all duration-200"
+        className="fixed left-0 right-0 pt-2 px-4 pb-4 mb-0"
         style={{
-          bottom: keyboardHeight > 0 ? `${keyboardHeight - 10}px` : '80px',
+          bottom: '80px',
           background: '#0D0E0F',
         }}
       >
