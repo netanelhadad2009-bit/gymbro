@@ -6,7 +6,6 @@ import { readProgramDraft } from "@/lib/program-draft";
 import { useOnboardingGender } from "@/lib/onboarding/useOnboardingGender";
 import { usePlatform } from "@/lib/platform";
 import { motion, AnimatePresence } from "framer-motion";
-import { Lock, ChevronDown, X } from "lucide-react";
 import { openExternal } from "@/lib/openExternal";
 
 const SOURCES = [
@@ -38,8 +37,6 @@ export default function PreviewPage() {
   const { getGenderedText } = useOnboardingGender();
   const [loading, setLoading] = useState(true);
   const [draftError, setDraftError] = useState<string | null>(null);
-  const [teaserOpen, setTeaserOpen] = useState(false);
-  const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -89,19 +86,6 @@ export default function PreviewPage() {
     router.push('/signup');
   };
 
-  const openTeaser = async () => {
-    console.log('[Analytics] paywall_teaser_open');
-    if (typeof window !== 'undefined' && 'gtag' in window && typeof (window as any).gtag === 'function') {
-      (window as any).gtag('event', 'paywall_teaser_open');
-    }
-    await haptics.selection();
-    setTeaserOpen(true);
-  };
-
-  const closeTeaser = () => {
-    setTeaserOpen(false);
-  };
-
   const handleCardClick = async (cardName: string) => {
     console.log(`[Analytics] paywall_card_click: ${cardName}`);
     if (typeof window !== 'undefined' && 'gtag' in window && typeof (window as any).gtag === 'function') {
@@ -109,10 +93,6 @@ export default function PreviewPage() {
     }
     await haptics.selection();
     goToPricing('locked_card');
-  };
-
-  const toggleFaq = (index: number) => {
-    setExpandedFaq(expandedFaq === index ? null : index);
   };
 
   const handleSourceClick = async (url: string) => {
@@ -154,25 +134,6 @@ export default function PreviewPage() {
         'נקודות, מדדים ושמירה של כל התהליך שלך.',
         'נקודות, מדדים ושמירה של כל התהליך שלך.',
         'נקודות, מדדים ושמירה של כל התהליך שלך.'
-      ),
-    },
-  ];
-
-  const faqs = [
-    {
-      question: 'אפשר לבטל בכל רגע?',
-      answer: 'כן, דרך ההגדרות באפליקציה.',
-    },
-    {
-      question: 'מה קורה אם לא משדרגים?',
-      answer: getGenderedText('תישאר גישה בסיסית בלבד.', 'תישארי גישה בסיסית בלבד.', 'תישאר/י גישה בסיסית בלבד.'),
-    },
-    {
-      question: 'מה קורה אחרי פתיחת הגישה?',
-      answer: getGenderedText(
-        'מקבלים גישה מיידית לכל המסע שנוצר עבורך.',
-        'מקבלת גישה מיידית לכל המסע שנוצר עבורך.',
-        'מקבל/ת גישה מיידית לכל המסע שנוצר עבורך.'
       ),
     },
   ];
@@ -238,9 +199,9 @@ export default function PreviewPage() {
         >
           <h1 className="text-3xl font-black tracking-tight text-white leading-tight mb-3">
             {getGenderedText(
-              'מסע הכושר שלך מוכן — פתח גישה מלאה',
-              'מסע הכושר שלך מוכן — פתחי גישה מלאה',
-              'מסע הכושר שלך מוכן — פתח/י גישה מלאה'
+              'מסע הכושר שלך מוכן — בואו נתחיל!',
+              'מסע הכושר שלך מוכן — בואי נתחיל!',
+              'מסע הכושר שלך מוכן — בואו נתחיל!'
             )}
           </h1>
           <p className="text-zinc-400 leading-relaxed mb-4">
@@ -256,14 +217,14 @@ export default function PreviewPage() {
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            <span>המסע האישי {getGenderedText('שלך', 'שלך', 'שלך')} נוצר ומחכה {getGenderedText('לך', 'לך', 'לך')} בפנים</span>
+            <span>המסע האישי {getGenderedText('שלך', 'שלך', 'שלך')} נוצר ומחכה {getGenderedText('לך', 'לך', 'לך')}!</span>
           </div>
         </motion.div>
       </header>
 
       {/* Main Content */}
       <main className="px-4 space-y-8">
-        {/* Locked Features Grid */}
+        {/* Features Grid */}
         <motion.section
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -278,21 +239,9 @@ export default function PreviewPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: 0.2 + index * 0.05 }}
-              aria-label={`${feature.title} - ננעל בפרימיום`}
+              aria-label={feature.title}
             >
-              {/* Lock Badge */}
-              <div
-                className="absolute top-3 left-3 flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold"
-                style={{
-                  backgroundColor: '#E2F16330',
-                  color: '#E2F163',
-                }}
-              >
-                <Lock className="w-3 h-3" />
-                <span>ננעל בפרימיום</span>
-              </div>
-
-              <div className="flex items-start gap-3 mt-1">
+              <div className="flex items-start gap-3">
                 <span className="text-3xl" role="img" aria-hidden="true">
                   {feature.icon}
                 </span>
@@ -300,10 +249,7 @@ export default function PreviewPage() {
                   <h3 className="text-lg font-bold text-white mb-1">
                     {feature.title}
                   </h3>
-                  <p
-                    className="text-sm text-zinc-400 leading-relaxed"
-                    style={{ filter: 'blur(0.5px)' }}
-                  >
+                  <p className="text-sm text-zinc-400 leading-relaxed">
                     {feature.description}
                   </p>
                 </div>
@@ -311,22 +257,6 @@ export default function PreviewPage() {
             </motion.button>
           ))}
         </motion.section>
-
-        {/* Teaser Button */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.4 }}
-          className="flex justify-center"
-        >
-          <button
-            onClick={openTeaser}
-            className="px-6 py-3 rounded-xl font-bold text-white border-2 border-zinc-700 bg-transparent transition-all hover:border-zinc-600 hover:bg-zinc-800/50 active:scale-95"
-            aria-label="הצג דוגמה למסע"
-          >
-            הצג דוגמה
-          </button>
-        </motion.div>
 
         {/* Social Proof */}
         <motion.div
@@ -337,56 +267,6 @@ export default function PreviewPage() {
         >
           ✨ מצטרפים חדשים השבוע
         </motion.div>
-
-        {/* FAQ Section */}
-        <motion.section
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.7 }}
-          className="space-y-3"
-          role="region"
-          aria-label="שאלות נפוצות"
-        >
-          <h2 className="text-xl font-bold text-white text-center mb-4">
-            שאלות נפוצות
-          </h2>
-          {faqs.map((faq, index) => (
-            <div
-              key={index}
-              className="rounded-2xl bg-zinc-900/50 border border-zinc-800 overflow-hidden"
-            >
-              <button
-                onClick={() => toggleFaq(index)}
-                className="w-full flex items-center justify-between p-4 text-right transition-colors hover:bg-zinc-900/70"
-                aria-expanded={expandedFaq === index}
-                aria-controls={`faq-answer-${index}`}
-              >
-                <span className="text-white font-semibold">{faq.question}</span>
-                <ChevronDown
-                  className={`w-5 h-5 text-zinc-400 transition-transform ${
-                    expandedFaq === index ? 'rotate-180' : ''
-                  }`}
-                />
-              </button>
-              <AnimatePresence>
-                {expandedFaq === index && (
-                  <motion.div
-                    id={`faq-answer-${index}`}
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: 'auto', opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.2 }}
-                    className="overflow-hidden"
-                  >
-                    <p className="px-4 pb-4 text-sm text-zinc-400 leading-relaxed">
-                      {faq.answer}
-                    </p>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-          ))}
-        </motion.section>
 
         {/* Information Sources */}
         <motion.section
@@ -446,92 +326,12 @@ export default function PreviewPage() {
             style={{
               backgroundColor: '#E2F163',
             }}
-            aria-label="המשך לפתיחת הגישה"
+            aria-label="בואו נתחיל"
           >
-            המשך לפתיחת הגישה
+            בואו נתחיל
           </button>
-          <p className="mt-2 text-center text-xs text-zinc-600">
-            ללא התחייבות · ניתן לבטל בכל רגע
-          </p>
         </motion.div>
       </div>
-
-      {/* Teaser Modal */}
-      <AnimatePresence>
-        {teaserOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4"
-            style={{ backgroundColor: 'rgba(0, 0, 0, 0.85)' }}
-            onClick={closeTeaser}
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="teaser-title"
-          >
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              onClick={(e) => e.stopPropagation()}
-              className="relative w-full max-w-md rounded-3xl bg-[#1C1C22] border border-zinc-800 p-6 shadow-2xl"
-            >
-              {/* Close Button */}
-              <button
-                onClick={closeTeaser}
-                className="absolute top-4 left-4 p-2 rounded-full bg-zinc-800 text-white transition-colors hover:bg-zinc-700"
-                aria-label="סגור"
-              >
-                <X className="w-5 h-5" />
-              </button>
-
-              {/* Modal Content */}
-              <div className="space-y-6">
-                <div>
-                  <h3 id="teaser-title" className="text-2xl font-bold text-white mb-2">
-                    הצצה למסע {getGenderedText('שלך', 'שלך', 'שלך')}
-                  </h3>
-                  <p className="text-zinc-400 text-sm">
-                    זו רק טעימה — הגישה המלאה מחכה {getGenderedText('לך', 'לך', 'לך')} בפנים
-                  </p>
-                </div>
-
-                {/* Blurred Preview Placeholder */}
-                <div className="space-y-3">
-                  <div
-                    className="h-40 rounded-2xl bg-gradient-to-br from-zinc-800 to-zinc-900 relative overflow-hidden"
-                    style={{ filter: 'blur(8px)' }}
-                  >
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <Lock className="w-12 h-12 text-zinc-600" />
-                    </div>
-                  </div>
-                  <div
-                    className="h-24 rounded-2xl bg-gradient-to-br from-zinc-800 to-zinc-900 relative overflow-hidden"
-                    style={{ filter: 'blur(8px)' }}
-                  >
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <Lock className="w-8 h-8 text-zinc-600" />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Modal CTA */}
-                <button
-                  onClick={() => goToPricing('teaser_modal')}
-                  className="w-full py-4 rounded-2xl font-bold text-lg text-black transition-all active:scale-[0.98]"
-                  style={{
-                    backgroundColor: '#E2F163',
-                  }}
-                >
-                  המשך לפתיחת הגישה
-                </button>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </div>
   );
 }
