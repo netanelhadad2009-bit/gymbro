@@ -9,8 +9,11 @@ function AppLayoutContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { isSheetOpen, isKeyboardVisible } = useSheet();
 
-  // Hide bottom nav on scan/review pages (full-screen experience), when sheet is open, or when keyboard is visible
-  const hideBottomNav = pathname?.includes('/scan/review') || isSheetOpen || isKeyboardVisible;
+  // Hide bottom nav on scan/review pages (full-screen experience), when sheet is open
+  // For modal sheets: hide nav when keyboard is visible
+  // For coach chat: don't hide nav (let native keyboard resize handle it)
+  const isCoachChat = pathname?.includes('/coach');
+  const hideBottomNav = pathname?.includes('/scan/review') || isSheetOpen || (isKeyboardVisible && !isCoachChat);
 
   return (
     <>

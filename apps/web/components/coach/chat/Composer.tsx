@@ -2,8 +2,6 @@
 
 import { useState, useRef, useEffect } from "react";
 import { isCoachComposerEnabled } from "@/lib/flags/coach";
-import { useSheet } from "@/contexts/SheetContext";
-import { Keyboard } from "@capacitor/keyboard";
 
 type Props = {
   onSend: (text?: string, attachment?: { name: string; type: "image" | "audio" | "file"; bytes: string }) => void;
@@ -18,38 +16,6 @@ export function Composer({ onSend, onTyping, disabled }: Props) {
   const [uploading, setUploading] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { setIsKeyboardVisible, isKeyboardVisible } = useSheet();
-
-  // Listen for keyboard show/hide events
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-
-    const handleKeyboardShow = () => {
-      console.log('[Composer] Keyboard shown');
-      setIsKeyboardVisible(true);
-    };
-
-    const handleKeyboardHide = () => {
-      console.log('[Composer] Keyboard hidden');
-      setIsKeyboardVisible(false);
-    };
-
-    let showListener: any;
-    let hideListener: any;
-
-    const setupListeners = async () => {
-      showListener = await Keyboard.addListener('keyboardWillShow', handleKeyboardShow);
-      hideListener = await Keyboard.addListener('keyboardWillHide', handleKeyboardHide);
-    };
-
-    setupListeners();
-
-    return () => {
-      setIsKeyboardVisible(false);
-      showListener?.remove();
-      hideListener?.remove();
-    };
-  }, [setIsKeyboardVisible]);
 
   // Auto-resize textarea
   useEffect(() => {
@@ -80,16 +46,6 @@ export function Composer({ onSend, onTyping, disabled }: Props) {
       e.preventDefault();
       handleSend();
     }
-  };
-
-  const handleFocus = () => {
-    console.log('[Composer] Input focused - setting keyboard visible');
-    setIsKeyboardVisible(true);
-  };
-
-  const handleBlur = () => {
-    console.log('[Composer] Input blurred - setting keyboard hidden');
-    setIsKeyboardVisible(false);
   };
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -129,11 +85,11 @@ export function Composer({ onSend, onTyping, disabled }: Props) {
 
   return (
     <div
-      className="fixed inset-x-0 z-[60] w-full bg-black composer"
+      className="fixed inset-x-0 z-40 w-full bg-black composer"
       data-role="composer"
       style={{
         bottom: 0,
-        paddingBottom: isKeyboardVisible ? '0px' : '80px',
+        paddingBottom: '80px',
         backgroundColor: '#000',
         margin: 0,
         border: 0,
@@ -172,8 +128,6 @@ export function Composer({ onSend, onTyping, disabled }: Props) {
             value={text}
             onChange={(e) => setText(e.target.value)}
             onKeyPress={handleKeyPress}
-            onFocus={handleFocus}
-            onBlur={handleBlur}
             placeholder="כתוב/י הודעה…"
             disabled={disabled}
             className="flex-1 bg-transparent text-white placeholder:text-neutral-500 resize-none outline-none max-h-24 disabled:opacity-50"
