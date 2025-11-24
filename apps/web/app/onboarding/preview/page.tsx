@@ -119,11 +119,11 @@ export default function PreviewPage() {
     {
       id: 'nutrition',
       icon: '🥗',
-      title: 'תזונה ואימונים מותאמים',
+      title: 'תזונה מותאמת אישית',
       description: getGenderedText(
-        'תפריט תזונה ותוכנית אימונים לפי הנתונים שלך.',
-        'תפריט תזונה ותוכנית אימונים לפי הנתונים שלך.',
-        'תפריט תזונה ותוכנית אימונים לפי הנתונים שלך.'
+        'תפריט תזונה מותאם אישית לפי הנתונים והיעדים שלך.',
+        'תפריט תזונה מותאם אישית לפי הנתונים והיעדים שלך.',
+        'תפריט תזונה מותאם אישית לפי הנתונים והיעדים שלך.'
       ),
     },
     {
@@ -205,7 +205,7 @@ export default function PreviewPage() {
             )}
           </h1>
           <p className="text-zinc-400 leading-relaxed mb-4">
-            יצרנו {getGenderedText('לך', 'לך', 'לך')} מסע אישי עם משימות מדויקות, תזונה מותאמת, אימונים לפי היעדים {getGenderedText('שלך', 'שלך', 'שלך')} ומעקב התקדמות.
+            יצרנו {getGenderedText('לך', 'לך', 'לך')} מסע אישי עם משימות מדויקות, תזונה מותאמת לפי היעדים {getGenderedText('שלך', 'שלך', 'שלך')} ומעקב התקדמות.
           </p>
           <div
             className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold"
