@@ -7,10 +7,10 @@ import { DailyLoginTracker } from "@/components/streak/DailyLoginTracker";
 
 function AppLayoutContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const { isSheetOpen } = useSheet();
+  const { isSheetOpen, isKeyboardVisible } = useSheet();
 
-  // Hide bottom nav on scan/review pages (full-screen experience) or when sheet is open
-  const hideBottomNav = pathname?.includes('/scan/review') || isSheetOpen;
+  // Hide bottom nav on scan/review pages (full-screen experience), when sheet is open, or when keyboard is visible
+  const hideBottomNav = pathname?.includes('/scan/review') || isSheetOpen || isKeyboardVisible;
 
   return (
     <>

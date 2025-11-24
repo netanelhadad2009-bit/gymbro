@@ -2,6 +2,8 @@
 
 import { useState, useRef, useEffect } from "react";
 import { isCoachComposerEnabled } from "@/lib/flags/coach";
+import { useSheet } from "@/contexts/SheetContext";
+import { Keyboard } from "@capacitor/keyboard";
 
 type Props = {
   onSend: (text?: string, attachment?: { name: string; type: "image" | "audio" | "file"; bytes: string }) => void;
@@ -16,6 +18,38 @@ export function Composer({ onSend, onTyping, disabled }: Props) {
   const [uploading, setUploading] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { setIsKeyboardVisible } = useSheet();
+
+  // Listen for keyboard show/hide events
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const handleKeyboardShow = () => {
+      console.log('[Composer] Keyboard shown');
+      setIsKeyboardVisible(true);
+    };
+
+    const handleKeyboardHide = () => {
+      console.log('[Composer] Keyboard hidden');
+      setIsKeyboardVisible(false);
+    };
+
+    let showListener: any;
+    let hideListener: any;
+
+    const setupListeners = async () => {
+      showListener = await Keyboard.addListener('keyboardWillShow', handleKeyboardShow);
+      hideListener = await Keyboard.addListener('keyboardWillHide', handleKeyboardHide);
+    };
+
+    setupListeners();
+
+    return () => {
+      setIsKeyboardVisible(false);
+      showListener?.remove();
+      hideListener?.remove();
+    };
+  }, [setIsKeyboardVisible]);
 
   // Auto-resize textarea
   useEffect(() => {
