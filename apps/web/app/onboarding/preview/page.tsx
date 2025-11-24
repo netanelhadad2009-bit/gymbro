@@ -285,8 +285,8 @@ export default function PreviewPage() {
           <div className="space-y-3">
             <div className="bg-zinc-900/50 rounded-2xl p-4 border border-zinc-800">
               <div className="flex items-center gap-3">
-                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-[#E2F163] flex items-center justify-center">
-                  <span className="text-black font-bold">1</span>
+                <div className="flex-shrink-0 w-10 h-10 rounded-full bg-[#E2F163] flex items-center justify-center">
+                  <span className="text-2xl">🗺️</span>
                 </div>
                 <p className="text-white text-sm">
                   {getGenderedText(
@@ -300,8 +300,8 @@ export default function PreviewPage() {
 
             <div className="bg-zinc-900/50 rounded-2xl p-4 border border-zinc-800">
               <div className="flex items-center gap-3">
-                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-[#E2F163] flex items-center justify-center">
-                  <span className="text-black font-bold">2</span>
+                <div className="flex-shrink-0 w-10 h-10 rounded-full bg-[#E2F163] flex items-center justify-center">
+                  <span className="text-2xl">📸</span>
                 </div>
                 <p className="text-white text-sm">
                   {getGenderedText(
@@ -315,8 +315,8 @@ export default function PreviewPage() {
 
             <div className="bg-zinc-900/50 rounded-2xl p-4 border border-zinc-800">
               <div className="flex items-center gap-3">
-                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-[#E2F163] flex items-center justify-center">
-                  <span className="text-black font-bold">3</span>
+                <div className="flex-shrink-0 w-10 h-10 rounded-full bg-[#E2F163] flex items-center justify-center">
+                  <span className="text-2xl">✓</span>
                 </div>
                 <p className="text-white text-sm">
                   {getGenderedText(
@@ -330,8 +330,8 @@ export default function PreviewPage() {
 
             <div className="bg-zinc-900/50 rounded-2xl p-4 border border-zinc-800">
               <div className="flex items-center gap-3">
-                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-[#E2F163] flex items-center justify-center">
-                  <span className="text-black font-bold">4</span>
+                <div className="flex-shrink-0 w-10 h-10 rounded-full bg-[#E2F163] flex items-center justify-center">
+                  <span className="text-2xl">🏆</span>
                 </div>
                 <p className="text-white text-sm">
                   {getGenderedText(
