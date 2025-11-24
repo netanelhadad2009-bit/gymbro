@@ -7,7 +7,7 @@ import { useState, useCallback, useRef, useEffect } from 'react';
 import { BrowserMultiFormatReader } from '@zxing/browser';
 import { Result } from '@zxing/library';
 import { Capacitor } from '@capacitor/core';
-import { BarcodeScanner } from '@capacitor-mlkit/barcode-scanning';
+// BarcodeScanner is imported dynamically only in native mode to avoid SSR build issues
 
 export type ScannerErrorCode = 'NO_PERMISSION' | 'PERMISSION_DENIED' | 'NOT_SUPPORTED' | 'NO_CAMERA' | 'UNKNOWN';
 
@@ -221,6 +221,9 @@ export function useScanner({
       // ==================== NATIVE (Capacitor) MODE ====================
       if (isNative) {
         console.log('[Scanner] Using Capacitor BarcodeScanner (native mode with scan())');
+
+        // Dynamically import BarcodeScanner only in native mode (avoids SSR build issues)
+        const { BarcodeScanner } = await import('@capacitor-mlkit/barcode-scanning');
 
         // Use scan() method which shows a ready-to-use modal interface
         // This is simpler and more reliable than startScan()
