@@ -63,18 +63,27 @@ export function AddWeighInModal({ isOpen, onClose, userId, onSuccess }: AddWeigh
       setKeyboardHeight(0);
     };
 
-    // Try both Will and Did events
-    const willShowListener = Keyboard.addListener('keyboardWillShow', handleKeyboardShow);
-    const didShowListener = Keyboard.addListener('keyboardDidShow', handleKeyboardShow);
-    const willHideListener = Keyboard.addListener('keyboardWillHide', handleKeyboardHide);
-    const didHideListener = Keyboard.addListener('keyboardDidHide', handleKeyboardHide);
+    let willShowListener: any;
+    let didShowListener: any;
+    let willHideListener: any;
+    let didHideListener: any;
+
+    const setupListeners = async () => {
+      // Try both Will and Did events
+      willShowListener = await Keyboard.addListener('keyboardWillShow', handleKeyboardShow);
+      didShowListener = await Keyboard.addListener('keyboardDidShow', handleKeyboardShow);
+      willHideListener = await Keyboard.addListener('keyboardWillHide', handleKeyboardHide);
+      didHideListener = await Keyboard.addListener('keyboardDidHide', handleKeyboardHide);
+    };
+
+    setupListeners();
 
     return () => {
       console.log('[AddWeighInModal] Removing keyboard listeners');
-      willShowListener.remove();
-      didShowListener.remove();
-      willHideListener.remove();
-      didHideListener.remove();
+      willShowListener?.remove();
+      didShowListener?.remove();
+      willHideListener?.remove();
+      didHideListener?.remove();
     };
   }, [isOpen]);
 

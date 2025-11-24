@@ -84,12 +84,19 @@ export function ManualProductSheet({
       setKeyboardHeight(0);
     };
 
-    const showListener = Keyboard.addListener('keyboardWillShow', handleKeyboardShow);
-    const hideListener = Keyboard.addListener('keyboardWillHide', handleKeyboardHide);
+    let showListener: any;
+    let hideListener: any;
+
+    const setupListeners = async () => {
+      showListener = await Keyboard.addListener('keyboardWillShow', handleKeyboardShow);
+      hideListener = await Keyboard.addListener('keyboardWillHide', handleKeyboardHide);
+    };
+
+    setupListeners();
 
     return () => {
-      showListener.remove();
-      hideListener.remove();
+      showListener?.remove();
+      hideListener?.remove();
     };
   }, [open]);
 
