@@ -82,6 +82,16 @@ export function Composer({ onSend, onTyping, disabled }: Props) {
     }
   };
 
+  const handleFocus = () => {
+    console.log('[Composer] Input focused - setting keyboard visible');
+    setIsKeyboardVisible(true);
+  };
+
+  const handleBlur = () => {
+    console.log('[Composer] Input blurred - setting keyboard hidden');
+    setIsKeyboardVisible(false);
+  };
+
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -119,7 +129,7 @@ export function Composer({ onSend, onTyping, disabled }: Props) {
 
   return (
     <div
-      className="fixed inset-x-0 z-40 w-full bg-black composer"
+      className="fixed inset-x-0 z-[60] w-full bg-black composer"
       data-role="composer"
       style={{
         bottom: 0,
@@ -162,6 +172,8 @@ export function Composer({ onSend, onTyping, disabled }: Props) {
             value={text}
             onChange={(e) => setText(e.target.value)}
             onKeyPress={handleKeyPress}
+            onFocus={handleFocus}
+            onBlur={handleBlur}
             placeholder="כתוב/י הודעה…"
             disabled={disabled}
             className="flex-1 bg-transparent text-white placeholder:text-neutral-500 resize-none outline-none max-h-24 disabled:opacity-50"
