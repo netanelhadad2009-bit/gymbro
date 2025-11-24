@@ -258,16 +258,6 @@ export default function PreviewPage() {
           ))}
         </motion.section>
 
-        {/* Social Proof */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5, delay: 0.5 }}
-          className="text-center text-sm text-zinc-500"
-        >
-          ✨ מצטרפים חדשים השבוע
-        </motion.div>
-
         {/* How It Works Section */}
         <motion.section
           initial={{ opacity: 0, y: 20 }}
