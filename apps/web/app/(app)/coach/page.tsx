@@ -23,7 +23,7 @@ type Msg = {
 
 export default function CoachPage() {
   const { user, session } = useAuth();
-  const { setIsKeyboardVisible } = useSheet();
+  const { setIsKeyboardVisible, isKeyboardVisible } = useSheet();
   const [userId, setUserId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
@@ -542,7 +542,7 @@ export default function CoachPage() {
       <div
         className="fixed left-0 right-0 pt-2 px-4 pb-4 mb-0"
         style={{
-          bottom: '80px',
+          bottom: isKeyboardVisible ? '0px' : '80px',
           background: '#0D0E0F',
         }}
       >
