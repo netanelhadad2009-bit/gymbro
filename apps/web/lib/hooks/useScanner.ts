@@ -231,8 +231,8 @@ export function useScanner({
           const module = await import('@capacitor-mlkit/barcode-scanning');
           BarcodeScanner = module.BarcodeScanner;
           console.log('[Scanner] Loaded BarcodeScanner via npm import');
-        } catch (importError) {
-          console.log('[Scanner] npm import failed, trying global Capacitor registry:', importError.message);
+        } catch (importError: any) {
+          console.log('[Scanner] npm import failed, trying global Capacitor registry:', importError?.message);
           // Fallback: Access via Capacitor's global plugin registry
           // The plugin should be registered by the native app
           BarcodeScanner = (window as any).Capacitor?.Plugins?.BarcodeScanner;
