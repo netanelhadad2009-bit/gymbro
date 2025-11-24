@@ -55,13 +55,20 @@ export default function CoachPage() {
       setKeyboardHeight(0);
     };
 
-    // Add keyboard listeners
-    const showListener = Keyboard.addListener('keyboardWillShow', handleKeyboardShow);
-    const hideListener = Keyboard.addListener('keyboardWillHide', handleKeyboardHide);
+    // Add keyboard listeners (they return promises)
+    let showListenerHandle: any;
+    let hideListenerHandle: any;
+
+    const setupListeners = async () => {
+      showListenerHandle = await Keyboard.addListener('keyboardWillShow', handleKeyboardShow);
+      hideListenerHandle = await Keyboard.addListener('keyboardWillHide', handleKeyboardHide);
+    };
+
+    setupListeners();
 
     return () => {
-      showListener.remove();
-      hideListener.remove();
+      showListenerHandle?.remove();
+      hideListenerHandle?.remove();
     };
   }, []);
 
