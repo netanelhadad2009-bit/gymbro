@@ -7,9 +7,9 @@ export const dynamic = "force-dynamic";
 // GET /api/meals/plan - Fetch all eaten plan meals for the authenticated user
 export async function GET(request: NextRequest) {
   try {
-    // Rate limiting check (LENIENT - read operation)
+    // Rate limiting check (STANDARD - read operation)
     const rateLimit = await checkRateLimit(request, {
-      ...RateLimitPresets.lenient,
+      ...RateLimitPresets.standard,
       keyPrefix: 'meals-plan-get',
     });
 
