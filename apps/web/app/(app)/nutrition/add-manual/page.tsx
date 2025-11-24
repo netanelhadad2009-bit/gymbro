@@ -25,7 +25,7 @@ export default function AddManualMealPage() {
   const [mealType, setMealType] = useState<MealType>('snack');
   const [saving, setSaving] = useState(false);
   const router = useRouter();
-  const { setIsKeyboardVisible } = useSheet();
+  const { setIsKeyboardVisible, isKeyboardVisible } = useSheet();
 
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -196,7 +196,12 @@ export default function AddManualMealPage() {
         </div>
       </div>
 
-      <div className="fixed bottom-[calc(112px+env(safe-area-inset-bottom))] left-4 right-4 z-40">
+      <div
+        className="fixed left-4 right-4 z-40"
+        style={{
+          bottom: isKeyboardVisible ? 'env(safe-area-inset-bottom, 0px)' : 'calc(112px + env(safe-area-inset-bottom))',
+        }}
+      >
         <button
           className="w-full h-12 bg-[#E2F163] text-black font-medium rounded-xl hover:bg-[#d4e350] active:translate-y-1 active:brightness-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           disabled={saving || !name || calories === ""}
