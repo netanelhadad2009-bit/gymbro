@@ -17,6 +17,7 @@ export interface SavedStage {
   color_hex: string;
   is_unlocked: boolean;
   is_completed: boolean;
+  unlocked_at?: string; // Timestamp when stage was unlocked (for filtering task progress)
   created_at: string;
   updated_at: string;
 }
@@ -69,6 +70,7 @@ export async function saveUserStages(
     const stageIndex = i + 1;
 
     // Insert stage
+    const isFirstStage = stageIndex === 1;
     const { data: insertedStage, error: stageError } = await supabase
       .from('user_stages')
       .insert({
@@ -78,8 +80,9 @@ export async function saveUserStages(
         title_he: stage.title_he,
         subtitle_he: stage.subtitle_he,
         color_hex: stage.color_hex,
-        is_unlocked: stageIndex === 1, // Only first stage (stageIndex 1) starts unlocked
+        is_unlocked: isFirstStage, // Only first stage (stageIndex 1) starts unlocked
         is_completed: false,
+        unlocked_at: isFirstStage ? new Date().toISOString() : null, // Set unlocked_at for first stage
       })
       .select()
       .single();
@@ -244,7 +247,10 @@ export async function completeTask(
     if (nextStage) {
       await supabase
         .from('user_stages')
-        .update({ is_unlocked: true })
+        .update({
+          is_unlocked: true,
+          unlocked_at: new Date().toISOString(), // Record when stage was unlocked
+        })
         .eq('id', nextStage.id);
 
       unlockedNext = true;

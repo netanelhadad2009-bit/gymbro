@@ -756,13 +756,42 @@ export default function OnboardingGeneratingClient() {
     // Main generation flow
     (async () => {
       try {
+        // Check for existing session
+        let session = await getPlanSession(storage);
+
+        // If session already exists with "done" status, navigate directly to preview
+        if (session && session.status === 'done') {
+          console.log('[Gen][Init] Session already completed, navigating directly to preview');
+          console.log('[Gen][Init] NOT creating new session - existing session is done');
+
+          // Mark state as complete and navigate
+          setSessionStatus('done');
+          setGenerationComplete(true);
+          setServerProgress(PROGRESS.COMPLETE);
+          setVisualProgress(100);
+          setMessage('התוכניות מוכנות!');
+
+          // Navigate immediately (guarded by navigatedRef in the navigation effect)
+          return;
+        }
+
         // Mark as generating immediately to prevent premature abort in StrictMode
         isGeneratingRef.current = true;
 
-        // Create or resume session
-        let session = await getPlanSession(storage);
-        if (!session || session.status === 'done') {
+        // Create new session ONLY if:
+        // 1. No session exists, OR
+        // 2. Previous session failed
+        if (!session || session.status === 'failed') {
+          console.log('[Gen][Init] Creating NEW PlanSession', {
+            reason: !session ? 'no_session' : 'previous_failed',
+            previousStatus: session?.status
+          });
           session = await createPlanSession(storage);
+        } else {
+          console.log('[Gen][Init] Resuming existing session', {
+            status: session.status,
+            progress: session.progress
+          });
         }
 
         await updateSessionProgress(storage, PROGRESS.START, 'מתחיל...');

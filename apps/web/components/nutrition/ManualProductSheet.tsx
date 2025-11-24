@@ -5,12 +5,13 @@
 
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { X, Check, Loader2, AlertCircle } from 'lucide-react';
 import * as Dialog from '@radix-ui/react-dialog';
 import type { BarcodeProduct, Per100g } from '@/types/barcode';
 import { useToast } from '@/components/ui/use-toast';
+import { Keyboard } from '@capacitor/keyboard';
 
 interface ManualProductSheetProps {
   open: boolean;
@@ -43,6 +44,7 @@ export function ManualProductSheet({
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
 
   const [formData, setFormData] = useState<FormData>({
     name_he: '',
@@ -67,6 +69,29 @@ export function ManualProductSheet({
       fat_g: Math.round((parseInt(formData.fat_g) || 0) * scale * 10) / 10,
     };
   }, [formData]);
+
+  // Listen for keyboard show/hide events
+  useEffect(() => {
+    if (!open || typeof window === 'undefined') return;
+
+    const handleKeyboardShow = (info: any) => {
+      console.log('[ManualProductSheet] Keyboard shown, height:', info.keyboardHeight);
+      setKeyboardHeight(info.keyboardHeight);
+    };
+
+    const handleKeyboardHide = () => {
+      console.log('[ManualProductSheet] Keyboard hidden');
+      setKeyboardHeight(0);
+    };
+
+    const showListener = Keyboard.addListener('keyboardWillShow', handleKeyboardShow);
+    const hideListener = Keyboard.addListener('keyboardWillHide', handleKeyboardHide);
+
+    return () => {
+      showListener.remove();
+      hideListener.remove();
+    };
+  }, [open]);
 
   // Validate form
   const validate = (): boolean => {
@@ -219,8 +244,11 @@ export function ManualProductSheet({
         />
 
         <Dialog.Content
-          className="fixed bottom-0 left-0 right-0 z-[201] max-h-[90vh] rounded-t-3xl bg-[#1a1b20] overflow-hidden"
+          className="fixed left-0 right-0 z-[201] max-h-[90vh] rounded-t-3xl bg-[#1a1b20] overflow-hidden transition-all duration-200"
           dir="rtl"
+          style={{
+            bottom: keyboardHeight > 0 ? `${keyboardHeight}px` : '0px',
+          }}
         >
           {/* Handle */}
           <div className="w-12 h-1 rounded-full bg-white/20 mx-auto mt-3" />

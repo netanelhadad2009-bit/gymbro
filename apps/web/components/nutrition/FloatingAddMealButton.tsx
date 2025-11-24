@@ -53,25 +53,38 @@ export default function FloatingAddMealButton({ onScanPhoto, onScanBarcode }: Pr
 
   /**
    * Handle gallery picker result (from NutritionImagePicker)
-   * Converts URI to File if needed (Capacitor mobile)
+   * Converts base64 or URI to File if needed (Capacitor mobile)
    */
-  const handleGalleryPicked = async (result: { uri?: string; file?: File }) => {
+  const handleGalleryPicked = async (result: { uri?: string; file?: File; base64?: string }) => {
     setOpen(false);
 
     try {
       if (result.file) {
         // Web: already a File
         onScanPhoto(result.file);
+      } else if (result.base64) {
+        // Capacitor: convert base64 to File
+        console.log("[FloatingAddMealButton] Converting base64 to File");
+        const base64Data = result.base64;
+        const byteCharacters = atob(base64Data);
+        const byteNumbers = new Array(byteCharacters.length);
+        for (let i = 0; i < byteCharacters.length; i++) {
+          byteNumbers[i] = byteCharacters.charCodeAt(i);
+        }
+        const byteArray = new Uint8Array(byteNumbers);
+        const blob = new Blob([byteArray], { type: "image/jpeg" });
+        const file = new File([blob], `photo_${Date.now()}.jpg`, { type: "image/jpeg" });
+        onScanPhoto(file);
       } else if (result.uri) {
-        // Capacitor: convert URI to File
-        console.log("[FloatingAddMealButton] Converting URI to File:", result.uri);
+        // Fallback: try URI (might not work on all platforms)
+        console.log("[FloatingAddMealButton] Attempting to fetch URI:", result.uri);
         const response = await fetch(result.uri);
         const blob = await response.blob();
         const file = new File([blob], `photo_${Date.now()}.jpg`, { type: "image/jpeg" });
         onScanPhoto(file);
       }
     } catch (error) {
-      console.error("[FloatingAddMealButton] Error converting URI to File:", error);
+      console.error("[FloatingAddMealButton] Error converting to File:", error);
       alert("שגיאה בעיבוד התמונה. נסה שוב.");
     }
   };

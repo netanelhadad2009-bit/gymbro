@@ -13,6 +13,7 @@ import { logMealFromFood, type FoodToLog, type MealType } from '@/lib/nutrition/
 import { useToast } from '@/components/ui/use-toast';
 import { useRouter } from 'next/navigation';
 import { useSheet } from '@/contexts/SheetContext';
+import { Keyboard } from '@capacitor/keyboard';
 
 interface QuickAddSheetProps {
   isOpen: boolean;
@@ -50,6 +51,7 @@ export function QuickAddSheet({
   const [portion, setPortion] = useState(100);
   const [mealType, setMealType] = useState<MealType>('snack');
   const [isAdding, setIsAdding] = useState(false);
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
   const { toast } = useToast();
   const router = useRouter();
   const { setIsSheetOpen } = useSheet();
@@ -58,6 +60,29 @@ export function QuickAddSheet({
   useEffect(() => {
     setIsSheetOpen(isOpen);
   }, [isOpen, setIsSheetOpen]);
+
+  // Listen for keyboard show/hide events
+  useEffect(() => {
+    if (!isOpen || typeof window === 'undefined') return;
+
+    const handleKeyboardShow = (info: any) => {
+      console.log('[QuickAddSheet] Keyboard shown, height:', info.keyboardHeight);
+      setKeyboardHeight(info.keyboardHeight);
+    };
+
+    const handleKeyboardHide = () => {
+      console.log('[QuickAddSheet] Keyboard hidden');
+      setKeyboardHeight(0);
+    };
+
+    const showListener = Keyboard.addListener('keyboardWillShow', handleKeyboardShow);
+    const hideListener = Keyboard.addListener('keyboardWillHide', handleKeyboardHide);
+
+    return () => {
+      showListener.remove();
+      hideListener.remove();
+    };
+  }, [isOpen]);
 
   // Haptic feedback
   const hapticSuccess = () => {
@@ -160,8 +185,11 @@ export function QuickAddSheet({
               damping: 30,
               stiffness: 300,
             }}
-            className="fixed inset-x-0 bottom-0 z-[99999] rounded-t-3xl bg-[#1a1b20] border-t border-white/10 max-h-[85vh] flex flex-col"
-            style={{ zIndex: 99999 }}
+            className="fixed inset-x-0 z-[99999] rounded-t-3xl bg-[#1a1b20] border-t border-white/10 max-h-[85vh] flex flex-col transition-all duration-200"
+            style={{
+              zIndex: 99999,
+              bottom: keyboardHeight > 0 ? `${keyboardHeight}px` : '0px',
+            }}
             dir="rtl"
           >
             {/* Handle bar */}

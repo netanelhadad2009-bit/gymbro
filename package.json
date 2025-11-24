@@ -4,7 +4,7 @@
   "packageManager": "pnpm@9.0.0",
   "scripts": {
     "dev": "turbo run dev --parallel",
-    "dev:web": "pnpm -C apps/web dev --port 3000 --hostname localhost",
+    "dev:web": "pnpm -C apps/web dev",
     "kill:node": "killall -9 node || true",
     "build": "turbo run build",
     "lint": "eslint .",
@@ -13,7 +13,7 @@
     "format": "prettier -w .",
     "stability": "ts-node --project tsconfig.scripts.json scripts/stability-test.ts",
     "ios:usb": "tools/dev/run-from-root.sh pnpm -w run ios:usb:impl",
-    "ios:usb:impl": "tools/dev/check-usb-env.sh && concurrently -k -n \"WEB,USB\" -c \"green,cyan\" \"pnpm -C apps/web dev --port 3000 --hostname localhost\" \"iproxy 3000 3000\"",
+    "ios:usb:impl": "tools/dev/check-usb-env.sh && concurrently -k -n \"WEB,USB\" -c \"green,cyan\" \"pnpm -C apps/web dev\" \"iproxy 3000 3000\"",
     "ios:run-usb": "tools/dev/run-from-root.sh pnpm -w run ios:run-usb:impl",
     "ios:run-usb:impl": "cross-env CAP_DEV=1 pnpm -w run ios:sync && pnpm -w run ios:open",
     "ios:run-sim": "tools/dev/run-from-root.sh pnpm -w run ios:run-sim:impl",
@@ -22,6 +22,10 @@
     "ios:dev-reset:impl": "cross-env CAP_DEV=1 CAP_SIM=1 pnpm -C apps/web cap sync ios && pnpm -w run ios:open",
     "ios:sync": "tools/dev/run-from-root.sh pnpm -C apps/web run cap sync ios",
     "ios:open": "tools/dev/run-from-root.sh pnpm -C apps/web run cap open ios",
+    "android:run": "tools/dev/run-from-root.sh pnpm -w run android:run:impl",
+    "android:run:impl": "cross-env CAP_DEV=1 pnpm -w run android:sync && pnpm -w run android:open",
+    "android:sync": "tools/dev/run-from-root.sh pnpm -C apps/web run cap sync android",
+    "android:open": "tools/dev/run-from-root.sh pnpm -C apps/web run cap open android",
     "doctor:whereami": "tools/dev/run-from-root.sh pwd",
     "doctor:usb": "tools/dev/run-from-root.sh tools/dev/check-usb-env.sh",
     "doctor:ios": "tools/dev/run-from-root.sh node tools/dev/doctor-ios.mjs",
@@ -48,5 +52,8 @@
     "turbo": "^2.0.0",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.45.0"
+  },
+  "dependencies": {
+    "@capacitor-mlkit/barcode-scanning": "^7.3.0"
   }
 }

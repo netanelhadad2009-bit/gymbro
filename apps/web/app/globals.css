@@ -453,3 +453,16 @@ body:has(#onboarding-screen-root) {
     transition: none !important;
   }
 }
+
+/* Barcode scanner - hide webview when scanner is active to show native camera */
+body.barcode-scanner-active {
+  visibility: hidden !important;
+  background: transparent !important;
+}
+
+/* iOS-specific: hide Capacitor/Ionic elements */
+body.barcode-scanner-active ion-app,
+body.barcode-scanner-active #__next {
+  visibility: hidden !important;
+  background: transparent !important;
+}

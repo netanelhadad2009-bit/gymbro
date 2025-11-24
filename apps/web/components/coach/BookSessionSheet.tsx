@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSheet } from "@/contexts/SheetContext";
+import { Keyboard } from "@capacitor/keyboard";
 
 type Props = {
   isOpen: boolean;
@@ -29,11 +30,35 @@ export function BookSessionSheet({ isOpen, onClose, onSubmit, assignmentId }: Pr
   const [location, setLocation] = useState("");
   const [notes, setNotes] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
 
   // Notify context when sheet opens/closes
   useEffect(() => {
     setIsSheetOpen(isOpen);
   }, [isOpen, setIsSheetOpen]);
+
+  // Listen for keyboard show/hide events
+  useEffect(() => {
+    if (!isOpen || typeof window === 'undefined') return;
+
+    const handleKeyboardShow = (info: any) => {
+      console.log('[BookSessionSheet] Keyboard shown, height:', info.keyboardHeight);
+      setKeyboardHeight(info.keyboardHeight);
+    };
+
+    const handleKeyboardHide = () => {
+      console.log('[BookSessionSheet] Keyboard hidden');
+      setKeyboardHeight(0);
+    };
+
+    const showListener = Keyboard.addListener('keyboardWillShow', handleKeyboardShow);
+    const hideListener = Keyboard.addListener('keyboardWillHide', handleKeyboardHide);
+
+    return () => {
+      showListener.remove();
+      hideListener.remove();
+    };
+  }, [isOpen]);
 
   const handleSubmit = async () => {
     if (!date || !startTime) {
@@ -103,8 +128,11 @@ export function BookSessionSheet({ isOpen, onClose, onSubmit, assignmentId }: Pr
             animate={{ y: 0 }}
             exit={{ y: "100%" }}
             transition={{ type: "spring", damping: 30, stiffness: 300 }}
-            className="fixed bottom-0 left-0 right-0 bg-neutral-900 rounded-t-3xl pb-[calc(env(safe-area-inset-bottom)+20px)] pt-4"
-            style={{ zIndex: 9999 }}
+            className="fixed left-0 right-0 bg-neutral-900 rounded-t-3xl pb-[calc(env(safe-area-inset-bottom)+20px)] pt-4 transition-all duration-200"
+            style={{
+              zIndex: 9999,
+              bottom: keyboardHeight > 0 ? `${keyboardHeight}px` : '0px',
+            }}
             dir="rtl"
             onClick={(e) => e.stopPropagation()}
           >

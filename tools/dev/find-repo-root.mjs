@@ -12,7 +12,7 @@ const cwd = process.cwd();
 
 function looksLikeMonorepo(pkg) {
   if (!pkg || typeof pkg !== "object") return false;
-  if (pkg.name === "gymbro") return true;
+  if (pkg.name === "gymbro" || pkg.name === "fitjourney") return true;
   if (pkg.workspaces) return true;
   return false;
 }
@@ -21,6 +21,11 @@ function findUp(startDir) {
   let dir = startDir;
   while (true) {
     const pkgPath = path.join(dir, "package.json");
+    const workspacePath = path.join(dir, "pnpm-workspace.yaml");
+
+    // Check for pnpm-workspace.yaml first
+    if (fs.existsSync(workspacePath)) return dir;
+
     if (fs.existsSync(pkgPath)) {
       try {
         const pkg = JSON.parse(fs.readFileSync(pkgPath, "utf8"));

@@ -70,9 +70,12 @@ export function useStages() {
   const [isCompleting, setIsCompleting] = useState<string | null>(null); // task ID being completed
 
   // Fetch stages
-  const fetchStages = useCallback(async () => {
+  const fetchStages = useCallback(async (silent = false) => {
     try {
-      setIsLoading(true);
+      // Only show loading state for initial load, not background refetches
+      if (!silent) {
+        setIsLoading(true);
+      }
       setError(null);
 
       const response = await fetch('/api/journey/stages', {
@@ -96,15 +99,17 @@ export function useStages() {
       setActiveStageIndex(data.activeStageIndex);
       setUnlockedUpToIndex(data.unlockedUpToIndex);
 
-      // Set selected stage to active stage if available
-      if (data.activeStageIndex !== null) {
+      // Set selected stage to active stage if available (only on initial load)
+      if (data.activeStageIndex !== null && !silent) {
         setSelectedStageIndex(data.activeStageIndex);
       }
     } catch (err: any) {
       console.error('[useStages] Error fetching stages:', err);
       setError(err.message || 'Failed to fetch stages');
     } finally {
-      setIsLoading(false);
+      if (!silent) {
+        setIsLoading(false);
+      }
     }
   }, []);
 
@@ -131,8 +136,8 @@ export function useStages() {
         return data;
       }
 
-      // Refetch stages to get updated state
-      await fetchStages();
+      // Refetch stages to get updated state (silent mode to avoid loading screen)
+      await fetchStages(true);
 
       return data;
     } catch (err: any) {

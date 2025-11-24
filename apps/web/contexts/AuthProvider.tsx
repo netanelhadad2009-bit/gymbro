@@ -82,19 +82,53 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             console.log("[Auth] Syncing Supabase metadata to localStorage:", meta);
           }
 
-          // Save Supabase metadata to localStorage with timestamp
-          saveOnboardingData({
-            gender: meta.gender_he || meta.gender || undefined,
-            height_cm: meta.height_cm || undefined,
-            weight_kg: meta.weight_kg || undefined,
-            target_weight_kg: meta.target_weight_kg || undefined,
-            birthdate: meta.birthdate || undefined,
-            activity: meta.activity_level_he || meta.activity || undefined,
-            goals: meta.goal_he ? [meta.goal_he] : meta.goals || undefined,
-            diet: meta.diet_type_he || meta.diet || undefined,
-            source: "supabase",
-            updatedAt: Date.now(),
-          });
+          // Import the function to get existing onboarding data
+          const { getOnboardingDataOrNull } = await import('@/lib/onboarding-storage');
+          const existingData = getOnboardingDataOrNull();
+
+          // Check if existing data is more complete than Supabase metadata
+          const existingIsComplete = existingData && (
+            existingData.gender &&
+            existingData.goals?.length &&
+            existingData.height_cm &&
+            existingData.weight_kg
+          );
+
+          const metaHasData = (
+            meta.gender_he || meta.gender ||
+            meta.height_cm ||
+            meta.weight_kg ||
+            meta.goals?.length ||
+            meta.goal_he
+          );
+
+          // Only save Supabase metadata if:
+          // 1. There's no existing data, OR
+          // 2. Existing data is incomplete AND Supabase has data to add
+          if (!existingData || (!existingIsComplete && metaHasData)) {
+            if (process.env.NEXT_PUBLIC_LOG_CACHE === "1") {
+              console.log("[Auth] Saving Supabase metadata (existing data incomplete or missing)");
+            }
+
+            // Merge with existing data instead of overwriting
+            saveOnboardingData({
+              ...existingData,  // Preserve existing data
+              gender: meta.gender_he || meta.gender || existingData?.gender || undefined,
+              height_cm: meta.height_cm || existingData?.height_cm || undefined,
+              weight_kg: meta.weight_kg || existingData?.weight_kg || undefined,
+              target_weight_kg: meta.target_weight_kg || existingData?.target_weight_kg || undefined,
+              birthdate: meta.birthdate || existingData?.birthdate || undefined,
+              activity: meta.activity_level_he || meta.activity || existingData?.activity || undefined,
+              goals: meta.goal_he ? [meta.goal_he] : (meta.goals || existingData?.goals || undefined),
+              diet: meta.diet_type_he || meta.diet || existingData?.diet || undefined,
+              source: "supabase",
+              updatedAt: Date.now(),
+            });
+          } else if (existingIsComplete) {
+            if (process.env.NEXT_PUBLIC_LOG_CACHE === "1") {
+              console.log("[Auth] Skipping Supabase metadata sync - existing data is complete");
+            }
+          }
 
           // Clear old nutrition cache since profile may have changed
           try {

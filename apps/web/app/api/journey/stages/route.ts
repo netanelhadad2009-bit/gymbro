@@ -94,10 +94,15 @@ export async function GET(request: NextRequest) {
               };
             }
 
-            // Evaluate condition
+            // Evaluate condition with stage unlock timestamp to reset progress per stage
             try {
               const condition: TaskCondition = task.condition_json;
-              const evaluation = await evaluateTaskCondition(supabase, userId, condition);
+              const evaluation = await evaluateTaskCondition(
+                supabase,
+                userId,
+                condition,
+                stage.unlocked_at // Pass stage unlock timestamp to filter data
+              );
 
               return {
                 ...task,

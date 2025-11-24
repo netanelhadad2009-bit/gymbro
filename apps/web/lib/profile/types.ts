@@ -5,7 +5,7 @@ import { z } from "zod";
  */
 export interface UserProfile {
   age: number | null;
-  gender: "male" | "female" | null;
+  gender: "male" | "female" | "other" | null;
   height_cm: number | null;
   weight_kg: number | null;
   target_weight_kg: number | null;
@@ -24,7 +24,7 @@ export interface UserProfile {
  */
 export const UserProfileSchema = z.object({
   age: z.number().int().min(13).max(120).nullable(),
-  gender: z.enum(["male", "female"]).nullable(),
+  gender: z.enum(["male", "female", "other"]).nullable(),
   height_cm: z.number().min(100).max(250).nullable(),
   weight_kg: z.number().min(30).max(300).nullable(),
   target_weight_kg: z.number().min(30).max(300).nullable(),
@@ -77,7 +77,8 @@ export function profileToSummaryString(profile: UserProfile): string {
   const parts: string[] = [];
 
   if (profile.gender) {
-    parts.push(profile.gender === "male" ? "♂" : "♀");
+    const genderSymbol = profile.gender === "male" ? "♂" : profile.gender === "female" ? "♀" : "⚪";
+    parts.push(genderSymbol);
   }
 
   if (profile.age) {
@@ -124,7 +125,7 @@ export function profileToSummaryString(profile: UserProfile): string {
  */
 export function profileToSystemString(profile: UserProfile): string {
   const age = profile.age || "לא ידוע";
-  const gender = profile.gender === "male" ? "זכר" : profile.gender === "female" ? "נקבה" : "לא ידוע";
+  const gender = profile.gender === "male" ? "זכר" : profile.gender === "female" ? "נקבה" : profile.gender === "other" ? "אחר" : "לא ידוע";
   const height = profile.height_cm ? `${profile.height_cm} ס"מ` : "לא ידוע";
   const weight = profile.weight_kg ? `${profile.weight_kg} ק"ג` : "לא ידוע";
   const targetWeight = profile.target_weight_kg ? `${profile.target_weight_kg} ק"ג` : "לא ידוע";

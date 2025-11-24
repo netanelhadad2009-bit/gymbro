@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">FitJourney</string>
+    <string name="title_activity_main">FitJourney</string>
+    <string name="package_name">com.fitjourney.app</string>
+    <string name="custom_url_scheme">com.fitjourney.app</string>
+</resources>

@@ -4,6 +4,50 @@ import { z } from "zod";
 
 export const dynamic = "force-dynamic";
 
+// GET /api/meals/plan - Fetch all eaten plan meals for the authenticated user
+export async function GET(request: NextRequest) {
+  try {
+    // Rate limiting check (LENIENT - read operation)
+    const rateLimit = await checkRateLimit(request, {
+      ...RateLimitPresets.lenient,
+      keyPrefix: 'meals-plan-get',
+    });
+
+    if (!rateLimit.allowed) {
+      console.log('[PlanMeals GET] Rate limit exceeded');
+      return ErrorResponses.rateLimited(rateLimit.resetAt, rateLimit.limit);
+    }
+
+    // Authentication check
+    const auth = await requireAuth();
+    if (!auth.success) {
+      return auth.response;
+    }
+    const { user, supabase } = auth;
+
+    // Fetch all plan meals for this user
+    const { data: planMeals, error } = await supabase
+      .from("meals")
+      .select("*")
+      .eq("user_id", user.id)
+      .eq("source", "plan")
+      .order("date", { ascending: false });
+
+    if (error) {
+      console.error("[PlanMeals GET] Error fetching plan meals:", error);
+      throw new Error(`Failed to fetch plan meals: ${error.message}`);
+    }
+
+    return NextResponse.json({
+      success: true,
+      meals: planMeals || [],
+    });
+  } catch (error) {
+    console.error("[PlanMeals GET] Fatal error:", error);
+    return handleApiError(error, 'PlanMealsGet');
+  }
+}
+
 // Schema for creating a plan meal
 const CreatePlanMealSchema = z.object({
   name: z.string().min(1),

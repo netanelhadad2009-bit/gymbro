@@ -1,0 +1,333 @@
+# Auth Plugin Migration Plan
+
+## Overview
+Migrating from legacy auth plugins to `@capgo/capacitor-social-login` to resolve Apple's ITMS-91061 privacy manifest warnings.
+
+**Date:** 2025-11-20
+**Status:** In Progress
+
+---
+
+## Problem Statement
+
+Apple App Store Connect is rejecting builds with **ITMS-91061** warnings for missing privacy manifests in:
+- `Frameworks/GTMAppAuth.framework/GTMAppAuth`
+- `Frameworks/GTMSessionFetcher.framework/GTMSessionFetcher`
+- `Frameworks/GoogleSignIn.framework/GoogleSignIn`
+
+These frameworks are bundled with the old auth plugins:
+- `@codetrix-studio/capacitor-google-auth@3.4.0-rc.4`
+- `@capacitor-community/apple-sign-in@^7.1.0`
+
+---
+
+## Solution
+
+Replace legacy plugins with **`@capgo/capacitor-social-login@^7.11.21`**
+
+### Why This Plugin?
+✅ **Actively maintained** (last update: 2 days ago)
+✅ **Capacitor 7 compatible**
+✅ **Supports both Google and Apple sign-in**
+✅ **Privacy manifest compliant** (app-level manifest only, no plugin-level manifest)
+✅ **Official migration guides** from both old plugins
+✅ **Unified API** for multiple providers
+
+---
+
+## Current Implementation
+
+### Dependencies (apps/web/package.json)
+```json
+{
+  "@capacitor-community/apple-sign-in": "^7.1.0",
+  "@codetrix-studio/capacitor-google-auth": "3.4.0-rc.4"
+}
+```
+
+### Files Affected
+
+#### TypeScript/JavaScript
+1. **[lib/auth/oauth.native.ts](lib/auth/oauth.native.ts)** - Main changes needed
+   - `signInWithGoogleNative()` - Uses `GoogleAuth.initialize()` and `GoogleAuth.signIn()`
+   - `signInWithAppleNative()` - Uses `SignInWithApple.authorize()`
+
+2. **[lib/auth/oauth.ts](lib/auth/oauth.ts)** - No changes (wrapper)
+   - `startGoogleSignIn()` - Routes to native/web
+   - `startAppleSignIn()` - Routes to native/web
+
+3. **[lib/auth/oauth.web.ts](lib/auth/oauth.web.ts)** - No changes
+4. **[components/SocialAuthButtons.tsx](components/SocialAuthButtons.tsx)** - No changes
+
+#### iOS Native
+1. **[ios/App/Podfile:14,24](ios/App/Podfile)**
+   ```ruby
+   pod 'CapacitorCommunityAppleSignIn'  # Line 14 - REMOVE
+   pod 'CodetrixStudioCapacitorGoogleAuth'  # Line 24 - REMOVE
+   ```
+
+2. **[ios/App/App/Info.plist:33,40](ios/App/App/Info.plist)**
+   - Line 33: Google OAuth URL scheme `com.googleusercontent.apps.122734915921-3kmos54i1erohqii9rtu6df0r3130obi`
+   - Line 40: Google Client ID `122734915921-3kmos54i1erohqii9rtu6df0r3130obi.apps.googleusercontent.com`
+   - **Action:** Verify these remain after migration
+
+3. **[ios/App/App/PrivacyInfo.xcprivacy](ios/App/App/PrivacyInfo.xcprivacy)** - Keep as-is
+   - Already declares UserID collection for authentication
+   - No tracking enabled
+   - This is the app-level manifest (correct approach per @capgo docs)
+
+#### Android Native
+1. **[android/app/capacitor.build.gradle:12,22](android/app/capacitor.build.gradle)**
+   ```gradle
+   implementation project(':capacitor-community-apple-sign-in')  # Line 12 - REMOVE
+   implementation project(':codetrix-studio-capacitor-google-auth')  # Line 22 - REMOVE
+   ```
+
+2. **[android/app/src/main/MainActivity.java](android/app/src/main/MainActivity.java)** (if exists)
+   - May need to extend `ModifiedMainActivityForSocialLoginPlugin` for Google login
+
+---
+
+## Migration Steps
+
+### 1. Update Dependencies
+
+```bash
+cd apps/web
+npm uninstall @codetrix-studio/capacitor-google-auth @capacitor-community/apple-sign-in
+npm install @capgo/capacitor-social-login@^7.11.21
+npx cap sync
+```
+
+### 2. Update oauth.native.ts
+
+#### Old Code (Google)
+```typescript
+import { GoogleAuth } from '@codetrix-studio/capacitor-google-auth';
+
+await GoogleAuth.initialize({
+  clientId: '122734915921-3kmos54i1erohqii9rtu6df0r3130obi.apps.googleusercontent.com',
+  scopes: ['profile', 'email'],
+  grantOfflineAccess: true,
+});
+
+const googleUser = await GoogleAuth.signIn();
+const idToken = googleUser?.authentication?.idToken;
+```
+
+#### New Code (Google)
+```typescript
+import { SocialLogin } from '@capgo/capacitor-social-login';
+
+await SocialLogin.initialize({
+  google: {
+    webClientId: '122734915921-3kmos54i1erohqii9rtu6df0r3130obi.apps.googleusercontent.com',
+    mode: 'offline'
+  }
+});
+
+const result = await SocialLogin.login({
+  provider: 'google',
+  options: {
+    scopes: ['email', 'profile'],
+    forceRefreshToken: true
+  }
+});
+
+const idToken = result.result?.idToken;
+```
+
+#### Old Code (Apple)
+```typescript
+import { SignInWithApple } from '@capacitor-community/apple-sign-in';
+
+const appleResponse = await SignInWithApple.authorize();
+const identityToken = appleResponse.response?.identityToken;
+```
+
+#### New Code (Apple)
+```typescript
+import { SocialLogin } from '@capgo/capacitor-social-login';
+
+await SocialLogin.initialize({
+  apple: {}
+});
+
+const result = await SocialLogin.login({
+  provider: 'apple',
+  options: {
+    scopes: ['email', 'name']
+  }
+});
+
+const identityToken = result.result?.idToken;
+```
+
+### 3. Update iOS Configuration
+
+#### Podfile Changes (auto-generated by `cap sync`)
+After running `npx cap sync`, the Podfile should automatically update to:
+```ruby
+pod 'CapgoCapacitorSocialLogin', :path => '...'
+```
+
+#### Run Pod Install
+```bash
+cd ios/App
+pod install
+```
+
+#### Verify Info.plist
+Ensure these remain:
+- Google OAuth URL scheme (line 33)
+- GIDClientID key (line 40)
+- LSApplicationQueriesSchemes with Google schemes (lines 43-54)
+
+### 4. Update Android Configuration
+
+#### MainActivity.java (if exists)
+Check if `apps/web/android/app/src/main/java/com/fitjourney/app/MainActivity.java` exists.
+
+If it does, verify it handles the new plugin. If not, create a minimal one:
+```java
+package com.fitjourney.app;
+
+import com.getcapacitor.BridgeActivity;
+
+public class MainActivity extends BridgeActivity {}
+```
+
+The new plugin may require extending `ModifiedMainActivityForSocialLoginPlugin` for Google login on Android. Check the plugin docs if Google login fails on Android.
+
+#### capacitor.build.gradle Changes (auto-generated by `cap sync`)
+After running `npx cap sync`, this file should automatically update.
+
+### 5. Handle Response Structure Changes
+
+#### Old Response (Google)
+```typescript
+{
+  authentication: {
+    idToken: string,
+    accessToken: string
+  },
+  email: string,
+  familyName: string,
+  givenName: string,
+  id: string,
+  name: string,
+  imageUrl: string
+}
+```
+
+#### New Response (Google/Apple)
+```typescript
+{
+  provider: 'google' | 'apple',
+  result: {
+    accessToken: {
+      token: string,
+      expires: string
+    } | null,
+    idToken: string | null,
+    profile: {
+      email: string | null,
+      familyName: string | null,
+      givenName: string | null,
+      id: string | null,
+      name: string | null,
+      imageUrl: string | null
+    }
+  }
+}
+```
+
+**Action:** Update `oauth.native.ts` to extract `idToken` from new structure.
+
+---
+
+## Critical Configuration: Web Client ID
+
+⚠️ **IMPORTANT:** The new plugin requires a **Web Client ID** for Google, not iOS-specific client ID.
+
+### Current Setup
+- Client ID: `122734915921-3kmos54i1erohqii9rtu6df0r3130obi.apps.googleusercontent.com`
+- This appears to be a Web Client ID (ends in `.apps.googleusercontent.com`)
+
+### Verification Steps
+1. Check Google Cloud Console → Credentials
+2. Verify the client ID type is "Web application"
+3. If it's an iOS client ID, create a new Web Client ID
+4. Update both `Info.plist` and initialization code
+
+---
+
+## Testing Checklist
+
+### iOS
+- [ ] Clean build folder (⇧⌘K in Xcode)
+- [ ] Run on iOS simulator
+- [ ] Test Google sign-in flow
+- [ ] Test Apple sign-in flow
+- [ ] Verify Supabase session created
+- [ ] Test on physical device
+
+### Android
+- [ ] Clean build (`pnpm -C apps/web run android:clean`)
+- [ ] Run on Android emulator
+- [ ] Test Google sign-in flow
+- [ ] Test Apple sign-in flow (if supported)
+- [ ] Verify Supabase session created
+- [ ] Test on physical device
+
+### App Store Compliance
+- [ ] Archive production build
+- [ ] Upload to App Store Connect
+- [ ] Verify ITMS-91061 warning is gone
+- [ ] Check no new privacy warnings appear
+
+---
+
+## Rollback Plan
+
+If migration fails:
+
+```bash
+cd apps/web
+npm uninstall @capgo/capacitor-social-login
+npm install @codetrix-studio/capacitor-google-auth@3.4.0-rc.4 @capacitor-community/apple-sign-in@^7.1.0
+npx cap sync
+cd ios/App && pod install
+```
+
+Then revert changes to `oauth.native.ts`.
+
+---
+
+## Expected Outcome
+
+✅ **ITMS-91061 warning disappears** (no more GTMAppAuth/GTMSessionFetcher/GoogleSignIn privacy warnings)
+✅ **Google sign-in works** on iOS and Android
+✅ **Apple sign-in works** on iOS (and potentially Android via web OAuth)
+✅ **App-level privacy manifest remains** in place
+✅ **No code changes needed** in UI components or web auth flow
+
+---
+
+## References
+
+- [@capgo/capacitor-social-login on npm](https://www.npmjs.com/package/@capgo/capacitor-social-login)
+- [Migration from Google Auth](https://capgo.app/docs/plugins/social-login/migrations/google/)
+- [Migration from Apple Sign-In](https://capgo.app/docs/plugins/social-login/migrations/apple/)
+- [Apple Privacy Manifest Requirements](https://developer.apple.com/support/third-party-SDK-requirements/)
+
+---
+
+## Next Steps
+
+1. ✅ **Exploration complete** - All files identified
+2. ✅ **Migration plan created** - This document
+3. ⏳ **Execute migration** - Update dependencies and code
+4. ⏳ **Test locally** - Verify both platforms work
+5. ⏳ **Submit to App Store** - Verify compliance
+

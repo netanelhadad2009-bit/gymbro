@@ -87,6 +87,7 @@ export function useMyFoodsSearch(
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
   const lastQueryRef = useRef<string>('');
+  const isInitialMount = useRef(true);
 
   const performSearch = useCallback(async (searchQuery: string) => {
     const trimmed = searchQuery.trim();
@@ -155,6 +156,14 @@ export function useMyFoodsSearch(
   useEffect(() => {
     if (debounceTimerRef.current) {
       clearTimeout(debounceTimerRef.current);
+    }
+
+    // On initial mount, fetch immediately without debounce
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      console.log('[MyFoodsSearch] Initial mount - fetching immediately');
+      performSearch(query);
+      return;
     }
 
     debounceTimerRef.current = setTimeout(() => {

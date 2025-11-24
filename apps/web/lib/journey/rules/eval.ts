@@ -108,13 +108,18 @@ async function getTodaysCalories(
 
 /**
  * Evaluate a single task's condition against user's current data
+ * @param stageUnlockedAt - ISO timestamp when the stage was unlocked (optional). If provided, only count data from after this timestamp.
  */
 export async function evaluateTaskCondition(
   supabase: SupabaseClient,
   userId: string,
-  condition: TaskCondition
+  condition: TaskCondition,
+  stageUnlockedAt?: string
 ): Promise<TaskEvaluation> {
   const today = new Date().toISOString().split('T')[0];
+
+  // Convert stageUnlockedAt to date string for filtering (YYYY-MM-DD)
+  const sinceDate = stageUnlockedAt ? stageUnlockedAt.split('T')[0] : null;
 
   switch (condition.type) {
     case 'FIRST_WEIGH_IN': {
@@ -199,13 +204,31 @@ export async function evaluateTaskCondition(
 
     case 'STREAK_DAYS': {
       const target = condition.target || 7;
-      // Calculate consecutive days with meals
-      const { data } = await supabase
+
+      // If stage hasn't been unlocked yet, return 0 progress
+      if (!stageUnlockedAt) {
+        return {
+          canComplete: false,
+          progress: 0,
+          current: 0,
+          target,
+        };
+      }
+
+      // Calculate consecutive days with meals (only from after stage unlock)
+      let query = supabase
         .from('meals')
         .select('date')
         .eq('user_id', userId)
         .order('date', { ascending: false })
         .limit(target + 10); // Get extra to check streak
+
+      // Only count meals from after stage was unlocked
+      if (sinceDate) {
+        query = query.gte('date', sinceDate);
+      }
+
+      const { data } = await query;
 
       if (!data || data.length === 0) {
         return { canComplete: false, progress: 0, current: 0, target };
@@ -216,8 +239,15 @@ export async function evaluateTaskCondition(
       const dates = new Set(data.map(m => m.date));
       let checkDate = new Date();
 
+      // Don't count days before stage was unlocked
+      const stageUnlockDate = sinceDate ? new Date(sinceDate) : null;
+
       while (streak < target) {
         const dateStr = checkDate.toISOString().split('T')[0];
+
+        // Stop if we've gone before the stage unlock date
+        if (stageUnlockDate && checkDate < stageUnlockDate) break;
+
         if (!dates.has(dateStr)) break;
         streak++;
         checkDate.setDate(checkDate.getDate() - 1);
@@ -497,10 +527,28 @@ export async function evaluateTaskCondition(
 
     case 'TOTAL_MEALS_LOGGED': {
       const target = condition.target || 50;
-      const { count } = await supabase
+
+      // If stage hasn't been unlocked yet, return 0 progress
+      if (!stageUnlockedAt) {
+        return {
+          canComplete: false,
+          progress: 0,
+          current: 0,
+          target,
+        };
+      }
+
+      let query = supabase
         .from('meals')
         .select('id', { count: 'exact', head: true })
         .eq('user_id', userId);
+
+      // Only count meals from after stage was unlocked
+      if (sinceDate) {
+        query = query.gte('date', sinceDate);
+      }
+
+      const { count } = await query;
 
       const total = count || 0;
       return {
@@ -513,10 +561,28 @@ export async function evaluateTaskCondition(
 
     case 'TOTAL_WEIGH_INS': {
       const target = condition.target || 10;
-      const { count } = await supabase
+
+      // If stage hasn't been unlocked yet, return 0 progress
+      if (!stageUnlockedAt) {
+        return {
+          canComplete: false,
+          progress: 0,
+          current: 0,
+          target,
+        };
+      }
+
+      let query = supabase
         .from('weigh_ins')
         .select('id', { count: 'exact', head: true })
         .eq('user_id', userId);
+
+      // Only count weigh-ins from after stage was unlocked
+      if (sinceDate) {
+        query = query.gte('date', sinceDate);
+      }
+
+      const { count } = await query;
 
       const total = count || 0;
       return {
@@ -539,14 +605,15 @@ export async function evaluateTaskCondition(
 export async function evaluateTaskConditions(
   supabase: SupabaseClient,
   userId: string,
-  conditions: TaskCondition[]
+  conditions: TaskCondition[],
+  stageUnlockedAt?: string
 ): Promise<TaskEvaluation> {
   if (conditions.length === 0) {
     return { canComplete: true, progress: 1 };
   }
 
   const results = await Promise.all(
-    conditions.map(c => evaluateTaskCondition(supabase, userId, c))
+    conditions.map(c => evaluateTaskCondition(supabase, userId, c, stageUnlockedAt))
   );
 
   const allComplete = results.every(r => r.canComplete);

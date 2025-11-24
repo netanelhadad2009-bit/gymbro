@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { createWeighIn } from "@/lib/weighins/queries";
 import { useSheet } from "@/contexts/SheetContext";
+import { Keyboard } from "@capacitor/keyboard";
 
 type AddWeighInModalProps = {
   isOpen: boolean;
@@ -30,6 +31,7 @@ export function AddWeighInModal({ isOpen, onClose, userId, onSuccess }: AddWeigh
   const [note, setNote] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
 
   // Reset date to current time when modal opens
   useEffect(() => {
@@ -42,6 +44,39 @@ export function AddWeighInModal({ isOpen, onClose, userId, onSuccess }: AddWeigh
   useEffect(() => {
     setIsSheetOpen(isOpen);
   }, [isOpen, setIsSheetOpen]);
+
+  // Listen for keyboard show/hide events
+  useEffect(() => {
+    if (!isOpen || typeof window === 'undefined') return;
+
+    console.log('[AddWeighInModal] Setting up keyboard listeners');
+
+    const handleKeyboardShow = (info: any) => {
+      console.log('[AddWeighInModal] Keyboard shown, info:', JSON.stringify(info));
+      const height = info.keyboardHeight || 0;
+      console.log('[AddWeighInModal] Setting keyboard height to:', height);
+      setKeyboardHeight(height);
+    };
+
+    const handleKeyboardHide = () => {
+      console.log('[AddWeighInModal] Keyboard hidden');
+      setKeyboardHeight(0);
+    };
+
+    // Try both Will and Did events
+    const willShowListener = Keyboard.addListener('keyboardWillShow', handleKeyboardShow);
+    const didShowListener = Keyboard.addListener('keyboardDidShow', handleKeyboardShow);
+    const willHideListener = Keyboard.addListener('keyboardWillHide', handleKeyboardHide);
+    const didHideListener = Keyboard.addListener('keyboardDidHide', handleKeyboardHide);
+
+    return () => {
+      console.log('[AddWeighInModal] Removing keyboard listeners');
+      willShowListener.remove();
+      didShowListener.remove();
+      willHideListener.remove();
+      didHideListener.remove();
+    };
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -117,7 +152,13 @@ export function AddWeighInModal({ isOpen, onClose, userId, onSuccess }: AddWeigh
       />
 
       {/* Modal */}
-      <div className="fixed inset-x-0 bottom-0 z-[61] animate-slide-up" dir="rtl">
+      <div
+        className="fixed inset-x-0 z-[61] animate-slide-up transition-all duration-200"
+        dir="rtl"
+        style={{
+          bottom: keyboardHeight > 0 ? `${keyboardHeight}px` : '0px',
+        }}
+      >
         <div
           className="bg-neutral-900 rounded-t-3xl p-6 max-h-[80vh] overflow-y-auto"
           style={{

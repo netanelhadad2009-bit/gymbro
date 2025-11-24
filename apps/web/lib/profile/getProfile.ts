@@ -1,3 +1,17 @@
+/**
+ * ⚠️ SERVER-ONLY MODULE
+ *
+ * This file imports from lib/supabase-server.ts which uses next/headers.
+ * It can ONLY be used in:
+ * - Server Components (no "use client" directive)
+ * - Server Actions
+ * - API Route Handlers (app/api routes)
+ *
+ * DO NOT import this file from client components!
+ * For client-safe profile queries, use the supabase client directly
+ * and apply normalization logic inline (see lib/auth/post-auth.ts Step 7 for example).
+ */
+
 import { createServerSupabaseClient, supabaseServer } from "@/lib/supabase-server";
 import { UserProfile, UserProfileSchema, emptyProfile } from "./types";
 import { normalizeFrequency, normalizeExperience } from "@/lib/persona/normalize";

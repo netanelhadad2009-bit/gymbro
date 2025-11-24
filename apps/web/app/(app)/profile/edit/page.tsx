@@ -281,47 +281,92 @@ export default function ProfileEditPage() {
         return;
       }
 
-      // Update user metadata with all profile fields
-      // The primary storage for user profile data is user_metadata
+      // Calculate age from birthdate
+      let calculatedAge: number | null = null;
+      if (profile.date_of_birth) {
+        const birthDate = new Date(profile.date_of_birth);
+        const today = new Date();
+        calculatedAge = today.getFullYear() - birthDate.getFullYear();
+        const monthDiff = today.getMonth() - birthDate.getMonth();
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+          calculatedAge--;
+        }
+        if (calculatedAge < 13 || calculatedAge > 120) calculatedAge = null;
+      }
+
+      // Normalize values to match database constraints
+      // Gender: Keep 'other' as valid value
+      const normalizedGender = profile.gender;
+
+      // Goal: DB only accepts 'gain', 'loss', 'maintain', convert 'recomp' to 'maintain'
+      const normalizedGoal = profile.goal === "recomp" ? "maintain" : profile.goal;
+
+      // Diet: Convert 'none' to 'regular'
+      const normalizedDiet = profile.diet_type === "none" ? "regular" : profile.diet_type;
+
+      console.log('[ProfileEdit] Saving profile data:', {
+        gender: normalizedGender,
+        birthdate: profile.date_of_birth,
+        age: calculatedAge,
+        weight: profile.weight,
+        target_weight: profile.target_weight,
+        height_cm: profile.height_cm,
+        goal: normalizedGoal,
+        diet: normalizedDiet,
+      });
+
+      // Update user_metadata (includes goal for completeness)
       const { error: metadataError } = await supabase.auth.updateUser({
         data: {
-          gender: profile.gender,
+          gender: normalizedGender,
+          age: calculatedAge,
           birthdate: profile.date_of_birth,
           weight_kg: profile.weight,
           target_weight_kg: profile.target_weight,
           height_cm: profile.height_cm,
-          diet: profile.diet_type,
+          goal: normalizedGoal,
+          diet: normalizedDiet,
         }
       });
 
       if (metadataError) {
-        console.error("Error updating user metadata:", metadataError);
+        console.error("[ProfileEdit] Error updating user metadata:", metadataError);
         setError(`שגיאה בשמירת הפרופיל: ${metadataError.message}`);
         setSaving(false);
         return;
       }
 
-      // Update profiles table with goal only (only field that exists in profiles table)
-      if (profile.goal) {
-        const { error: profileError } = await supabase
-          .from("profiles")
-          .upsert(
-            {
-              id: user.id,
-              goal: profile.goal,
-              updated_at: new Date().toISOString(),
-            },
-            {
-              onConflict: "id",
-            }
-          );
+      console.log('[ProfileEdit] ✅ User metadata updated successfully');
 
-        if (profileError) {
-          console.error("Error updating profile goal:", profileError);
-          // Don't fail completely if profile update fails, metadata is primary
-          console.warn("Failed to update profile table, but metadata was updated");
-        }
+      // Update profiles table (includes birthdate for accuracy)
+      const { error: profileError } = await supabase
+        .from("profiles")
+        .upsert(
+          {
+            id: user.id,
+            age: calculatedAge,
+            birthdate: profile.date_of_birth || null,
+            gender: normalizedGender || null,
+            height_cm: profile.height_cm || null,
+            weight_kg: profile.weight || null,
+            target_weight_kg: profile.target_weight || null,
+            goal: normalizedGoal || null,
+            diet: normalizedDiet || null,
+            updated_at: new Date().toISOString(),
+          },
+          {
+            onConflict: "id",
+          }
+        );
+
+      if (profileError) {
+        console.error("[ProfileEdit] Error updating profiles table:", profileError);
+        setError(`שגיאה בשמירת הפרופיל: ${profileError.message}`);
+        setSaving(false);
+        return;
       }
+
+      console.log('[ProfileEdit] ✅ Profiles table updated successfully');
 
       router.push("/profile");
     } catch (err: any) {
@@ -357,7 +402,7 @@ export default function ProfileEditPage() {
       <StickyHeader title={texts.profile.editProfile} />
       <main
         dir="rtl"
-        className="min-h-screen bg-[#0D0E0F] px-4 pb-28 main-offset -mt-32"
+        className="min-h-screen bg-[#0D0E0F] px-4 pb-28 pt-4 main-offset overflow-y-auto"
       >
         <div className="max-w-screen-sm mx-auto">
           {/* Error Message */}
@@ -382,23 +427,22 @@ export default function ProfileEditPage() {
                   options={genderOptions}
                 />
 
-                {/* 2. Age */}
-                <EditableField
-                  label={texts.profile.age}
-                  value={calculateAge(profile.date_of_birth)}
-                  onChange={(value) => {
-                    // Calculate birth year from age
-                    const age = parseInt(value);
-                    if (!isNaN(age) && age > 0 && age < 150) {
-                      const today = new Date();
-                      const birthYear = today.getFullYear() - age;
-                      const birthDate = `${birthYear}-01-01`;
-                      setProfile({ ...profile, date_of_birth: birthDate });
-                    }
-                  }}
-                  type="number"
-                  placeholder="גיל"
-                />
+                {/* 2. Birthdate (shows age as label) */}
+                <div className="flex flex-col gap-1 mb-3">
+                  <label className="text-right text-sm text-[#B7C0C8]">
+                    {texts.profile.age} {profile.date_of_birth && `(${calculateAge(profile.date_of_birth)} שנים)`}
+                  </label>
+                  <input
+                    type="date"
+                    value={profile.date_of_birth || ""}
+                    onChange={(e) => setProfile({ ...profile, date_of_birth: e.target.value })}
+                    max={new Date().toISOString().split('T')[0]} // Can't be in the future
+                    min={`${new Date().getFullYear() - 100}-01-01`} // Max 100 years old
+                    className="bg-[#111213] text-white rounded-xl px-3 py-2 h-10 border border-[#2A2B2C] placeholder:text-[#5E666D] focus:outline-none focus:border-[#E2F163] transition-colors text-left"
+                    style={{ direction: "ltr", colorScheme: "dark" }}
+                    required
+                  />
+                </div>
 
                 {/* 3. Weight */}
                 <EditableField

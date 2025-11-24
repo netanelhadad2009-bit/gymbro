@@ -91,6 +91,19 @@ export default function NutritionPage() {
     setValidationBanner(null);
 
     try {
+      // Step 0: Migrate birthdate for returning users if needed
+      if (user) {
+        try {
+          const { ensureUserHasBirthdate } = await import('@/lib/auth/migrate-birthdate');
+          const birthdate = await ensureUserHasBirthdate(supabase);
+          if (birthdate) {
+            console.log('[Nutrition] User birthdate available:', birthdate ? 'yes' : 'no');
+          }
+        } catch (err) {
+          console.warn('[Nutrition] Failed to migrate birthdate:', err);
+        }
+      }
+
       // Step 1: Get merged profile from all sources (ASYNC - waits for Supabase)
       if (process.env.NEXT_PUBLIC_LOG_CACHE === "1") {
         console.log("[Nutrition] Fetching merged profile (async)...");
@@ -384,23 +397,137 @@ export default function NutritionPage() {
     }
   };
 
-  // Load eaten meals from user-scoped storage on mount
+  // Load eaten meals from database and merge with localStorage
   useEffect(() => {
-    if (userId) {
+    const loadEatenMeals = async () => {
+      if (!userId) return;
+
+      // Step 1: Load from localStorage first (instant, works offline)
       const stored = storage.getJson<Record<string, number[]>>(userId, "eatenMeals");
+      const localMap = new Map<number, Set<number>>();
+
       if (stored) {
         try {
-          const newMap = new Map<number, Set<number>>();
           Object.entries(stored).forEach(([dayIdx, meals]) => {
-            newMap.set(Number(dayIdx), new Set(meals));
+            localMap.set(Number(dayIdx), new Set(meals));
           });
-          setEatenMealsByDay(newMap);
+          // Set immediately for responsive UI
+          setEatenMealsByDay(localMap);
         } catch (e) {
-          console.error("Failed to parse eaten meals", e);
+          console.error("[Nutrition] Failed to parse eaten meals from localStorage:", e);
         }
       }
-    }
-  }, [userId]);
+
+      // Step 2: Load from database (authoritative, persists across sessions)
+      // Only fetch if user is authenticated
+      if (!user) {
+        console.log("[Nutrition] Guest user - using localStorage only for eaten meals");
+        return;
+      }
+
+      try {
+        const response = await fetch("/api/meals/plan", {
+          method: "GET",
+          headers: { "Cache-Control": "no-store" },
+          cache: "no-store",
+        });
+
+        if (!response.ok) {
+          console.warn("[Nutrition] Failed to fetch plan meals from database:", response.status);
+          return; // Keep using localStorage data
+        }
+
+        const data = await response.json();
+        const dbMeals = data.meals || [];
+
+        if (process.env.NEXT_PUBLIC_LOG_CACHE === "1") {
+          console.log("[Nutrition] Loaded plan meals from database:", {
+            count: dbMeals.length,
+            sample: dbMeals.slice(0, 3),
+          });
+        }
+
+        // Step 3: Convert database records to Map format
+        const dbMap = new Map<number, Set<number>>();
+        const today = new Date();
+        const todayDayOfWeek = today.getDay();
+        const startOfWeek = new Date(today);
+        startOfWeek.setDate(today.getDate() - todayDayOfWeek);
+        startOfWeek.setHours(0, 0, 0, 0);
+
+        dbMeals.forEach((meal: any) => {
+          if (!meal.plan_meal_id || !meal.date) return;
+
+          // Parse plan_meal_id (format: "dayIndex_mealIndex")
+          const parts = meal.plan_meal_id.split("_");
+          if (parts.length !== 2) return;
+
+          const dayIndex = parseInt(parts[0], 10);
+          const mealIndex = parseInt(parts[1], 10);
+
+          if (isNaN(dayIndex) || isNaN(mealIndex)) return;
+
+          // Verify this meal is from this week
+          const mealDate = new Date(meal.date + "T00:00:00");
+          const expectedDate = new Date(startOfWeek);
+          expectedDate.setDate(startOfWeek.getDate() + dayIndex);
+          expectedDate.setHours(0, 0, 0, 0);
+
+          // Only include if date matches expected day
+          if (mealDate.getTime() === expectedDate.getTime()) {
+            if (!dbMap.has(dayIndex)) {
+              dbMap.set(dayIndex, new Set());
+            }
+            dbMap.get(dayIndex)!.add(mealIndex);
+          }
+        });
+
+        // Step 4: Merge database and localStorage data
+        // Database takes priority (is source of truth)
+        const mergedMap = new Map<number, Set<number>>();
+
+        // Add all database entries
+        dbMap.forEach((meals, dayIdx) => {
+          mergedMap.set(dayIdx, new Set(meals));
+        });
+
+        // Add localStorage entries that aren't in database (offline actions)
+        localMap.forEach((meals, dayIdx) => {
+          if (!mergedMap.has(dayIdx)) {
+            mergedMap.set(dayIdx, new Set(meals));
+          } else {
+            // Merge sets
+            meals.forEach(mealIdx => {
+              mergedMap.get(dayIdx)!.add(mealIdx);
+            });
+          }
+        });
+
+        // Update state with merged data
+        setEatenMealsByDay(mergedMap);
+
+        // Save merged data back to localStorage for offline access
+        const serialized: Record<string, number[]> = {};
+        mergedMap.forEach((meals, dayIdx) => {
+          serialized[dayIdx] = Array.from(meals);
+        });
+        storage.setJson(userId, "eatenMeals", serialized);
+
+        if (process.env.NEXT_PUBLIC_LOG_CACHE === "1") {
+          console.log("[Nutrition] Merged eaten meals:", {
+            fromDb: dbMap.size,
+            fromLocal: localMap.size,
+            merged: mergedMap.size,
+          });
+        }
+      } catch (error) {
+        console.error("[Nutrition] Error loading eaten meals from database:", error);
+        // Keep using localStorage data on error
+      }
+    };
+
+    loadEatenMeals();
+  }, [userId, user]);
 
   // Load custom targets from localStorage on mount and when page becomes visible
   useEffect(() => {

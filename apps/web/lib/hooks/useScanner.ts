@@ -222,8 +222,27 @@ export function useScanner({
       if (isNative) {
         console.log('[Scanner] Using Capacitor BarcodeScanner (native mode with scan())');
 
-        // Dynamically import BarcodeScanner only in native mode (avoids SSR build issues)
-        const { BarcodeScanner } = await import('@capacitor-mlkit/barcode-scanning');
+        // Access BarcodeScanner via Capacitor's global plugin registry
+        // The npm import is ignored during build (via IgnorePlugin) to avoid bundling issues
+        // In native app, plugins are available globally via Capacitor
+        let BarcodeScanner;
+        try {
+          // Try dynamic import first (works if module is available)
+          const module = await import('@capacitor-mlkit/barcode-scanning');
+          BarcodeScanner = module.BarcodeScanner;
+          console.log('[Scanner] Loaded BarcodeScanner via npm import');
+        } catch (importError) {
+          console.log('[Scanner] npm import failed, trying global Capacitor registry:', importError.message);
+          // Fallback: Access via Capacitor's global plugin registry
+          // The plugin should be registered by the native app
+          BarcodeScanner = (window as any).Capacitor?.Plugins?.BarcodeScanner;
+
+          if (!BarcodeScanner) {
+            console.error('[Scanner] BarcodeScanner not found in Capacitor.Plugins');
+            throw new Error('Barcode scanner plugin not available. Make sure @capacitor-mlkit/barcode-scanning is installed.');
+          }
+          console.log('[Scanner] Loaded BarcodeScanner from global registry');
+        }
 
         // Use scan() method which shows a ready-to-use modal interface
         // This is simpler and more reliable than startScan()

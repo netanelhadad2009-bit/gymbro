@@ -64,7 +64,7 @@ export async function POST(request: NextRequest) {
     // Fetch task with condition
     const { data: task, error: taskError } = await supabase
       .from('user_stage_tasks')
-      .select('*, user_stages!inner(user_id, id, stage_index, title_he, is_unlocked)')
+      .select('*, user_stages!inner(user_id, id, stage_index, title_he, is_unlocked, unlocked_at)')
       .eq('id', taskId)
       .eq('user_stage_id', stageId)
       .single();
@@ -109,9 +109,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Evaluate conditions
+    // Evaluate conditions with stage unlock timestamp to respect stage-based progress
     const condition: TaskCondition = task.condition_json;
-    const evaluation = await evaluateTaskCondition(supabase, userId, condition);
+    const stageUnlockedAt = (task.user_stages as any).unlocked_at;
+    const evaluation = await evaluateTaskCondition(supabase, userId, condition, stageUnlockedAt);
 
     if (!evaluation.canComplete) {
       console.log('[StagesComplete] Conditions not met:', {

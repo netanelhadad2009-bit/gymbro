@@ -115,15 +115,13 @@ export default function JourneyPage() {
   const handleCompleteTask = async (taskId: string) => {
     if (!selectedOrb) return;
 
+    // completeTask already refetches stages internally, so no need to call refetch() manually
     const result = await completeTask(selectedOrb.stageId, taskId);
 
     if (result.ok) {
       // Show confetti for task completion
       setShowConfetti(true);
       setTimeout(() => setShowConfetti(false), 3000);
-
-      // Refetch to get updated progress
-      await refetch();
 
       // Check if stage was completed
       if (result.stageCompleted && selectedStage) {
@@ -143,7 +141,7 @@ export default function JourneyPage() {
           pointsEarned: stagePointsEarned,
         });
 
-        // Close the detail sheet
+        // Close the detail sheet immediately
         setDetailSheetOpen(false);
         setSelectedOrb(null);
 
@@ -151,6 +149,13 @@ export default function JourneyPage() {
         setTimeout(() => {
           setShowStageCompletionSheet(true);
         }, 500);
+      } else {
+        // Regular task completion (not completing the entire stage)
+        // Close the detail sheet after a short delay to show the completion animation
+        setTimeout(() => {
+          setDetailSheetOpen(false);
+          setSelectedOrb(null);
+        }, 2000);
       }
     } else {
       throw new Error(result.message || result.error || 'לא ניתן להשלים משימה');

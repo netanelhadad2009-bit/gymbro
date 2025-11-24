@@ -2,11 +2,3 @@
 > @fitjourney/web@ typecheck /Users/netanelhadad/Projects/gymbro/apps/web
 > tsc -p tsconfig.json --noEmit
 
-app/(app)/nutrition/search/page.tsx(128,7): error TS2322: Type 'string' is not assignable to type 'number'.
-app/(app)/nutrition/search/page.tsx(409,9): error TS2322: Type 'FoodSearchResult | null' is not assignable to type '{ id: string; name_he: string; brand?: string | null | undefined; calories_per_100g?: number | null | undefined; protein_g_per_100g?: number | null | undefined; carbs_g_per_100g?: number | null | undefined; ... 5 more ...; is_partial?: boolean | undefined; } | null'.
-  Type 'FoodSearchResult' is not assignable to type '{ id: string; name_he: string; brand?: string | null | undefined; calories_per_100g?: number | null | undefined; protein_g_per_100g?: number | null | undefined; carbs_g_per_100g?: number | null | undefined; ... 5 more ...; is_partial?: boolean | undefined; }'.
-    Types of property 'id' are incompatible.
-      Type 'number' is not assignable to type 'string'.
-app/api/debug/rls/route.ts(2,10): error TS2305: Module '"@/lib/supabase-admin"' has no exported member 'supabaseAdmin'.
-lib/notifications/permissions.ts(125,17): error TS2339: Property 'openUrl' does not exist on type 'AppPlugin'.
- ELIFECYCLE  Command failed with exit code 2.

@@ -62,12 +62,14 @@ const nextConfig = {
       config.cache = false;
     }
 
-    // Exclude native-only Capacitor plugins from webpack bundling
-    // These packages only work in native environments and should not be bundled for web/SSR
-    config.externals = config.externals || [];
-    config.externals.push({
-      '@capacitor-mlkit/barcode-scanning': '@capacitor-mlkit/barcode-scanning',
-    });
+    // Ignore native-only Capacitor plugins during build
+    // In native mode, these are accessed via Capacitor's global plugin registry
+    const webpack = require('webpack');
+    config.plugins.push(
+      new webpack.IgnorePlugin({
+        resourceRegExp: /@capacitor-mlkit\/barcode-scanning$/,
+      })
+    );
 
     return config;
   },

@@ -17,6 +17,7 @@ import { nativeConfirm } from "@/lib/nativeConfirm";
 interface PickedResult {
   uri?: string;
   file?: File;
+  base64?: string;
 }
 
 interface PickedMetadata {
@@ -78,18 +79,21 @@ export function NutritionImagePicker({ onPicked, children }: NutritionImagePicke
 
           const photo = await Camera.getPhoto({
             source: CameraSource.Photos, // Force gallery (skip action sheet)
-            resultType: CameraResultType.Uri,
+            resultType: CameraResultType.Base64, // Use base64 to avoid iOS file:// URI issues
             quality: 90,
             correctOrientation: true,
             allowEditing: false,
             presentationStyle: "fullscreen",
           });
 
-          if (photo.webPath) {
-            console.log("[ImagePicker] Photo selected from gallery:", photo.webPath);
-            onPicked({ uri: photo.webPath }, { source: "gallery" });
+          if (photo.base64String) {
+            console.log("[ImagePicker] Photo selected from gallery (base64)");
+            onPicked({
+              base64: photo.base64String,
+              uri: photo.webPath // Still provide URI for reference
+            }, { source: "gallery" });
           } else {
-            console.warn("[ImagePicker] No webPath returned from Camera.getPhoto");
+            console.warn("[ImagePicker] No base64String returned from Camera.getPhoto");
           }
         } catch (cameraError: any) {
           // User cancelled or error

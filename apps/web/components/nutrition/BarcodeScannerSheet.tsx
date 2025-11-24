@@ -17,9 +17,10 @@ import {
   Camera,
   Loader2,
 } from 'lucide-react';
-import { useScanner } from '@/lib/hooks/useScanner';
+import { useScanner, type ScannerErrorCode } from '@/lib/hooks/useScanner';
 import { useToast } from '@/components/ui/use-toast';
 import * as Dialog from '@radix-ui/react-dialog';
+import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 import type { LookupResult } from '@/lib/hooks/useBarcodeLookup';
 import { ManualProductSheet } from './ManualProductSheet';
 import type { BarcodeProduct } from '@/types/barcode';
@@ -51,17 +52,40 @@ export function BarcodeScannerSheet({
   const [showManualProductSheet, setShowManualProductSheet] = useState(false);
   const hintTimerRef = useRef<NodeJS.Timeout>();
 
+  // Scanner state management
+  const [scannerStatus, setScannerStatus] = useState<'idle' | 'running' | 'no-permission' | 'not-supported' | 'error'>('idle');
+  const [lastScannerError, setLastScannerError] = useState<ScannerErrorCode | null>(null);
+
   const stoppedRef = useRef(false); // Prevent double stops
+  const startAttemptedRef = useRef(false); // Prevent multiple start attempts
   const lastToastRef = useRef<string>(''); // Prevent duplicate toasts
   const { toast } = useToast();
 
-  // Log props for debugging
+  // Log props and environment for debugging
   useEffect(() => {
-    console.log('[BarcodeScannerSheet] Props received:', {
+    console.log('[BarcodeScannerSheet] Props changed:', {
+      open,
+      mode,
+      scannerStatus,
       hasOnDetected: !!onDetected,
-      onDetectedType: typeof onDetected,
     });
-  }, [onDetected]);
+
+    if (open) {
+      console.log('🔴 [BarcodeScannerSheet] DIALOG SHOULD BE VISIBLE NOW');
+    } else {
+      console.log('⚪ [BarcodeScannerSheet] DIALOG SHOULD BE HIDDEN NOW');
+    }
+
+    // Log iOS-specific info on mount
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    const isIOSWebView = /(iPhone|iPod|iPad).*AppleWebKit(?!.*Safari)/i.test(navigator.userAgent);
+    console.log('[BarcodeScannerSheet] Device info:', {
+      isIOS,
+      isIOSWebView,
+      userAgent: navigator.userAgent,
+      platform: navigator.platform,
+    });
+  }, [onDetected, open, mode, scannerStatus]);
 
   const scanner = useScanner({
     onDetected: async (barcode) => {
@@ -89,11 +113,13 @@ export function BarcodeScannerSheet({
     isActive,
     isInitializing,
     error: scannerError,
+    errorCode: scannerErrorCode,
     hasTorch,
     torchEnabled,
     cameras,
     activeDeviceId,
     hasPermission,
+    isNative,
     startScanning,
     stopScanning,
     toggleTorch,
@@ -112,12 +138,53 @@ export function BarcodeScannerSheet({
     }
   }, [isActive, stopScanning]);
 
+  // Set video element ref IMMEDIATELY when the video element mounts
+  // This ensures the ref is available before startScanning is called
+  const handleVideoRef = useCallback((element: HTMLVideoElement | null) => {
+    // Use type assertion to work around readonly restriction in callback refs
+    (videoRef as React.MutableRefObject<HTMLVideoElement | null>).current = element;
+    if (setVideoElement) {
+      setVideoElement(element);
+      console.log('[BarcodeScannerSheet] Video element ref set:', !!element);
+    }
+  }, [setVideoElement]);
+
   // Start scanning when opened
   useEffect(() => {
     stoppedRef.current = false; // Reset when mode/open changes
 
     if (open && mode === 'scan') {
-      startScanning();
+      // Prevent multiple start attempts
+      if (startAttemptedRef.current) {
+        console.log('[BarcodeScannerSheet] Scanner start already attempted, skipping');
+        return;
+      }
+
+      console.log('[BarcodeScannerSheet] Opening scanner, video ref exists:', !!videoRef.current);
+      startAttemptedRef.current = true;
+
+      // Start scanning with error handling
+      (async () => {
+        try {
+          setScannerStatus('running');
+          setLastScannerError(null);
+          await startScanning();
+        } catch (err) {
+          const code = (err as any)?.code ?? 'UNKNOWN';
+          setLastScannerError(code);
+
+          if (code === 'NO_PERMISSION' || code === 'PERMISSION_DENIED') {
+            setScannerStatus('no-permission');
+          } else if (code === 'NOT_SUPPORTED') {
+            setScannerStatus('not-supported');
+          } else {
+            setScannerStatus('error');
+          }
+
+          console.error('[BarcodeScannerSheet] Scanner failed to start:', code, err);
+        }
+      })();
+
       // Show hint after 3 seconds
       hintTimerRef.current = setTimeout(() => {
         setShowHint(true);
@@ -125,6 +192,9 @@ export function BarcodeScannerSheet({
     } else {
       stopScannerOnce();
       setShowHint(false);
+      setScannerStatus('idle');
+      setLastScannerError(null);
+      startAttemptedRef.current = false; // Reset for next open
       if (hintTimerRef.current) {
         clearTimeout(hintTimerRef.current);
       }
@@ -136,7 +206,10 @@ export function BarcodeScannerSheet({
       setManualCode('');
       setStatus('idle');
       setError(null);
+      setScannerStatus('idle');
+      setLastScannerError(null);
       lastToastRef.current = '';
+      startAttemptedRef.current = false; // Reset for next open
     }
 
     return () => {
@@ -146,13 +219,6 @@ export function BarcodeScannerSheet({
     };
   }, [open, mode, startScanning, stopScannerOnce]);
 
-  // Set video element ref
-  useEffect(() => {
-    if (setVideoElement) {
-      setVideoElement(videoRef.current);
-    }
-  }, [setVideoElement]);
-
   // Auto-focus input when switching to manual mode
   useEffect(() => {
     if (mode === 'manual' && inputRef.current) {
@@ -161,6 +227,86 @@ export function BarcodeScannerSheet({
       }, 100);
     }
   }, [mode]);
+
+  // iOS Debug: Monitor video element events for troubleshooting
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video || mode !== 'scan') return;
+
+    const handleLoadedMetadata = () => {
+      console.log('[Video] loadedmetadata event:', {
+        videoWidth: video.videoWidth,
+        videoHeight: video.videoHeight,
+        duration: video.duration,
+      });
+    };
+
+    const handleLoadedData = () => {
+      console.log('[Video] loadeddata event - first frame loaded');
+    };
+
+    const handleCanPlay = () => {
+      console.log('[Video] canplay event - ready to play');
+    };
+
+    const handlePlaying = () => {
+      console.log('[Video] playing event - playback started');
+    };
+
+    const handleError = (e: Event) => {
+      console.error('[Video] error event:', {
+        error: video.error,
+        networkState: video.networkState,
+        readyState: video.readyState,
+      });
+    };
+
+    const handleStalled = () => {
+      console.warn('[Video] stalled event - media download stalled');
+    };
+
+    video.addEventListener('loadedmetadata', handleLoadedMetadata);
+    video.addEventListener('loadeddata', handleLoadedData);
+    video.addEventListener('canplay', handleCanPlay);
+    video.addEventListener('playing', handlePlaying);
+    video.addEventListener('error', handleError);
+    video.addEventListener('stalled', handleStalled);
+
+    return () => {
+      video.removeEventListener('loadedmetadata', handleLoadedMetadata);
+      video.removeEventListener('loadeddata', handleLoadedData);
+      video.removeEventListener('canplay', handleCanPlay);
+      video.removeEventListener('playing', handlePlaying);
+      video.removeEventListener('error', handleError);
+      video.removeEventListener('stalled', handleStalled);
+    };
+  }, [mode]);
+
+  // Retry scanner start
+  const handleRetry = async () => {
+    console.log('[BarcodeScannerSheet] Retry clicked');
+    startAttemptedRef.current = false; // Reset to allow retry
+    setScannerStatus('idle');
+    setLastScannerError(null);
+
+    try {
+      setScannerStatus('running');
+      await startScanning();
+    } catch (err) {
+      const code = (err as any)?.code ?? 'UNKNOWN';
+      setLastScannerError(code);
+
+      if (code === 'NO_PERMISSION' || code === 'PERMISSION_DENIED') {
+        setScannerStatus('no-permission');
+      } else if (code === 'NOT_SUPPORTED') {
+        setScannerStatus('not-supported');
+      } else {
+        setScannerStatus('error');
+      }
+
+      console.error('[BarcodeScannerSheet] Retry failed:', code, err);
+    }
+  };
 
   // Switch camera
   const handleSwitchCamera = () => {
@@ -314,16 +460,38 @@ export function BarcodeScannerSheet({
     }
   };
 
-  return (
-    <Dialog.Root open={open} onOpenChange={onOpenChange}>
-      <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-[200] bg-black" />
+  // In native mode, don't render the Dialog - Capacitor shows its own full-screen camera UI
+  if (isNative) {
+    console.log('[BarcodeScannerSheet] Native mode - not rendering Dialog. Scanner state:', {
+      open,
+      isActive,
+      isInitializing,
+      hasPermission,
+      scannerStatus,
+      lastScannerError,
+    });
+    return null;
+  }
 
-        <Dialog.Content
-          className="fixed inset-0 z-[201] flex flex-col bg-black min-h-[100dvh]"
-          style={{ height: '100dvh' }}
-          dir="rtl"
-        >
+  return (
+    <>
+      <Dialog.Root open={open} onOpenChange={onOpenChange}>
+        <Dialog.Portal>
+          <Dialog.Overlay className="fixed inset-0 z-[10000] bg-black" />
+
+          <Dialog.Content
+            className="fixed inset-0 z-[10001] flex flex-col bg-black min-h-[100dvh]"
+            style={{ height: '100dvh' }}
+            dir="rtl"
+          >
+            {/* Accessibility: Hidden title and description */}
+            <VisuallyHidden>
+              <Dialog.Title>סריקת ברקוד</Dialog.Title>
+              <Dialog.Description>
+                לסריקת ברקוד, כוון את המצלמה אל הקוד. או הקלד את מספר הברקוד ידנית.
+              </Dialog.Description>
+            </VisuallyHidden>
+
           {/* Header */}
           <div className="relative z-10 flex items-center justify-between p-4 pt-[calc(env(safe-area-inset-top)+16px)]">
             <Dialog.Close asChild>
@@ -376,11 +544,21 @@ export function BarcodeScannerSheet({
               <>
                 {/* Video Preview */}
                 <video
-                  ref={videoRef}
+                  ref={handleVideoRef}
                   className="absolute inset-0 w-full h-full object-cover"
                   playsInline
                   autoPlay
                   muted
+                  style={{
+                    // iOS-specific: Ensure video has explicit dimensions
+                    width: '100%',
+                    height: '100%',
+                    minWidth: '100%',
+                    minHeight: '100%',
+                    // iOS WebKit fix: Force hardware acceleration
+                    transform: 'translateZ(0)',
+                    WebkitTransform: 'translateZ(0)',
+                  }}
                 />
 
                 {/* Scanner Frame */}
@@ -588,7 +766,7 @@ export function BarcodeScannerSheet({
                 )}
 
                 {/* Permission Error */}
-                {!hasPermission && scannerError && (
+                {scannerStatus === 'no-permission' && (
                   <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
@@ -601,23 +779,66 @@ export function BarcodeScannerSheet({
                       </div>
                       <h3 className="text-white text-lg font-bold mb-2">אין הרשאה למצלמה</h3>
                       <p className="text-white/70 text-sm mb-4">
-                        כדי לסרוק ברקודים, עליך לאשר גישה למצלמה בהגדרות הדפדפן
+                        {/iPad|iPhone|iPod/.test(navigator.userAgent)
+                          ? 'כדי לסרוק ברקודים, יש לאשר גישה למצלמה. לחצו "נסה שוב" ובחרו "אפשר" בחלון שיופיע. אם זה לא עובד, יתכן שתצטרכו לאפשר גישה למצלמה דרך הגדרות iOS → Safari → המצלמה.'
+                          : 'כדי לסרוק ברקודים, עליך לאשר גישה למצלמה בהגדרות הדפדפן'}
                       </p>
+                      {lastScannerError && (
+                        <p className="text-white/50 text-xs mb-4 font-mono">
+                          שגיאה: {lastScannerError}
+                        </p>
+                      )}
+                      <div className="space-y-2">
+                        <button
+                          onClick={handleRetry}
+                          className="w-full px-6 py-2 bg-[#E2F163] text-black rounded-lg font-semibold"
+                        >
+                          נסה שוב
+                        </button>
+                        <button
+                          onClick={handleSwitchToManual}
+                          className="w-full px-6 py-2 bg-white/10 text-white rounded-lg font-medium"
+                        >
+                          הקלדה ידנית במקום
+                        </button>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+
+                {/* Not Supported Error */}
+                {scannerStatus === 'not-supported' && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="absolute inset-0 flex items-center justify-center bg-black/90 p-8"
+                  >
+                    <div className="text-center max-w-sm">
+                      <div className="w-16 h-16 rounded-full bg-orange-500/20 flex items-center justify-center mx-auto mb-4">
+                        <AlertCircle className="w-8 h-8 text-orange-400" />
+                      </div>
+                      <h3 className="text-white text-lg font-bold mb-2">סריקה לא נתמכת</h3>
+                      <p className="text-white/70 text-sm mb-4">
+                        הסריקה באמצעות המצלמה אינה נתמכת בסביבה זו. השתמשו בהזנה ידנית של הברקוד.
+                      </p>
+                      {lastScannerError && (
+                        <p className="text-white/50 text-xs mb-4 font-mono">
+                          שגיאה: {lastScannerError}
+                        </p>
+                      )}
                       <button
-                        onClick={() => {
-                          // Try again
-                          startScanning();
-                        }}
-                        className="px-6 py-2 bg-[#E2F163] text-black rounded-lg font-semibold"
+                        onClick={handleSwitchToManual}
+                        className="w-full px-6 py-2 bg-[#E2F163] text-black rounded-lg font-semibold"
                       >
-                        נסה שוב
+                        הקלדה ידנית
                       </button>
                     </div>
                   </motion.div>
                 )}
 
                 {/* Other Errors */}
-                {hasPermission && scannerError && (
+                {scannerStatus === 'error' && (
                   <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
@@ -629,13 +850,28 @@ export function BarcodeScannerSheet({
                         <AlertCircle className="w-8 h-8 text-orange-400" />
                       </div>
                       <h3 className="text-white text-lg font-bold mb-2">שגיאה</h3>
-                      <p className="text-white/70 text-sm mb-4">{scannerError}</p>
-                      <button
-                        onClick={() => startScanning()}
-                        className="px-6 py-2 bg-[#E2F163] text-black rounded-lg font-semibold"
-                      >
-                        נסה שוב
-                      </button>
+                      <p className="text-white/70 text-sm mb-4">
+                        {scannerError || 'אירעה שגיאה בהפעלת המצלמה'}
+                      </p>
+                      {lastScannerError && (
+                        <p className="text-white/50 text-xs mb-4 font-mono">
+                          קוד שגיאה: {lastScannerError}
+                        </p>
+                      )}
+                      <div className="space-y-2">
+                        <button
+                          onClick={handleRetry}
+                          className="w-full px-6 py-2 bg-[#E2F163] text-black rounded-lg font-semibold"
+                        >
+                          נסה שוב
+                        </button>
+                        <button
+                          onClick={handleSwitchToManual}
+                          className="w-full px-6 py-2 bg-white/10 text-white rounded-lg font-medium"
+                        >
+                          הקלדה ידנית במקום
+                        </button>
+                      </div>
                     </div>
                   </motion.div>
                 )}
@@ -657,21 +893,22 @@ export function BarcodeScannerSheet({
         </Dialog.Content>
       </Dialog.Portal>
 
-      {/* Manual Product Entry Sheet */}
-      <ManualProductSheet
-        open={showManualProductSheet}
-        onOpenChange={setShowManualProductSheet}
-        barcode={error?.code === 'not_found' ? manualCode : undefined}
-        onSuccess={(product) => {
-          console.log('[Scanner] Manual product created:', product);
-          // Close barcode scanner
-          onOpenChange(false);
-          // Call success callback to open NutritionFactsSheet
-          if (onManualProductSuccess) {
-            onManualProductSuccess(product);
-          }
-        }}
-      />
-    </Dialog.Root>
+        {/* Manual Product Entry Sheet */}
+        <ManualProductSheet
+          open={showManualProductSheet}
+          onOpenChange={setShowManualProductSheet}
+          barcode={error?.code === 'not_found' ? manualCode : undefined}
+          onSuccess={(product) => {
+            console.log('[Scanner] Manual product created:', product);
+            // Close barcode scanner
+            onOpenChange(false);
+            // Call success callback to open NutritionFactsSheet
+            if (onManualProductSuccess) {
+              onManualProductSuccess(product);
+            }
+          }}
+        />
+      </Dialog.Root>
+    </>
   );
 }

@@ -1,5 +1,5 @@
 
-> @gymbro/api@ build /Users/netanelhadad/Projects/gymbro/services/api
+> @fitjourney/api@ build /Users/netanelhadad/Projects/gymbro/services/api
 > tsc -p tsconfig.json
 
 src/index.ts(3,18): error TS7016: Could not find a declaration file for module 'cors'. '/Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/cors@2.8.5/node_modules/cors/lib/index.js' implicitly has an 'any' type.

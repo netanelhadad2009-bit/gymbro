@@ -2,10 +2,11 @@
  * Hebrew authentication error translator
  *
  * Normalizes and translates all authentication errors to Hebrew,
- * including Supabase errors, validation errors, and network errors.
+ * including Supabase errors, validation errors, network errors, and OAuth errors.
  */
 
 import { AuthError } from '@supabase/supabase-js';
+import type { OAuthError } from '@/lib/auth/oauth-errors';
 
 export interface NormalizedAuthError {
   code?: string;
@@ -157,7 +158,7 @@ const MESSAGE_PATTERNS: Array<[RegExp, string]> = [
 /**
  * Translate authentication error to Hebrew
  *
- * @param err - Error object (can be Supabase error, Error, or plain object)
+ * @param err - Error object (can be Supabase error, Error, OAuthError, or plain object)
  * @param context - Authentication flow context (optional)
  * @returns Hebrew error message
  */
@@ -165,6 +166,20 @@ export function translateAuthError(
   err: unknown,
   context: AuthErrorContext = 'generic'
 ): string {
+  // Check if this is an OAuth error first
+  if (err && typeof err === 'object' && 'name' in err && err.name === 'OAuthError') {
+    const oauthErr = err as OAuthError;
+    const provider = oauthErr.provider === 'google' ? 'Google' : 'Apple';
+
+    // Check if user cancelled
+    if (oauthErr.message && oauthErr.message.includes('בוטלה')) {
+      return `התחברות עם ${provider} בוטלה.`;
+    }
+
+    // Generic OAuth error
+    return `שגיאה בהתחברות עם ${provider}. נסה שוב.`;
+  }
+
   const normalized = normalizeAuthError(err);
 
   // Check for known error codes first
