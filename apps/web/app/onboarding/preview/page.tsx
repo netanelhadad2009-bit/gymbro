@@ -268,6 +268,103 @@ export default function PreviewPage() {
           ✨ מצטרפים חדשים השבוע
         </motion.div>
 
+        {/* How It Works Section */}
+        <motion.section
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.6 }}
+          className="space-y-4"
+        >
+          <h2 className="text-xl font-bold text-white text-center mb-6">
+            {getGenderedText(
+              'איך תגיע ליעד שלך?',
+              'איך תגיעי ליעד שלך?',
+              'איך תגיע/י ליעד שלך?'
+            )}
+          </h2>
+          <div className="space-y-3">
+            <div className="bg-zinc-900/50 rounded-2xl p-5 border border-zinc-800">
+              <div className="flex items-start gap-4">
+                <div className="flex-shrink-0 w-10 h-10 rounded-full bg-[#E2F163] flex items-center justify-center">
+                  <span className="text-black font-bold text-lg">1</span>
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-white font-bold mb-2">
+                    {getGenderedText(
+                      'עקוב אחר מפת המסע',
+                      'עקבי אחר מפת המסע',
+                      'עקוב/י אחר מפת המסע'
+                    )}
+                  </h3>
+                  <p className="text-zinc-400 text-sm leading-relaxed">
+                    המפה האינטראקטיבית מציגה את כל השלבים והמשימות שלך. {getGenderedText('עקוב', 'עקבי', 'עקוב/י')} אחריהם כדי להישאר ממוקד.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-zinc-900/50 rounded-2xl p-5 border border-zinc-800">
+              <div className="flex items-start gap-4">
+                <div className="flex-shrink-0 w-10 h-10 rounded-full bg-[#E2F163] flex items-center justify-center">
+                  <span className="text-black font-bold text-lg">2</span>
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-white font-bold mb-2">
+                    {getGenderedText(
+                      'תעד את הארוחות שלך',
+                      'תעדי את הארוחות שלך',
+                      'תעד/י את הארוחות שלך'
+                    )}
+                  </h3>
+                  <p className="text-zinc-400 text-sm leading-relaxed">
+                    {getGenderedText('צלם', 'צלמי', 'צלם/י')} את האוכל או {getGenderedText('סרוק', 'סרקי', 'סרוק/י')} ברקוד - המערכת תנתח אוטומטית ותעקוב אחר הקלוריות והמקרו-נוטריינטים {getGenderedText('שלך', 'שלך', 'שלך')}.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-zinc-900/50 rounded-2xl p-5 border border-zinc-800">
+              <div className="flex items-start gap-4">
+                <div className="flex-shrink-0 w-10 h-10 rounded-full bg-[#E2F163] flex items-center justify-center">
+                  <span className="text-black font-bold text-lg">3</span>
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-white font-bold mb-2">
+                    {getGenderedText(
+                      'השלם משימות וצבור נקודות',
+                      'השלימי משימות וצברי נקודות',
+                      'השלם/י משימות וצבור/י נקודות'
+                    )}
+                  </h3>
+                  <p className="text-zinc-400 text-sm leading-relaxed">
+                    כל משימה {getGenderedText('שתשלים', 'שתשלימי', 'שתשלים/י')} מקדמת {getGenderedText('אותך', 'אותך', 'אותך')} קדימה. {getGenderedText('צבור', 'צברי', 'צבור/י')} נקודות ו{getGenderedText('עקוב', 'עקבי', 'עקוב/י')} אחר ההתקדמות {getGenderedText('שלך', 'שלך', 'שלך')}.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-zinc-900/50 rounded-2xl p-5 border border-zinc-800">
+              <div className="flex items-start gap-4">
+                <div className="flex-shrink-0 w-10 h-10 rounded-full bg-[#E2F163] flex items-center justify-center">
+                  <span className="text-black font-bold text-lg">4</span>
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-white font-bold mb-2">
+                    {getGenderedText(
+                      'הגע ליעד שלך',
+                      'הגיעי ליעד שלך',
+                      'הגע/י ליעד שלך'
+                    )}
+                  </h3>
+                  <p className="text-zinc-400 text-sm leading-relaxed">
+                    {getGenderedText('עקוב', 'עקבי', 'עקוב/י')} אחר המסלול, {getGenderedText('שמור', 'שמרי', 'שמור/י')} על עקביות ו{getGenderedText('ראה', 'ראי', 'ראה/י')} תוצאות אמיתיות.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </motion.section>
+
         {/* Information Sources */}
         <motion.section
           initial={{ opacity: 0, y: 20 }}
