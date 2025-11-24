@@ -340,21 +340,21 @@ export default function PreviewPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.8 }}
-          className="space-y-4"
+          className="space-y-3"
         >
-          <h2 className="text-base font-semibold text-white/80 text-center">
-            התוכנית מבוססת על המקורות הבאים, בין היתר מחקרים רפואיים שנבדקו:
+          <h2 className="text-sm font-medium text-white/70 text-center mb-2">
+            התוכנית מבוססת על המקורות הבאים:
           </h2>
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             {SOURCES.map((source, index) => (
               <button
                 key={index}
                 onClick={() => handleSourceClick(source.url)}
-                className="w-full bg-zinc-900/50 hover:bg-zinc-900/70 rounded-xl p-4 text-right transition-colors active:scale-[0.98] flex items-center justify-between group border border-zinc-800"
+                className="w-full bg-zinc-900/50 hover:bg-zinc-900/70 rounded-lg p-3 text-right transition-colors active:scale-[0.98] flex items-center justify-between group border border-zinc-800"
               >
-                <span className="text-white/90 text-sm">{source.title}</span>
+                <span className="text-white/80 text-xs">{source.title}</span>
                 <svg
-                  className="w-4 h-4 text-white/40 group-hover:text-[#E2F163] transition-colors flex-shrink-0 mr-3"
+                  className="w-3.5 h-3.5 text-white/40 group-hover:text-[#E2F163] transition-colors flex-shrink-0 mr-2"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
