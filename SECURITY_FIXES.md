@@ -98,16 +98,14 @@ This feature prevents users from using passwords that have been compromised in d
 
 ## Applying the Fixes
 
-### Option 1: Via Supabase CLI (Recommended)
-```bash
-cd /Users/netanelhadad/Projects/gymbro
-supabase db push
-```
+### Via Supabase Dashboard (Recommended due to migration conflicts)
+1. Go to **SQL Editor** in your Supabase dashboard
+2. Open the file `supabase/migrations/9999_fix_security_lints.sql` from your local repository
+3. Copy all contents of the file
+4. Paste into the SQL Editor
+5. Click **Run** to execute the migration
 
-### Option 2: Via Supabase Dashboard
-1. Go to SQL Editor in your Supabase dashboard
-2. Copy the contents of `supabase/migrations/20251124_fix_security_lints.sql`
-3. Paste and run the migration
+**Why manual?** There are conflicting migration numbers in your history (duplicate 035). The manual approach ensures the security fixes are applied immediately without resolving migration history first.
 
 ---
 
