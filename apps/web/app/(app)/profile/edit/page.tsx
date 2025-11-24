@@ -8,6 +8,8 @@ import texts from "@/lib/assistantTexts";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { genderToHe } from "@/lib/i18n";
+import { useSheet } from "@/contexts/SheetContext";
+import { Keyboard } from "@capacitor/keyboard";
 
 // ============================================================================
 // TYPES & INTERFACES
@@ -142,6 +144,7 @@ function SelectField({
 
 export default function ProfileEditPage() {
   const router = useRouter();
+  const { setIsKeyboardVisible } = useSheet();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -266,6 +269,37 @@ export default function ProfileEditPage() {
 
     loadProfile();
   }, [router]);
+
+  // Listen for keyboard show/hide to hide bottom nav
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const handleKeyboardShow = () => {
+      console.log('[ProfileEdit] Keyboard shown - hiding bottom nav');
+      setIsKeyboardVisible(true);
+    };
+
+    const handleKeyboardHide = () => {
+      console.log('[ProfileEdit] Keyboard hidden - showing bottom nav');
+      setIsKeyboardVisible(false);
+    };
+
+    let showListener: any;
+    let hideListener: any;
+
+    const setupListeners = async () => {
+      showListener = await Keyboard.addListener('keyboardWillShow', handleKeyboardShow);
+      hideListener = await Keyboard.addListener('keyboardWillHide', handleKeyboardHide);
+    };
+
+    setupListeners();
+
+    return () => {
+      setIsKeyboardVisible(false);
+      showListener?.remove();
+      hideListener?.remove();
+    };
+  }, [setIsKeyboardVisible]);
 
   const handleSave = async () => {
     try {

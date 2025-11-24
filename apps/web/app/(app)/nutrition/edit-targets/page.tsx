@@ -8,9 +8,12 @@ import { NutrientIcon } from "@/components/icons/NutrientIcon";
 import { getMergedProfileSync } from "@/lib/profile/merge";
 import { buildNutritionPayload } from "@/lib/nutrition/buildPayload";
 import MacroInput from "@/components/inputs/MacroInput";
+import { useSheet } from "@/contexts/SheetContext";
+import { Keyboard } from "@capacitor/keyboard";
 
 export default function EditTargetsPage() {
   const router = useRouter();
+  const { setIsKeyboardVisible } = useSheet();
   const [userId, setUserId] = useState<string>("");
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -64,6 +67,37 @@ export default function EditTargetsPage() {
       setIsLoading(false);
     });
   }, []);
+
+  // Listen for keyboard show/hide to hide bottom nav
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const handleKeyboardShow = () => {
+      console.log('[EditTargets] Keyboard shown - hiding bottom nav');
+      setIsKeyboardVisible(true);
+    };
+
+    const handleKeyboardHide = () => {
+      console.log('[EditTargets] Keyboard hidden - showing bottom nav');
+      setIsKeyboardVisible(false);
+    };
+
+    let showListener: any;
+    let hideListener: any;
+
+    const setupListeners = async () => {
+      showListener = await Keyboard.addListener('keyboardWillShow', handleKeyboardShow);
+      hideListener = await Keyboard.addListener('keyboardWillHide', handleKeyboardHide);
+    };
+
+    setupListeners();
+
+    return () => {
+      setIsKeyboardVisible(false);
+      showListener?.remove();
+      hideListener?.remove();
+    };
+  }, [setIsKeyboardVisible]);
 
   const handleSave = async () => {
     if (!userId || isSaving) return;
