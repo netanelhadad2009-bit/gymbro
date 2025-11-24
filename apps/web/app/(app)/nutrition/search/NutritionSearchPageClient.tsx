@@ -14,6 +14,8 @@ import type { MyFoodResult } from '@/types/my-foods';
 import PageSafeArea from '@/components/layout/PageSafeArea';
 import { QuickAddSheet } from '@/components/nutrition/QuickAddSheet';
 import type { FoodSearchResult } from '@/lib/hooks/useFoodSearch';
+import { useSheet } from '@/contexts/SheetContext';
+import { Keyboard } from '@capacitor/keyboard';
 
 type TabType = 'all' | 'mine';
 
@@ -26,6 +28,7 @@ export default function FoodSearchPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const inputRef = useRef<HTMLInputElement>(null);
+  const { setIsKeyboardVisible } = useSheet();
 
   const initialQuery = searchParams.get('q') || '';
   const linkBarcode = searchParams.get('link') || undefined;
@@ -42,6 +45,37 @@ export default function FoodSearchPage() {
 
   // My Foods search hook (for "mine" tab)
   const myFoodsSearch = useMyFoodsSearch(initialQuery, 300);
+
+  // Listen for keyboard show/hide to hide bottom nav
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const handleKeyboardShow = () => {
+      console.log('[NutritionSearch] Keyboard shown - hiding bottom nav');
+      setIsKeyboardVisible(true);
+    };
+
+    const handleKeyboardHide = () => {
+      console.log('[NutritionSearch] Keyboard hidden - showing bottom nav');
+      setIsKeyboardVisible(false);
+    };
+
+    let showListener: any;
+    let hideListener: any;
+
+    const setupListeners = async () => {
+      showListener = await Keyboard.addListener('keyboardWillShow', handleKeyboardShow);
+      hideListener = await Keyboard.addListener('keyboardWillHide', handleKeyboardHide);
+    };
+
+    setupListeners();
+
+    return () => {
+      setIsKeyboardVisible(false);
+      showListener?.remove();
+      hideListener?.remove();
+    };
+  }, [setIsKeyboardVisible]);
 
   // Auto-focus input on mount
   useEffect(() => {
