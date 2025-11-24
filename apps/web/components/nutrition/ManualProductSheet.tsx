@@ -12,6 +12,7 @@ import * as Dialog from '@radix-ui/react-dialog';
 import type { BarcodeProduct, Per100g } from '@/types/barcode';
 import { useToast } from '@/components/ui/use-toast';
 import { Keyboard } from '@capacitor/keyboard';
+import { useSheet } from '@/contexts/SheetContext';
 
 interface ManualProductSheetProps {
   open: boolean;
@@ -42,6 +43,7 @@ export function ManualProductSheet({
   onSuccess,
 }: ManualProductSheetProps) {
   const { toast } = useToast();
+  const { setIsSheetOpen, setIsKeyboardVisible } = useSheet();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
   const [keyboardHeight, setKeyboardHeight] = useState(0);
@@ -69,6 +71,11 @@ export function ManualProductSheet({
       fat_g: Math.round((parseInt(formData.fat_g) || 0) * scale * 10) / 10,
     };
   }, [formData]);
+
+  // Notify context when sheet opens/closes
+  useEffect(() => {
+    setIsSheetOpen(open);
+  }, [open, setIsSheetOpen]);
 
   // Listen for keyboard show/hide events
   useEffect(() => {
@@ -101,7 +108,7 @@ export function ManualProductSheet({
       showListener?.remove();
       hideListener?.remove();
     };
-  }, [open]);
+  }, [open, setIsKeyboardVisible]);
 
   // Validate form
   const validate = (): boolean => {
