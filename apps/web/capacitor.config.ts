@@ -75,8 +75,8 @@ const config: CapacitorConfig = {
   },
   plugins: {
     Keyboard: {
-      resize: "native",  // Use native keyboard behavior (fixes constraint errors)
-      style: "dark",     // Dark keyboard style to match app theme
+      resize: "native" as any,  // Use native keyboard behavior (fixes constraint errors)
+      style: "dark" as any,     // Dark keyboard style to match app theme
     },
     GoogleAuth: {
       scopes: ['profile', 'email'],
