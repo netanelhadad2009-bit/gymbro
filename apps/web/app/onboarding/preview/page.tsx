@@ -7,6 +7,30 @@ import { useOnboardingGender } from "@/lib/onboarding/useOnboardingGender";
 import { usePlatform } from "@/lib/platform";
 import { motion, AnimatePresence } from "framer-motion";
 import { Lock, ChevronDown, X } from "lucide-react";
+import { openExternal } from "@/lib/openExternal";
+
+const SOURCES = [
+  {
+    title: "שיעור חילוף חומרים בסיסי",
+    url: "https://pubmed.ncbi.nlm.nih.gov/2305711/",
+  },
+  {
+    title: "ספירת קלוריות - הרווארד",
+    url: "https://pubmed.ncbi.nlm.nih.gov/6721853/",
+  },
+  {
+    title: "ערכי צריכה תזונתיים מומלצים",
+    url: "https://www.canada.ca/en/health-canada/services/food-nutrition/healthy-eating/dietary-reference-intakes/tables.html",
+  },
+  {
+    title: "האגודה הבינלאומית לתזונת ספורט",
+    url: "https://journals.lww.com/acsm-msse/Fulltext/2011/07000/Quantity_and_Quality_of_Exercise_for_Developing.26.aspx",
+  },
+  {
+    title: "ארגון הבריאות העולמי",
+    url: "https://www.who.int/publications/i/item/9789240015128",
+  },
+];
 
 export default function PreviewPage() {
   const router = useRouter();
@@ -89,6 +113,10 @@ export default function PreviewPage() {
 
   const toggleFaq = (index: number) => {
     setExpandedFaq(expandedFaq === index ? null : index);
+  };
+
+  const handleSourceClick = async (url: string) => {
+    await openExternal(url);
   };
 
   const features = [
@@ -358,6 +386,42 @@ export default function PreviewPage() {
               </AnimatePresence>
             </div>
           ))}
+        </motion.section>
+
+        {/* Information Sources */}
+        <motion.section
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.8 }}
+          className="space-y-4"
+        >
+          <h2 className="text-base font-semibold text-white/80 text-center">
+            התוכנית מבוססת על המקורות הבאים, בין היתר מחקרים רפואיים שנבדקו:
+          </h2>
+          <div className="space-y-2">
+            {SOURCES.map((source, index) => (
+              <button
+                key={index}
+                onClick={() => handleSourceClick(source.url)}
+                className="w-full bg-zinc-900/50 hover:bg-zinc-900/70 rounded-xl p-4 text-right transition-colors active:scale-[0.98] flex items-center justify-between group border border-zinc-800"
+              >
+                <span className="text-white/90 text-sm">{source.title}</span>
+                <svg
+                  className="w-4 h-4 text-white/40 group-hover:text-[#E2F163] transition-colors flex-shrink-0 mr-3"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                  />
+                </svg>
+              </button>
+            ))}
+          </div>
         </motion.section>
 
         {/* Bottom Spacer */}
