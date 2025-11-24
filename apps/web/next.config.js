@@ -62,6 +62,13 @@ const nextConfig = {
       config.cache = false;
     }
 
+    // Exclude native-only Capacitor plugins from webpack bundling
+    // These packages only work in native environments and should not be bundled for web/SSR
+    config.externals = config.externals || [];
+    config.externals.push({
+      '@capacitor-mlkit/barcode-scanning': '@capacitor-mlkit/barcode-scanning',
+    });
+
     return config;
   },
 
