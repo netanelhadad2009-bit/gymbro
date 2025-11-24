@@ -24,3 +24,4 @@ supabase/.temp/
 *.backup
 gitleaks-*.json
 secrets-replacements.txt
+.vercel
