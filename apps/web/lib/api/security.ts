@@ -99,7 +99,9 @@ export async function requireAuth(): Promise<
   | { success: false; response: NextResponse }
 > {
   try {
-    const supabase = await createClient();
+    // Use createServerSupabaseClientWithAuth to support both cookies and Authorization header
+    const { createServerSupabaseClientWithAuth } = await import('@/lib/supabase-server');
+    const supabase = await createServerSupabaseClientWithAuth();
     const { data: { user }, error: authError } = await supabase.auth.getUser();
 
     if (authError || !user) {
