@@ -12,6 +12,8 @@ import { useToast } from '@/components/ui/use-toast';
 import { logMealFromSavedMeal, type MealType } from '@/lib/nutrition/log';
 import PageSafeArea from '@/components/layout/PageSafeArea';
 import AppHeader from '@/components/layout/AppHeader';
+import { useSheet } from '@/contexts/SheetContext';
+import { Keyboard } from '@capacitor/keyboard';
 
 interface Meal {
   id: string;
@@ -31,6 +33,7 @@ export default function MealDetailsPage() {
   const router = useRouter();
   const params = useParams();
   const { toast } = useToast();
+  const { setIsKeyboardVisible } = useSheet();
 
   const mealId = params.id as string;
 
@@ -93,6 +96,37 @@ export default function MealDetailsPage() {
       loadMeal();
     }
   }, [mealId]);
+
+  // Listen for keyboard show/hide to hide bottom nav
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const handleKeyboardShow = () => {
+      console.log('[MealDetail] Keyboard shown - hiding bottom nav');
+      setIsKeyboardVisible(true);
+    };
+
+    const handleKeyboardHide = () => {
+      console.log('[MealDetail] Keyboard hidden - showing bottom nav');
+      setIsKeyboardVisible(false);
+    };
+
+    let showListener: any;
+    let hideListener: any;
+
+    const setupListeners = async () => {
+      showListener = await Keyboard.addListener('keyboardWillShow', handleKeyboardShow);
+      hideListener = await Keyboard.addListener('keyboardWillHide', handleKeyboardHide);
+    };
+
+    setupListeners();
+
+    return () => {
+      setIsKeyboardVisible(false);
+      showListener?.remove();
+      hideListener?.remove();
+    };
+  }, [setIsKeyboardVisible]);
 
   // Handle logging meal again
   const handleLogAgain = async () => {

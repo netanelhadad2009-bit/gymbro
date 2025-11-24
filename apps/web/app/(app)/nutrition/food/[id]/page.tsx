@@ -13,12 +13,15 @@ import { useToast } from '@/components/ui/use-toast';
 import type { FoodSearchResult } from '@/lib/hooks/useFoodSearch';
 import PageSafeArea from '@/components/layout/PageSafeArea';
 import AppHeader from '@/components/layout/AppHeader';
+import { useSheet } from '@/contexts/SheetContext';
+import { Keyboard } from '@capacitor/keyboard';
 
 export default function FoodDetailsPage() {
   const router = useRouter();
   const params = useParams();
   const searchParams = useSearchParams();
   const { toast } = useToast();
+  const { setIsKeyboardVisible } = useSheet();
 
   const foodId = params.id as string;
   const linkBarcode = searchParams.get('link') || undefined;
@@ -81,6 +84,37 @@ export default function FoodDetailsPage() {
       loadFood();
     }
   }, [foodId]);
+
+  // Listen for keyboard show/hide to hide bottom nav
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const handleKeyboardShow = () => {
+      console.log('[FoodDetails] Keyboard shown - hiding bottom nav');
+      setIsKeyboardVisible(true);
+    };
+
+    const handleKeyboardHide = () => {
+      console.log('[FoodDetails] Keyboard hidden - showing bottom nav');
+      setIsKeyboardVisible(false);
+    };
+
+    let showListener: any;
+    let hideListener: any;
+
+    const setupListeners = async () => {
+      showListener = await Keyboard.addListener('keyboardWillShow', handleKeyboardShow);
+      hideListener = await Keyboard.addListener('keyboardWillHide', handleKeyboardHide);
+    };
+
+    setupListeners();
+
+    return () => {
+      setIsKeyboardVisible(false);
+      showListener?.remove();
+      hideListener?.remove();
+    };
+  }, [setIsKeyboardVisible]);
 
   // Handle barcode linking
   const handleLinkBarcode = async () => {
