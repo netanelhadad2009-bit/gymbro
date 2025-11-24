@@ -1,11 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { todayISO } from "@/lib/date";
 import { createBrowserClient } from "@supabase/ssr";
 import MacroInput from "@/components/inputs/MacroInput";
 import type { MealType } from "@/lib/nutrition/log";
+import { useSheet } from "@/contexts/SheetContext";
+import { Keyboard } from "@capacitor/keyboard";
 
 const MEAL_TYPES: { value: MealType; label: string; emoji: string }[] = [
   { value: 'breakfast', label: 'ארוחת בוקר', emoji: '🌅' },
@@ -23,11 +25,43 @@ export default function AddManualMealPage() {
   const [mealType, setMealType] = useState<MealType>('snack');
   const [saving, setSaving] = useState(false);
   const router = useRouter();
+  const { setIsKeyboardVisible } = useSheet();
 
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   );
+
+  // Listen for keyboard show/hide to hide bottom nav
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const handleKeyboardShow = () => {
+      console.log('[AddManualMeal] Keyboard shown - hiding bottom nav');
+      setIsKeyboardVisible(true);
+    };
+
+    const handleKeyboardHide = () => {
+      console.log('[AddManualMeal] Keyboard hidden - showing bottom nav');
+      setIsKeyboardVisible(false);
+    };
+
+    let showListener: any;
+    let hideListener: any;
+
+    const setupListeners = async () => {
+      showListener = await Keyboard.addListener('keyboardWillShow', handleKeyboardShow);
+      hideListener = await Keyboard.addListener('keyboardWillHide', handleKeyboardHide);
+    };
+
+    setupListeners();
+
+    return () => {
+      setIsKeyboardVisible(false);
+      showListener?.remove();
+      hideListener?.remove();
+    };
+  }, [setIsKeyboardVisible]);
 
   const onSave = async () => {
     if (!name || calories === "") return;
