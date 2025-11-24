@@ -6,6 +6,16 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { BrowserMultiFormatReader } from '@zxing/browser';
 import { Result } from '@zxing/library';
+import { Capacitor } from '@capacitor/core';
+import { BarcodeScanner } from '@capacitor-mlkit/barcode-scanning';
+
+export type ScannerErrorCode = 'NO_PERMISSION' | 'PERMISSION_DENIED' | 'NOT_SUPPORTED' | 'NO_CAMERA' | 'UNKNOWN';
+
+export interface ScannerError {
+  code: ScannerErrorCode;
+  message: string;
+  original?: unknown;
+}
 
 export interface UseScannerOptions {
   onDetected?: (barcode: string) => void;
@@ -22,6 +32,7 @@ export interface UseScannerReturn {
   isInitializing: boolean;
   lastBarcode: string | null;
   error: string | null;
+  errorCode: ScannerErrorCode | null;
   hasTorch: boolean;
   torchEnabled: boolean;
   cameras: CameraDevice[];
@@ -31,6 +42,65 @@ export interface UseScannerReturn {
   toggleTorch: () => Promise<void>;
   setActiveDevice: (deviceId: string) => void;
   hasPermission: boolean;
+  isNative: boolean;
+}
+
+/**
+ * Normalize scanner errors into a standardized format
+ */
+function normalizeScannerError(err: unknown): ScannerError {
+  const errObj = err as any;
+
+  // Check if getUserMedia is not supported
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    return {
+      code: 'NOT_SUPPORTED',
+      message: 'Camera API is not supported in this browser/environment',
+      original: err,
+    };
+  }
+
+  // Handle DOMException errors
+  if (errObj?.name === 'NotAllowedError') {
+    return {
+      code: 'PERMISSION_DENIED',
+      message: 'Camera permission was denied',
+      original: err,
+    };
+  }
+
+  if (errObj?.name === 'NotFoundError' || errObj?.name === 'DevicesNotFoundError') {
+    return {
+      code: 'NO_CAMERA',
+      message: 'No camera device found',
+      original: err,
+    };
+  }
+
+  if (errObj?.name === 'NotReadableError' || errObj?.name === 'TrackStartError') {
+    return {
+      code: 'NO_PERMISSION',
+      message: 'Camera is already in use or not accessible',
+      original: err,
+    };
+  }
+
+  // Check message for permission-related keywords
+  const message = errObj?.message?.toLowerCase() || '';
+  if (message.includes('permission') || message.includes('denied') || message.includes('allowed')) {
+    return {
+      code: 'PERMISSION_DENIED',
+      message: errObj?.message || 'Camera permission denied',
+      original: err,
+    };
+  }
+
+  // Unknown error
+  return {
+    code: 'UNKNOWN',
+    message: errObj?.message || 'Unknown scanner error',
+    original: err,
+  };
 }
 
 export function useScanner({
@@ -41,6 +111,7 @@ export function useScanner({
   const [isInitializing, setIsInitializing] = useState(false);
   const [lastBarcode, setLastBarcode] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [errorCode, setErrorCode] = useState<ScannerErrorCode | null>(null);
   const [hasTorch, setHasTorch] = useState(false);
   const [torchEnabled, setTorchEnabled] = useState(false);
   const [cameras, setCameras] = useState<CameraDevice[]>([]);
@@ -52,6 +123,16 @@ export function useScanner({
   const streamRef = useRef<MediaStream | null>(null);
   const lastScanRef = useRef<number>(0);
   const controlsRef = useRef<any>(null); // Store the controls returned by ZXing
+  const capacitorListenerRef = useRef<any>(null); // Store Capacitor listener
+
+  // Check if we're running in a native Capacitor environment
+  const isNative = Capacitor.isNativePlatform();
+  console.log('[useScanner] 🔍 Platform detection:', {
+    isNative,
+    isNativePlatform: Capacitor.isNativePlatform(),
+    platform: Capacitor.getPlatform(),
+    hasCapacitor: typeof window !== 'undefined' && !!(window as any).Capacitor,
+  });
 
   // Enumerate cameras
   const enumerateCameras = useCallback(async () => {
@@ -131,78 +212,198 @@ export function useScanner({
   const startScanning = useCallback(async () => {
     if (isActive || isInitializing) return;
 
+    console.log('[Scanner] Starting scan process...', { isNative });
     setIsInitializing(true);
     setError(null);
+    setErrorCode(null);
 
     try {
-      // Request permission and enumerate cameras
-      const tempStream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: 'environment' },
-      });
-      tempStream.getTracks().forEach(track => track.stop());
-      setHasPermission(true);
+      // ==================== NATIVE (Capacitor) MODE ====================
+      if (isNative) {
+        console.log('[Scanner] Using Capacitor BarcodeScanner (native mode with scan())');
 
-      await enumerateCameras();
+        // Use scan() method which shows a ready-to-use modal interface
+        // This is simpler and more reliable than startScan()
+        const result = await BarcodeScanner.scan();
+        console.log('[Scanner] Scan result:', result);
 
-      // Initialize reader
-      const reader = new BrowserMultiFormatReader();
-      readerRef.current = reader;
+        if (result.barcodes && result.barcodes.length > 0) {
+          const barcode = result.barcodes[0].displayValue;
+          console.log('[Scanner] Capacitor detected:', barcode);
+          setLastBarcode(barcode);
+          setHasPermission(true);
+          setIsActive(false); // Mark as inactive since scan is complete
 
-      // Start decoding
-      const constraints = {
-        video: activeDeviceId
-          ? { deviceId: { exact: activeDeviceId } }
-          : { facingMode: 'environment' },
-      };
+          // Call the detection callback
+          onDetected?.(barcode);
+        } else {
+          console.log('[Scanner] No barcode detected');
+          setIsActive(false);
+        }
 
-      // Start decoding and store the controls
-      const controls = await reader.decodeFromConstraints(
-        constraints,
-        videoRef.current!,
-        (result: Result | undefined, error: Error | undefined) => {
-          if (result) {
-            const now = Date.now();
-            if (now - lastScanRef.current > throttleMs) {
-              const barcode = result.getText();
-              console.log('[Scanner] Detected:', barcode);
-              setLastBarcode(barcode);
-              lastScanRef.current = now;
-              onDetected?.(barcode);
+        console.log('[Scanner] ✅ Capacitor scanner completed');
+      }
+      // ==================== WEB MODE ====================
+      else {
+        // Verify video element exists
+        if (!videoRef.current) {
+          const normalizedError = normalizeScannerError(new Error('Video element not available'));
+          console.error('[Scanner] ❌ Start error:', normalizedError.message, {
+            code: normalizedError.code,
+          });
+          setError('Video element not ready');
+          setErrorCode('UNKNOWN');
+          throw normalizedError;
+        }
+
+        console.log('[Scanner] Video element ready:', {
+          width: videoRef.current.offsetWidth,
+          height: videoRef.current.offsetHeight,
+          videoWidth: videoRef.current.videoWidth,
+          videoHeight: videoRef.current.videoHeight,
+        });
+
+        // Request permission and enumerate cameras
+        // This will trigger the browser's native permission dialog
+        console.log('[Scanner] Requesting camera permission...');
+
+        // Check if API is available before calling it
+        if (!navigator.mediaDevices?.getUserMedia) {
+          throw new Error('MediaDevices API not supported');
+        }
+
+        const tempStream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: 'environment' },
+        });
+        tempStream.getTracks().forEach(track => track.stop());
+        setHasPermission(true);
+        console.log('[Scanner] Camera permission granted');
+
+        await enumerateCameras();
+
+        // Initialize reader
+        const reader = new BrowserMultiFormatReader();
+        readerRef.current = reader;
+
+        // Start decoding
+        const constraints = {
+          video: activeDeviceId
+            ? { deviceId: { exact: activeDeviceId } }
+            : { facingMode: 'environment' },
+        };
+
+        console.log('[Scanner] Starting ZXing decoder with constraints:', constraints);
+
+        // Start decoding and store the controls
+        const controls = await reader.decodeFromConstraints(
+          constraints,
+          videoRef.current,
+          (result: Result | undefined) => {
+            if (result) {
+              const now = Date.now();
+              if (now - lastScanRef.current > throttleMs) {
+                const barcode = result.getText();
+                console.log('[Scanner] Detected:', barcode);
+                setLastBarcode(barcode);
+                lastScanRef.current = now;
+                onDetected?.(barcode);
+              }
             }
           }
+        );
+
+        // Store the controls for later cleanup
+        controlsRef.current = controls;
+        console.log('[Scanner] ZXing decoder started successfully');
+
+        // iOS-specific: Explicitly call play() on the video element
+        // iOS WebKit sometimes needs this even with autoPlay attribute
+        if (videoRef.current && videoRef.current.paused) {
+          try {
+            await videoRef.current.play();
+            console.log('[Scanner] Video.play() called successfully (iOS fix)');
+          } catch (playErr) {
+            console.warn('[Scanner] Video.play() failed (non-critical):', playErr);
+          }
         }
-      );
 
-      // Store the controls for later cleanup
-      controlsRef.current = controls;
+        // Get the stream from the video element (ZXing already attached it)
+        // This avoids creating a duplicate stream
+        const videoStream = videoRef.current.srcObject as MediaStream;
+        if (videoStream) {
+          streamRef.current = videoStream;
+          console.log('[Scanner] Using stream from video element:', {
+            streamId: videoStream.id,
+            tracks: videoStream.getTracks().length,
+            videoTracks: videoStream.getVideoTracks().length,
+          });
 
-      // Get stream for torch control
-      const stream = await navigator.mediaDevices.getUserMedia(constraints);
-      streamRef.current = stream;
-      await checkTorchCapability(stream);
+          // Check torch capability using the existing stream
+          await checkTorchCapability(videoStream);
+        } else {
+          console.warn('[Scanner] No stream found on video element after ZXing setup');
+        }
 
-      setIsActive(true);
-      setError(null);
-      console.log('[Scanner] Started successfully');
+        // Verify video is actually playing
+        setTimeout(() => {
+          if (videoRef.current) {
+            console.log('[Scanner] Video state check:', {
+              srcObject: !!videoRef.current.srcObject,
+              paused: videoRef.current.paused,
+              readyState: videoRef.current.readyState,
+              videoWidth: videoRef.current.videoWidth,
+              videoHeight: videoRef.current.videoHeight,
+              currentTime: videoRef.current.currentTime,
+            });
+
+            // iOS-specific: If video still has no dimensions, something went wrong
+            if (videoRef.current.videoWidth === 0 || videoRef.current.videoHeight === 0) {
+              console.error('[Scanner] ⚠️ iOS Issue: Video has no dimensions. Stream may not be rendering.');
+            }
+          }
+        }, 1000);
+
+        setIsActive(true);
+        setError(null);
+        setErrorCode(null);
+        console.log('[Scanner] ✅ Web scanner started successfully');
+      } // End of web mode else block
     } catch (err: any) {
-      console.error('[Scanner] Start error:', err);
+      const normalizedError = normalizeScannerError(err);
 
-      if (err.name === 'NotAllowedError') {
-        setError('אין הרשאה למצלמה');
+      console.error('[Scanner] ❌ Start error:', err, {
+        name: err?.name,
+        message: err?.message,
+        code: normalizedError.code,
+        normalizedMessage: normalizedError.message,
+      });
+
+      // Update state based on error type
+      setError(normalizedError.message);
+      setErrorCode(normalizedError.code);
+
+      if (normalizedError.code === 'PERMISSION_DENIED' || normalizedError.code === 'NO_PERMISSION') {
         setHasPermission(false);
-      } else if (err.name === 'NotFoundError') {
-        setError('לא נמצאה מצלמה');
-      } else {
-        setError('שגיאה בהפעלת המצלמה');
       }
+
+      // Re-throw the normalized error for the UI to handle
+      throw normalizedError;
     } finally {
       setIsInitializing(false);
     }
-  }, [isActive, isInitializing, activeDeviceId, throttleMs, enumerateCameras, checkTorchCapability, onDetected]);
+  }, [isActive, isInitializing, activeDeviceId, throttleMs, enumerateCameras, checkTorchCapability, onDetected, isNative]);
 
   // Stop scanning
-  const stopScanning = useCallback(() => {
-    // Stop the ZXing decoder using the controls
+  const stopScanning = useCallback(async () => {
+    console.log('[Scanner] Stopping...', { isNative });
+
+    // For native mode with scan(), there's nothing to stop - it's a modal that closes automatically
+    // Just clean up state
+    if (isNative) {
+      console.log('[Scanner] Native scanner - no cleanup needed (scan() method)');
+    }
+
+    // Stop the ZXing decoder using the controls (web mode)
     if (controlsRef.current) {
       try {
         controlsRef.current.stop();
@@ -235,7 +436,7 @@ export function useScanner({
     setHasTorch(false);
     setError(null);
     console.log('[Scanner] Stopped');
-  }, []);
+  }, [isNative]);
 
   // Set video ref
   const setVideoElement = useCallback((element: HTMLVideoElement | null) => {
@@ -254,11 +455,13 @@ export function useScanner({
     isInitializing,
     lastBarcode,
     error,
+    errorCode,
     hasTorch,
     torchEnabled,
     cameras,
     activeDeviceId,
     hasPermission,
+    isNative,
     startScanning,
     stopScanning,
     toggleTorch,
