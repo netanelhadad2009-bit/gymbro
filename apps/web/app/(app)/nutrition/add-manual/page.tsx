@@ -5,6 +5,14 @@ import { useRouter } from "next/navigation";
 import { todayISO } from "@/lib/date";
 import { createBrowserClient } from "@supabase/ssr";
 import MacroInput from "@/components/inputs/MacroInput";
+import type { MealType } from "@/lib/nutrition/log";
+
+const MEAL_TYPES: { value: MealType; label: string; emoji: string }[] = [
+  { value: 'breakfast', label: 'ארוחת בוקר', emoji: '🌅' },
+  { value: 'lunch', label: 'צהריים', emoji: '☀️' },
+  { value: 'dinner', label: 'ערב', emoji: '🌙' },
+  { value: 'snack', label: 'חטיף', emoji: '🍎' },
+];
 
 export default function AddManualMealPage() {
   const [name, setName] = useState("");
@@ -12,6 +20,7 @@ export default function AddManualMealPage() {
   const [protein, setProtein] = useState("");
   const [carbs, setCarbs] = useState("");
   const [fat, setFat] = useState("");
+  const [mealType, setMealType] = useState<MealType>('snack');
   const [saving, setSaving] = useState(false);
   const router = useRouter();
 
@@ -40,6 +49,7 @@ export default function AddManualMealPage() {
       protein: protein === "" ? 0 : Number(protein),
       carbs: carbs === "" ? 0 : Number(carbs),
       fat: fat === "" ? 0 : Number(fat),
+      meal_type: mealType,
     });
 
     setSaving(false);
@@ -124,6 +134,31 @@ export default function AddManualMealPage() {
             labelClassName="text-xs text-neutral-500 mb-1 block"
             inputClassName="w-full px-3 py-2 bg-neutral-900 border border-neutral-800 rounded-lg text-white placeholder-neutral-500 focus:outline-none focus:border-blue-400 active:translate-y-0.5 transition-transform duration-75 text-sm"
           />
+        </div>
+
+        {/* Meal Type Selection */}
+        <div>
+          <label className="text-sm text-neutral-400 mb-3 block">סוג ארוחה</label>
+          <div className="grid grid-cols-2 gap-3">
+            {MEAL_TYPES.map((type) => (
+              <button
+                key={type.value}
+                type="button"
+                onClick={() => setMealType(type.value)}
+                className={`
+                  rounded-2xl px-4 py-3 flex flex-col items-center justify-center gap-1 transition-all
+                  ${
+                    mealType === type.value
+                      ? 'bg-neutral-900 border-2 border-[#E2F163] shadow-[0_0_0_1px_rgba(226,241,99,0.4)]'
+                      : 'bg-neutral-900/50 border border-neutral-800 hover:bg-neutral-800/80'
+                  }
+                `}
+              >
+                <span className="text-2xl">{type.emoji}</span>
+                <span className="text-sm font-semibold text-white">{type.label}</span>
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 

@@ -63,12 +63,18 @@ export default function ProgressPage() {
     }
   };
 
-  // Initial load
+  // Initial load + clear data when user changes
   useEffect(() => {
     if (user) {
+      // Clear old data immediately when user changes
+      setData(null);
+      setLoading(true);
       fetchData();
+    } else {
+      // Clear data when user logs out
+      setData(null);
     }
-  }, [user]);
+  }, [user?.id]); // Use user.id as dependency to detect user changes
 
   // Realtime updates
   useEffect(() => {

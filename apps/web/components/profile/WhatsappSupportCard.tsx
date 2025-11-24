@@ -1,7 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import texts from "@/lib/assistantTexts";
+import { openExternal } from "@/lib/openExternal";
 
 // Official WhatsApp logo SVG
 function WhatsAppIcon({ className }: { className?: string }) {
@@ -26,7 +26,42 @@ export default function WhatsappSupportCard() {
   const preset = encodeURIComponent("היי FitJourney, יש לי שאלה:");
   const href = number ? `https://wa.me/${number}?text=${preset}` : "#";
 
-  const Content = (
+  const handleClick = async () => {
+    if (href !== "#") {
+      await openExternal(href);
+    }
+  };
+
+  // Make entire card tappable
+  return number ? (
+    <button
+      type="button"
+      onClick={handleClick}
+      aria-label="Contact us on WhatsApp"
+      className="block w-full text-right"
+    >
+      <div
+        className="
+          w-full rounded-2xl
+          bg-gradient-to-b from-[#25D366] to-[#128C7E]
+          px-5 py-4
+          shadow-[0_8px_24px_rgba(0,0,0,0.25)]
+          text-white
+          active:translate-y-1 active:brightness-90 active:opacity-95
+          transition-transform
+        "
+      >
+        <div className={`flex items-center ${dir === "rtl" ? "flex-row-reverse" : ""} gap-4`}>
+          <div className="shrink-0">
+            <WhatsAppIcon className="w-12 h-12 text-white" />
+          </div>
+          <p className="font-semibold text-[19px] leading-7">
+            {texts.profile.whatsappHelp}
+          </p>
+        </div>
+      </div>
+    </button>
+  ) : (
     <div
       className="
         w-full rounded-2xl
@@ -34,8 +69,6 @@ export default function WhatsappSupportCard() {
         px-5 py-4
         shadow-[0_8px_24px_rgba(0,0,0,0.25)]
         text-white
-        active:translate-y-1 active:brightness-90 active:opacity-95
-        transition-transform
       "
     >
       <div className={`flex items-center ${dir === "rtl" ? "flex-row-reverse" : ""} gap-4`}>
@@ -47,14 +80,5 @@ export default function WhatsappSupportCard() {
         </p>
       </div>
     </div>
-  );
-
-  // Make entire card tappable
-  return number ? (
-    <Link href={href} target="_blank" rel="noopener" aria-label="Contact us on WhatsApp" className="block">
-      {Content}
-    </Link>
-  ) : (
-    Content
   );
 }
