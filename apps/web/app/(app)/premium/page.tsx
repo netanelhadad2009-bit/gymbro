@@ -1,153 +1,253 @@
 /**
- * Premium Page - Subscription status and upgrade placeholder
+ * Premium Paywall Page - Production Premium Gate
  *
- * Shows premium status for authenticated users.
- * Placeholder for future Apple/Google subscription integration.
+ * This is the main paywall that non-premium users see after onboarding.
+ * Premium users are automatically redirected to /journey.
  */
 
 "use client";
 
 import { useAuth } from "@/contexts/AuthProvider";
-import { ArrowRight, Crown, Loader2, CheckCircle2 } from "lucide-react";
+import {
+  Crown,
+  Loader2,
+  CheckCircle2,
+  Sparkles,
+  TrendingUp,
+  Heart,
+  Zap,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export default function PremiumPage() {
   const router = useRouter();
-  const { user, isPremium, subscription, isSubscriptionLoading } = useAuth();
+  const { user, loading, isPremium, isSubscriptionLoading, subscription } =
+    useAuth();
+  const [autoRedirectCountdown, setAutoRedirectCountdown] = useState(800);
+
+  // If user is premium, auto-redirect to /journey after a short delay
+  useEffect(() => {
+    if (isPremium && user) {
+      console.log("[Premium] User is premium, auto-redirecting to /journey");
+
+      const timer = setTimeout(() => {
+        router.replace("/journey");
+      }, 800);
+
+      // Countdown timer for visual feedback
+      const countdownInterval = setInterval(() => {
+        setAutoRedirectCountdown((prev) => Math.max(0, prev - 100));
+      }, 100);
+
+      return () => {
+        clearTimeout(timer);
+        clearInterval(countdownInterval);
+      };
+    }
+  }, [isPremium, user, router]);
+
+  // Redirect to login if not authenticated (after loading)
+  useEffect(() => {
+    if (!loading && !isSubscriptionLoading && !user) {
+      console.log("[Premium] No user, redirecting to /login");
+      router.replace("/login");
+    }
+  }, [loading, isSubscriptionLoading, user, router]);
+
+  // Handle immediate redirect to journey (for premium users who don't want to wait)
+  const handleGoToApp = () => {
+    router.replace("/journey");
+  };
+
+  // Handle CTA click (stub for Apple IAP integration)
+  const handleSubscribe = () => {
+    console.log("TODO: connect Apple In-App Purchase here");
+    // Show a temporary alert
+    alert("בגרסת הבטא, המנוי מופעל ידנית");
+  };
 
   // Show loading state while checking subscription
-  if (isSubscriptionLoading) {
+  if (loading || isSubscriptionLoading) {
     return (
-      <div className="min-h-screen bg-[#0b0d0e] flex items-center justify-center">
-        <Loader2 className="w-8 h-8 text-amber-400 animate-spin" />
+      <div className="min-h-screen bg-[#0b0d0e] flex flex-col items-center justify-center gap-4">
+        <Loader2 className="w-10 h-10 text-lime-400 animate-spin" />
+        <p className="text-white/60 text-sm">טוען את מצב המנוי שלך…</p>
       </div>
     );
   }
 
+  // If no user, show nothing (redirect is happening)
+  if (!user) {
+    return null;
+  }
+
+  // If premium, show success message and redirect
+  if (isPremium) {
+    return (
+      <div className="min-h-screen bg-[#0b0d0e] text-white flex flex-col items-center justify-center px-6 pb-safe">
+        {/* Success Icon */}
+        <div className="relative mb-6">
+          <div className="absolute inset-0 bg-lime-400/20 blur-3xl rounded-full" />
+          <div className="relative p-6 rounded-full bg-lime-400/10 border-2 border-lime-400/30">
+            <Crown className="w-16 h-16 text-lime-400" />
+          </div>
+        </div>
+
+        {/* Success Message */}
+        <h1 className="text-3xl font-bold text-center mb-3">
+          יש לך כבר מנוי פעיל 🎉
+        </h1>
+
+        {/* Subscription Details */}
+        {subscription && (
+          <p className="text-white/60 text-center mb-8">
+            {subscription.plan === "yearly" ? "מנוי שנתי" : "מנוי חודשי"}
+            {subscription.currentPeriodEnd &&
+              ` • תוקף עד ${new Date(
+                subscription.currentPeriodEnd
+              ).toLocaleDateString("he-IL")}`}
+          </p>
+        )}
+
+        {/* Auto-redirect message */}
+        <p className="text-white/40 text-sm text-center mb-6">
+          מעביר אותך למסע הכושר שלך...
+        </p>
+
+        {/* Immediate CTA */}
+        <button
+          onClick={handleGoToApp}
+          className="px-8 py-4 rounded-2xl bg-lime-400 text-black font-semibold text-lg hover:bg-lime-500 transition-colors active:scale-95"
+        >
+          להיכנס עכשיו לאפליקציה
+        </button>
+      </div>
+    );
+  }
+
+  // Not premium - show paywall
   return (
     <div className="min-h-screen bg-[#0b0d0e] text-white pb-safe">
       {/* Header */}
       <header className="sticky top-0 z-50 bg-[#0b0d0e]/95 backdrop-blur-sm border-b border-white/5">
-        <div className="flex items-center justify-between px-4 py-3">
-          <button
-            onClick={() => router.back()}
-            className="p-2 -mr-2 text-white/60 hover:text-white transition-colors"
-            aria-label="חזרה"
-          >
-            <ArrowRight className="w-6 h-6" />
-          </button>
+        <div className="flex items-center justify-center px-4 py-4">
           <h1 className="text-lg font-semibold">שדרוג לפרימיום</h1>
-          <div className="w-10" /> {/* Spacer for alignment */}
         </div>
       </header>
 
-      <main className="px-4 py-6 space-y-6">
-        {/* Premium Status Card */}
-        <div
-          className={`rounded-2xl p-6 ${
-            isPremium
-              ? "bg-gradient-to-br from-amber-500/20 to-orange-500/20 border border-amber-500/30"
-              : "bg-white/5 border border-white/10"
-          }`}
-        >
-          <div className="flex items-center gap-3 mb-4">
-            <div
-              className={`p-3 rounded-full ${
-                isPremium ? "bg-amber-500/20" : "bg-white/10"
-              }`}
-            >
-              <Crown
-                className={`w-6 h-6 ${
-                  isPremium ? "text-amber-400" : "text-white/40"
-                }`}
-              />
+      <main className="px-6 py-8 max-w-md mx-auto">
+        {/* Hero Section */}
+        <div className="text-center mb-8">
+          <div className="inline-flex p-4 rounded-full bg-gradient-to-br from-lime-400/20 to-emerald-400/20 border border-lime-400/30 mb-6">
+            <Crown className="w-12 h-12 text-lime-400" />
+          </div>
+
+          <h2 className="text-2xl font-bold mb-3 leading-snug">
+            פתח מנוי לפרימיום
+            <br />
+            ותקבל גישה מלאה למסע הכושר שלך
+          </h2>
+
+          <p className="text-white/60 text-base">
+            כל מה שאתה צריך כדי להגיע ליעדי הכושר שלך במקום אחד
+          </p>
+        </div>
+
+        {/* Benefits List */}
+        <div className="space-y-4 mb-8">
+          <div className="flex items-start gap-4 p-4 rounded-xl bg-white/5 border border-white/10">
+            <div className="p-2 rounded-lg bg-lime-400/10 shrink-0">
+              <Sparkles className="w-5 h-5 text-lime-400" />
             </div>
             <div>
-              <h2 className="text-xl font-bold">
-                {isPremium ? "פרימיום פעיל" : "חשבון רגיל"}
-              </h2>
-              {subscription && (
-                <p className="text-sm text-white/60">
-                  {subscription.plan === "yearly" ? "מנוי שנתי" : "מנוי חודשי"}
-                </p>
-              )}
+              <h3 className="font-semibold mb-1">מפת המסע האינטראקטיבית</h3>
+              <p className="text-sm text-white/60">
+                עקוב אחרי ההתקדמות שלך במפה ויזואלית ומרגשת
+              </p>
             </div>
           </div>
 
-          {isPremium ? (
-            <div className="space-y-3">
-              <p className="text-white/80">יש לך מנוי פעיל בפרימיום 🎉</p>
-              {subscription?.currentPeriodEnd && (
-                <p className="text-sm text-white/60">
-                  תוקף עד:{" "}
-                  {new Date(subscription.currentPeriodEnd).toLocaleDateString(
-                    "he-IL"
-                  )}
-                </p>
-              )}
-
-              {/* Premium features */}
-              <div className="mt-4 space-y-2">
-                <div className="flex items-center gap-2 text-sm text-white/70">
-                  <CheckCircle2 className="w-4 h-4 text-green-400" />
-                  <span>גישה לכל התכונות המתקדמות</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-white/70">
-                  <CheckCircle2 className="w-4 h-4 text-green-400" />
-                  <span>תמיכה מועדפת</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-white/70">
-                  <CheckCircle2 className="w-4 h-4 text-green-400" />
-                  <span>ללא פרסומות</span>
-                </div>
-              </div>
+          <div className="flex items-start gap-4 p-4 rounded-xl bg-white/5 border border-white/10">
+            <div className="p-2 rounded-lg bg-lime-400/10 shrink-0">
+              <TrendingUp className="w-5 h-5 text-lime-400" />
             </div>
-          ) : (
-            <div className="space-y-4">
-              <p className="text-white/80">
-                שדרג לפרימיום כדי לקבל גישה לכל התכונות המתקדמות של FitJourney.
-              </p>
-
-              {/* Benefits list */}
-              <div className="space-y-2">
-                <div className="flex items-center gap-2 text-sm text-white/70">
-                  <Crown className="w-4 h-4 text-amber-400" />
-                  <span>תוכניות אימון מותאמות אישית</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-white/70">
-                  <Crown className="w-4 h-4 text-amber-400" />
-                  <span>מעקב תזונה מתקדם</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-white/70">
-                  <Crown className="w-4 h-4 text-amber-400" />
-                  <span>צ׳אט עם מאמן AI ללא הגבלה</span>
-                </div>
-              </div>
-
-              {/* Coming soon button */}
-              <button
-                disabled
-                className="w-full mt-4 py-3 px-4 rounded-xl bg-amber-500/20 text-amber-400 font-medium text-center opacity-60 cursor-not-allowed"
-              >
-                בקרוב: תשלום דרך Apple
-              </button>
-
-              <p className="text-xs text-white/40 text-center">
-                אפשרות הרכישה תהיה זמינה בקרוב
+            <div>
+              <h3 className="font-semibold mb-1">מעקב תזונה חכם</h3>
+              <p className="text-sm text-white/60">
+                סריקת ברקוד, חישוב קלוריות אוטומטי ומעקב מאקרו מתקדם
               </p>
             </div>
-          )}
+          </div>
+
+          <div className="flex items-start gap-4 p-4 rounded-xl bg-white/5 border border-white/10">
+            <div className="p-2 rounded-lg bg-lime-400/10 shrink-0">
+              <Zap className="w-5 h-5 text-lime-400" />
+            </div>
+            <div>
+              <h3 className="font-semibold mb-1">צ׳אט עם מאמן AI ללא הגבלה</h3>
+              <p className="text-sm text-white/60">
+                קבל תשובות מיידיות לכל שאלה על אימונים, תזונה והרגלים
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-start gap-4 p-4 rounded-xl bg-white/5 border border-white/10">
+            <div className="p-2 rounded-lg bg-lime-400/10 shrink-0">
+              <Heart className="w-5 h-5 text-lime-400" />
+            </div>
+            <div>
+              <h3 className="font-semibold mb-1">תוכניות אימון מותאמות אישית</h3>
+              <p className="text-sm text-white/60">
+                תוכניות שנבנות במיוחד בשבילך על בסיס היעדים והיכולות שלך
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-start gap-4 p-4 rounded-xl bg-white/5 border border-white/10">
+            <div className="p-2 rounded-lg bg-lime-400/10 shrink-0">
+              <CheckCircle2 className="w-5 h-5 text-lime-400" />
+            </div>
+            <div>
+              <h3 className="font-semibold mb-1">Streaks ומוטיבציה יומית</h3>
+              <p className="text-sm text-white/60">
+                שמור על רצף ההצלחות שלך וקבל תגמולים על עקביות
+              </p>
+            </div>
+          </div>
         </div>
+
+        {/* Pricing */}
+        <div className="mb-6 p-6 rounded-2xl bg-gradient-to-br from-lime-400/10 to-emerald-400/10 border border-lime-400/30 text-center">
+          <p className="text-white/60 text-sm mb-2">החל מ-</p>
+          <p className="text-4xl font-bold text-lime-400 mb-1">₪29.90</p>
+          <p className="text-white/60 text-sm">לחודש</p>
+          <p className="text-white/40 text-xs mt-2">
+            * המחיר הסופי יוגדר בהמשך
+          </p>
+        </div>
+
+        {/* CTA Button */}
+        <button
+          onClick={handleSubscribe}
+          className="w-full py-4 px-6 rounded-2xl bg-lime-400 text-black font-bold text-lg hover:bg-lime-500 transition-all active:scale-[0.98] shadow-lg shadow-lime-400/25"
+        >
+          להפעיל מנוי עכשיו
+        </button>
+
+        {/* Footer Note */}
+        <p className="text-center text-white/40 text-xs mt-4">
+          ניתן לבטל בכל עת • ללא התחייבות
+        </p>
 
         {/* Debug info (only in development) */}
         {process.env.NODE_ENV === "development" && (
-          <div className="rounded-xl bg-white/5 p-4 text-xs text-white/40 space-y-1">
-            <p>Debug Info:</p>
+          <div className="mt-8 rounded-xl bg-white/5 p-4 text-xs text-white/40 space-y-1">
+            <p className="font-semibold text-white/60 mb-2">Debug Info:</p>
             <p>User ID: {user?.id?.slice(0, 8)}...</p>
             <p>isPremium: {String(isPremium)}</p>
             <p>Subscription ID: {subscription?.id ?? "none"}</p>
             <p>Status: {subscription?.status ?? "none"}</p>
-            <p>Provider: {subscription?.provider ?? "none"}</p>
           </div>
         )}
       </main>

@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { SheetProvider, useSheet } from "@/contexts/SheetContext";
 import { DailyLoginTracker } from "@/components/streak/DailyLoginTracker";
 import { LoadingProvider } from "@/contexts/LoadingContext";
+import { PremiumGate } from "@/components/auth/PremiumGate";
 
 function AppLayoutContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -24,10 +25,12 @@ function AppLayoutContent({ children }: { children: React.ReactNode }) {
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
-    <LoadingProvider>
-      <SheetProvider>
-        <AppLayoutContent>{children}</AppLayoutContent>
-      </SheetProvider>
-    </LoadingProvider>
+    <PremiumGate>
+      <LoadingProvider>
+        <SheetProvider>
+          <AppLayoutContent>{children}</AppLayoutContent>
+        </SheetProvider>
+      </LoadingProvider>
+    </PremiumGate>
   );
 }
