@@ -619,7 +619,11 @@ export function BarcodeScannerSheet({
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 className="fixed inset-0 z-[20000] bg-black/80 backdrop-blur-sm"
-                onClick={() => setShowNotFoundDialog(false)}
+                onClick={() => {
+                  console.log('[NotFoundDialog] Backdrop clicked (native) - resetting state');
+                  startAttemptedRef.current = false; // Reset to allow scanner to restart
+                  setShowNotFoundDialog(false);
+                }}
               />
               <motion.div
                 initial={{ opacity: 0, scale: 0.9 }}
@@ -682,7 +686,9 @@ export function BarcodeScannerSheet({
                     {/* Tertiary action: Cancel */}
                     <button
                       onClick={() => {
+                        console.log('[NotFoundDialog] Cancel clicked (native) - resetting state');
                         setShowNotFoundDialog(false);
+                        startAttemptedRef.current = false; // Reset to allow scanner to restart
                         onOpenChange(false);
                       }}
                       className="w-full py-3 text-white/60 text-sm hover:text-white/80 transition-colors"
@@ -1166,7 +1172,11 @@ export function BarcodeScannerSheet({
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               className="fixed inset-0 z-[20000] bg-black/80 backdrop-blur-sm"
-              onClick={() => setShowNotFoundDialog(false)}
+              onClick={() => {
+                console.log('[NotFoundDialog] Backdrop clicked (web) - resetting state');
+                startAttemptedRef.current = false; // Reset to allow scanner to restart
+                setShowNotFoundDialog(false);
+              }}
             />
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
@@ -1225,7 +1235,9 @@ export function BarcodeScannerSheet({
                   {/* Tertiary action: Cancel */}
                   <button
                     onClick={() => {
+                      console.log('[NotFoundDialog] Cancel clicked (web) - resetting state');
                       setShowNotFoundDialog(false);
+                      startAttemptedRef.current = false; // Reset to allow scanner to restart
                       onOpenChange(false);
                     }}
                     className="w-full py-3 text-white/60 text-sm hover:text-white/80 transition-colors"
