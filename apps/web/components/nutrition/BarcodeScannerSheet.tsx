@@ -622,6 +622,7 @@ export function BarcodeScannerSheet({
                 onClick={() => {
                   console.log('[NotFoundDialog] Backdrop clicked (native) - resetting state');
                   startAttemptedRef.current = false; // Reset to allow scanner to restart
+                  setScannerStatus('idle'); // Reset scanner status
                   setShowNotFoundDialog(false);
                 }}
               />
@@ -689,6 +690,7 @@ export function BarcodeScannerSheet({
                         console.log('[NotFoundDialog] Cancel clicked (native) - resetting state');
                         setShowNotFoundDialog(false);
                         startAttemptedRef.current = false; // Reset to allow scanner to restart
+                        setScannerStatus('idle'); // Reset scanner status
                         onOpenChange(false);
                       }}
                       className="w-full py-3 text-white/60 text-sm hover:text-white/80 transition-colors"
@@ -1175,6 +1177,7 @@ export function BarcodeScannerSheet({
               onClick={() => {
                 console.log('[NotFoundDialog] Backdrop clicked (web) - resetting state');
                 startAttemptedRef.current = false; // Reset to allow scanner to restart
+                setScannerStatus('idle'); // Reset scanner status
                 setShowNotFoundDialog(false);
               }}
             />
@@ -1238,6 +1241,7 @@ export function BarcodeScannerSheet({
                       console.log('[NotFoundDialog] Cancel clicked (web) - resetting state');
                       setShowNotFoundDialog(false);
                       startAttemptedRef.current = false; // Reset to allow scanner to restart
+                      setScannerStatus('idle'); // Reset scanner status
                       onOpenChange(false);
                     }}
                     className="w-full py-3 text-white/60 text-sm hover:text-white/80 transition-colors"
