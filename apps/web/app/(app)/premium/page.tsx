@@ -19,6 +19,11 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import Link from "next/link";
+
+// Legal links for App Store compliance (Guidelines 3.1.2 and 5.1.1)
+const PRIVACY_URL = process.env.NEXT_PUBLIC_PRIVACY_POLICY_URL;
+const TERMS_URL = process.env.NEXT_PUBLIC_TERMS_URL;
 
 export default function PremiumPage() {
   const router = useRouter();
@@ -149,8 +154,12 @@ export default function PremiumPage() {
             ותקבל גישה מלאה למסע הכושר שלך
           </h2>
 
-          <p className="text-white/60 text-base">
+          <p className="text-white/60 text-base mb-2">
             כל מה שאתה צריך כדי להגיע ליעדי הכושר שלך במקום אחד
+          </p>
+
+          <p className="text-white/50 text-sm">
+            הכל נשמר בחשבון האישי שלך – המפה, המדדים, היומן וההתקדמות שלך בכל המכשירים
           </p>
         </div>
 
@@ -253,6 +262,52 @@ export default function PremiumPage() {
           {/* Payment Info */}
           <p className="text-center text-white/60 text-xs mt-3">
             התשלום מתבצע באופן מאובטח דרך App Store וניתן לביטול בכל עת בהגדרות Apple ID שלך
+          </p>
+        </div>
+
+        {/* Legal & Subscription Details (Apple Guidelines 3.1.2 & 5.1.1) */}
+        <div className="mb-6 space-y-2 text-center text-[11px] leading-relaxed text-white/50">
+          <p>
+            מנוי חודשי ושנתי מתחדש אוטומטית ונגבה מחשבון ה-Apple ID שלך. ניתן לבטל את החידוש האוטומטי בכל עת
+            דרך הגדרות המנויים ב-App Store, עד 24 שעות לפני מועד החידוש הבא.
+          </p>
+          <p>
+            המנוי מקושר לחשבון האישי שלך באפליקציה, כדי לשמור את המפה שלך, ההתקדמות, המדדים ויומן התזונה בכל
+            המכשירים שלך.
+          </p>
+          <p className="mt-2">
+            בלחיצה על &quot;להפעיל מנוי&quot; אתה מאשר את{" "}
+            {PRIVACY_URL && (
+              <>
+                <Link
+                  href={PRIVACY_URL}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="underline decoration-dotted text-white/70 hover:text-white transition-colors"
+                >
+                  מדיניות הפרטיות
+                </Link>
+              </>
+            )}
+            {PRIVACY_URL && TERMS_URL && <span> ו-</span>}
+            {TERMS_URL && (
+              <>
+                <Link
+                  href={TERMS_URL}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="underline decoration-dotted text-white/70 hover:text-white transition-colors"
+                >
+                  תנאי השימוש
+                </Link>
+              </>
+            )}
+            {!PRIVACY_URL && !TERMS_URL && (
+              <span className="text-white/70">
+                מדיניות הפרטיות ותנאי השימוש
+              </span>
+            )}
+            .
           </p>
         </div>
 

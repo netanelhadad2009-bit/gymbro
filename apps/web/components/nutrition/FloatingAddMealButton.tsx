@@ -257,7 +257,8 @@ export default function FloatingAddMealButton({ onScanPhoto, onScanBarcode }: Pr
                   if (onScanBarcode) {
                     onScanBarcode();
                   } else {
-                    alert("סריקת ברקוד תהיה זמינה בקרוב");
+                    // Fallback: onScanBarcode should always be provided
+                    console.log("[FloatingAddMealButton] Barcode scan callback not provided");
                   }
                 }}
               >
