@@ -7,6 +7,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { useAuth } from '@/contexts/AuthProvider';
 
 export interface StagePoints {
   stageId: string;
@@ -41,11 +42,18 @@ export interface PointsFeed {
  * Hook to fetch points summary
  */
 export function usePointsSummary() {
+  const { user } = useAuth();
   const [summary, setSummary] = useState<PointsSummary | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const fetchSummary = useCallback(async () => {
+    if (!user) {
+      setSummary(null);
+      setIsLoading(false);
+      return;
+    }
+
     try {
       setIsLoading(true);
       setError(null);
@@ -77,7 +85,7 @@ export function usePointsSummary() {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [user]);
 
   useEffect(() => {
     fetchSummary();
@@ -95,6 +103,7 @@ export function usePointsSummary() {
  * Hook to fetch points feed with pagination
  */
 export function usePointsFeed(options?: { stageId?: string; limit?: number }) {
+  const { user } = useAuth();
   const [feed, setFeed] = useState<PointsFeed>({
     items: [],
     nextCursor: null,
@@ -105,6 +114,16 @@ export function usePointsFeed(options?: { stageId?: string; limit?: number }) {
   const [error, setError] = useState<string | null>(null);
 
   const fetchFeed = useCallback(async (cursor?: string) => {
+    if (!user) {
+      setFeed({
+        items: [],
+        nextCursor: null,
+        hasMore: false,
+      });
+      setIsLoading(false);
+      return;
+    }
+
     try {
       const isLoadingMore = !!cursor;
       if (isLoadingMore) {
@@ -149,7 +168,7 @@ export function usePointsFeed(options?: { stageId?: string; limit?: number }) {
       setIsLoading(false);
       setIsLoadingMore(false);
     }
-  }, [options?.stageId, options?.limit]);
+  }, [user, options?.stageId, options?.limit]);
 
   const loadMore = useCallback(() => {
     if (feed.nextCursor && !isLoadingMore) {
