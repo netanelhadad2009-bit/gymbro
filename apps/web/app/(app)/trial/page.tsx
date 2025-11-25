@@ -31,33 +31,31 @@ export default function TrialPage() {
   return (
     <main
       dir="rtl"
-      className="min-h-[100dvh] bg-[#0D0E0F] text-white flex flex-col px-4 pt-safe pb-safe"
+      className="min-h-[100dvh] bg-[#0D0E0F] text-white flex flex-col px-4 pt-safe pb-safe overflow-hidden"
     >
       {/* Top section - Title & Subtitle */}
-      <div className="pt-4 pb-2 text-center">
-        <h1 className="text-2xl font-bold mb-1.5 leading-tight">
+      <div className="pt-6 pb-4 text-center shrink-0">
+        <h1 className="text-3xl font-bold mb-3 leading-snug">
           התחל את המסע שלך<br />עם ניסיון חינמי
         </h1>
-        <p className="text-sm text-white/70 leading-snug px-2">
+        <p className="text-base text-white/70 leading-relaxed px-2">
           מסע כושר ותזונה מותאם אישית רק בשבילך. תראה את האפליקציה והמדדים שלך בפעולה. המאמן האישי שלך כבר מוכן – בואו נתחיל!
         </p>
       </div>
 
       {/* Middle section - Mockup image */}
-      <div className="flex-1 flex items-center justify-center min-h-0 -my-2">
-        <div className="relative w-full max-w-[96%] aspect-[9/16]">
-          <Image
-            src="/images/fitjourney-trial-mockup-large.webp"
-            alt="מסכי הדוגמה של FitJourney"
-            fill
-            className="object-contain"
-            priority
-          />
-        </div>
+      <div className="flex-1 relative w-full min-h-0">
+        <Image
+          src="/images/fitjourney-trial-mockup-large.webp"
+          alt="מסכי הדוגמה של FitJourney"
+          fill
+          className="object-contain"
+          priority
+        />
       </div>
 
       {/* Bottom section - CTA button */}
-      <div className="pt-2 pb-4">
+      <div className="pt-4 pb-6 shrink-0">
         <button
           onClick={handleStartJourney}
           className="w-full py-4 rounded-full bg-[#E2F163] text-black font-bold text-lg transition-transform active:scale-[0.98] shadow-lg"
