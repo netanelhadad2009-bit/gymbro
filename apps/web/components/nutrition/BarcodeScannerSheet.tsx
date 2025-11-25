@@ -299,7 +299,8 @@ export function BarcodeScannerSheet({
           const message = (err as any)?.message ?? '';
 
           // Store error message in the code for later checking (e.g., "UNKNOWN:scan canceled.")
-          const errorKey = message.toLowerCase().includes('cancel') ? `${code}:canceled` : code;
+          const isCanceled = message.toLowerCase().includes('cancel');
+          const errorKey = isCanceled ? `${code}:canceled` : code;
           setLastScannerError(errorKey as ScannerErrorCode);
 
           if (code === 'NO_PERMISSION' || code === 'PERMISSION_DENIED') {
@@ -311,6 +312,14 @@ export function BarcodeScannerSheet({
           }
 
           console.error('[BarcodeScannerSheet] Scanner failed to start:', code, err);
+
+          // Close sheet automatically after user cancellation in native mode
+          if (isCanceled && isNative) {
+            console.log('[BarcodeScannerSheet] User canceled scan in native mode - closing sheet');
+            setTimeout(() => {
+              onOpenChange(false);
+            }, 100);
+          }
         }
       })();
 
