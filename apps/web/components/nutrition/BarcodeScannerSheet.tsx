@@ -152,7 +152,11 @@ export function BarcodeScannerSheet({
           if (result.reason === 'not_found') {
             // Show the dialog so user can choose: scan again or add manually
             // DON'T reset startAttemptedRef here - keep it true to prevent auto-restart
-            console.log('[Scanner] Showing not found dialog for native (keeping startAttemptedRef true)');
+            console.log('[Scanner] Showing not found dialog for native (keeping startAttemptedRef true)', {
+              barcode,
+              lastScannedBarcode,
+              settingManualCodeTo: barcode,
+            });
             setShowNotFoundDialog(true);
             setManualCode(barcode);
           } else {
@@ -582,6 +586,13 @@ export function BarcodeScannerSheet({
     });
 
     // Render only the dialogs for native mode
+    console.log('[BarcodeScannerSheet] Native render - ManualProductSheet props:', {
+      open: showManualProductSheet,
+      lastScannedBarcode,
+      manualCode,
+      barcodeValue: lastScannedBarcode || manualCode || undefined,
+    });
+
     return (
       <>
         <ManualProductSheet
@@ -652,7 +663,11 @@ export function BarcodeScannerSheet({
                     {/* Secondary action: Add manually */}
                     <button
                       onClick={() => {
-                        console.log('[NotFoundDialog] Add manually (native)');
+                        console.log('[NotFoundDialog] Add manually (native)', {
+                          lastScannedBarcode,
+                          manualCode,
+                          barcodeToPass: lastScannedBarcode || manualCode || undefined,
+                        });
                         if (navigator.vibrate) {
                           navigator.vibrate(30);
                         }
