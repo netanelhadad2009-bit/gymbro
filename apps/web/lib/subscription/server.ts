@@ -14,19 +14,28 @@ import { mapRowToSubscription } from "./types";
 /**
  * Get the active subscription for a user (server-side)
  *
- * @param userId - The Supabase auth user ID
+ * @param authUserId - The Supabase auth user ID (from session.user.id)
  * @returns The active/trialing subscription or null if none found
  */
 export async function getActiveSubscriptionForUser(
-  userId: string
+  authUserId: string
 ): Promise<Subscription | null> {
+  // Derive the app user ID (public."User".id) from the auth user ID
+  // The User table stores id as "user_<authUserId>"
+  const appUserId = `user_${authUserId}`;
+
+  console.log("[Subscription][Server] Resolving subscription", {
+    authUserId,
+    appUserId,
+  });
+
   try {
     const supabase = await createServerSupabaseClient();
 
     const { data, error } = await supabase
       .from("Subscription")
       .select("*")
-      .eq("userId", userId)
+      .eq("userId", appUserId)
       .in("status", ["active", "trialing"])
       .order("id", { ascending: false })
       .limit(1)
@@ -34,7 +43,8 @@ export async function getActiveSubscriptionForUser(
 
     if (error) {
       console.error("[Subscription][Server] Failed to fetch subscription", {
-        userId,
+        authUserId,
+        appUserId,
         error: error.message,
         code: error.code,
       });
@@ -42,13 +52,26 @@ export async function getActiveSubscriptionForUser(
     }
 
     if (!data) {
+      console.log("[Subscription][Server] No active subscription found", {
+        authUserId,
+        appUserId,
+      });
       return null;
     }
+
+    console.log("[Subscription][Server] Subscription loaded", {
+      authUserId,
+      appUserId,
+      subscriptionId: data.id,
+      status: data.status,
+      plan: data.plan,
+    });
 
     return mapRowToSubscription(data as SubscriptionRow);
   } catch (err) {
     console.error("[Subscription][Server] Unexpected error", {
-      userId,
+      authUserId,
+      appUserId,
       error: err,
     });
     return null;

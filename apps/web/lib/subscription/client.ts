@@ -12,17 +12,26 @@ import { mapRowToSubscription } from "./types";
 /**
  * Fetch the active subscription for a user (client-side)
  *
- * @param userId - The Supabase auth user ID
+ * @param authUserId - The Supabase auth user ID (from session.user.id)
  * @returns The active/trialing subscription or null if none found
  */
 export async function fetchActiveSubscriptionClient(
-  userId: string
+  authUserId: string
 ): Promise<Subscription | null> {
+  // Derive the app user ID (public."User".id) from the auth user ID
+  // The User table stores id as "user_<authUserId>"
+  const appUserId = `user_${authUserId}`;
+
+  console.log("[Subscription][Client] Resolving subscription", {
+    authUserId,
+    appUserId,
+  });
+
   try {
     const { data, error } = await supabase
       .from("Subscription")
       .select("*")
-      .eq("userId", userId)
+      .eq("userId", appUserId)
       .in("status", ["active", "trialing"])
       .order("id", { ascending: false })
       .limit(1)
@@ -30,7 +39,8 @@ export async function fetchActiveSubscriptionClient(
 
     if (error) {
       console.error("[Subscription][Client] Failed to fetch subscription", {
-        userId,
+        authUserId,
+        appUserId,
         error: error.message,
         code: error.code,
       });
@@ -39,13 +49,15 @@ export async function fetchActiveSubscriptionClient(
 
     if (!data) {
       console.log("[Subscription][Client] No active subscription found", {
-        userId,
+        authUserId,
+        appUserId,
       });
       return null;
     }
 
     console.log("[Subscription][Client] Subscription loaded", {
-      userId,
+      authUserId,
+      appUserId,
       subscriptionId: data.id,
       status: data.status,
       plan: data.plan,
@@ -54,7 +66,8 @@ export async function fetchActiveSubscriptionClient(
     return mapRowToSubscription(data as SubscriptionRow);
   } catch (err) {
     console.error("[Subscription][Client] Unexpected error", {
-      userId,
+      authUserId,
+      appUserId,
       error: err,
     });
     return null;
