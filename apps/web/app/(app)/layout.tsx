@@ -4,6 +4,7 @@ import { BottomNav } from "@/components/nav/BottomNav";
 import { usePathname } from "next/navigation";
 import { SheetProvider, useSheet } from "@/contexts/SheetContext";
 import { DailyLoginTracker } from "@/components/streak/DailyLoginTracker";
+import { LoadingProvider } from "@/contexts/LoadingContext";
 
 function AppLayoutContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -23,8 +24,10 @@ function AppLayoutContent({ children }: { children: React.ReactNode }) {
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
-    <SheetProvider>
-      <AppLayoutContent>{children}</AppLayoutContent>
-    </SheetProvider>
+    <LoadingProvider>
+      <SheetProvider>
+        <AppLayoutContent>{children}</AppLayoutContent>
+      </SheetProvider>
+    </LoadingProvider>
   );
 }
