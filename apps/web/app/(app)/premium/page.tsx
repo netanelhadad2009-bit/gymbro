@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { Browser } from "@capacitor/browser";
 
 // Legal links for App Store compliance (Guidelines 3.1.2 and 5.1.1)
 const PRIVACY_URL = process.env.NEXT_PUBLIC_PRIVACY_POLICY_URL;
@@ -69,6 +70,21 @@ export default function PremiumPage() {
     console.log("[Premium] Subscribe button clicked - Apple IAP integration pending");
     // Show production-ready message
     alert("מעבד את הבקשה... תוכל להפעיל את המנוי דרך הגדרות ה-App Store.");
+  };
+
+  // Open legal links in external browser (Capacitor Browser plugin)
+  const openPrivacyPolicy = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (PRIVACY_URL) {
+      await Browser.open({ url: PRIVACY_URL });
+    }
+  };
+
+  const openTermsOfUse = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (TERMS_URL) {
+      await Browser.open({ url: TERMS_URL });
+    }
   };
 
   // Show loading state while checking subscription
@@ -278,27 +294,23 @@ export default function PremiumPage() {
             בלחיצה על &quot;להפעיל מנוי&quot; אתה מאשר את{" "}
             {PRIVACY_URL && (
               <>
-                <a
-                  href={PRIVACY_URL}
-                  target="_blank"
-                  rel="noreferrer noopener"
-                  className="underline decoration-dotted text-white/70 hover:text-white transition-colors"
+                <button
+                  onClick={openPrivacyPolicy}
+                  className="underline decoration-dotted text-white/70 hover:text-white transition-colors inline"
                 >
                   מדיניות הפרטיות
-                </a>
+                </button>
               </>
             )}
             {PRIVACY_URL && TERMS_URL && <span> ו-</span>}
             {TERMS_URL && (
               <>
-                <a
-                  href={TERMS_URL}
-                  target="_blank"
-                  rel="noreferrer noopener"
-                  className="underline decoration-dotted text-white/70 hover:text-white transition-colors"
+                <button
+                  onClick={openTermsOfUse}
+                  className="underline decoration-dotted text-white/70 hover:text-white transition-colors inline"
                 >
                   תנאי השימוש
-                </a>
+                </button>
               </>
             )}
             {!PRIVACY_URL && !TERMS_URL && (
