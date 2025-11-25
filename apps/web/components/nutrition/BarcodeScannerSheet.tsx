@@ -123,7 +123,7 @@ export function BarcodeScannerSheet({
   // Scanner callback handler
   useEffect(() => {
     scannerCallbackRef.current = async (barcode: string) => {
-      console.log('[Scanner] Camera detection:', barcode);
+      console.log('[Scanner] Camera detection:', barcode, { isNative });
       // Haptic feedback on detection
       if (navigator.vibrate) {
         navigator.vibrate(50);
@@ -138,25 +138,28 @@ export function BarcodeScannerSheet({
         onOpenChange(false);
       } else {
         // Reset the start attempt flag when camera scan returns an error
-        console.log('[Scanner] Camera detection error, resetting startAttemptedRef');
+        console.log('[Scanner] Camera detection error, resetting state', {
+          reason: result.reason,
+          isNative,
+        });
         startAttemptedRef.current = false;
+        setScannerStatus('idle'); // Reset scanner status
 
-        // Stop the scanner to prevent continuous scanning
-        console.log('[Scanner] Stopping scanner after error');
-        stopScanning();
+        // For native mode, the scanner modal has already closed by itself
+        // Reset state and close the sheet so it can be reopened
+        if (isNative) {
+          console.log('[Scanner] Native mode error - showing toast and closing sheet');
 
-        // For "not found" errors, show the dialog instead of just a toast
-        if (result.reason === 'not_found') {
-          setShowNotFoundDialog(true);
-          setManualCode(barcode); // Set the barcode in case user wants to add manually
-        } else {
-          // For other errors, show toast
+          // Show a toast with the error
           let errorTitle = "שגיאה";
           let errorMsg = result.message || "לא ניתן לזהות את הברקוד";
 
-          if (result.reason === 'invalid' || result.reason === 'bad_barcode') {
+          if (result.reason === 'not_found') {
+            errorTitle = "המוצר לא נמצא";
+            errorMsg = "נסו לסרוק ברקוד אחר";
+          } else if (result.reason === 'invalid' || result.reason === 'bad_barcode') {
             errorTitle = "ברקוד לא תקין";
-            errorMsg = "נסו שוב או הקלידו ידנית";
+            errorMsg = "נסו שוב";
           } else if (result.reason === 'network') {
             errorTitle = "בעיית חיבור";
             errorMsg = "בדקו אינטרנט ונסו שוב";
@@ -166,14 +169,48 @@ export function BarcodeScannerSheet({
             title: errorTitle,
             description: errorMsg,
             variant: "destructive",
+            duration: 4000,
           });
 
-          // Switch to manual mode for other errors
-          setMode('manual');
+          // Close the sheet after a tiny delay to ensure state updates are flushed
+          // This allows the user to open the scanner again
+          setTimeout(() => {
+            console.log('[Scanner] Closing sheet after native error');
+            onOpenChange(false);
+          }, 100);
+        } else {
+          // Web mode - stop the scanner and show options
+          stopScanning();
+
+          // For "not found" errors, show the dialog
+          if (result.reason === 'not_found') {
+            setShowNotFoundDialog(true);
+            setManualCode(barcode);
+          } else {
+            // For other errors, show toast and switch to manual
+            let errorTitle = "שגיאה";
+            let errorMsg = result.message || "לא ניתן לזהות את הברקוד";
+
+            if (result.reason === 'invalid' || result.reason === 'bad_barcode') {
+              errorTitle = "ברקוד לא תקין";
+              errorMsg = "נסו שוב או הקלידו ידנית";
+            } else if (result.reason === 'network') {
+              errorTitle = "בעיית חיבור";
+              errorMsg = "בדקו אינטרנט ונסו שוב";
+            }
+
+            toast({
+              title: errorTitle,
+              description: errorMsg,
+              variant: "destructive",
+            });
+
+            setMode('manual');
+          }
         }
       }
     };
-  }, [onDetected, stopScanning, onOpenChange, toast]);
+  }, [onDetected, stopScanning, onOpenChange, toast, isNative]);
 
   // Safe stop function to prevent double stops
   const stopScannerOnce = useCallback(() => {
@@ -197,12 +234,23 @@ export function BarcodeScannerSheet({
 
   // Start scanning when opened
   useEffect(() => {
+    console.log('[BarcodeScannerSheet] Start scanner useEffect triggered:', {
+      open,
+      mode,
+      startAttempted: startAttemptedRef.current,
+      scannerStatus,
+      isNative,
+    });
+
     stoppedRef.current = false; // Reset when mode/open changes
 
     if (open && mode === 'scan') {
       // Prevent multiple start attempts
       if (startAttemptedRef.current) {
-        console.log('[BarcodeScannerSheet] Scanner start already attempted, skipping');
+        console.log('[BarcodeScannerSheet] Scanner start already attempted, skipping', {
+          startAttempted: startAttemptedRef.current,
+          scannerStatus,
+        });
         return;
       }
 
@@ -236,6 +284,7 @@ export function BarcodeScannerSheet({
         setShowHint(true);
       }, 3000);
     } else {
+      console.log('[BarcodeScannerSheet] Scanner useEffect ELSE block - resetting state');
       stopScannerOnce();
       setShowHint(false);
       setScannerStatus('idle');
@@ -248,6 +297,7 @@ export function BarcodeScannerSheet({
 
     // Reset state when closing
     if (!open) {
+      console.log('[BarcodeScannerSheet] Sheet closing - full state reset');
       setMode('scan');
       setManualCode('');
       setStatus('idle');
