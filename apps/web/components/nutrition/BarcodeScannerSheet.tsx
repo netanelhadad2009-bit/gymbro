@@ -146,38 +146,41 @@ export function BarcodeScannerSheet({
         setScannerStatus('idle'); // Reset scanner status
 
         // For native mode, the scanner modal has already closed by itself
-        // Reset state and close the sheet so it can be reopened
+        // Show the dialog for "not found" errors, or close for other errors
         if (isNative) {
-          console.log('[Scanner] Native mode error - showing toast and closing sheet');
-
-          // Show a toast with the error
-          let errorTitle = "שגיאה";
-          let errorMsg = result.message || "לא ניתן לזהות את הברקוד";
+          console.log('[Scanner] Native mode error', { reason: result.reason });
 
           if (result.reason === 'not_found') {
-            errorTitle = "המוצר לא נמצא";
-            errorMsg = "נסו לסרוק ברקוד אחר";
-          } else if (result.reason === 'invalid' || result.reason === 'bad_barcode') {
-            errorTitle = "ברקוד לא תקין";
-            errorMsg = "נסו שוב";
-          } else if (result.reason === 'network') {
-            errorTitle = "בעיית חיבור";
-            errorMsg = "בדקו אינטרנט ונסו שוב";
+            // Show the dialog so user can choose: scan again or add manually
+            console.log('[Scanner] Showing not found dialog for native');
+            setShowNotFoundDialog(true);
+            setManualCode(barcode);
+          } else {
+            // For other errors, show toast and close
+            let errorTitle = "שגיאה";
+            let errorMsg = result.message || "לא ניתן לזהות את הברקוד";
+
+            if (result.reason === 'invalid' || result.reason === 'bad_barcode') {
+              errorTitle = "ברקוד לא תקין";
+              errorMsg = "נסו שוב";
+            } else if (result.reason === 'network') {
+              errorTitle = "בעיית חיבור";
+              errorMsg = "בדקו אינטרנט ונסו שוב";
+            }
+
+            toast({
+              title: errorTitle,
+              description: errorMsg,
+              variant: "destructive",
+              duration: 4000,
+            });
+
+            // Close the sheet after a tiny delay
+            setTimeout(() => {
+              console.log('[Scanner] Closing sheet after native error');
+              onOpenChange(false);
+            }, 100);
           }
-
-          toast({
-            title: errorTitle,
-            description: errorMsg,
-            variant: "destructive",
-            duration: 4000,
-          });
-
-          // Close the sheet after a tiny delay to ensure state updates are flushed
-          // This allows the user to open the scanner again
-          setTimeout(() => {
-            console.log('[Scanner] Closing sheet after native error');
-            onOpenChange(false);
-          }, 100);
         } else {
           // Web mode - stop the scanner and show options
           stopScanning();
@@ -559,17 +562,120 @@ export function BarcodeScannerSheet({
     }
   };
 
-  // In native mode, don't render the Dialog - Capacitor shows its own full-screen camera UI
+  // In native mode, don't render the main Dialog - Capacitor shows its own full-screen camera UI
+  // But still render the error dialogs and manual product sheet
   if (isNative) {
-    console.log('[BarcodeScannerSheet] Native mode - not rendering Dialog. Scanner state:', {
+    console.log('[BarcodeScannerSheet] Native mode - not rendering main Dialog. Scanner state:', {
       open,
       isActive,
       isInitializing,
       hasPermission,
       scannerStatus,
       lastScannerError,
+      showNotFoundDialog,
     });
-    return null;
+
+    // Render only the dialogs for native mode
+    return (
+      <>
+        <ManualProductSheet
+          open={showManualProductSheet}
+          onOpenChange={setShowManualProductSheet}
+          barcode={error?.code === 'not_found' ? manualCode : undefined}
+          onSuccess={(product) => {
+            console.log('[Scanner] Manual product created:', product);
+            // Close barcode scanner
+            onOpenChange(false);
+            // Call success callback to open NutritionFactsSheet
+            if (onManualProductSuccess) {
+              onManualProductSuccess(product);
+            }
+          }}
+        />
+
+        {/* Not Found Dialog */}
+        <AnimatePresence>
+          {showNotFoundDialog && (
+            <>
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 z-[20000] bg-black/80 backdrop-blur-sm"
+                onClick={() => setShowNotFoundDialog(false)}
+              />
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                className="fixed inset-x-4 top-1/2 -translate-y-1/2 z-[20001] max-w-sm mx-auto bg-[#1a1b20] rounded-2xl border border-white/10 p-6"
+                dir="rtl"
+              >
+                <div className="text-center">
+                  <div className="w-16 h-16 rounded-full bg-orange-500/20 flex items-center justify-center mx-auto mb-4">
+                    <AlertCircle className="w-8 h-8 text-orange-400" />
+                  </div>
+                  <h3 className="text-xl font-bold text-white mb-2">המוצר לא נמצא</h3>
+                  <p className="text-white/70 mb-6">
+                    הברקוד <span className="font-mono">{lastScannedBarcode}</span> לא נמצא במאגר שלנו
+                  </p>
+
+                  <div className="space-y-3">
+                    {/* Primary action: Scan another */}
+                    <button
+                      onClick={() => {
+                        console.log('[NotFoundDialog] Scan another barcode (native)');
+                        if (navigator.vibrate) {
+                          navigator.vibrate(30);
+                        }
+                        setShowNotFoundDialog(false);
+                        // Reset for new scan
+                        startAttemptedRef.current = false;
+                        setScannerStatus('idle');
+                        setMode('scan');
+                        // Restart scanning
+                        setTimeout(() => {
+                          startScanning();
+                        }, 100);
+                      }}
+                      className="w-full py-3 bg-[#E2F163] text-black rounded-xl font-semibold hover:bg-[#d4e350] transition-colors"
+                    >
+                      סרוק ברקוד אחר
+                    </button>
+
+                    {/* Secondary action: Add manually */}
+                    <button
+                      onClick={() => {
+                        console.log('[NotFoundDialog] Add manually (native)');
+                        if (navigator.vibrate) {
+                          navigator.vibrate(30);
+                        }
+                        setShowNotFoundDialog(false);
+                        setShowManualProductSheet(true);
+                      }}
+                      className="w-full py-3 bg-white/10 text-white rounded-xl font-medium hover:bg-white/20 transition-colors"
+                    >
+                      הוסף מוצר ידני
+                    </button>
+
+                    {/* Tertiary action: Cancel */}
+                    <button
+                      onClick={() => {
+                        setShowNotFoundDialog(false);
+                        onOpenChange(false);
+                      }}
+                      className="w-full py-3 text-white/60 text-sm hover:text-white/80 transition-colors"
+                    >
+                      ביטול
+                    </button>
+                  </div>
+                </div>
+              </motion.div>
+            </>
+          )}
+        </AnimatePresence>
+      </>
+    );
   }
 
   return (
