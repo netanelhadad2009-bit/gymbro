@@ -137,12 +137,11 @@ export function BarcodeScannerSheet({
       if (!result || result.ok === true) {
         onOpenChange(false);
       } else {
-        // Reset the start attempt flag when camera scan returns an error
+        // Reset scanner status but DON'T reset startAttemptedRef yet
         console.log('[Scanner] Camera detection error, resetting state', {
           reason: result.reason,
           isNative,
         });
-        startAttemptedRef.current = false;
         setScannerStatus('idle'); // Reset scanner status
 
         // For native mode, the scanner modal has already closed by itself
@@ -152,10 +151,13 @@ export function BarcodeScannerSheet({
 
           if (result.reason === 'not_found') {
             // Show the dialog so user can choose: scan again or add manually
-            console.log('[Scanner] Showing not found dialog for native');
+            // DON'T reset startAttemptedRef here - keep it true to prevent auto-restart
+            console.log('[Scanner] Showing not found dialog for native (keeping startAttemptedRef true)');
             setShowNotFoundDialog(true);
             setManualCode(barcode);
           } else {
+            // For other errors, reset the flag and close
+            startAttemptedRef.current = false;
             // For other errors, show toast and close
             let errorTitle = "שגיאה";
             let errorMsg = result.message || "לא ניתן לזהות את הברקוד";
@@ -187,9 +189,13 @@ export function BarcodeScannerSheet({
 
           // For "not found" errors, show the dialog
           if (result.reason === 'not_found') {
+            // DON'T reset startAttemptedRef here - keep it true to prevent auto-restart
+            console.log('[Scanner] Showing not found dialog for web (keeping startAttemptedRef true)');
             setShowNotFoundDialog(true);
             setManualCode(barcode);
           } else {
+            // For other errors, reset the flag
+            startAttemptedRef.current = false;
             // For other errors, show toast and switch to manual
             let errorTitle = "שגיאה";
             let errorMsg = result.message || "לא ניתן לזהות את הברקוד";
