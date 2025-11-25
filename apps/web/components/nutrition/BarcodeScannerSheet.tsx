@@ -50,6 +50,8 @@ export function BarcodeScannerSheet({
     msg: string;
   } | null>(null);
   const [showManualProductSheet, setShowManualProductSheet] = useState(false);
+  const [showNotFoundDialog, setShowNotFoundDialog] = useState(false);
+  const [lastScannedBarcode, setLastScannedBarcode] = useState<string>('');
   const hintTimerRef = useRef<NodeJS.Timeout>();
 
   // Scanner state management
@@ -87,43 +89,13 @@ export function BarcodeScannerSheet({
     });
   }, [onDetected, open, mode, scannerStatus]);
 
+  // Store scanner callback result for later use
+  const scannerCallbackRef = useRef<((barcode: string) => Promise<void>) | null>(null);
+
   const scanner = useScanner({
     onDetected: async (barcode) => {
-      console.log('[Scanner] Camera detection:', barcode);
-      // Haptic feedback on detection
-      if (navigator.vibrate) {
-        navigator.vibrate(50);
-      }
-      const result = await onDetected(barcode);
-      // Only close if successful
-      if (!result || result.ok === true) {
-        onOpenChange(false);
-      } else {
-        // Reset the start attempt flag when camera scan returns an error
-        // This allows the user to try scanning again
-        console.log('[Scanner] Camera detection error, resetting startAttemptedRef');
-        startAttemptedRef.current = false;
-
-        // Show toast for camera scan errors with more informative messages
-        let errorTitle = "שגיאה";
-        let errorMsg = result.message || "לא ניתן לזהות את הברקוד";
-
-        if (result.reason === 'not_found') {
-          errorTitle = "המוצר לא נמצא";
-          errorMsg = "נסו לסרוק ברקוד אחר או הקלידו ידנית";
-        } else if (result.reason === 'invalid' || result.reason === 'bad_barcode') {
-          errorTitle = "ברקוד לא תקין";
-          errorMsg = "נסו שוב או הקלידו ידנית";
-        } else if (result.reason === 'network') {
-          errorTitle = "בעיית חיבור";
-          errorMsg = "בדקו אינטרנט ונסו שוב";
-        }
-
-        toast({
-          title: errorTitle,
-          description: errorMsg,
-          variant: "destructive",
-        });
+      if (scannerCallbackRef.current) {
+        await scannerCallbackRef.current(barcode);
       }
     },
   });
@@ -147,6 +119,61 @@ export function BarcodeScannerSheet({
 
   // Type assertion to access setVideoElement if it exists
   const setVideoElement = (scanner as any).setVideoElement;
+
+  // Scanner callback handler
+  useEffect(() => {
+    scannerCallbackRef.current = async (barcode: string) => {
+      console.log('[Scanner] Camera detection:', barcode);
+      // Haptic feedback on detection
+      if (navigator.vibrate) {
+        navigator.vibrate(50);
+      }
+
+      // Store the scanned barcode for later use
+      setLastScannedBarcode(barcode);
+
+      const result = await onDetected(barcode);
+      // Only close if successful
+      if (!result || result.ok === true) {
+        onOpenChange(false);
+      } else {
+        // Reset the start attempt flag when camera scan returns an error
+        console.log('[Scanner] Camera detection error, resetting startAttemptedRef');
+        startAttemptedRef.current = false;
+
+        // Stop the scanner to prevent continuous scanning
+        console.log('[Scanner] Stopping scanner after error');
+        stopScanning();
+
+        // For "not found" errors, show the dialog instead of just a toast
+        if (result.reason === 'not_found') {
+          setShowNotFoundDialog(true);
+          setManualCode(barcode); // Set the barcode in case user wants to add manually
+        } else {
+          // For other errors, show toast
+          let errorTitle = "שגיאה";
+          let errorMsg = result.message || "לא ניתן לזהות את הברקוד";
+
+          if (result.reason === 'invalid' || result.reason === 'bad_barcode') {
+            errorTitle = "ברקוד לא תקין";
+            errorMsg = "נסו שוב או הקלידו ידנית";
+          } else if (result.reason === 'network') {
+            errorTitle = "בעיית חיבור";
+            errorMsg = "בדקו אינטרנט ונסו שוב";
+          }
+
+          toast({
+            title: errorTitle,
+            description: errorMsg,
+            variant: "destructive",
+          });
+
+          // Switch to manual mode for other errors
+          setMode('manual');
+        }
+      }
+    };
+  }, [onDetected, stopScanning, onOpenChange, toast]);
 
   // Safe stop function to prevent double stops
   const stopScannerOnce = useCallback(() => {
@@ -227,8 +254,11 @@ export function BarcodeScannerSheet({
       setError(null);
       setScannerStatus('idle');
       setLastScannerError(null);
+      setShowNotFoundDialog(false);
+      setLastScannedBarcode('');
       lastToastRef.current = '';
       startAttemptedRef.current = false; // Reset for next open
+      stoppedRef.current = false; // Reset stopped flag
     }
 
     return () => {
@@ -949,6 +979,88 @@ export function BarcodeScannerSheet({
           }}
         />
       </Dialog.Root>
+
+      {/* Not Found Dialog */}
+      <AnimatePresence>
+        {showNotFoundDialog && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[20000] bg-black/80 backdrop-blur-sm"
+              onClick={() => setShowNotFoundDialog(false)}
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              className="fixed inset-x-4 top-1/2 -translate-y-1/2 z-[20001] max-w-sm mx-auto bg-[#1a1b20] rounded-2xl border border-white/10 p-6"
+              dir="rtl"
+            >
+              <div className="text-center">
+                <div className="w-16 h-16 rounded-full bg-orange-500/20 flex items-center justify-center mx-auto mb-4">
+                  <AlertCircle className="w-8 h-8 text-orange-400" />
+                </div>
+                <h3 className="text-xl font-bold text-white mb-2">המוצר לא נמצא</h3>
+                <p className="text-white/70 mb-6">
+                  הברקוד <span className="font-mono">{lastScannedBarcode}</span> לא נמצא במאגר שלנו
+                </p>
+
+                <div className="space-y-3">
+                  {/* Primary action: Scan another */}
+                  <button
+                    onClick={() => {
+                      console.log('[NotFoundDialog] Scan another barcode');
+                      if (navigator.vibrate) {
+                        navigator.vibrate(30);
+                      }
+                      setShowNotFoundDialog(false);
+                      // Reset for new scan
+                      startAttemptedRef.current = false;
+                      setScannerStatus('idle');
+                      setMode('scan');
+                      // Restart scanning
+                      setTimeout(() => {
+                        startScanning();
+                      }, 100);
+                    }}
+                    className="w-full py-3 bg-[#E2F163] text-black rounded-xl font-semibold hover:bg-[#d4e350] transition-colors"
+                  >
+                    סרוק ברקוד אחר
+                  </button>
+
+                  {/* Secondary action: Add manually */}
+                  <button
+                    onClick={() => {
+                      console.log('[NotFoundDialog] Add manually');
+                      if (navigator.vibrate) {
+                        navigator.vibrate(30);
+                      }
+                      setShowNotFoundDialog(false);
+                      setShowManualProductSheet(true);
+                    }}
+                    className="w-full py-3 bg-white/10 text-white rounded-xl font-medium hover:bg-white/20 transition-colors"
+                  >
+                    הוסף מוצר ידני
+                  </button>
+
+                  {/* Tertiary action: Cancel */}
+                  <button
+                    onClick={() => {
+                      setShowNotFoundDialog(false);
+                      onOpenChange(false);
+                    }}
+                    className="w-full py-3 text-white/60 text-sm hover:text-white/80 transition-colors"
+                  >
+                    ביטול
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </>
   );
 }
