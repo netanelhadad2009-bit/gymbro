@@ -137,8 +137,10 @@ export default function PremiumPage() {
   return (
     <div className="min-h-screen bg-[#0b0d0e] text-white pb-safe">
       {/* Header */}
-      <header className="sticky top-0 z-50 bg-[#0b0d0e]/95 backdrop-blur-sm border-b border-white/5">
+      <header className="sticky top-0 z-50 bg-[#0b0d0e]/95 backdrop-blur-sm border-b border-white/5 pt-safe">
         <div className="flex items-center justify-between px-4 py-4">
+          <div className="w-9" /> {/* Spacer for centering */}
+          <h1 className="text-lg font-semibold">שדרוג לפרימיום</h1>
           <button
             onClick={handleGoBack}
             className="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors"
@@ -148,8 +150,6 @@ export default function PremiumPage() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
           </button>
-          <h1 className="text-lg font-semibold">שדרוג לפרימיום</h1>
-          <div className="w-9" /> {/* Spacer for centering */}
         </div>
       </header>
 
