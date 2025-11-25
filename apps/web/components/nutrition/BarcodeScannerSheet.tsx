@@ -258,6 +258,17 @@ export function BarcodeScannerSheet({
     stoppedRef.current = false; // Reset when mode/open changes
 
     if (open && mode === 'scan') {
+      // Reset state if reopening after an error
+      if (startAttemptedRef.current && (scannerStatus === 'error' || scannerStatus === 'no-permission' || scannerStatus === 'not-supported')) {
+        console.log('[BarcodeScannerSheet] Resetting error state before restart:', {
+          previousStatus: scannerStatus,
+          previousError: lastScannerError,
+        });
+        startAttemptedRef.current = false;
+        setScannerStatus('idle');
+        setLastScannerError(null);
+      }
+
       // Prevent multiple start attempts
       if (startAttemptedRef.current) {
         console.log('[BarcodeScannerSheet] Scanner start already attempted, skipping', {
