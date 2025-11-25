@@ -25,12 +25,13 @@ import { NutrientIcon } from "@/components/icons/NutrientIcon";
 import { useSheet } from "@/contexts/SheetContext";
 import { useToast } from "@/components/ui/use-toast";
 import { getVisionError, he } from "@/lib/i18n/he";
+import { Keyboard } from "@capacitor/keyboard";
 
 export default function NutritionPage() {
   const { user, session } = useAuth();
   const searchParams = useSearchParams();
   const router = useRouter();
-  const { setIsSheetOpen } = useSheet();
+  const { setIsSheetOpen, setIsKeyboardVisible } = useSheet();
   const { toast } = useToast();
   const [userId, setUserId] = useState<string>("");
   const [profileLoaded, setProfileLoaded] = useState(false); // Load-gate to prevent race conditions
@@ -61,6 +62,38 @@ export default function NutritionPage() {
   useEffect(() => {
     setIsSheetOpen(showSummary);
   }, [showSummary, setIsSheetOpen]);
+
+  // Listen for keyboard show/hide to hide bottom nav
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const handleKeyboardShow = () => {
+      console.log('[Nutrition] Keyboard shown - hiding bottom nav');
+      setIsKeyboardVisible(true);
+    };
+
+    const handleKeyboardHide = () => {
+      console.log('[Nutrition] Keyboard hidden - showing bottom nav');
+      setIsKeyboardVisible(false);
+    };
+
+    let showListener: any;
+    let hideListener: any;
+
+    const setupListeners = async () => {
+      showListener = await Keyboard.addListener('keyboardWillShow', handleKeyboardShow);
+      hideListener = await Keyboard.addListener('keyboardWillHide', handleKeyboardHide);
+    };
+
+    setupListeners();
+
+    return () => {
+      setIsKeyboardVisible(false);
+      showListener?.remove();
+      hideListener?.remove();
+    };
+  }, [setIsKeyboardVisible]);
+
   // Track eaten meals: Map<dayIndex, Set<mealIndex>>
   const [eatenMealsByDay, setEatenMealsByDay] = useState<Map<number, Set<number>>>(new Map());
 
