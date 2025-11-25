@@ -1,17 +1,19 @@
 "use client";
 
 import { usePathname, useRouter } from "next/navigation";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { TrendingUp, Utensils, Bot, User } from "lucide-react";
 import { NavItem } from "./NavItem";
 import { tokens } from "@/lib/ui/tokens";
 import texts from "@/lib/assistantTexts";
 import MapFab from "@/components/map/MapFab";
 import { uiBus } from "@/lib/ui/eventBus";
+import { useSheet } from "@/contexts/SheetContext";
 
 export function BottomNav() {
   const pathname = usePathname();
   const router = useRouter();
+  const { isKeyboardVisible, isSheetOpen } = useSheet();
 
   const isActive = (path: string) => pathname === path;
   const isMapActive = isActive("/journey");
@@ -26,19 +28,25 @@ export function BottomNav() {
     }
   };
 
+  // Hide bottom nav when keyboard is visible or sheet is open
+  const shouldHide = isKeyboardVisible || isSheetOpen;
+
   return (
-    <motion.nav
-      initial={{ y: 100, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ type: "spring", stiffness: 260, damping: 20, delay: 0.1 }}
-      className="fixed inset-x-0 bottom-0 z-50 bg-[#1a1b1c] border-t border-zinc-700"
-      style={{
-        paddingBottom: `env(safe-area-inset-bottom, 0px)`,
-        backgroundColor: '#1a1b1c',
-        WebkitBackdropFilter: 'none',
-        backdropFilter: 'none',
-      }}
-    >
+    <AnimatePresence>
+      {!shouldHide && (
+        <motion.nav
+          initial={{ y: 100, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          exit={{ y: 100, opacity: 0 }}
+          transition={{ type: "spring", stiffness: 260, damping: 20 }}
+          className="fixed inset-x-0 bottom-0 z-50 bg-[#1a1b1c] border-t border-zinc-700"
+          style={{
+            paddingBottom: `env(safe-area-inset-bottom, 0px)`,
+            backgroundColor: '#1a1b1c',
+            WebkitBackdropFilter: 'none',
+            backdropFilter: 'none',
+          }}
+        >
       {/* Bottom bar with fixed height and grid layout */}
       <div className="relative h-20 px-2 sm:px-4">
         {/* Grid layout with spacers around center FAB for breathing room */}
@@ -98,5 +106,7 @@ export function BottomNav() {
         </div>
       </div>
     </motion.nav>
+      )}
+    </AnimatePresence>
   );
 }
