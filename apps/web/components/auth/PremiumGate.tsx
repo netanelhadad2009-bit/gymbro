@@ -15,17 +15,17 @@ interface PremiumGateProps {
  * Behavior:
  * - Loading state → show loader
  * - No user → redirect to /login
- * - User but not premium and not on premium page → redirect to /premium
+ * - User but not premium and not on premium/trial page → redirect to /premium
  * - User and premium → render children
- * - User not premium but on premium page → render children (the paywall)
+ * - User not premium but on premium or trial page → render children (allow trial and paywall)
  */
 export function PremiumGate({ children }: PremiumGateProps) {
   const { user, loading, isPremium, isSubscriptionLoading } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
 
-  // Check if we're on the premium page itself
-  const isPremiumPage = pathname?.startsWith("/premium");
+  // Check if we're on the premium or trial page
+  const isPremiumOrTrialPage = pathname?.startsWith("/premium") || pathname?.startsWith("/trial");
 
   // Effect to handle redirects
   useEffect(() => {
@@ -41,8 +41,8 @@ export function PremiumGate({ children }: PremiumGateProps) {
       return;
     }
 
-    // If user is not premium and not already on the premium page, redirect to premium
-    if (!isPremium && !isPremiumPage) {
+    // If user is not premium and not already on the premium or trial page, redirect to premium
+    if (!isPremium && !isPremiumOrTrialPage) {
       console.log("[PremiumGate] User not premium, redirecting to /premium");
       router.replace("/premium");
       return;
@@ -51,10 +51,10 @@ export function PremiumGate({ children }: PremiumGateProps) {
     // Otherwise, user can access the page
     console.log("[PremiumGate] Access granted", {
       isPremium,
-      isPremiumPage,
+      isPremiumOrTrialPage,
       pathname,
     });
-  }, [user, loading, isPremium, isSubscriptionLoading, isPremiumPage, router, pathname]);
+  }, [user, loading, isPremium, isSubscriptionLoading, isPremiumOrTrialPage, router, pathname]);
 
   // Show loading state while checking auth/subscription
   if (loading || isSubscriptionLoading) {
@@ -71,8 +71,8 @@ export function PremiumGate({ children }: PremiumGateProps) {
     return null;
   }
 
-  // If user is not premium and not on premium page, show nothing (redirect is happening)
-  if (!isPremium && !isPremiumPage) {
+  // If user is not premium and not on premium or trial page, show nothing (redirect is happening)
+  if (!isPremium && !isPremiumOrTrialPage) {
     return null;
   }
 

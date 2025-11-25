@@ -770,7 +770,7 @@ export async function runPostAuthFlow({
     // STEP 7: Check profile completeness and determine route
     // ============================================================
     console.log('[PostAuth] Step 7/8: Checking profile completeness...');
-    let targetRoute = '/journey'; // Default route
+    let targetRoute = '/trial'; // Default route for new users - show trial screen first
 
     try {
       // Fetch profile directly from database (client-safe query)
@@ -831,10 +831,12 @@ export async function runPostAuthFlow({
       if (!isComplete) {
         console.log('[PostAuth] Profile incomplete, redirecting to /profile/edit');
         targetRoute = '/profile/edit';
+      } else {
+        console.log('[PostAuth] Profile complete, new user will see trial screen at /trial');
       }
     } catch (err) {
       console.error('[PostAuth] Error checking profile completeness:', err);
-      // On error, fall back to /journey
+      // On error, fall back to /trial for new users
     }
 
     // ============================================================
