@@ -9,6 +9,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import type { BarcodeProduct, Per100g } from '@/types/barcode';
 import { requireAuth, checkRateLimit, validateBody, RateLimitPresets, ErrorResponses, handleApiError } from '@/lib/api/security';
+import { createAdminClient } from '@/lib/supabase-admin';
 
 // Request validation schema
 const createFoodSchema = z.object({
@@ -77,6 +78,35 @@ export async function POST(request: NextRequest) {
     }
 
     console.log('[ManualFood] Product created:', userFood.id);
+
+    // If barcode is provided, also save to food_cache so it becomes searchable
+    if (barcode) {
+      try {
+        const adminClient = createAdminClient();
+        const { error: cacheError } = await adminClient
+          .from('food_cache')
+          .upsert({
+            barcode,
+            name: name_he,
+            brand: brand || null,
+            per100g,
+            source: 'user_contributed',
+            updated_at: new Date().toISOString(),
+          }, {
+            onConflict: 'barcode',
+          });
+
+        if (cacheError) {
+          console.error('[ManualFood] Failed to save to food_cache:', cacheError);
+          // Don't fail the whole request - this is a nice-to-have
+        } else {
+          console.log('[ManualFood] Barcode saved to food_cache:', barcode);
+        }
+      } catch (cacheErr) {
+        console.error('[ManualFood] food_cache error:', cacheErr);
+        // Continue even if cache fails
+      }
+    }
 
     // Award +5 points for manual food creation
     try {
