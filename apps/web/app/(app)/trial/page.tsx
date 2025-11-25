@@ -34,8 +34,8 @@ export default function TrialPage() {
       className="min-h-[100dvh] bg-[#0D0E0F] text-white flex flex-col px-4 pt-safe pb-safe"
     >
       {/* Top section - Title & Subtitle */}
-      <div className="pt-10 pb-6 text-center">
-        <h1 className="text-3xl font-bold mb-3 leading-snug">
+      <div className="pt-6 pb-3 text-center">
+        <h1 className="text-3xl font-bold mb-2 leading-snug">
           התחל את המסע שלך<br />עם ניסיון חינמי
         </h1>
         <p className="text-base text-white/70 leading-relaxed px-2">
@@ -44,8 +44,8 @@ export default function TrialPage() {
       </div>
 
       {/* Middle section - Mockup image */}
-      <div className="flex-1 flex items-center justify-center">
-        <div className="relative w-full max-w-[85%] aspect-[9/16]">
+      <div className="flex-1 flex items-center justify-center min-h-0">
+        <div className="relative w-full max-w-[92%] aspect-[9/16]">
           <Image
             src="/images/fitjourney-trial-mockup-large.webp"
             alt="מסכי הדוגמה של FitJourney"
@@ -57,7 +57,7 @@ export default function TrialPage() {
       </div>
 
       {/* Bottom section - CTA button */}
-      <div className="pt-6 pb-8">
+      <div className="pt-4 pb-6">
         <button
           onClick={handleStartJourney}
           className="w-full py-4 rounded-full bg-[#E2F163] text-black font-bold text-lg transition-transform active:scale-[0.98] shadow-lg"
