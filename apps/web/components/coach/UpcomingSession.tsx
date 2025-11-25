@@ -144,16 +144,6 @@ export function UpcomingSession({ session, onBookSession }: Props) {
             נווט למיקום
           </button>
         )}
-
-        <button
-          onClick={() => {
-            // TODO: Implement reschedule
-            alert("תכונת שינוי תאריך תהיה זמינה בקרוב");
-          }}
-          className="px-4 py-2.5 bg-neutral-800 border border-neutral-700 text-white text-sm font-medium rounded-xl hover:bg-neutral-750 active:translate-y-1 active:brightness-90 transition-all"
-        >
-          שנה תאריך
-        </button>
       </div>
     </div>
   );

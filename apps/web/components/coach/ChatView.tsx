@@ -131,15 +131,6 @@ export function ChatView({ coach, clientId }: Props) {
                 <div className="text-xs text-green-400">מקוון עכשיו</div>
               </div>
             </div>
-
-            <button
-              onClick={() => alert("תפריט יהיה זמין בקרוב")}
-              className="w-9 h-9 rounded-full flex items-center justify-center hover:bg-neutral-800"
-            >
-              <svg className="w-5 h-5 text-neutral-400" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z" />
-              </svg>
-            </button>
           </div>
         </div>
 

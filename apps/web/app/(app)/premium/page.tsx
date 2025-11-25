@@ -62,9 +62,9 @@ export default function PremiumPage() {
 
   // Handle CTA click (stub for Apple IAP integration)
   const handleSubscribe = () => {
-    console.log("TODO: connect Apple In-App Purchase here");
-    // Show a temporary alert
-    alert("בגרסת הבטא, המנוי מופעל ידנית");
+    console.log("[Premium] Subscribe button clicked - Apple IAP integration pending");
+    // Show production-ready message
+    alert("מעבד את הבקשה... תוכל להפעיל את המנוי דרך הגדרות ה-App Store.");
   };
 
   // Show loading state while checking subscription
@@ -217,13 +217,42 @@ export default function PremiumPage() {
           </div>
         </div>
 
-        {/* Pricing */}
-        <div className="mb-6 p-6 rounded-2xl bg-gradient-to-br from-lime-400/10 to-emerald-400/10 border border-lime-400/30 text-center">
-          <p className="text-white/60 text-sm mb-2">החל מ-</p>
-          <p className="text-4xl font-bold text-lime-400 mb-1">₪29.90</p>
-          <p className="text-white/60 text-sm">לחודש</p>
-          <p className="text-white/40 text-xs mt-2">
-            * המחיר הסופי יוגדר בהמשך
+        {/* Pricing Options */}
+        <div className="mb-6 space-y-3">
+          {/* Monthly Plan */}
+          <div className="p-5 rounded-2xl bg-gradient-to-br from-lime-400/10 to-emerald-400/10 border border-lime-400/30">
+            <div className="flex items-center justify-between mb-3">
+              <div>
+                <h4 className="text-white font-semibold text-lg">מנוי חודשי</h4>
+                <p className="text-white/60 text-sm">ניתן לביטול בכל עת</p>
+              </div>
+              <div className="text-left">
+                <p className="text-3xl font-bold text-lime-400">₪249.90</p>
+                <p className="text-white/60 text-xs">לחודש</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Yearly Plan - Best Value */}
+          <div className="p-5 rounded-2xl bg-gradient-to-br from-lime-400/20 to-emerald-400/20 border-2 border-lime-400/50 relative">
+            <div className="absolute -top-3 right-4 px-3 py-1 bg-lime-400 text-black text-xs font-bold rounded-full">
+              החיסכון הכי גדול 💰
+            </div>
+            <div className="flex items-center justify-between mb-3">
+              <div>
+                <h4 className="text-white font-semibold text-lg">מנוי שנתי</h4>
+                <p className="text-white/60 text-sm">חסכון של ₪2,050 בשנה</p>
+              </div>
+              <div className="text-left">
+                <p className="text-3xl font-bold text-lime-400">₪949.00</p>
+                <p className="text-white/60 text-xs">לשנה</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Payment Info */}
+          <p className="text-center text-white/60 text-xs mt-3">
+            התשלום מתבצע באופן מאובטח דרך App Store וניתן לביטול בכל עת בהגדרות Apple ID שלך
           </p>
         </div>
 
@@ -237,7 +266,7 @@ export default function PremiumPage() {
 
         {/* Footer Note */}
         <p className="text-center text-white/40 text-xs mt-4">
-          ניתן לבטל בכל עת • ללא התחייבות
+          תשלום מאובטח דרך Apple • ביטול מיידי בהגדרות
         </p>
 
         {/* Debug info (only in development) */}

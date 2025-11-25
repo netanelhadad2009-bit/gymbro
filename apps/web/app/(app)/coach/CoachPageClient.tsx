@@ -188,25 +188,6 @@ export function CoachPageClient({
 
             {/* Resources (empty for now - can be populated later) */}
             <Resources resources={[]} />
-
-            {/* Support Section */}
-            <div className="bg-neutral-900/80 border border-neutral-800 rounded-2xl p-4">
-              <h3 className="text-base font-semibold text-white mb-3">תמיכה</h3>
-              <div className="space-y-2">
-                <button
-                  onClick={() => alert("בקשת החלפת מאמן תהיה זמינה בקרוב")}
-                  className="w-full text-right p-3 bg-neutral-800 border border-neutral-700 rounded-xl text-white text-sm hover:bg-neutral-750 active:translate-y-1 active:brightness-90 transition-all"
-                >
-                  בקש להחליף מאמן
-                </button>
-                <button
-                  onClick={() => alert("דיווח על בעיה יהיה זמין בקרוב")}
-                  className="w-full text-right p-3 bg-neutral-800 border border-neutral-700 rounded-xl text-white text-sm hover:bg-neutral-750 active:translate-y-1 active:brightness-90 transition-all"
-                >
-                  דווח על בעיה
-                </button>
-              </div>
-            </div>
           </div>
         </div>
 

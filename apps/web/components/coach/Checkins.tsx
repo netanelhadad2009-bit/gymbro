@@ -119,18 +119,6 @@ export function Checkins({ checkins, onAddCheckin }: Props) {
             </div>
           )}
 
-          {/* View history */}
-          {safeCheckins.length > 1 && (
-            <button
-              onClick={() => {
-                // TODO: Navigate to full check-in history
-                alert("היסטוריית צ'ק-אין תהיה זמינה בקרוב");
-              }}
-              className="w-full py-2 text-sm text-neutral-400 hover:text-white transition-colors"
-            >
-              צפה בהיסטוריה ({safeCheckins.length} צ'ק-אינים)
-            </button>
-          )}
         </div>
       )}
     </div>

@@ -20,28 +20,9 @@ interface NutritionSummaryCardProps {
 export function NutritionSummaryCard({ meta, mealCount = 0 }: NutritionSummaryCardProps) {
   const hasData = meta && meta.calories_target;
 
+  // Hide card completely if no nutrition data (production-ready behavior)
   if (!hasData) {
-    return (
-      <Card className="bg-neutral-900 border-neutral-800">
-        <CardHeader>
-          <CardTitle className="text-white text-xl flex items-center gap-2">
-            <UtensilsCrossed className="w-5 h-5 text-[#E2F163]" />
-            תוכנית תזונה
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-neutral-400 text-sm mb-4">
-            תוכנית התזונה שלך תופיע כאן בקרוב.
-          </p>
-          <Link
-            href="/onboarding"
-            className="inline-block px-4 py-2 bg-[#E2F163] text-black rounded-lg font-medium text-sm active:opacity-90"
-          >
-            צור תוכנית
-          </Link>
-        </CardContent>
-      </Card>
-    );
+    return null;
   }
 
   return (
