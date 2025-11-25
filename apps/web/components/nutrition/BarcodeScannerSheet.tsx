@@ -587,7 +587,7 @@ export function BarcodeScannerSheet({
         <ManualProductSheet
           open={showManualProductSheet}
           onOpenChange={setShowManualProductSheet}
-          barcode={error?.code === 'not_found' ? manualCode : undefined}
+          barcode={lastScannedBarcode || manualCode || undefined}
           onSuccess={(product) => {
             console.log('[Scanner] Manual product created:', product);
             // Close barcode scanner
@@ -1129,7 +1129,7 @@ export function BarcodeScannerSheet({
         <ManualProductSheet
           open={showManualProductSheet}
           onOpenChange={setShowManualProductSheet}
-          barcode={error?.code === 'not_found' ? manualCode : undefined}
+          barcode={lastScannedBarcode || manualCode || undefined}
           onSuccess={(product) => {
             console.log('[Scanner] Manual product created:', product);
             // Close barcode scanner
