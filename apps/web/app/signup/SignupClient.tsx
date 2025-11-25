@@ -129,6 +129,9 @@ export default function SignupClient() {
   return (
     <main dir="rtl" className="min-h-screen bg-[#0D0E0F] text-white flex items-center justify-center px-4">
       <div className="w-full max-w-md py-10">
+        {/* Title */}
+        <h1 className="text-3xl font-bold text-center mb-8">שמור את ההתקדמות שלך</h1>
+
         {/* Social Auth Buttons */}
         <SocialAuthButtons size="lg" variant="signup" />
 
