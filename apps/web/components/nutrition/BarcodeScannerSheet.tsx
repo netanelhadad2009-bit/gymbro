@@ -99,10 +99,29 @@ export function BarcodeScannerSheet({
       if (!result || result.ok === true) {
         onOpenChange(false);
       } else {
-        // Show toast for camera scan errors
+        // Reset the start attempt flag when camera scan returns an error
+        // This allows the user to try scanning again
+        console.log('[Scanner] Camera detection error, resetting startAttemptedRef');
+        startAttemptedRef.current = false;
+
+        // Show toast for camera scan errors with more informative messages
+        let errorTitle = "שגיאה";
+        let errorMsg = result.message || "לא ניתן לזהות את הברקוד";
+
+        if (result.reason === 'not_found') {
+          errorTitle = "המוצר לא נמצא";
+          errorMsg = "נסו לסרוק ברקוד אחר או הקלידו ידנית";
+        } else if (result.reason === 'invalid' || result.reason === 'bad_barcode') {
+          errorTitle = "ברקוד לא תקין";
+          errorMsg = "נסו שוב או הקלידו ידנית";
+        } else if (result.reason === 'network') {
+          errorTitle = "בעיית חיבור";
+          errorMsg = "בדקו אינטרנט ונסו שוב";
+        }
+
         toast({
-          title: "שגיאה",
-          description: result.message || "לא ניתן לזהות את הברקוד",
+          title: errorTitle,
+          description: errorMsg,
           variant: "destructive",
         });
       }
