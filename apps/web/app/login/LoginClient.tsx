@@ -73,10 +73,24 @@ export default function LoginClient() {
   }
 
   return (
-    <main dir="rtl" className="min-h-screen bg-[#0D0E0F] text-white flex items-center justify-center px-4">
-      <div className="w-full max-w-md py-10">
-        {/* Social Auth Buttons */}
-        <SocialAuthButtons size="lg" variant="login" />
+    <main dir="rtl" className="min-h-screen bg-[#0D0E0F] text-white px-4">
+      {/* Back Button */}
+      <div className="pt-safe pt-4 pb-2 max-w-md mx-auto">
+        <button
+          onClick={() => router.back()}
+          className="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors"
+          aria-label="חזור"
+        >
+          <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
+      </div>
+
+      <div className="w-full max-w-md mx-auto py-6 flex items-center min-h-[calc(100vh-80px)]">
+        <div className="w-full">
+          {/* Social Auth Buttons */}
+          <SocialAuthButtons size="lg" variant="login" />
 
         {/* Divider */}
         <div className="my-6 flex items-center gap-3 text-white/60">
@@ -122,6 +136,7 @@ export default function LoginClient() {
             {loading ? texts.login.loggingIn : texts.login.loginButton}
           </button>
         </form>
+        </div>
       </div>
     </main>
   );
