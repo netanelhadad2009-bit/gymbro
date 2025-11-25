@@ -19,7 +19,6 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import Link from "next/link";
 
 // Legal links for App Store compliance (Guidelines 3.1.2 and 5.1.1)
 const PRIVACY_URL = process.env.NEXT_PUBLIC_PRIVACY_POLICY_URL;
@@ -279,27 +278,27 @@ export default function PremiumPage() {
             בלחיצה על &quot;להפעיל מנוי&quot; אתה מאשר את{" "}
             {PRIVACY_URL && (
               <>
-                <Link
+                <a
                   href={PRIVACY_URL}
                   target="_blank"
-                  rel="noreferrer"
+                  rel="noreferrer noopener"
                   className="underline decoration-dotted text-white/70 hover:text-white transition-colors"
                 >
                   מדיניות הפרטיות
-                </Link>
+                </a>
               </>
             )}
             {PRIVACY_URL && TERMS_URL && <span> ו-</span>}
             {TERMS_URL && (
               <>
-                <Link
+                <a
                   href={TERMS_URL}
                   target="_blank"
-                  rel="noreferrer"
+                  rel="noreferrer noopener"
                   className="underline decoration-dotted text-white/70 hover:text-white transition-colors"
                 >
                   תנאי השימוש
-                </Link>
+                </a>
               </>
             )}
             {!PRIVACY_URL && !TERMS_URL && (
