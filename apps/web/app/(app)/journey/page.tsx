@@ -28,12 +28,11 @@ import {
   Lock,
 } from "lucide-react";
 import { Confetti } from "@/components/journey/Confetti";
-import ViewportRipples from "@/components/map/ViewportRipples";
-import MapFab from "@/components/map/MapFab";
 import FlameClean from "@/components/streak/FlameClean";
 import { PointsSummaryCard } from "@/components/journey/PointsSummaryCard";
 import { usePointsSummary } from "@/lib/points/usePoints";
 import { Stage } from "@/lib/journey/stages/useStages";
+import { LoadingScreen } from "@/components/ui/LoadingScreen";
 
 export default function JourneyPage() {
   const { avatar, colorToken } = useAvatar();
@@ -187,15 +186,7 @@ export default function JourneyPage() {
 
   // Loading state
   if (isLoading) {
-    return (
-      <div className="fixed inset-0 bg-gradient-to-b from-[#0e0f12] to-[#1a1b20] flex items-center justify-center" dir="rtl">
-        <ViewportRipples />
-        <div className="relative z-10">
-          <MapFab />
-        </div>
-        <p className="absolute bottom-48 text-neutral-400 font-semibold">טוען את המסע שלך...</p>
-      </div>
-    );
+    return <LoadingScreen message="טוען את המסע שלך..." />;
   }
 
   // No stages state

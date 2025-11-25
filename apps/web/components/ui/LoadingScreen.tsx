@@ -23,11 +23,14 @@ export function LoadingScreen({ message = 'טוען את המסע שלך...' }: 
     >
       <div className="flex flex-col items-center gap-8">
         {/* Animated icon with ripple effect */}
-        <div className="relative">
-          {/* Ripple rings */}
+        <div className="relative flex items-center justify-center">
+          {/* Outer ripple ring */}
           <motion.div
-            className="absolute inset-0 rounded-full border-2 border-[#E2F163]/20"
-            style={{ width: '200px', height: '200px', left: '-50px', top: '-50px' }}
+            className="absolute rounded-full border-2 border-[#E2F163]/20"
+            style={{
+              width: '200px',
+              height: '200px',
+            }}
             animate={{
               scale: [1, 1.3, 1],
               opacity: [0.3, 0.1, 0.3],
@@ -38,9 +41,14 @@ export function LoadingScreen({ message = 'טוען את המסע שלך...' }: 
               ease: 'easeInOut',
             }}
           />
+
+          {/* Inner ripple ring */}
           <motion.div
-            className="absolute inset-0 rounded-full border-2 border-[#E2F163]/30"
-            style={{ width: '140px', height: '140px', left: '-20px', top: '-20px' }}
+            className="absolute rounded-full border-2 border-[#E2F163]/30"
+            style={{
+              width: '140px',
+              height: '140px',
+            }}
             animate={{
               scale: [1, 1.3, 1],
               opacity: [0.5, 0.2, 0.5],
@@ -55,7 +63,7 @@ export function LoadingScreen({ message = 'טוען את המסע שלך...' }: 
 
           {/* Center icon */}
           <motion.div
-            className="relative w-[100px] h-[100px] rounded-full bg-[#E2F163] flex items-center justify-center"
+            className="relative w-[100px] h-[100px] rounded-full bg-[#E2F163] flex items-center justify-center z-10"
             animate={{
               scale: [1, 1.05, 1],
             }}
