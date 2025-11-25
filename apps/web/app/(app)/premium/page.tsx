@@ -19,11 +19,8 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Browser } from "@capacitor/browser";
-
-// Legal links for App Store compliance (Guidelines 3.1.2 and 5.1.1)
-const PRIVACY_URL = process.env.NEXT_PUBLIC_PRIVACY_POLICY_URL;
-const TERMS_URL = process.env.NEXT_PUBLIC_TERMS_URL;
+import { openExternal } from "@/lib/openExternal";
+import { PRIVACY_URL, TERMS_URL } from "@/lib/legalLinks";
 
 export default function PremiumPage() {
   const router = useRouter();
@@ -70,21 +67,6 @@ export default function PremiumPage() {
     console.log("[Premium] Subscribe button clicked - Apple IAP integration pending");
     // Show production-ready message
     alert("מעבד את הבקשה... תוכל להפעיל את המנוי דרך הגדרות ה-App Store.");
-  };
-
-  // Open legal links in external browser (Capacitor Browser plugin)
-  const openPrivacyPolicy = async (e: React.MouseEvent) => {
-    e.preventDefault();
-    if (PRIVACY_URL) {
-      await Browser.open({ url: PRIVACY_URL });
-    }
-  };
-
-  const openTermsOfUse = async (e: React.MouseEvent) => {
-    e.preventDefault();
-    if (TERMS_URL) {
-      await Browser.open({ url: TERMS_URL });
-    }
   };
 
   // Show loading state while checking subscription
@@ -292,32 +274,19 @@ export default function PremiumPage() {
           </p>
           <p className="mt-2">
             בלחיצה על &quot;להפעיל מנוי&quot; אתה מאשר את{" "}
-            {PRIVACY_URL && (
-              <>
-                <button
-                  onClick={openPrivacyPolicy}
-                  className="underline decoration-dotted text-white/70 hover:text-white transition-colors inline"
-                >
-                  מדיניות הפרטיות
-                </button>
-              </>
-            )}
-            {PRIVACY_URL && TERMS_URL && <span> ו-</span>}
-            {TERMS_URL && (
-              <>
-                <button
-                  onClick={openTermsOfUse}
-                  className="underline decoration-dotted text-white/70 hover:text-white transition-colors inline"
-                >
-                  תנאי השימוש
-                </button>
-              </>
-            )}
-            {!PRIVACY_URL && !TERMS_URL && (
-              <span className="text-white/70">
-                מדיניות הפרטיות ותנאי השימוש
-              </span>
-            )}
+            <button
+              onClick={() => openExternal(PRIVACY_URL)}
+              className="underline decoration-dotted text-white/70 hover:text-white transition-colors inline"
+            >
+              מדיניות הפרטיות
+            </button>
+            {" ו-"}
+            <button
+              onClick={() => openExternal(TERMS_URL)}
+              className="underline decoration-dotted text-white/70 hover:text-white transition-colors inline"
+            >
+              תנאי השימוש
+            </button>
             .
           </p>
         </div>
