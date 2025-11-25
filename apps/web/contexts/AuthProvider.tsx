@@ -5,17 +5,29 @@ import { supabase } from "@/lib/supabase";
 import type { User, Session } from "@supabase/supabase-js";
 import { clearAll, migrateGuestCache, cleanLegacyKeys, debugKeys, clearNutritionPlans } from "@/lib/storage";
 import { saveOnboardingData } from "@/lib/onboarding-storage";
+import type { Subscription } from "@/lib/subscription/types";
+import { fetchActiveSubscriptionClient } from "@/lib/subscription/client";
 
 interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
+  // Subscription state
+  subscription: Subscription | null;
+  isPremium: boolean;
+  isSubscriptionLoading: boolean;
+  subscriptionError: string | null;
 }
 
 const AuthContext = createContext<AuthContextType>({
   user: null,
   session: null,
   loading: true,
+  // Subscription defaults
+  subscription: null,
+  isPremium: false,
+  isSubscriptionLoading: false,
+  subscriptionError: null,
 });
 
 export function useAuth() {
@@ -26,6 +38,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+
+  // Subscription state
+  const [subscription, setSubscription] = useState<Subscription | null>(null);
+  const [isSubscriptionLoading, setIsSubscriptionLoading] = useState(false);
+  const [subscriptionError, setSubscriptionError] = useState<string | null>(null);
+
+  // Derive isPremium from subscription status
+  const isPremium =
+    !!subscription &&
+    (subscription.status === "active" || subscription.status === "trialing");
 
   useEffect(() => {
     console.log("[AuthProvider] Initializing auth state...");
@@ -51,7 +73,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     // Listen for auth changes
     const {
-      data: { subscription },
+      data: { subscription: authSubscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
       console.info("[AuthProvider] Auth event:", event);
 
@@ -151,11 +173,72 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setLoading(false);
     });
 
-    return () => subscription.unsubscribe();
+    return () => authSubscription.unsubscribe();
   }, []);
 
+  // Fetch subscription when user changes
+  useEffect(() => {
+    // If no user, clear subscription state
+    if (!user) {
+      setSubscription(null);
+      setIsSubscriptionLoading(false);
+      setSubscriptionError(null);
+      return;
+    }
+
+    let cancelled = false;
+
+    async function loadSubscription() {
+      try {
+        setIsSubscriptionLoading(true);
+        setSubscriptionError(null);
+
+        console.log("[AuthProvider] Loading subscription for user:", user!.id.slice(0, 8) + "...");
+
+        const sub = await fetchActiveSubscriptionClient(user!.id);
+
+        if (cancelled) return;
+
+        setSubscription(sub);
+
+        console.log("[AuthProvider] Subscription loaded", {
+          userId: user!.id.slice(0, 8) + "...",
+          hasSubscription: !!sub,
+          status: sub?.status ?? null,
+          plan: sub?.plan ?? null,
+          isPremium: !!sub && (sub.status === "active" || sub.status === "trialing"),
+        });
+      } catch (err) {
+        if (cancelled) return;
+        console.error("[AuthProvider] Failed to load subscription", err);
+        setSubscriptionError("Failed to load subscription");
+        setSubscription(null);
+      } finally {
+        if (!cancelled) {
+          setIsSubscriptionLoading(false);
+        }
+      }
+    }
+
+    loadSubscription();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [user]);
+
   return (
-    <AuthContext.Provider value={{ user, session, loading }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        session,
+        loading,
+        subscription,
+        isPremium,
+        isSubscriptionLoading,
+        subscriptionError,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
