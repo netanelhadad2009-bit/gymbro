@@ -11,8 +11,8 @@ function AppLayoutContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { isSheetOpen, isKeyboardVisible } = useSheet();
 
-  // Hide bottom nav on scan/review pages (full-screen experience), premium page, when sheet is open, or when keyboard is visible
-  const hideBottomNav = pathname?.includes('/scan/review') || pathname?.includes('/premium') || isSheetOpen || isKeyboardVisible;
+  // Hide bottom nav on scan/review pages (full-screen experience), premium page, trial page, when sheet is open, or when keyboard is visible
+  const hideBottomNav = pathname?.includes('/scan/review') || pathname?.includes('/premium') || pathname?.includes('/trial') || isSheetOpen || isKeyboardVisible;
 
   return (
     <>
