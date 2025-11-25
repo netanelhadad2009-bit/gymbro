@@ -2,9 +2,27 @@
 
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { useEffect } from "react";
 
 export default function TrialPage() {
   const router = useRouter();
+
+  // Prevent back navigation to signup/registration pages
+  useEffect(() => {
+    // Replace the current history entry to prevent going back
+    window.history.pushState(null, '', window.location.href);
+
+    const handlePopState = (e: PopStateEvent) => {
+      // Prevent back navigation by pushing the current state again
+      window.history.pushState(null, '', window.location.href);
+    };
+
+    window.addEventListener('popstate', handlePopState);
+
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, []);
 
   const handleStartJourney = () => {
     router.push("/premium");
