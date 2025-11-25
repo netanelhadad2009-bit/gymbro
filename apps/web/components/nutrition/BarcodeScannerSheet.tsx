@@ -702,7 +702,28 @@ export function BarcodeScannerSheet({
                             animate={{ opacity: 1, y: 0 }}
                             className="space-y-2 pt-2"
                           >
-                            {/* Primary: Food search */}
+                            {/* Primary: Scan another barcode */}
+                            <button
+                              onClick={() => {
+                                console.log('[Scanner] Clearing to scan another barcode');
+                                if (navigator.vibrate) {
+                                  navigator.vibrate(30);
+                                }
+                                // Clear the current barcode and error
+                                setManualCode('');
+                                setStatus('idle');
+                                setError(null);
+                                lastToastRef.current = '';
+                                // Focus the input for scanning another barcode
+                                setTimeout(() => {
+                                  inputRef.current?.focus();
+                                }, 100);
+                              }}
+                              className="w-full py-2.5 bg-[#E2F163]/10 border border-[#E2F163]/30 rounded-xl text-[#E2F163] text-sm font-medium hover:bg-[#E2F163]/20 transition-colors"
+                            >
+                              סרוק ברקוד אחר
+                            </button>
+                            {/* Secondary: Food search */}
                             <button
                               onClick={() => {
                                 console.log('[Scanner] Navigating to food search for barcode:', manualCode);
@@ -713,11 +734,11 @@ export function BarcodeScannerSheet({
                                 onOpenChange(false);
                                 router.push(`/nutrition/search?link=${manualCode}`);
                               }}
-                              className="w-full py-2.5 bg-[#E2F163]/10 border border-[#E2F163]/30 rounded-xl text-[#E2F163] text-sm font-medium hover:bg-[#E2F163]/20 transition-colors"
+                              className="w-full py-2.5 bg-white/5 border border-white/10 rounded-xl text-white/80 text-sm font-medium hover:bg-white/10 transition-colors"
                             >
                               חיפוש לפי שם
                             </button>
-                            {/* Secondary: Manual product */}
+                            {/* Tertiary: Manual product */}
                             <button
                               onClick={() => {
                                 console.log('[Scanner] Opening manual product sheet for barcode:', manualCode);
