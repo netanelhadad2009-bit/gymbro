@@ -44,7 +44,7 @@ export default function TrialPage() {
       </div>
 
       {/* Middle section - Mockup image */}
-      <div className="flex-1 relative w-full min-h-0 -my-2 px-4">
+      <div className="flex-1 relative w-full min-h-0 -my-2 px-8">
         <Image
           src="/images/fitjourney-trial-mockup-large.webp"
           alt="מסכי הדוגמה של FitJourney"
