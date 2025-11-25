@@ -71,6 +71,14 @@ export function ManualProductSheet({
     };
   }, [formData]);
 
+  // Update barcode when initialBarcode prop changes
+  useEffect(() => {
+    if (initialBarcode) {
+      console.log('[ManualProductSheet] Updating barcode from prop:', initialBarcode);
+      setFormData((prev) => ({ ...prev, barcode: initialBarcode }));
+    }
+  }, [initialBarcode]);
+
   // Notify context when sheet opens/closes
   useEffect(() => {
     setIsSheetOpen(open);
