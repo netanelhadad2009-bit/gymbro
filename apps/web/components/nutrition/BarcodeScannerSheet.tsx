@@ -258,15 +258,22 @@ export function BarcodeScannerSheet({
     stoppedRef.current = false; // Reset when mode/open changes
 
     if (open && mode === 'scan') {
-      // Reset state if reopening after an error
+      // Reset state if reopening after an error (but NOT if user canceled)
+      const isCancellation = lastScannerError?.includes(':canceled');
       if (startAttemptedRef.current && (scannerStatus === 'error' || scannerStatus === 'no-permission' || scannerStatus === 'not-supported')) {
-        console.log('[BarcodeScannerSheet] Resetting error state before restart:', {
-          previousStatus: scannerStatus,
-          previousError: lastScannerError,
-        });
-        startAttemptedRef.current = false;
-        setScannerStatus('idle');
-        setLastScannerError(null);
+        if (!isCancellation) {
+          console.log('[BarcodeScannerSheet] Resetting error state before restart:', {
+            previousStatus: scannerStatus,
+            previousError: lastScannerError,
+          });
+          startAttemptedRef.current = false;
+          setScannerStatus('idle');
+          setLastScannerError(null);
+        } else {
+          console.log('[BarcodeScannerSheet] Not auto-retrying after user cancellation:', {
+            lastScannerError,
+          });
+        }
       }
 
       // Prevent multiple start attempts
@@ -289,7 +296,11 @@ export function BarcodeScannerSheet({
           await startScanning();
         } catch (err) {
           const code = (err as any)?.code ?? 'UNKNOWN';
-          setLastScannerError(code);
+          const message = (err as any)?.message ?? '';
+
+          // Store error message in the code for later checking (e.g., "UNKNOWN:scan canceled.")
+          const errorKey = message.toLowerCase().includes('cancel') ? `${code}:canceled` : code;
+          setLastScannerError(errorKey as ScannerErrorCode);
 
           if (code === 'NO_PERMISSION' || code === 'PERMISSION_DENIED') {
             setScannerStatus('no-permission');
