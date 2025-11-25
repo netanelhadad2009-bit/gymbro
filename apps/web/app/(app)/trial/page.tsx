@@ -44,12 +44,12 @@ export default function TrialPage() {
       </div>
 
       {/* Middle section - Mockup image */}
-      <div className="flex-1 relative w-full min-h-0 -my-1">
+      <div className="flex-1 relative w-full min-h-0 -my-2">
         <Image
           src="/images/fitjourney-trial-mockup-large.webp"
           alt="מסכי הדוגמה של FitJourney"
           fill
-          className="object-contain scale-110"
+          className="object-contain scale-[1.4]"
           priority
         />
       </div>
