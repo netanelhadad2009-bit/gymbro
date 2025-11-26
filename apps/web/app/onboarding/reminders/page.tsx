@@ -17,9 +17,7 @@ import { Capacitor } from '@capacitor/core';
 import {
   getPushStatus,
   requestPushPermission,
-  registerForPush,
   openAppSettings,
-  shouldShowPrompt,
   markPromptShown,
   type PushPermissionStatus
 } from '@/lib/notifications/permissions';
@@ -193,49 +191,23 @@ export default function RemindersPage() {
   }
 
   /**
-   * Handle permission granted - register device token
+   * Handle permission granted
+   *
+   * For NATIVE: Just save preference and continue. The actual token registration
+   * happens via setupNativePush() in PremiumGate after the user logs in.
+   * This prevents 401 errors since the user isn't authenticated during onboarding.
+   *
+   * For WEB: Use the existing subscribePush flow which handles web push subscriptions.
    */
   async function handleGrantedPermission() {
     try {
-      console.log('[RemindersPage] Permission granted, registering device');
+      console.log('[RemindersPage] Permission granted');
 
       if (isNative) {
-        // Native platform - register for push with token callback
-        await registerForPush(async (token) => {
-          console.log('[RemindersPage] Received push token:', token.value);
-
-          // Get or create device ID
-          let deviceId = localStorage.getItem('deviceId');
-          if (!deviceId) {
-            deviceId = `device_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-            localStorage.setItem('deviceId', deviceId);
-          }
-
-          // Send token to backend using correct native endpoint
-          try {
-            console.log('[RemindersPage] Sending token to /api/push/register-native');
-            const response = await fetch('/api/push/register-native', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                token: token.value,
-                platform: Capacitor.getPlatform(),
-                deviceId
-              })
-            });
-
-            const responseText = await response.text();
-            console.log('[RemindersPage] Backend response:', response.status, responseText);
-
-            if (response.ok) {
-              console.log('[RemindersPage] ✓ Token registered with backend successfully');
-            } else {
-              console.error('[RemindersPage] Failed to register token:', responseText);
-            }
-          } catch (err) {
-            console.error('[RemindersPage] Error sending token to backend:', err);
-          }
-        });
+        // Native: Permission granted is enough for onboarding.
+        // Token registration will happen automatically via setupNativePush()
+        // in PremiumGate after the user completes login.
+        console.log('[RemindersPage] Native platform - permission saved, token registration deferred to post-login');
       } else {
         // Web platform - use existing subscribePush flow
         const result = await subscribePush();

@@ -72,7 +72,11 @@ export async function requestPushPermission(): Promise<PushPermissionStatus> {
 
 /**
  * Register for push notifications and set up token listener
- * Should only be called after permission is granted
+ *
+ * @deprecated Use setupNativePush() from lib/push-notifications-native.ts instead.
+ * That function handles the complete flow: permissions, registration, and saving to Supabase.
+ * This function is kept for reference but is no longer used.
+ *
  * @param onToken Callback to handle the device token
  */
 export async function registerForPush(
