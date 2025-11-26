@@ -18,6 +18,7 @@ export type OnboardingStepId =
   | "activity"
   | "diet"
   | "readiness"
+  | "rating"
   | "reminders";
 
 export const ONBOARDING_STEPS: OnboardingStepId[] = [
@@ -35,6 +36,7 @@ export const ONBOARDING_STEPS: OnboardingStepId[] = [
   "activity",
   "diet",
   "readiness",
+  "rating",
   "reminders",
 ];
 
@@ -53,7 +55,8 @@ export const STEP_INDEX: Record<OnboardingStepId, number> = {
   activity: 11,
   diet: 12,
   readiness: 13,
-  reminders: 14,
+  rating: 14,
+  reminders: 15,
 };
 
 export const TOTAL_STEPS = ONBOARDING_STEPS.length;

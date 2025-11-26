@@ -204,21 +204,33 @@ export default function RemindersPage() {
         await registerForPush(async (token) => {
           console.log('[RemindersPage] Received push token:', token.value);
 
-          // Send token to backend
+          // Get or create device ID
+          let deviceId = localStorage.getItem('deviceId');
+          if (!deviceId) {
+            deviceId = `device_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+            localStorage.setItem('deviceId', deviceId);
+          }
+
+          // Send token to backend using correct native endpoint
           try {
-            const response = await fetch('/api/push/subscribe', {
+            console.log('[RemindersPage] Sending token to /api/push/register-native');
+            const response = await fetch('/api/push/register-native', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
                 token: token.value,
-                platform: Capacitor.getPlatform()
+                platform: Capacitor.getPlatform(),
+                deviceId
               })
             });
 
+            const responseText = await response.text();
+            console.log('[RemindersPage] Backend response:', response.status, responseText);
+
             if (response.ok) {
-              console.log('[RemindersPage] Token registered with backend');
+              console.log('[RemindersPage] ✓ Token registered with backend successfully');
             } else {
-              console.error('[RemindersPage] Failed to register token:', await response.text());
+              console.error('[RemindersPage] Failed to register token:', responseText);
             }
           } catch (err) {
             console.error('[RemindersPage] Error sending token to backend:', err);

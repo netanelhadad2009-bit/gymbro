@@ -221,13 +221,13 @@ export default function ReadinessPage() {
     const permissionStatus = await getPushStatus();
 
     if (permissionStatus === 'granted') {
-      // Already granted - skip reminders page and go straight to generating
-      console.log('[ReadinessPage] Notifications already granted, skipping reminders page');
+      // Already granted - skip rating and reminders pages and go straight to generating
+      console.log('[ReadinessPage] Notifications already granted, skipping rating and reminders pages');
       saveOnboardingData({ notifications_opt_in: true });
       router.push("/onboarding/generating");
     } else {
-      // Not granted - show reminders page to request permission
-      router.push("/onboarding/reminders");
+      // Not granted - show rating page first, then reminders
+      router.push("/onboarding/rating");
     }
   };
 

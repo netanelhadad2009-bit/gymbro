@@ -38,7 +38,6 @@ export default function NutritionPage() {
   const [data, setData] = useState<NutritionPlanT | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [validationBanner, setValidationBanner] = useState<string | null>(null); // Client-side validation warning
   const [currentDayIndex, setCurrentDayIndex] = useState(() => new Date().getDay()); // Initialize to current day of week (0-6)
   const [showSummary, setShowSummary] = useState(false);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
@@ -121,7 +120,6 @@ export default function NutritionPage() {
 
     setLoading(true);
     setError(null);
-    setValidationBanner(null);
 
     try {
       // Step 0: Migrate birthdate for returning users if needed
@@ -155,41 +153,14 @@ export default function NutritionPage() {
         console.log("[Nutrition] Built payload:", { payload, missing });
       }
 
-      // Step 3: CLIENT-SIDE VALIDATION - Show banner and stop if fields are missing
-      if (missing.length > 0) {
-        const fieldNames: Record<string, string> = {
-          gender_he: "מין",
-          age: "גיל",
-          height_cm: "גובה",
-          weight_kg: "משקל נוכחי",
-          target_weight_kg: "משקל יעד",
-          activity_level_he: "רמת פעילות",
-          goal_he: "מטרה",
-          diet_type_he: "סוג תזונה",
-          days: "מספר ימים"
-        };
-
-        const missingNames = missing.map(field => fieldNames[field] || field).join(", ");
-
-        setValidationBanner(
-          `נתונים חסרים בפרופיל: ${missingNames}\n\n` +
-          "כדי לקבל תוכנית תזונה מותאמת אישית, יש להשלים את כל הפרטים בתהליך ההרשמה." +
-          (profile.source ? `\n\n(מקור נתונים: ${profile.source})` : "")
-        );
-        setLoading(false);
-
-        console.warn("[Nutrition] Client validation failed:", { missing, profile });
-        return; // DO NOT make API call
-      }
-
-      // Step 4: Calculate fingerprint for cache
+      // Step 3: Calculate fingerprint for cache
       const fingerprint = storage.profileFingerprint(payload);
 
       if (process.env.NEXT_PUBLIC_LOG_CACHE === "1") {
         console.log("[Nutrition] Cache key:", { userId, fingerprint });
       }
 
-      // Step 5: Try cache first (unless force refresh)
+      // Step 4: Try cache first (unless force refresh)
       if (!forceRefresh) {
         const cached = storage.getNutritionPlan(userId, payload, 7);
 
@@ -225,7 +196,7 @@ export default function NutritionPage() {
         storage.clearNutritionPlans(userId);
       }
 
-      // Step 6: Fetch persisted plan (never regenerate)
+      // Step 5: Fetch persisted plan (never regenerate)
       const response = await fetch("/api/nutrition/plan", {
         method: "GET",
         headers: { "Cache-Control": "no-store" },
@@ -234,11 +205,9 @@ export default function NutritionPage() {
 
       if (!response.ok) {
         if (response.status === 404) {
-          // No plan found - show CTA to complete onboarding
-          setValidationBanner(
-            "לא נמצאה תוכנית תזונה.\n\n" +
-            "כדי לקבל תוכנית תזונה מותאמת אישית, השלם את תהליך ההרשמה."
-          );
+          // No plan found - continue with empty state (UI will handle it gracefully)
+          console.log("[Nutrition] No plan found (404) - showing empty state");
+          setData(null);
           setLoading(false);
           return;
         }
@@ -266,7 +235,7 @@ export default function NutritionPage() {
       const result: NutritionPlanT = apiResponse.plan;
       setData(result);
 
-      // Step 7: Save to user-scoped cache with fingerprint
+      // Step 6: Save to user-scoped cache with fingerprint
       // Guard: only cache real plans
       if (result && typeof result === 'object' && result.days) {
         storage.setNutritionPlan(userId, payload, result);
@@ -962,35 +931,6 @@ export default function NutritionPage() {
           </>
         )}
 
-        {/* Validation banner - shown BEFORE making API call */}
-        {validationBanner && (
-          <div className="w-full bg-yellow-900/20 border border-yellow-700 rounded-2xl p-6">
-            <div className="text-center">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-12 h-12 text-yellow-400 mx-auto mb-3">
-                <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/>
-                <line x1="12" y1="9" x2="12" y2="13"/>
-                <line x1="12" y1="17" x2="12.01" y2="17"/>
-              </svg>
-              <div className="text-yellow-400 mb-4 whitespace-pre-wrap text-sm leading-relaxed">{validationBanner}</div>
-              <button
-                onClick={() => {
-                  // Clear all nutrition cache before redirecting
-                  if (userId) {
-                    storage.clearNutritionPlans(userId);
-                    if (process.env.NEXT_PUBLIC_LOG_CACHE === "1") {
-                      console.log("[Nutrition] Clearing cache before profile completion");
-                    }
-                  }
-                  window.location.href = "/onboarding/gender";
-                }}
-                className="px-6 py-2 bg-yellow-400 text-black font-medium rounded-lg active:opacity-90"
-              >
-                השלם פרטים
-              </button>
-            </div>
-          </div>
-        )}
-
         {/* Error state */}
         {error && (
           <div className="w-full bg-red-900/20 border border-red-800 rounded-2xl p-6">
@@ -1011,24 +951,8 @@ export default function NutritionPage() {
           </div>
         )}
 
-        {/* Empty state */}
-        {!loading && !error && !hasDays && (
-          <div className="flex flex-col items-center justify-center h-64 text-center">
-            <h2 className="text-xl font-semibold text-white mb-2">אין תפריט פעיל</h2>
-            <p className="text-neutral-400 mb-4">
-              נסה לייצר תפריט תזונה חדש או לרענן את העמוד.
-            </p>
-            <button
-              onClick={() => loadNutritionData(true)}
-              className="bg-lime-400 text-black font-medium rounded-xl px-5 py-2 active:opacity-90"
-            >
-              צור תפריט חדש
-            </button>
-          </div>
-        )}
-
-        {/* Success state */}
-        {!loading && !error && hasDays && currentDay && (
+        {/* Main nutrition UI - always show unless loading or error */}
+        {!loading && !error && (
           <>
             {/* Calories widget */}
             <CaloriesWidget

@@ -24,6 +24,31 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         return true
     }
 
+    // MARK: - Push Notification Delegates
+    // These methods forward APNs events to Capacitor's PushNotifications plugin
+
+    func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+        // Convert token to hex string for logging
+        let tokenString = deviceToken.map { String(format: "%02.2hhx", $0) }.joined()
+        print("📱 [APNs] Received device token: \(tokenString.prefix(20))...")
+
+        // Forward to Capacitor's notification handler
+        NotificationCenter.default.post(
+            name: .capacitorDidRegisterForRemoteNotifications,
+            object: deviceToken
+        )
+    }
+
+    func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
+        print("❌ [APNs] Failed to register: \(error.localizedDescription)")
+
+        // Forward error to Capacitor
+        NotificationCenter.default.post(
+            name: .capacitorDidFailToRegisterForRemoteNotifications,
+            object: error
+        )
+    }
+
     // MARK: UISceneSession Lifecycle
 
     func application(_ application: UIApplication, configurationForConnecting connectingSceneSession: UISceneSession, options: UIScene.ConnectionOptions) -> UISceneConfiguration {

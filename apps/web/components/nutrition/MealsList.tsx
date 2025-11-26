@@ -4,7 +4,7 @@ import { useState } from "react";
 import type { DayPlanT } from "@/lib/schemas/nutrition";
 
 type Props = {
-  day: DayPlanT;
+  day: DayPlanT | null;
   eatenMeals: Set<number>;
   onToggleMeal: (mealIndex: number) => void;
 };
@@ -12,10 +12,10 @@ type Props = {
 export function MealsList({ day, eatenMeals, onToggleMeal }: Props) {
   const [expandedMealIndex, setExpandedMealIndex] = useState<number | null>(null);
 
-  if (!day.meals || day.meals.length === 0) {
+  if (!day || !day.meals || day.meals.length === 0) {
     return (
       <div className="w-full bg-neutral-900/80 border border-neutral-800 rounded-2xl shadow-lg p-8 text-center">
-        <div className="text-neutral-500">עוד לא הוספת ארוחות היום</div>
+        <div className="text-neutral-500">אין ארוחות מתוכננות להיום</div>
       </div>
     );
   }

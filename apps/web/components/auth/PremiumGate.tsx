@@ -1,9 +1,10 @@
 "use client";
 
-import { ReactNode, useEffect } from "react";
+import { ReactNode, useEffect, useRef } from "react";
 import { useAuth } from "@/contexts/AuthProvider";
 import { usePathname, useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
+import { Capacitor } from "@capacitor/core";
 
 interface PremiumGateProps {
   children: ReactNode;
@@ -55,6 +56,26 @@ export function PremiumGate({ children }: PremiumGateProps) {
       pathname,
     });
   }, [user, loading, isPremium, isSubscriptionLoading, isPremiumOrTrialPage, router, pathname]);
+
+  // Set up native push notifications for logged-in users on native platform
+  const pushSetupAttempted = useRef(false);
+  useEffect(() => {
+    // Only run once per mount, only on native, only when we have a user
+    if (pushSetupAttempted.current) return;
+    if (!user?.id) return;
+    if (typeof window === "undefined") return;
+    if (!Capacitor.isNativePlatform()) return;
+
+    pushSetupAttempted.current = true;
+    console.log("[PremiumGate] Calling setupNativePush for user:", user.id.substring(0, 8) + "...");
+
+    // Dynamic import to avoid loading push code on web
+    import("@/lib/push-notifications-native").then(({ setupNativePush }) => {
+      setupNativePush(user.id);
+    }).catch((err) => {
+      console.error("[PremiumGate] Failed to load push notifications module:", err);
+    });
+  }, [user?.id]);
 
   // Show loading state while checking auth/subscription
   if (loading || isSubscriptionLoading) {

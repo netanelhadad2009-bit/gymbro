@@ -43,42 +43,86 @@ export async function POST(request: NextRequest) {
 
     const { token, platform, deviceId } = validation.data;
 
-    console.log('[API] Native push token registration:', {
+    console.log('[PushRegisterNative] Native push token registration:', {
       userId: user.id.substring(0, 8),
       token: token?.substring(0, 20) + '...',
       platform,
       deviceId
     });
 
-    // Save or update subscription in database
-    // Use upsert to handle re-registrations (e.g., app reinstall)
-    const { data: subscription, error: dbError } = await supabase
+    // First, check if an active subscription already exists for this user+platform+token
+    const { data: existing, error: findError } = await supabase
       .from('push_subscriptions')
-      .upsert({
-        user_id: user.id,
-        platform,
-        token,
-        device_id: deviceId,
-        user_agent: request.headers.get('user-agent') || undefined,
-        active: true,
-        last_used_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      }, {
-        onConflict: 'user_id,platform,token',
-        ignoreDuplicates: false
-      })
-      .select()
-      .single();
+      .select('id')
+      .eq('user_id', user.id)
+      .eq('platform', platform)
+      .eq('token', token)
+      .eq('active', true)
+      .maybeSingle();
+
+    if (findError) {
+      console.error('[PushRegisterNative] Error finding existing subscription:', findError);
+    }
+
+    let subscription;
+    let dbError;
+
+    if (existing) {
+      // Update existing subscription
+      console.log('[PushRegisterNative] Updating existing subscription:', existing.id.substring(0, 8));
+      const result = await supabase
+        .from('push_subscriptions')
+        .update({
+          device_id: deviceId,
+          user_agent: request.headers.get('user-agent') || undefined,
+          last_used_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', existing.id)
+        .select()
+        .single();
+
+      subscription = result.data;
+      dbError = result.error;
+    } else {
+      // Deactivate any old subscriptions for this user+platform first
+      await supabase
+        .from('push_subscriptions')
+        .update({ active: false, updated_at: new Date().toISOString() })
+        .eq('user_id', user.id)
+        .eq('platform', platform)
+        .eq('active', true);
+
+      // Insert new subscription
+      console.log('[PushRegisterNative] Creating new subscription');
+      const result = await supabase
+        .from('push_subscriptions')
+        .insert({
+          user_id: user.id,
+          platform,
+          token,
+          device_id: deviceId,
+          user_agent: request.headers.get('user-agent') || undefined,
+          active: true,
+          last_used_at: new Date().toISOString()
+        })
+        .select()
+        .single();
+
+      subscription = result.data;
+      dbError = result.error;
+    }
 
     if (dbError) {
       console.error('[PushRegisterNative] Database error saving token:', dbError);
       throw new Error(`Failed to save token: ${dbError.message}`);
     }
 
-    console.log('[PushRegisterNative] Token saved successfully:', {
+    console.log('[PushRegisterNative] ✓ Token saved successfully:', {
       subscriptionId: subscription.id.substring(0, 8),
       userId: user.id.substring(0, 8),
-      platform
+      platform,
+      isUpdate: !!existing
     });
 
     return NextResponse.json({

@@ -55,6 +55,20 @@ if (process.env.NODE_ENV !== 'test') {
 const nextConfig = {
   reactStrictMode: true,
 
+  // Image optimization configuration
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'i.pravatar.cc',
+      },
+    ],
+  },
+
   // Prevent webpack cache corruption issues
   webpack: (config, { dev, isServer }) => {
     if (dev) {

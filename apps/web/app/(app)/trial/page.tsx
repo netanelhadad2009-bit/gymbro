@@ -34,8 +34,8 @@ export default function TrialPage() {
       className="min-h-[100dvh] bg-[#0D0E0F] text-white flex flex-col pt-safe pb-safe overflow-hidden"
     >
       {/* Top section - Title & Subtitle */}
-      <div className="pt-2 pb-1 text-center shrink-0 px-4">
-        <h1 className="text-3xl font-bold mb-1 leading-tight">
+      <div className="pt-8 pb-1 text-center shrink-0 px-4">
+        <h1 className="text-4xl font-bold mb-3 leading-tight">
           התחל את המסע שלך<br />עם ניסיון חינמי
         </h1>
         <p className="text-base text-white/70 leading-snug px-2">
@@ -44,12 +44,12 @@ export default function TrialPage() {
       </div>
 
       {/* Middle section - Mockup image */}
-      <div className="flex-1 relative w-full min-h-0 -my-2 px-8">
+      <div className="flex-1 relative w-full min-h-0 -my-2 px-16">
         <Image
           src="/images/fitjourney-trial-mockup-large.webp"
           alt="מסכי הדוגמה של FitJourney"
           fill
-          className="object-contain scale-[1.4]"
+          className="object-contain scale-[1.15]"
           priority
         />
       </div>

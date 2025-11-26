@@ -10,7 +10,8 @@ import PrimaryButton from "@/components/PrimaryButton";
 
 export default function MetricsPage() {
   const router = useRouter();
-  const [height, setHeight] = useState(173);
+  // Default values for new users (will be overridden by saved data if it exists)
+  const [height, setHeight] = useState(160);
   const [weight, setWeight] = useState(55);
   const submittedRef = useRef(false);
 

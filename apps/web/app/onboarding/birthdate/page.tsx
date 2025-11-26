@@ -17,9 +17,10 @@ export default function BirthdatePage() {
   const router = useRouter();
   const currentYear = new Date().getFullYear();
 
-  const [year, setYear] = useState(2002);
-  const [month, setMonth] = useState(3); // April (0-indexed)
-  const [day, setDay] = useState(5);
+  // Default to age 18 (will be overridden by saved data if it exists)
+  const [year, setYear] = useState(currentYear - 18);
+  const [month, setMonth] = useState(0); // January (0-indexed)
+  const [day, setDay] = useState(1);
   const submittedRef = useRef(false);
 
   const yearRef = useRef<HTMLDivElement>(null);
