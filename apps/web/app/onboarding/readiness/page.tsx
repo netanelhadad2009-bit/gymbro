@@ -4,8 +4,6 @@ import { useRouter } from "next/navigation";
 import { useMemo, useState, useEffect } from "react";
 import OnboardingHeader from "../components/OnboardingHeader";
 import { supabase } from "@/lib/supabase";
-import { getPushStatus } from '@/lib/notifications/permissions';
-import { saveOnboardingData } from "@/lib/onboarding-storage";
 
 type Point = { label: string; weight: number; days: number };
 
@@ -217,18 +215,9 @@ export default function ReadinessPage() {
   ].join(" ");
 
   const handleContinue = async () => {
-    // Check if notifications are already granted
-    const permissionStatus = await getPushStatus();
-
-    if (permissionStatus === 'granted') {
-      // Already granted - skip rating and reminders pages and go straight to generating
-      console.log('[ReadinessPage] Notifications already granted, skipping rating and reminders pages');
-      saveOnboardingData({ notifications_opt_in: true });
-      router.push("/onboarding/generating");
-    } else {
-      // Not granted - show rating page first, then reminders
-      router.push("/onboarding/rating");
-    }
+    // Always show rating page (reviews/testimonials) regardless of notification status
+    // The rating page will check notification status and skip reminders if already granted
+    router.push("/onboarding/rating");
   };
 
   return (

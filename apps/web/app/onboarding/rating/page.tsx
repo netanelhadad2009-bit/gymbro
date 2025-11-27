@@ -5,6 +5,8 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import PrimaryButton from "@/components/PrimaryButton";
 import { useOnboardingContext } from "../OnboardingContext";
+import { getPushStatus } from '@/lib/notifications/permissions';
+import { saveOnboardingData } from "@/lib/onboarding-storage";
 
 export default function RatingPage() {
   const router = useRouter();
@@ -19,9 +21,21 @@ export default function RatingPage() {
     return () => clearTimeout(timer);
   }, []);
 
-  const handleContinue = () => {
+  const handleContinue = async () => {
     if (!isButtonEnabled) return;
-    router.push("/onboarding/reminders");
+
+    // Check if notifications are already granted
+    const permissionStatus = await getPushStatus();
+
+    if (permissionStatus === 'granted') {
+      // Already granted - skip reminders page and go straight to generating
+      console.log('[RatingPage] Notifications already granted, skipping reminders page');
+      saveOnboardingData({ notifications_opt_in: true });
+      router.push("/onboarding/generating");
+    } else {
+      // Not granted - show reminders page to request permission
+      router.push("/onboarding/reminders");
+    }
   };
 
   return (
