@@ -32,35 +32,12 @@ export async function saveAppleSubscription(
   });
 
   try {
-    // Calculate period end based on plan
-    const now = new Date();
-    let periodEnd: Date;
-    if (plan === 'yearly') {
-      periodEnd = new Date(now.getFullYear() + 1, now.getMonth(), now.getDate());
-    } else {
-      periodEnd = new Date(now.getFullYear(), now.getMonth() + 1, now.getDate());
-    }
-
-    // First, cancel any existing active subscriptions
-    const { error: cancelError } = await supabase
-      .from("Subscription")
-      .update({ status: 'canceled' })
-      .eq("userId", appUserId)
-      .in("status", ["active", "trialing"]);
-
-    if (cancelError) {
-      console.warn("[Subscription][Client] Failed to cancel old subscriptions", cancelError);
-    }
-
     // Insert new subscription
-    // Note: We store the transaction ID in the 'id' field or as metadata
-    // The Subscription table might not have apple_transaction_id column
+    // Only use columns that exist in the Subscription table: id, userId, provider, status
     const subscriptionData: Record<string, any> = {
       userId: appUserId,
       provider: 'apple',
       status: 'active',
-      plan: plan,
-      current_period_end: periodEnd.toISOString(),
     };
 
     console.log("[Subscription][Client] Inserting subscription:", subscriptionData);
