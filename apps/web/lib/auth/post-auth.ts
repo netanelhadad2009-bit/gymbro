@@ -694,96 +694,107 @@ export async function runPostAuthFlow({
     await new Promise((resolve) => setTimeout(resolve, 100));
 
     // ============================================================
-    // STEP 5: Bootstrap journey plan
+    // STEPS 5 & 6: Run in PARALLEL for faster execution
+    // Both are critical and independent of each other
     // ============================================================
-    console.log('[PostAuth] Step 5/8: Bootstrapping journey plan...');
+    console.log('[PostAuth] Steps 5-6/8: Running journey plan and stages setup in PARALLEL...');
+
+    // Pre-fetch cached stages before parallel execution (needed for step 6 logic)
+    const stagesKey = `stages_${userId}`;
+    const cachedStagesStr = await storage.getItem(stagesKey);
+    const cachedStages = cachedStagesStr ? JSON.parse(cachedStagesStr) : null;
+    const hasPreGeneratedStages = !!(
+      cachedStages &&
+      Array.isArray(cachedStages) &&
+      cachedStages.length > 0
+    );
+
     try {
-      const bootstrapRes = await fetch('/api/journey/plan/bootstrap', {
-        method: 'POST',
-        credentials: 'include',
+      const [journeyResult, stagesResult] = await Promise.all([
+        // STEP 5: Bootstrap journey plan
+        (async () => {
+          console.log('[PostAuth] [Parallel] Starting journey plan bootstrap...');
+          const bootstrapRes = await fetch('/api/journey/plan/bootstrap', {
+            method: 'POST',
+            credentials: 'include',
+          });
+
+          if (!bootstrapRes.ok) {
+            const errorText = await bootstrapRes.text();
+            console.error('[PostAuth] Journey bootstrap failed:', {
+              status: bootstrapRes.status,
+              statusText: bootstrapRes.statusText,
+              body: errorText,
+            });
+            throw new Error(`Journey bootstrap failed: ${bootstrapRes.status}`);
+          }
+
+          const bootstrapData = await bootstrapRes.json();
+          console.log('[PostAuth] ✅ Journey plan bootstrapped:', bootstrapData);
+          return { step: 5, success: true, data: bootstrapData };
+        })(),
+
+        // STEP 6: Bootstrap or attach workout stages
+        (async () => {
+          if (hasPreGeneratedStages) {
+            console.log('[PostAuth] [Parallel] Found pre-generated stages, attaching...');
+
+            const attachStagesRes = await fetch('/api/journey/stages/attach', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              credentials: 'include',
+              body: JSON.stringify({ stages: cachedStages }),
+            });
+
+            if (!attachStagesRes.ok) {
+              const errorText = await attachStagesRes.text();
+              console.error('[PostAuth] Stages attachment failed:', {
+                status: attachStagesRes.status,
+                statusText: attachStagesRes.statusText,
+                body: errorText,
+              });
+              throw new Error(`Stages attachment failed: ${attachStagesRes.status}`);
+            }
+
+            const attachResult = await attachStagesRes.json();
+            console.log('[PostAuth] ✅ Pre-generated stages attached:', attachResult);
+
+            // Clear cached stages after successful attachment
+            await storage.removeItem(stagesKey);
+            return { step: 6, success: true, mode: 'attached', data: attachResult };
+          } else {
+            console.log('[PostAuth] [Parallel] No pre-generated stages, bootstrapping fresh...');
+
+            const bootstrapStagesRes = await fetch('/api/journey/stages/bootstrap', {
+              method: 'POST',
+              credentials: 'include',
+            });
+
+            if (!bootstrapStagesRes.ok) {
+              const errorText = await bootstrapStagesRes.text();
+              console.error('[PostAuth] Stages bootstrap failed:', {
+                status: bootstrapStagesRes.status,
+                statusText: bootstrapStagesRes.statusText,
+                body: errorText,
+              });
+              throw new Error(`Stages bootstrap failed: ${bootstrapStagesRes.status}`);
+            }
+
+            const bootstrapResult = await bootstrapStagesRes.json();
+            console.log('[PostAuth] ✅ Fresh stages bootstrapped:', bootstrapResult);
+            return { step: 6, success: true, mode: 'bootstrapped', data: bootstrapResult };
+          }
+        })(),
+      ]);
+
+      console.log('[PostAuth] ✅ Steps 5-6 parallel tasks completed:', {
+        journey: journeyResult.success,
+        stages: stagesResult.success,
+        stagesMode: stagesResult.mode,
       });
-
-      if (!bootstrapRes.ok) {
-        const errorText = await bootstrapRes.text();
-        console.error('[PostAuth] Journey bootstrap failed:', {
-          status: bootstrapRes.status,
-          statusText: bootstrapRes.statusText,
-          body: errorText,
-        });
-        throw new Error(`Journey bootstrap failed: ${bootstrapRes.status}`);
-      }
-
-      const bootstrapData = await bootstrapRes.json();
-      console.log('[PostAuth] ✅ Journey plan bootstrapped:', bootstrapData);
     } catch (err) {
-      console.error('[PostAuth] ❌ Critical: Journey bootstrap failed:', err);
-      throw err; // This is critical
-    }
-
-    // ============================================================
-    // STEP 6: Bootstrap or attach workout stages
-    // ============================================================
-    console.log('[PostAuth] Step 6/8: Setting up workout stages...');
-    try {
-      // Check if user has pre-generated stages in storage
-      const stagesKey = `stages_${userId}`;
-      const cachedStagesStr = await storage.getItem(stagesKey);
-      const cachedStages = cachedStagesStr ? JSON.parse(cachedStagesStr) : null;
-      const hasPreGeneratedStages = !!(
-        cachedStages &&
-        Array.isArray(cachedStages) &&
-        cachedStages.length > 0
-      );
-
-      if (hasPreGeneratedStages) {
-        console.log('[PostAuth] Found pre-generated stages, attaching...');
-
-        const attachStagesRes = await fetch('/api/journey/stages/attach', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
-          body: JSON.stringify({ stages: cachedStages }),
-        });
-
-        if (!attachStagesRes.ok) {
-          const errorText = await attachStagesRes.text();
-          console.error('[PostAuth] Stages attachment failed:', {
-            status: attachStagesRes.status,
-            statusText: attachStagesRes.statusText,
-            body: errorText,
-          });
-          throw new Error(`Stages attachment failed: ${attachStagesRes.status}`);
-        }
-
-        const attachResult = await attachStagesRes.json();
-        console.log('[PostAuth] ✅ Pre-generated stages attached:', attachResult);
-
-        // Clear cached stages after successful attachment
-        await storage.removeItem(stagesKey);
-      } else {
-        console.log('[PostAuth] No pre-generated stages, bootstrapping fresh stages...');
-
-        const bootstrapStagesRes = await fetch('/api/journey/stages/bootstrap', {
-          method: 'POST',
-          credentials: 'include',
-        });
-
-        if (!bootstrapStagesRes.ok) {
-          const errorText = await bootstrapStagesRes.text();
-          console.error('[PostAuth] Stages bootstrap failed:', {
-            status: bootstrapStagesRes.status,
-            statusText: bootstrapStagesRes.statusText,
-            body: errorText,
-          });
-          throw new Error(`Stages bootstrap failed: ${bootstrapStagesRes.status}`);
-        }
-
-        const bootstrapResult = await bootstrapStagesRes.json();
-        console.log('[PostAuth] ✅ Fresh stages bootstrapped:', bootstrapResult);
-      }
-    } catch (err) {
-      console.error('[PostAuth] ❌ Critical: Stages setup failed:', err);
-      throw err; // This is critical
+      console.error('[PostAuth] ❌ Critical: Steps 5-6 parallel execution failed:', err);
+      throw err; // Both are critical
     }
 
     // ============================================================
