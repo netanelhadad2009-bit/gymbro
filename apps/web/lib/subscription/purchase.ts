@@ -5,6 +5,9 @@
  * Product IDs:
  * - com.fitjourney.app.premium.monthly
  * - com.fitjourney.app.premium.yearly
+ *
+ * IMPORTANT: cordova-plugin-purchase adds CdvPurchase to window only AFTER
+ * the 'deviceready' event fires. We must wait for that before accessing the store.
  */
 
 import { Capacitor } from '@capacitor/core';
@@ -14,36 +17,6 @@ declare global {
   interface Window {
     CdvPurchase?: any;
   }
-}
-
-// CdvPurchase types (simplified for our usage)
-declare namespace CdvPurchase {
-  const store: {
-    register: (products: any[]) => void;
-    when: () => {
-      approved: (fn: (t: any) => void) => ReturnType<typeof store.when>;
-      verified: (fn: (r: any) => void) => ReturnType<typeof store.when>;
-      finished: (fn: (t: any) => void) => ReturnType<typeof store.when>;
-      cancelled: (fn: (t: any) => void) => ReturnType<typeof store.when>;
-      receiptUpdated: (fn: (r: any) => void) => ReturnType<typeof store.when>;
-    };
-    error: (fn: (e: any) => void) => void;
-    initialize: (platforms: any[]) => Promise<void>;
-    update: () => Promise<void>;
-    get: (id: string) => any;
-    restorePurchases: () => Promise<void>;
-  };
-  const ProductType: {
-    PAID_SUBSCRIPTION: string;
-  };
-  const Platform: {
-    APPLE_APPSTORE: string;
-  };
-  const ErrorCode: {
-    PAYMENT_CANCELLED: number;
-    PAYMENT_NOT_ALLOWED: number;
-    PRODUCT_NOT_AVAILABLE: number;
-  };
 }
 
 // Product IDs from App Store Connect
@@ -65,68 +38,172 @@ export interface PurchaseResult {
 // Store state
 let storeInitialized = false;
 let storeInitializing = false;
+let deviceReadyFired = false;
+let cdvPurchaseReadyPromise: Promise<boolean> | null = null;
+
+/**
+ * Wait for CdvPurchase to be available
+ * This waits for the deviceready event and then checks for CdvPurchase.store
+ * @param timeoutMs - Maximum time to wait (default 10 seconds)
+ */
+function waitForCdvPurchase(timeoutMs: number = 10000): Promise<boolean> {
+  // Return existing promise if already waiting
+  if (cdvPurchaseReadyPromise) {
+    return cdvPurchaseReadyPromise;
+  }
+
+  cdvPurchaseReadyPromise = new Promise((resolve) => {
+    // Not in browser or not native platform
+    if (typeof window === 'undefined' || typeof document === 'undefined') {
+      console.log('[PremiumPurchase] Not in browser environment');
+      resolve(false);
+      return;
+    }
+
+    if (!Capacitor.isNativePlatform()) {
+      console.log('[PremiumPurchase] Not on native platform (web browser)');
+      resolve(false);
+      return;
+    }
+
+    // Check if CdvPurchase is already available
+    if (window.CdvPurchase?.store) {
+      console.log('[PremiumPurchase] CdvPurchase.store already available');
+      deviceReadyFired = true;
+      resolve(true);
+      return;
+    }
+
+    console.log('[PremiumPurchase] Waiting for CdvPurchase.store to become available...');
+
+    const startTime = Date.now();
+
+    // Handler for when deviceready fires
+    const onDeviceReady = () => {
+      console.log('[PremiumPurchase] deviceready event fired');
+      deviceReadyFired = true;
+      checkForStore();
+    };
+
+    // Poll for CdvPurchase.store
+    const checkForStore = () => {
+      if (window.CdvPurchase?.store) {
+        console.log('[PremiumPurchase] CdvPurchase.store is now available');
+        cleanup();
+        resolve(true);
+        return;
+      }
+
+      const elapsed = Date.now() - startTime;
+      if (elapsed >= timeoutMs) {
+        console.error('[PremiumPurchase] Timeout waiting for CdvPurchase.store after', elapsed, 'ms');
+        console.error('[PremiumPurchase] deviceready fired:', deviceReadyFired);
+        console.error('[PremiumPurchase] window.CdvPurchase:', typeof window.CdvPurchase);
+        cleanup();
+        resolve(false);
+        return;
+      }
+
+      // Keep polling
+      setTimeout(checkForStore, 100);
+    };
+
+    const cleanup = () => {
+      document.removeEventListener('deviceready', onDeviceReady);
+    };
+
+    // Listen for deviceready
+    document.addEventListener('deviceready', onDeviceReady, false);
+
+    // If deviceready already fired, start checking immediately
+    // (deviceready might have fired before we added the listener)
+    if (deviceReadyFired || (window as any).cordova) {
+      console.log('[PremiumPurchase] Cordova detected, starting store check');
+      checkForStore();
+    }
+
+    // Also start a fallback check in case deviceready already fired
+    setTimeout(() => {
+      if (!deviceReadyFired) {
+        console.log('[PremiumPurchase] Starting fallback store check (deviceready may have already fired)');
+        checkForStore();
+      }
+    }, 100);
+  });
+
+  return cdvPurchaseReadyPromise;
+}
 
 /**
  * Get the CdvPurchase store instance
- * Only available on native platforms
+ * Returns null if not available yet
  */
-function getStore(): typeof CdvPurchase.store | null {
+function getStoreSync(): any | null {
   if (typeof window === 'undefined') return null;
-  if (!Capacitor.isNativePlatform()) return null;
-
-  // CdvPurchase is added to window by cordova-plugin-purchase
-  const cdvPurchase = (window as any).CdvPurchase;
-  if (!cdvPurchase?.store) {
-    console.warn('[PremiumPurchase] CdvPurchase.store not available');
-    return null;
-  }
-
-  return cdvPurchase.store;
+  return window.CdvPurchase?.store ?? null;
 }
 
 /**
  * Initialize the IAP store with product registration
- * Must be called before any purchase attempts
+ * Must be called after deviceready and before any purchase attempts
+ * Idempotent: safe to call multiple times
  */
 export async function initializeStore(): Promise<boolean> {
-  console.log('[PremiumPurchase] initializeStore called');
+  console.log('[PremiumPurchase] initializeStore() called');
 
+  // Already initialized
   if (storeInitialized) {
-    console.log('[PremiumPurchase] Store already initialized');
+    console.log('[PremiumPurchase] Store already initialized, returning true');
     return true;
   }
 
+  // Currently initializing - wait for it
   if (storeInitializing) {
-    console.log('[PremiumPurchase] Store initialization in progress, waiting...');
-    // Wait for initialization to complete
+    console.log('[PremiumPurchase] Store initialization already in progress, waiting...');
     return new Promise((resolve) => {
       const checkInterval = setInterval(() => {
         if (storeInitialized) {
           clearInterval(checkInterval);
           resolve(true);
+        } else if (!storeInitializing) {
+          // Initialization failed
+          clearInterval(checkInterval);
+          resolve(false);
         }
       }, 100);
-      // Timeout after 10 seconds
+      // Timeout after 15 seconds
       setTimeout(() => {
         clearInterval(checkInterval);
         resolve(storeInitialized);
-      }, 10000);
+      }, 15000);
     });
   }
 
   storeInitializing = true;
 
-  const store = getStore();
-  if (!store) {
-    console.log('[PremiumPurchase] Store not available (not on native platform)');
+  // Wait for CdvPurchase to be available
+  console.log('[PremiumPurchase] Waiting for CdvPurchase...');
+  const cdvReady = await waitForCdvPurchase(10000);
+
+  if (!cdvReady) {
+    console.error('[PremiumPurchase] CdvPurchase not available after waiting');
     storeInitializing = false;
     return false;
   }
 
-  const CdvPurchase = (window as any).CdvPurchase;
+  const CdvPurchase = window.CdvPurchase;
+  const store = CdvPurchase?.store;
+
+  if (!store) {
+    console.error('[PremiumPurchase] CdvPurchase.store still missing after deviceready');
+    storeInitializing = false;
+    return false;
+  }
 
   try {
     console.log('[PremiumPurchase] Registering products...');
+    console.log('[PremiumPurchase] - Monthly:', PRODUCT_IDS.monthly);
+    console.log('[PremiumPurchase] - Yearly:', PRODUCT_IDS.yearly);
 
     // Register subscription products
     store.register([
@@ -142,19 +219,21 @@ export async function initializeStore(): Promise<boolean> {
       },
     ]);
 
+    console.log('[PremiumPurchase] Products registered');
+
     // Set up transaction event handlers
     store.when()
       .approved((transaction: any) => {
-        console.log('[PremiumPurchase] Transaction approved:', transaction.transactionId);
+        console.log('[PremiumPurchase] Transaction APPROVED:', transaction.transactionId);
         // Verify with server and finish
         transaction.verify();
       })
       .verified((receipt: any) => {
-        console.log('[PremiumPurchase] Receipt verified:', receipt.id);
+        console.log('[PremiumPurchase] Receipt VERIFIED:', receipt.id);
         receipt.finish();
       })
       .finished((transaction: any) => {
-        console.log('[PremiumPurchase] Transaction finished:', transaction.transactionId);
+        console.log('[PremiumPurchase] Transaction FINISHED:', transaction.transactionId);
       })
       .receiptUpdated((receipt: any) => {
         console.log('[PremiumPurchase] Receipt updated');
@@ -162,24 +241,28 @@ export async function initializeStore(): Promise<boolean> {
 
     // Handle errors
     store.error((error: any) => {
-      console.error('[PremiumPurchase] Store error:', error.code, error.message);
+      console.error('[PremiumPurchase] Store ERROR:', error.code, error.message);
     });
 
-    // Initialize the store
-    console.log('[PremiumPurchase] Initializing store...');
-    await store.initialize([CdvPurchase.Platform.APPLE_APPSTORE]);
+    console.log('[PremiumPurchase] Event handlers registered');
 
-    // Refresh products
-    console.log('[PremiumPurchase] Refreshing products...');
+    // Initialize the store with Apple App Store platform
+    console.log('[PremiumPurchase] Calling store.initialize([APPLE_APPSTORE])...');
+    await store.initialize([CdvPurchase.Platform.APPLE_APPSTORE]);
+    console.log('[PremiumPurchase] store.initialize() completed');
+
+    // Refresh products from App Store
+    console.log('[PremiumPurchase] Calling store.update() to refresh products...');
     await store.update();
+    console.log('[PremiumPurchase] store.update() completed');
 
     storeInitialized = true;
     storeInitializing = false;
-    console.log('[PremiumPurchase] Store initialization complete');
+    console.log('[PremiumPurchase] Store initialization COMPLETE');
 
     return true;
   } catch (error: any) {
-    console.error('[PremiumPurchase] Store initialization failed:', error);
+    console.error('[PremiumPurchase] Store initialization FAILED:', error?.message || error);
     storeInitializing = false;
     return false;
   }
@@ -193,7 +276,7 @@ export async function initializeStore(): Promise<boolean> {
  */
 export async function purchaseAppleSubscription(plan: PlanType): Promise<PurchaseResult> {
   const productId = PRODUCT_IDS[plan];
-  console.log('[PremiumPurchase] Starting purchase for:', productId);
+  console.log('[PremiumPurchase] purchaseAppleSubscription() called for:', productId);
 
   // Check if we're on a native platform
   if (!Capacitor.isNativePlatform()) {
@@ -204,16 +287,20 @@ export async function purchaseAppleSubscription(plan: PlanType): Promise<Purchas
     };
   }
 
-  const store = getStore();
-  if (!store) {
-    console.error('[PremiumPurchase] Store not available');
+  // Wait for CdvPurchase to be ready
+  console.log('[PremiumPurchase] Waiting for CdvPurchase to be ready...');
+  const cdvReady = await waitForCdvPurchase(10000);
+
+  if (!cdvReady) {
+    console.error('[PremiumPurchase] CdvPurchase not available after waiting');
     return {
       success: false,
-      error: 'שירות הרכישות לא זמין כרגע. נסה שוב מאוחר יותר.',
+      error: 'שירות הרכישות עדיין נטען. נסה שוב בעוד מספר שניות.',
     };
   }
 
   // Ensure store is initialized
+  console.log('[PremiumPurchase] Ensuring store is initialized...');
   const initialized = await initializeStore();
   if (!initialized) {
     console.error('[PremiumPurchase] Failed to initialize store');
@@ -223,8 +310,20 @@ export async function purchaseAppleSubscription(plan: PlanType): Promise<Purchas
     };
   }
 
+  const CdvPurchase = window.CdvPurchase;
+  const store = CdvPurchase?.store;
+
+  if (!store) {
+    console.error('[PremiumPurchase] Store is null after initialization');
+    return {
+      success: false,
+      error: 'שירות הרכישות לא זמין כרגע. נסה שוב מאוחר יותר.',
+    };
+  }
+
   try {
     // Get the product
+    console.log('[PremiumPurchase] Getting product:', productId);
     const product = store.get(productId);
 
     if (!product) {
@@ -239,6 +338,7 @@ export async function purchaseAppleSubscription(plan: PlanType): Promise<Purchas
       id: product.id,
       title: product.title,
       pricing: product.pricing?.price,
+      canPurchase: product.canPurchase,
     });
 
     // Get the offer (subscription offer)
@@ -251,19 +351,19 @@ export async function purchaseAppleSubscription(plan: PlanType): Promise<Purchas
       };
     }
 
-    console.log('[PremiumPurchase] Initiating order...');
+    console.log('[PremiumPurchase] Offer found, initiating order...');
 
     // Create a promise that resolves when the transaction completes
     return new Promise((resolve) => {
-      const CdvPurchase = (window as any).CdvPurchase;
       let resolved = false;
 
       // Set up one-time handlers for this purchase
       const handleFinished = (transaction: any) => {
         if (resolved) return;
-        if (transaction.products.some((p: any) => p.id === productId)) {
+        const hasProduct = transaction.products?.some((p: any) => p.id === productId);
+        if (hasProduct) {
           resolved = true;
-          console.log('[PremiumPurchase] Purchase completed successfully:', transaction.transactionId);
+          console.log('[PremiumPurchase] Purchase COMPLETED successfully:', transaction.transactionId);
           resolve({
             success: true,
             transactionId: transaction.transactionId,
@@ -274,9 +374,10 @@ export async function purchaseAppleSubscription(plan: PlanType): Promise<Purchas
 
       const handleCancelled = (transaction: any) => {
         if (resolved) return;
-        if (transaction.products.some((p: any) => p.id === productId)) {
+        const hasProduct = transaction.products?.some((p: any) => p.id === productId);
+        if (hasProduct) {
           resolved = true;
-          console.log('[PremiumPurchase] Purchase cancelled by user');
+          console.log('[PremiumPurchase] Purchase CANCELLED by user');
           resolve({
             success: false,
             error: 'הרכישה בוטלה',
@@ -290,15 +391,16 @@ export async function purchaseAppleSubscription(plan: PlanType): Promise<Purchas
         .cancelled(handleCancelled);
 
       // Initiate the purchase
+      console.log('[PremiumPurchase] Calling offer.order()...');
       offer.order()
         .then(() => {
-          console.log('[PremiumPurchase] Order initiated successfully');
+          console.log('[PremiumPurchase] offer.order() promise resolved - purchase dialog should be showing');
         })
         .catch((error: any) => {
           if (resolved) return;
           resolved = true;
 
-          console.error('[PremiumPurchase] Order failed:', error);
+          console.error('[PremiumPurchase] offer.order() FAILED:', error?.code, error?.message);
 
           // Handle specific error codes
           let errorMessage = 'אירעה שגיאה בביצוע הרכישה. נסה שוב.';
@@ -321,7 +423,7 @@ export async function purchaseAppleSubscription(plan: PlanType): Promise<Purchas
       setTimeout(() => {
         if (resolved) return;
         resolved = true;
-        console.error('[PremiumPurchase] Purchase timed out');
+        console.error('[PremiumPurchase] Purchase TIMEOUT after 2 minutes');
         resolve({
           success: false,
           error: 'הרכישה נכשלה (timeout). נסה שוב.',
@@ -330,7 +432,7 @@ export async function purchaseAppleSubscription(plan: PlanType): Promise<Purchas
     });
 
   } catch (error: any) {
-    console.error('[PremiumPurchase] Purchase error:', error);
+    console.error('[PremiumPurchase] Purchase error:', error?.message || error);
     return {
       success: false,
       error: error?.message || 'אירעה שגיאה בביצוע הרכישה',
@@ -343,7 +445,7 @@ export async function purchaseAppleSubscription(plan: PlanType): Promise<Purchas
  * Useful when user reinstalls the app or uses a new device
  */
 export async function restorePurchases(): Promise<PurchaseResult> {
-  console.log('[PremiumPurchase] Restoring purchases...');
+  console.log('[PremiumPurchase] restorePurchases() called');
 
   if (!Capacitor.isNativePlatform()) {
     return {
@@ -352,11 +454,11 @@ export async function restorePurchases(): Promise<PurchaseResult> {
     };
   }
 
-  const store = getStore();
-  if (!store) {
+  const cdvReady = await waitForCdvPurchase(10000);
+  if (!cdvReady) {
     return {
       success: false,
-      error: 'שירות הרכישות לא זמין',
+      error: 'שירות הרכישות עדיין נטען. נסה שוב בעוד מספר שניות.',
     };
   }
 
@@ -368,14 +470,23 @@ export async function restorePurchases(): Promise<PurchaseResult> {
     };
   }
 
+  const store = getStoreSync();
+  if (!store) {
+    return {
+      success: false,
+      error: 'שירות הרכישות לא זמין',
+    };
+  }
+
   try {
+    console.log('[PremiumPurchase] Calling store.restorePurchases()...');
     await store.restorePurchases();
-    console.log('[PremiumPurchase] Restore completed');
+    console.log('[PremiumPurchase] Restore purchases completed');
     return {
       success: true,
     };
   } catch (error: any) {
-    console.error('[PremiumPurchase] Restore failed:', error);
+    console.error('[PremiumPurchase] Restore failed:', error?.message || error);
     return {
       success: false,
       error: error?.message || 'שחזור הרכישות נכשל',
@@ -388,7 +499,7 @@ export async function restorePurchases(): Promise<PurchaseResult> {
  * Uses local store data (for quick checks)
  */
 export function hasActiveSubscription(): boolean {
-  const store = getStore();
+  const store = getStoreSync();
   if (!store) return false;
 
   const monthlyProduct = store.get(PRODUCT_IDS.monthly);
@@ -407,12 +518,17 @@ export async function getProductPricing(): Promise<{
   monthly: { price: string; currency: string } | null;
   yearly: { price: string; currency: string } | null;
 }> {
-  const store = getStore();
-  if (!store) {
+  const cdvReady = await waitForCdvPurchase(10000);
+  if (!cdvReady) {
     return { monthly: null, yearly: null };
   }
 
   await initializeStore();
+
+  const store = getStoreSync();
+  if (!store) {
+    return { monthly: null, yearly: null };
+  }
 
   const monthlyProduct = store.get(PRODUCT_IDS.monthly);
   const yearlyProduct = store.get(PRODUCT_IDS.yearly);
