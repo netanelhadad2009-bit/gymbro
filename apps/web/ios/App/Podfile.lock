@@ -42,6 +42,8 @@ PODS:
     - FBSDKCoreKit (= 18.0.0)
     - FBSDKLoginKit (= 18.0.0)
     - GoogleSignIn (~> 9.0.0)
+  - CordovaPlugins (7.4.3):
+    - CapacitorCordova
   - FBAEMKit (18.0.0):
     - FBSDKCoreKit_Basics (= 18.0.0)
   - FBSDKCoreKit (18.0.0):
@@ -120,6 +122,7 @@ DEPENDENCIES:
   - "CapacitorPushNotifications (from `../../../../node_modules/.pnpm/@capacitor+push-notifications@7.0.3_@capacitor+core@7.4.3/node_modules/@capacitor/push-notifications`)"
   - "CapacitorStatusBar (from `../../../../node_modules/.pnpm/@capacitor+status-bar@7.0.3_@capacitor+core@7.4.3/node_modules/@capacitor/status-bar`)"
   - "CapgoCapacitorSocialLogin (from `../../../../node_modules/.pnpm/@capgo+capacitor-social-login@7.18.2_@capacitor+core@7.4.3/node_modules/@capgo/capacitor-social-login`)"
+  - CordovaPlugins (from `../capacitor-cordova-ios-plugins`)
 
 SPEC REPOS:
   trunk:
@@ -173,6 +176,8 @@ EXTERNAL SOURCES:
     :path: "../../../../node_modules/.pnpm/@capacitor+status-bar@7.0.3_@capacitor+core@7.4.3/node_modules/@capacitor/status-bar"
   CapgoCapacitorSocialLogin:
     :path: "../../../../node_modules/.pnpm/@capgo+capacitor-social-login@7.18.2_@capacitor+core@7.4.3/node_modules/@capgo/capacitor-social-login"
+  CordovaPlugins:
+    :path: "../capacitor-cordova-ios-plugins"
 
 SPEC CHECKSUMS:
   Alamofire: 7193b3b92c74a07f85569e1a6c4f4237291e7496
@@ -192,6 +197,7 @@ SPEC CHECKSUMS:
   CapacitorPushNotifications: bdd621fbd562be34a41f4a7b1750efa000447d5a
   CapacitorStatusBar: 0659ddc7b1713764a05831463d215b177a15d054
   CapgoCapacitorSocialLogin: 2c8e0364f6c72ee48d78898f86a55e932fdbe9a3
+  CordovaPlugins: 32fa8833e41de121e3f185b0c033815b1be91a13
   FBAEMKit: e34530df538b8eb8aeb53c35867715ba6c63ef0c
   FBSDKCoreKit: d3f479a69127acebb1c6aad91c1a33907bcf6c2f
   FBSDKCoreKit_Basics: 017b6dc2a1862024815a8229e75661e627ac1e29
@@ -210,6 +216,6 @@ SPEC CHECKSUMS:
   nanopb: fad817b59e0457d11a5dfbde799381cd727c1275
   PromisesObjC: f5707f49cb48b9636751c5b2e7d227e43fba9f47
 
-PODFILE CHECKSUM: 54312ebe11c9f755e4a676055ef38cb2c4f09f33
+PODFILE CHECKSUM: 0f0fd0bf99082b36ff2fafe1df963c7475e1700f
 
 COCOAPODS: 1.16.2
