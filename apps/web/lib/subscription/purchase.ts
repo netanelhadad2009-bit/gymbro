@@ -256,6 +256,32 @@ export async function initializeStore(): Promise<boolean> {
     await store.update();
     console.log('[PremiumPurchase] store.update() completed');
 
+    // Debug: Log all loaded products
+    const monthlyProduct = store.get(PRODUCT_IDS.monthly);
+    const yearlyProduct = store.get(PRODUCT_IDS.yearly);
+    console.log('[PremiumPurchase] Products loaded from App Store:');
+    console.log('[PremiumPurchase] - Monthly:', monthlyProduct ? {
+      id: monthlyProduct.id,
+      title: monthlyProduct.title,
+      price: monthlyProduct.pricing?.price,
+      valid: monthlyProduct.valid,
+    } : 'NOT FOUND');
+    console.log('[PremiumPurchase] - Yearly:', yearlyProduct ? {
+      id: yearlyProduct.id,
+      title: yearlyProduct.title,
+      price: yearlyProduct.pricing?.price,
+      valid: yearlyProduct.valid,
+    } : 'NOT FOUND');
+
+    // List all products in the store
+    const allProducts = store.products;
+    console.log('[PremiumPurchase] All products in store:', allProducts?.length || 0);
+    if (allProducts?.length > 0) {
+      allProducts.forEach((p: any) => {
+        console.log('[PremiumPurchase] Product:', p.id, p.title, p.pricing?.price);
+      });
+    }
+
     storeInitialized = true;
     storeInitializing = false;
     console.log('[PremiumPurchase] Store initialization COMPLETE');
