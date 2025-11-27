@@ -699,10 +699,18 @@ export async function runPostAuthFlow({
     // ============================================================
     console.log('[PostAuth] Steps 5-6/8: Running journey plan and stages setup in PARALLEL...');
 
-    // Pre-fetch cached stages before parallel execution (needed for step 6 logic)
-    const stagesKey = `stages_${userId}`;
-    const cachedStagesStr = await storage.getItem(stagesKey);
-    const cachedStages = cachedStagesStr ? JSON.parse(cachedStagesStr) : null;
+    // Pre-fetch cached stages from PlanSession (stages are stored inside session.stages.stages)
+    let cachedStages: any[] | null = null;
+    try {
+      const planSession = await getPlanSession(storage);
+      if (planSession?.stages?.status === 'ready' && planSession?.stages?.stages) {
+        cachedStages = planSession.stages.stages;
+        console.log('[PostAuth] Found pre-generated stages in PlanSession:', cachedStages.length);
+      }
+    } catch (e) {
+      console.warn('[PostAuth] Failed to read stages from PlanSession:', e);
+    }
+
     const hasPreGeneratedStages = !!(
       cachedStages &&
       Array.isArray(cachedStages) &&
@@ -759,8 +767,7 @@ export async function runPostAuthFlow({
             const attachResult = await attachStagesRes.json();
             console.log('[PostAuth] ✅ Pre-generated stages attached:', attachResult);
 
-            // Clear cached stages after successful attachment
-            await storage.removeItem(stagesKey);
+            // Stages are cleared with PlanSession in Step 8
             return { step: 6, success: true, mode: 'attached', data: attachResult };
           } else {
             console.log('[PostAuth] [Parallel] No pre-generated stages, bootstrapping fresh...');
