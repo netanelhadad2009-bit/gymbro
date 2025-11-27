@@ -75,7 +75,7 @@ export default function LoginClient() {
   return (
     <main dir="rtl" className="min-h-screen bg-[#0D0E0F] text-white px-4">
       {/* Back Button */}
-      <div className="pt-safe pt-4 pb-2 max-w-md mx-auto">
+      <div className="pt-safe pt-4 pb-1 max-w-md mx-auto flex justify-end">
         <button
           onClick={() => router.back()}
           className="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors"
