@@ -41,6 +41,9 @@ let storeInitializing = false;
 let deviceReadyFired = false;
 let cdvPurchaseReadyPromise: Promise<boolean> | null = null;
 
+// Track processed transactions to prevent duplicate saves
+const processedTransactions = new Set<string>();
+
 /**
  * Wait for CdvPurchase to be available
  * This waits for the deviceready event and then checks for CdvPurchase.store
@@ -417,14 +420,25 @@ export async function purchaseAppleSubscription(plan: PlanType): Promise<Purchas
       // Cancellations are handled through offer.order() promise rejection
       const handleFinished = (transaction: any) => {
         if (resolved) return;
+
+        const txId = transaction.transactionId;
         console.log('[PremiumPurchase] Transaction finished event received:', transaction);
+
+        // Skip if already processed (prevents duplicate saves)
+        if (txId && processedTransactions.has(txId)) {
+          console.log('[PremiumPurchase] Transaction already processed, skipping:', txId);
+          return;
+        }
+
         const hasProduct = transaction.products?.some((p: any) => p.id === productId);
-        if (hasProduct) {
+        if (hasProduct && txId) {
+          // Mark as processed BEFORE resolving to prevent race conditions
+          processedTransactions.add(txId);
           resolved = true;
-          console.log('[PremiumPurchase] Purchase COMPLETED successfully:', transaction.transactionId);
+          console.log('[PremiumPurchase] Purchase COMPLETED successfully:', txId);
           resolve({
             success: true,
-            transactionId: transaction.transactionId,
+            transactionId: txId,
             productId: productId,
           });
         }
