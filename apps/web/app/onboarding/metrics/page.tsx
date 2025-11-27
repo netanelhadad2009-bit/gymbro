@@ -18,6 +18,7 @@ export default function MetricsPage() {
   const heightRef = useRef<HTMLDivElement>(null);
   const weightRef = useRef<HTMLDivElement>(null);
   const initializedRef = useRef(false);
+  const [dataLoaded, setDataLoaded] = useState(false);
 
   // Load saved data on mount
   useEffect(() => {
@@ -28,6 +29,8 @@ export default function MetricsPage() {
     if (data.weight_kg) {
       setWeight(data.weight_kg);
     }
+    // Mark data as loaded (even if no saved data exists)
+    setDataLoaded(true);
   }, []);
 
   // Calculate BMI
@@ -77,30 +80,46 @@ export default function MetricsPage() {
 
   // Initialize scroll positions after data loads and DOM is ready
   useEffect(() => {
-    // Only initialize once
-    if (initializedRef.current) return;
+    // Wait for data to load and only initialize once
+    if (!dataLoaded || initializedRef.current) return;
 
-    // Use requestAnimationFrame to ensure DOM is painted
-    const initScroll = () => {
-      requestAnimationFrame(() => {
-        const itemHeight = 60;
-        if (heightRef.current) {
-          heightRef.current.scrollTop = (height - 140) * itemHeight;
-        }
-        if (weightRef.current) {
-          weightRef.current.scrollTop = (weight - 40) * itemHeight;
-        }
-        // Mark as initialized after scroll positions are set
-        setTimeout(() => {
-          initializedRef.current = true;
-        }, 100);
-      });
+    const itemHeight = 60;
+
+    // Function to set scroll positions
+    const setScrollPositions = () => {
+      if (heightRef.current) {
+        const heightScroll = (height - 140) * itemHeight;
+        heightRef.current.scrollTop = heightScroll;
+      }
+      if (weightRef.current) {
+        const weightScroll = (weight - 40) * itemHeight;
+        weightRef.current.scrollTop = weightScroll;
+      }
     };
 
-    // Small delay to ensure refs are attached after hydration
-    const timer = setTimeout(initScroll, 50);
-    return () => clearTimeout(timer);
-  }, [height, weight]);
+    // Try multiple times to ensure iOS Safari renders correctly
+    const timers: NodeJS.Timeout[] = [];
+
+    // First attempt after short delay
+    timers.push(setTimeout(() => {
+      requestAnimationFrame(setScrollPositions);
+    }, 50));
+
+    // Second attempt with longer delay (for iOS)
+    timers.push(setTimeout(() => {
+      requestAnimationFrame(setScrollPositions);
+    }, 150));
+
+    // Final attempt and mark initialized
+    timers.push(setTimeout(() => {
+      requestAnimationFrame(() => {
+        setScrollPositions();
+        initializedRef.current = true;
+      });
+    }, 300));
+
+    return () => timers.forEach(t => clearTimeout(t));
+  }, [dataLoaded, height, weight]);
 
   const handleContinue = () => {
     // Prevent double submissions
