@@ -65,6 +65,13 @@ export async function middleware(req: NextRequest) {
 
     // ✅ Logged in → always go to main app
     console.log(`[Middleware] Session found for user: ${session.user.id.slice(0, 8)}...`);
+
+    // Allow /auth/processing to run post-auth flow before redirecting
+    if (path === "/auth/processing" || path === "/auth/callback") {
+      console.log(`[Middleware] Allowing authenticated user to access: ${path}`);
+      return res;
+    }
+
     if (path === "/" || path.startsWith("/onboarding") || path.startsWith("/auth") || path.startsWith("/signup")) {
       console.log(`[Middleware] Authenticated user accessing public route, redirecting to /journey`);
       return NextResponse.redirect(new URL("/journey", req.url));
