@@ -32,12 +32,27 @@ export async function saveAppleSubscription(
   });
 
   try {
-    // Insert new subscription
-    // Only use columns that exist in the Subscription table: id, userId, provider, status
+    // Calculate period end based on plan
+    const now = new Date();
+    let periodEnd: Date;
+    if (plan === 'yearly') {
+      periodEnd = new Date(now.getFullYear() + 1, now.getMonth(), now.getDate());
+    } else {
+      periodEnd = new Date(now.getFullYear(), now.getMonth() + 1, now.getDate());
+    }
+
+    // Generate a unique subscription ID
+    const subscriptionId = `sub_${authUserId}_${Date.now()}`;
+
+    // Insert new subscription matching the table schema:
+    // id, userId, provider, status, plan, currentPeriodEnd, createdAt (auto)
     const subscriptionData: Record<string, any> = {
+      id: subscriptionId,
       userId: appUserId,
       provider: 'apple',
       status: 'active',
+      plan: plan,
+      currentPeriodEnd: periodEnd.toISOString(),
     };
 
     console.log("[Subscription][Client] Inserting subscription:", subscriptionData);
