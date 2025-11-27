@@ -15,6 +15,7 @@ import { openExternal } from "@/lib/openExternal";
 import { PRIVACY_URL, TERMS_URL } from "@/lib/legalLinks";
 import Image from "next/image";
 import { purchaseAppleSubscription, initializeStore, type PlanType } from "@/lib/subscription/purchase";
+import { saveAppleSubscription } from "@/lib/subscription/client";
 import { Dialog } from "@capacitor/dialog";
 import { Capacitor } from "@capacitor/core";
 
@@ -63,7 +64,21 @@ export default function PremiumPage() {
       console.log("[PremiumPurchase] Purchase result:", result);
 
       if (result.success) {
-        console.log("[PremiumPurchase] Purchase successful, refreshing subscription status");
+        console.log("[PremiumPurchase] Purchase successful, saving subscription to Supabase");
+
+        // Save subscription to Supabase
+        if (user && result.transactionId) {
+          const savedSub = await saveAppleSubscription(
+            user.id,
+            selectedPlan,
+            result.transactionId
+          );
+          if (savedSub) {
+            console.log("[PremiumPurchase] Subscription saved to Supabase:", savedSub.id);
+          } else {
+            console.error("[PremiumPurchase] Failed to save subscription to Supabase");
+          }
+        }
 
         // Show success message
         if (Capacitor.isNativePlatform()) {
