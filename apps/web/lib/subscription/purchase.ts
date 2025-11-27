@@ -368,12 +368,40 @@ export async function purchaseAppleSubscription(plan: PlanType): Promise<Purchas
     });
 
     // Get the offer (subscription offer)
+    console.log('[PremiumPurchase] Calling product.getOffer()...');
     const offer = product.getOffer();
+
+    console.log('[PremiumPurchase] Offer received:', offer);
+    console.log('[PremiumPurchase] Offer type:', typeof offer);
+
     if (!offer) {
       console.error('[PremiumPurchase] No offer available for product');
       return {
         success: false,
         error: 'המוצר לא זמין לרכישה כרגע.',
+      };
+    }
+
+    // Log all offer properties
+    if (typeof offer === 'object') {
+      console.log('[PremiumPurchase] Offer keys:', Object.keys(offer));
+      console.log('[PremiumPurchase] Offer has order method:', typeof offer.order === 'function');
+      try {
+        console.log('[PremiumPurchase] Offer JSON:', JSON.stringify(offer, (key, value) => {
+          if (typeof value === 'function') return '[Function]';
+          return value;
+        }, 2));
+      } catch (e) {
+        console.log('[PremiumPurchase] Offer cannot be stringified');
+      }
+    }
+
+    if (typeof offer.order !== 'function') {
+      console.error('[PremiumPurchase] offer.order is not a function!');
+      console.error('[PremiumPurchase] offer.order type:', typeof offer.order);
+      return {
+        success: false,
+        error: 'שגיאה פנימית בשירות הרכישות. נסה שוב.',
       };
     }
 
@@ -383,6 +411,7 @@ export async function purchaseAppleSubscription(plan: PlanType): Promise<Purchas
     return new Promise((resolve) => {
       let resolved = false;
 
+      try {
       // Set up one-time handlers for this purchase
       const handleFinished = (transaction: any) => {
         if (resolved) return;
@@ -418,15 +447,72 @@ export async function purchaseAppleSubscription(plan: PlanType): Promise<Purchas
 
       // Initiate the purchase
       console.log('[PremiumPurchase] Calling offer.order()...');
-      offer.order()
-        .then(() => {
-          console.log('[PremiumPurchase] offer.order() promise resolved - purchase dialog should be showing');
+      console.log('[PremiumPurchase] Offer details:', {
+        id: offer.id,
+        productId: offer.productId,
+        pricingPhases: offer.pricingPhases,
+      });
+
+      let orderPromise: Promise<any>;
+      try {
+        orderPromise = offer.order();
+        console.log('[PremiumPurchase] offer.order() returned:', orderPromise);
+        console.log('[PremiumPurchase] orderPromise is Promise:', orderPromise instanceof Promise);
+      } catch (syncError: any) {
+        console.error('[PremiumPurchase] offer.order() threw synchronously!');
+        console.error('[PremiumPurchase] Sync error type:', typeof syncError);
+        console.error('[PremiumPurchase] Sync error:', syncError);
+        if (syncError && typeof syncError === 'object') {
+          console.error('[PremiumPurchase] Sync error keys:', Object.keys(syncError));
+          try {
+            console.error('[PremiumPurchase] Sync error JSON:', JSON.stringify(syncError, null, 2));
+          } catch (e) {
+            console.error('[PremiumPurchase] Sync error cannot be stringified');
+          }
+        }
+        resolved = true;
+        resolve({
+          success: false,
+          error: syncError?.message || 'אירעה שגיאה בתחילת הרכישה. נסה שוב.',
+        });
+        return;
+      }
+
+      orderPromise
+        .then((result: any) => {
+          console.log('[PremiumPurchase] offer.order() promise resolved');
+          console.log('[PremiumPurchase] Order result:', result);
+          console.log('[PremiumPurchase] Order result type:', typeof result);
+          if (result) {
+            console.log('[PremiumPurchase] Order result keys:', Object.keys(result));
+            console.log('[PremiumPurchase] Order result JSON:', JSON.stringify(result, null, 2));
+          }
         })
         .catch((error: any) => {
           if (resolved) return;
           resolved = true;
 
-          console.error('[PremiumPurchase] offer.order() FAILED:', error?.code, error?.message);
+          // Enhanced error logging
+          console.error('[PremiumPurchase] offer.order() FAILED');
+          console.error('[PremiumPurchase] Error type:', typeof error);
+          console.error('[PremiumPurchase] Error constructor:', error?.constructor?.name);
+          console.error('[PremiumPurchase] Error code:', error?.code);
+          console.error('[PremiumPurchase] Error message:', error?.message);
+          console.error('[PremiumPurchase] Error isError:', error?.isError);
+          console.error('[PremiumPurchase] Error platform:', error?.platform);
+
+          if (error && typeof error === 'object') {
+            console.error('[PremiumPurchase] Error keys:', Object.keys(error));
+            try {
+              console.error('[PremiumPurchase] Error JSON:', JSON.stringify(error, null, 2));
+            } catch (e) {
+              console.error('[PremiumPurchase] Error cannot be stringified');
+            }
+          }
+
+          if (error?.stack) {
+            console.error('[PremiumPurchase] Error stack:', error.stack);
+          }
 
           // Handle specific error codes
           let errorMessage = 'אירעה שגיאה בביצוע הרכישה. נסה שוב.';
@@ -437,6 +523,8 @@ export async function purchaseAppleSubscription(plan: PlanType): Promise<Purchas
             errorMessage = 'רכישות אינן מורשות במכשיר זה';
           } else if (error?.code === CdvPurchase.ErrorCode.PRODUCT_NOT_AVAILABLE) {
             errorMessage = 'המוצר אינו זמין לרכישה';
+          } else if (error?.message) {
+            errorMessage = `שגיאה: ${error.message}`;
           }
 
           resolve({
@@ -455,10 +543,48 @@ export async function purchaseAppleSubscription(plan: PlanType): Promise<Purchas
           error: 'הרכישה נכשלה (timeout). נסה שוב.',
         });
       }, 120000);
+
+      } catch (executorError: any) {
+        // Catch any synchronous errors in the promise executor
+        console.error('[PremiumPurchase] Promise executor error!');
+        console.error('[PremiumPurchase] Executor error type:', typeof executorError);
+        console.error('[PremiumPurchase] Executor error:', executorError);
+        if (executorError && typeof executorError === 'object') {
+          console.error('[PremiumPurchase] Executor error keys:', Object.keys(executorError));
+          try {
+            console.error('[PremiumPurchase] Executor error JSON:', JSON.stringify(executorError, null, 2));
+          } catch (e) {
+            console.error('[PremiumPurchase] Executor error cannot be stringified');
+          }
+        }
+        if (!resolved) {
+          resolved = true;
+          resolve({
+            success: false,
+            error: executorError?.message || 'אירעה שגיאה בלתי צפויה. נסה שוב.',
+          });
+        }
+      }
     });
 
   } catch (error: any) {
-    console.error('[PremiumPurchase] Purchase error:', error?.message || error);
+    // Enhanced error logging for outer catch
+    console.error('[PremiumPurchase] Outer catch - Purchase error!');
+    console.error('[PremiumPurchase] Outer error type:', typeof error);
+    console.error('[PremiumPurchase] Outer error constructor:', error?.constructor?.name);
+    console.error('[PremiumPurchase] Outer error message:', error?.message);
+    console.error('[PremiumPurchase] Outer error code:', error?.code);
+    if (error && typeof error === 'object') {
+      console.error('[PremiumPurchase] Outer error keys:', Object.keys(error));
+      try {
+        console.error('[PremiumPurchase] Outer error JSON:', JSON.stringify(error, null, 2));
+      } catch (e) {
+        console.error('[PremiumPurchase] Outer error cannot be stringified');
+      }
+    }
+    if (error?.stack) {
+      console.error('[PremiumPurchase] Outer error stack:', error.stack);
+    }
     return {
       success: false,
       error: error?.message || 'אירעה שגיאה בביצוע הרכישה',

@@ -99,15 +99,37 @@ export default function PremiumPage() {
         }
       }
     } catch (error: any) {
-      console.error("[PremiumPurchase] Unexpected error:", error);
+      // Enhanced error logging
+      console.error("[PremiumPurchase] Unexpected error caught in handleSubscribe");
+      console.error("[PremiumPurchase] Error type:", typeof error);
+      console.error("[PremiumPurchase] Error constructor:", error?.constructor?.name);
+      console.error("[PremiumPurchase] Error message:", error?.message);
+      console.error("[PremiumPurchase] Error code:", error?.code);
+      console.error("[PremiumPurchase] Error name:", error?.name);
+
+      if (error && typeof error === 'object') {
+        console.error("[PremiumPurchase] Error keys:", Object.keys(error));
+        try {
+          console.error("[PremiumPurchase] Error JSON:", JSON.stringify(error, null, 2));
+        } catch (e) {
+          console.error("[PremiumPurchase] Error cannot be stringified");
+        }
+      }
+
+      if (error?.stack) {
+        console.error("[PremiumPurchase] Error stack:", error.stack);
+      }
+
+      const errorMessage = error?.message || "אירעה שגיאה בלתי צפויה. נסה שוב.";
+
       if (Capacitor.isNativePlatform()) {
         await Dialog.alert({
           title: "שגיאה",
-          message: "אירעה שגיאה בלתי צפויה. נסה שוב.",
+          message: errorMessage,
           buttonTitle: "סגור",
         });
       } else {
-        alert("אירעה שגיאה בלתי צפויה. נסה שוב.");
+        alert(errorMessage);
       }
     } finally {
       setIsPurchasing(false);
