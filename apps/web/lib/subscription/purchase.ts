@@ -412,9 +412,12 @@ export async function purchaseAppleSubscription(plan: PlanType): Promise<Purchas
       let resolved = false;
 
       try {
-      // Set up one-time handlers for this purchase
+      // Set up one-time handler for successful purchases
+      // Note: .cancelled() doesn't exist in cordova-plugin-purchase v13
+      // Cancellations are handled through offer.order() promise rejection
       const handleFinished = (transaction: any) => {
         if (resolved) return;
+        console.log('[PremiumPurchase] Transaction finished event received:', transaction);
         const hasProduct = transaction.products?.some((p: any) => p.id === productId);
         if (hasProduct) {
           resolved = true;
@@ -427,23 +430,10 @@ export async function purchaseAppleSubscription(plan: PlanType): Promise<Purchas
         }
       };
 
-      const handleCancelled = (transaction: any) => {
-        if (resolved) return;
-        const hasProduct = transaction.products?.some((p: any) => p.id === productId);
-        if (hasProduct) {
-          resolved = true;
-          console.log('[PremiumPurchase] Purchase CANCELLED by user');
-          resolve({
-            success: false,
-            error: 'הרכישה בוטלה',
-          });
-        }
-      };
-
-      // Listen for transaction events
-      store.when()
-        .finished(handleFinished)
-        .cancelled(handleCancelled);
+      // Listen for transaction finished event
+      console.log('[PremiumPurchase] Registering finished handler...');
+      store.when().finished(handleFinished);
+      console.log('[PremiumPurchase] Finished handler registered');
 
       // Initiate the purchase
       console.log('[PremiumPurchase] Calling offer.order()...');
