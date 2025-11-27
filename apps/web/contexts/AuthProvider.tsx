@@ -17,6 +17,8 @@ interface AuthContextType {
   isPremium: boolean;
   isSubscriptionLoading: boolean;
   subscriptionError: string | null;
+  // Subscription actions
+  refreshSubscription: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -28,6 +30,7 @@ const AuthContext = createContext<AuthContextType>({
   isPremium: false,
   isSubscriptionLoading: false,
   subscriptionError: null,
+  refreshSubscription: async () => {},
 });
 
 export function useAuth() {
@@ -48,6 +51,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const isPremium =
     !!subscription &&
     (subscription.status === "active" || subscription.status === "trialing");
+
+  // Refresh subscription status (e.g., after a purchase)
+  const refreshSubscription = async () => {
+    if (!user) return;
+
+    try {
+      setIsSubscriptionLoading(true);
+      setSubscriptionError(null);
+
+      console.log("[AuthProvider] Refreshing subscription for user:", user.id.slice(0, 8) + "...");
+
+      const sub = await fetchActiveSubscriptionClient(user.id);
+      setSubscription(sub);
+
+      console.log("[AuthProvider] Subscription refreshed", {
+        userId: user.id.slice(0, 8) + "...",
+        hasSubscription: !!sub,
+        status: sub?.status ?? null,
+        plan: sub?.plan ?? null,
+        isPremium: !!sub && (sub.status === "active" || sub.status === "trialing"),
+      });
+    } catch (err) {
+      console.error("[AuthProvider] Failed to refresh subscription", err);
+      setSubscriptionError("Failed to refresh subscription");
+    } finally {
+      setIsSubscriptionLoading(false);
+    }
+  };
 
   useEffect(() => {
     console.log("[AuthProvider] Initializing auth state...");
@@ -237,6 +268,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         isPremium,
         isSubscriptionLoading,
         subscriptionError,
+        refreshSubscription,
       }}
     >
       {children}

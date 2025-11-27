@@ -14,16 +14,20 @@ import { useEffect, useState } from "react";
 import { openExternal } from "@/lib/openExternal";
 import { PRIVACY_URL, TERMS_URL } from "@/lib/legalLinks";
 import Image from "next/image";
+import { purchaseAppleSubscription, initializeStore, type PlanType } from "@/lib/subscription/purchase";
+import { Dialog } from "@capacitor/dialog";
+import { Capacitor } from "@capacitor/core";
 
 export default function PremiumPage() {
   const router = useRouter();
-  const { user, loading, isPremium, isSubscriptionLoading } = useAuth();
-  const [selectedPlan, setSelectedPlan] = useState<"monthly" | "yearly">("yearly");
+  const { user, loading, isPremium, isSubscriptionLoading, refreshSubscription } = useAuth();
+  const [selectedPlan, setSelectedPlan] = useState<PlanType>("yearly");
+  const [isPurchasing, setIsPurchasing] = useState(false);
 
   // If user is premium, immediately redirect to /journey (no delay, no UI flash)
   useEffect(() => {
     if (isPremium && user) {
-      console.log("[Premium] User is premium, immediately redirecting to /journey");
+      console.log("[PremiumPurchase] User is premium, immediately redirecting to /journey");
       router.replace("/journey");
     }
   }, [isPremium, user, router]);
@@ -31,22 +35,83 @@ export default function PremiumPage() {
   // Redirect to login if not authenticated (after loading)
   useEffect(() => {
     if (!loading && !isSubscriptionLoading && !user) {
-      console.log("[Premium] No user, redirecting to /login");
+      console.log("[PremiumPurchase] No user, redirecting to /login");
       router.replace("/login");
     }
   }, [loading, isSubscriptionLoading, user, router]);
 
-  // Handle CTA click (stub for Apple IAP integration)
-  const handleSubscribe = () => {
-    console.log(
-      `[Premium] Subscribe button clicked - Plan: ${selectedPlan} - Apple IAP integration pending`
-    );
-    // Show production-ready message with selected plan
-    alert(
-      selectedPlan === "yearly"
-        ? "מעבד את הבקשה... תוכל להפעיל מנוי שנתי דרך הגדרות ה-App Store."
-        : "מעבד את הבקשה... תוכל להפעיל מנוי חודשי דרך הגדרות ה-App Store."
-    );
+  // Initialize IAP store on mount (only on native platforms)
+  useEffect(() => {
+    if (Capacitor.isNativePlatform()) {
+      console.log("[PremiumPurchase] Initializing IAP store...");
+      initializeStore().then((success) => {
+        console.log("[PremiumPurchase] Store initialization result:", success);
+      });
+    }
+  }, []);
+
+  // Handle CTA click - Real Apple IAP purchase
+  const handleSubscribe = async () => {
+    if (isPurchasing) return;
+
+    console.log(`[PremiumPurchase] Subscribe button clicked - Plan: ${selectedPlan}`);
+    setIsPurchasing(true);
+
+    try {
+      const result = await purchaseAppleSubscription(selectedPlan);
+
+      console.log("[PremiumPurchase] Purchase result:", result);
+
+      if (result.success) {
+        console.log("[PremiumPurchase] Purchase successful, refreshing subscription status");
+
+        // Show success message
+        if (Capacitor.isNativePlatform()) {
+          await Dialog.alert({
+            title: "הצלחה!",
+            message: "המנוי הופעל בהצלחה. ברוכים הבאים!",
+            buttonTitle: "המשך",
+          });
+        } else {
+          alert("המנוי הופעל בהצלחה. ברוכים הבאים!");
+        }
+
+        // Refresh subscription status and redirect
+        if (refreshSubscription) {
+          await refreshSubscription();
+        }
+        router.replace("/journey");
+      } else {
+        // Show error message (unless user cancelled)
+        if (result.error && result.error !== "הרכישה בוטלה") {
+          console.error("[PremiumPurchase] Purchase failed:", result.error);
+          if (Capacitor.isNativePlatform()) {
+            await Dialog.alert({
+              title: "שגיאה",
+              message: result.error,
+              buttonTitle: "סגור",
+            });
+          } else {
+            alert(result.error);
+          }
+        } else {
+          console.log("[PremiumPurchase] Purchase cancelled by user");
+        }
+      }
+    } catch (error: any) {
+      console.error("[PremiumPurchase] Unexpected error:", error);
+      if (Capacitor.isNativePlatform()) {
+        await Dialog.alert({
+          title: "שגיאה",
+          message: "אירעה שגיאה בלתי צפויה. נסה שוב.",
+          buttonTitle: "סגור",
+        });
+      } else {
+        alert("אירעה שגיאה בלתי צפויה. נסה שוב.");
+      }
+    } finally {
+      setIsPurchasing(false);
+    }
   };
 
   // Show loading state while checking subscription
@@ -258,9 +323,19 @@ export default function PremiumPage() {
             </div>
             <button
               onClick={handleSubscribe}
-              className="w-full py-4 px-6 rounded-full bg-[#E2F163] text-black font-bold text-lg transition-all active:scale-[0.98] shadow-lg"
+              disabled={isPurchasing}
+              className={`w-full py-4 px-6 rounded-full bg-[#E2F163] text-black font-bold text-lg transition-all shadow-lg flex items-center justify-center gap-2 ${
+                isPurchasing ? "opacity-70 cursor-not-allowed" : "active:scale-[0.98]"
+              }`}
             >
-              התחל את השינוי שלך עכשיו
+              {isPurchasing ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  מעבד רכישה...
+                </>
+              ) : (
+                "התחל את השינוי שלך עכשיו"
+              )}
             </button>
 
             {/* Footer Links */}
