@@ -14,7 +14,7 @@ import { useEffect, useState } from "react";
 import { openExternal } from "@/lib/openExternal";
 import { PRIVACY_URL, TERMS_URL } from "@/lib/legalLinks";
 import Image from "next/image";
-import { purchaseAppleSubscription, initializeStore, type PlanType } from "@/lib/subscription/purchase";
+import { purchaseAppleSubscription, initializeStore, restorePurchases, hasActiveSubscription, type PlanType } from "@/lib/subscription/purchase";
 import { saveAppleSubscription } from "@/lib/subscription/client";
 import { Dialog } from "@capacitor/dialog";
 import { Capacitor } from "@capacitor/core";
@@ -24,6 +24,7 @@ export default function PremiumPage() {
   const { user, loading, isPremium, isSubscriptionLoading, refreshSubscription } = useAuth();
   const [selectedPlan, setSelectedPlan] = useState<PlanType>("yearly");
   const [isPurchasing, setIsPurchasing] = useState(false);
+  const [isRestoring, setIsRestoring] = useState(false);
 
   // If user is premium, immediately redirect to /journey (no delay, no UI flash)
   useEffect(() => {
@@ -148,6 +149,79 @@ export default function PremiumPage() {
       }
     } finally {
       setIsPurchasing(false);
+    }
+  };
+
+  // Handle restore purchases
+  const handleRestore = async () => {
+    if (isRestoring || isPurchasing) return;
+
+    console.log("[PremiumPurchase] Restore purchases clicked");
+    setIsRestoring(true);
+
+    try {
+      const result = await restorePurchases();
+      console.log("[PremiumPurchase] Restore result:", result);
+
+      if (result.success) {
+        // Check if user now owns a subscription
+        const hasSubscription = hasActiveSubscription();
+        console.log("[PremiumPurchase] Has active subscription after restore:", hasSubscription);
+
+        if (hasSubscription && user) {
+          // Save to Supabase - assume yearly for restored purchases
+          const savedSub = await saveAppleSubscription(user.id, "yearly", "restored");
+          if (savedSub) {
+            console.log("[PremiumPurchase] Restored subscription saved to Supabase");
+          }
+
+          if (Capacitor.isNativePlatform()) {
+            await Dialog.alert({
+              title: "הצלחה!",
+              message: "הרכישות שוחזרו בהצלחה!",
+              buttonTitle: "המשך",
+            });
+          } else {
+            alert("הרכישות שוחזרו בהצלחה!");
+          }
+
+          if (refreshSubscription) {
+            await refreshSubscription();
+          }
+          router.replace("/journey");
+        } else {
+          if (Capacitor.isNativePlatform()) {
+            await Dialog.alert({
+              title: "לא נמצאו רכישות",
+              message: "לא נמצאו רכישות קודמות לשחזור.",
+              buttonTitle: "סגור",
+            });
+          } else {
+            alert("לא נמצאו רכישות קודמות לשחזור.");
+          }
+        }
+      } else {
+        if (Capacitor.isNativePlatform()) {
+          await Dialog.alert({
+            title: "שגיאה",
+            message: result.error || "שחזור הרכישות נכשל.",
+            buttonTitle: "סגור",
+          });
+        } else {
+          alert(result.error || "שחזור הרכישות נכשל.");
+        }
+      }
+    } catch (error: any) {
+      console.error("[PremiumPurchase] Restore error:", error);
+      if (Capacitor.isNativePlatform()) {
+        await Dialog.alert({
+          title: "שגיאה",
+          message: "אירעה שגיאה בשחזור הרכישות.",
+          buttonTitle: "סגור",
+        });
+      }
+    } finally {
+      setIsRestoring(false);
     }
   };
 
@@ -391,6 +465,15 @@ export default function PremiumPage() {
                 תנאי שימוש
               </button>
             </div>
+
+            {/* Restore Purchases */}
+            <button
+              onClick={handleRestore}
+              disabled={isRestoring || isPurchasing}
+              className="w-full text-center text-white/50 text-sm mt-4 hover:text-white/70 transition-colors disabled:opacity-50"
+            >
+              {isRestoring ? "משחזר רכישות..." : "שחזור רכישות קודמות"}
+            </button>
           </div>
         </div>
       </main>

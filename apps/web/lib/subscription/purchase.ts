@@ -477,6 +477,28 @@ export async function purchaseAppleSubscription(plan: PlanType): Promise<Purchas
             console.log('[PremiumPurchase] Order result keys:', Object.keys(result));
             console.log('[PremiumPurchase] Order result JSON:', JSON.stringify(result, null, 2));
           }
+
+          // Check if the result is an error (promise resolved but with error object)
+          if (result?.isError) {
+            if (resolved) return;
+            resolved = true;
+
+            console.error('[PremiumPurchase] Order resolved with error:', result.code, result.message);
+
+            let errorMessage = 'אירעה שגיאה בביצוע הרכישה. נסה שוב.';
+
+            // Handle "already subscribed" error
+            if (result.code === 6777003 || result.message?.includes('already')) {
+              errorMessage = 'אתה כבר מנוי. אם אינך רואה את המנוי שלך, נסה לשחזר רכישות.';
+            } else if (result.message) {
+              errorMessage = `שגיאה: ${result.message}`;
+            }
+
+            resolve({
+              success: false,
+              error: errorMessage,
+            });
+          }
         })
         .catch((error: any) => {
           if (resolved) return;
