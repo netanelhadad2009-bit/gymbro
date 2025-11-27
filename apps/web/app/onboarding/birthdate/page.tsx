@@ -26,6 +26,7 @@ export default function BirthdatePage() {
   const yearRef = useRef<HTMLDivElement>(null);
   const monthRef = useRef<HTMLDivElement>(null);
   const dayRef = useRef<HTMLDivElement>(null);
+  const initializedRef = useRef(false);
 
   // Load user data on mount
   useEffect(() => {
@@ -56,7 +57,7 @@ export default function BirthdatePage() {
   const age = calculateAge();
 
   const handleYearScroll = () => {
-    if (!yearRef.current) return;
+    if (!yearRef.current || !initializedRef.current) return;
     const itemHeight = 60;
     const scrollTop = yearRef.current.scrollTop;
     const index = Math.round(scrollTop / itemHeight);
@@ -66,7 +67,7 @@ export default function BirthdatePage() {
   };
 
   const handleMonthScroll = () => {
-    if (!monthRef.current) return;
+    if (!monthRef.current || !initializedRef.current) return;
     const itemHeight = 60;
     const scrollTop = monthRef.current.scrollTop;
     const index = Math.round(scrollTop / itemHeight);
@@ -76,7 +77,7 @@ export default function BirthdatePage() {
   };
 
   const handleDayScroll = () => {
-    if (!dayRef.current) return;
+    if (!dayRef.current || !initializedRef.current) return;
     const itemHeight = 60;
     const scrollTop = dayRef.current.scrollTop;
     const index = Math.round(scrollTop / itemHeight);
@@ -85,22 +86,36 @@ export default function BirthdatePage() {
     }
   };
 
-  // Initialize scroll positions
+  // Initialize scroll positions after data loads and DOM is ready
   useEffect(() => {
-    if (yearRef.current) {
-      const itemHeight = 60;
-      const index = yearValues.indexOf(year);
-      yearRef.current.scrollTop = index * itemHeight;
-    }
-    if (monthRef.current) {
-      const itemHeight = 60;
-      monthRef.current.scrollTop = month * itemHeight;
-    }
-    if (dayRef.current) {
-      const itemHeight = 60;
-      dayRef.current.scrollTop = (day - 1) * itemHeight;
-    }
-  }, []);
+    // Only initialize once
+    if (initializedRef.current) return;
+
+    // Use requestAnimationFrame to ensure DOM is painted
+    const initScroll = () => {
+      requestAnimationFrame(() => {
+        const itemHeight = 60;
+        if (yearRef.current) {
+          const index = yearValues.indexOf(year);
+          yearRef.current.scrollTop = index * itemHeight;
+        }
+        if (monthRef.current) {
+          monthRef.current.scrollTop = month * itemHeight;
+        }
+        if (dayRef.current) {
+          dayRef.current.scrollTop = (day - 1) * itemHeight;
+        }
+        // Mark as initialized after scroll positions are set
+        setTimeout(() => {
+          initializedRef.current = true;
+        }, 100);
+      });
+    };
+
+    // Small delay to ensure refs are attached after hydration
+    const timer = setTimeout(initScroll, 50);
+    return () => clearTimeout(timer);
+  }, [year, month, day, yearValues]);
 
   const handleContinue = () => {
     // Don't proceed if under 18

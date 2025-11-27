@@ -17,6 +17,7 @@ export default function MetricsPage() {
 
   const heightRef = useRef<HTMLDivElement>(null);
   const weightRef = useRef<HTMLDivElement>(null);
+  const initializedRef = useRef(false);
 
   // Load saved data on mount
   useEffect(() => {
@@ -53,7 +54,7 @@ export default function MetricsPage() {
   };
 
   const handleHeightScroll = () => {
-    if (!heightRef.current) return;
+    if (!heightRef.current || !initializedRef.current) return;
     const itemHeight = 60;
     const scrollTop = heightRef.current.scrollTop;
     const index = Math.round(scrollTop / itemHeight);
@@ -64,7 +65,7 @@ export default function MetricsPage() {
   };
 
   const handleWeightScroll = () => {
-    if (!weightRef.current) return;
+    if (!weightRef.current || !initializedRef.current) return;
     const itemHeight = 60;
     const scrollTop = weightRef.current.scrollTop;
     const index = Math.round(scrollTop / itemHeight);
@@ -74,17 +75,32 @@ export default function MetricsPage() {
     }
   };
 
-  // Initialize scroll positions
+  // Initialize scroll positions after data loads and DOM is ready
   useEffect(() => {
-    if (heightRef.current) {
-      const itemHeight = 60;
-      heightRef.current.scrollTop = (height - 140) * itemHeight;
-    }
-    if (weightRef.current) {
-      const itemHeight = 60;
-      weightRef.current.scrollTop = (weight - 40) * itemHeight;
-    }
-  }, []);
+    // Only initialize once
+    if (initializedRef.current) return;
+
+    // Use requestAnimationFrame to ensure DOM is painted
+    const initScroll = () => {
+      requestAnimationFrame(() => {
+        const itemHeight = 60;
+        if (heightRef.current) {
+          heightRef.current.scrollTop = (height - 140) * itemHeight;
+        }
+        if (weightRef.current) {
+          weightRef.current.scrollTop = (weight - 40) * itemHeight;
+        }
+        // Mark as initialized after scroll positions are set
+        setTimeout(() => {
+          initializedRef.current = true;
+        }, 100);
+      });
+    };
+
+    // Small delay to ensure refs are attached after hydration
+    const timer = setTimeout(initScroll, 50);
+    return () => clearTimeout(timer);
+  }, [height, weight]);
 
   const handleContinue = () => {
     // Prevent double submissions

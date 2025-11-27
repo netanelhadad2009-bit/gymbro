@@ -6,6 +6,7 @@
 
 import { createAdminClient } from '@/lib/supabase-admin';
 import { sendPushNotification, type PushPayload } from '@/lib/webpush';
+import { sendAPNsPush, isAPNsConfigured, type APNsPayload } from '@/lib/apns';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
 export interface NotificationData {
@@ -170,12 +171,78 @@ export async function sendToUser(
               sent_at: new Date().toISOString()
             });
 
-          } else if (sub.platform === 'ios' || sub.platform === 'android') {
-            // Native push (FCM/APNS)
-            // TODO: Implement native push via Firebase Admin SDK or similar
-            console.log(`[Notifications] Native push not yet implemented for ${sub.platform}`);
+          } else if (sub.platform === 'ios') {
+            // iOS APNs push
+            if (!sub.device_token) {
+              console.warn(`[Notifications] No device token for iOS subscription ${sub.id}`);
+              return;
+            }
 
-            // For now, just log it as pending
+            if (!isAPNsConfigured()) {
+              console.warn('[Notifications] APNs not configured, skipping iOS push');
+              await supabase.from('notification_logs').insert({
+                user_id: userId,
+                type,
+                title: notification.title,
+                body: notification.body,
+                data: notification.data,
+                status: 'pending',
+                error_message: 'APNs not configured'
+              });
+              return;
+            }
+
+            const apnsPayload: APNsPayload = {
+              alert: {
+                title: notification.title,
+                body: notification.body
+              },
+              sound: 'default',
+              data: {
+                url: notification.route || '/',
+                type,
+                ...notification.data
+              }
+            };
+
+            const result = await sendAPNsPush(sub.device_token, apnsPayload);
+
+            if (result.success) {
+              sent++;
+              await supabase.from('notification_logs').insert({
+                user_id: userId,
+                type,
+                title: notification.title,
+                body: notification.body,
+                data: notification.data,
+                status: 'sent',
+                sent_at: new Date().toISOString()
+              });
+            } else {
+              failed++;
+              await supabase.from('notification_logs').insert({
+                user_id: userId,
+                type,
+                title: notification.title,
+                body: notification.body,
+                data: notification.data,
+                status: 'failed',
+                error_message: result.error || result.reason || 'APNs error'
+              });
+
+              // Mark subscription as inactive if device token is invalid
+              if (result.reason === 'BadDeviceToken' || result.reason === 'Unregistered') {
+                console.log(`[Notifications] Marking iOS subscription ${sub.id} as inactive`);
+                await supabase
+                  .from('push_subscriptions')
+                  .update({ active: false, updated_at: new Date().toISOString() })
+                  .eq('id', sub.id);
+              }
+            }
+
+          } else if (sub.platform === 'android') {
+            // Android FCM push - not yet implemented
+            console.log(`[Notifications] Android FCM not yet implemented`);
             await supabase.from('notification_logs').insert({
               user_id: userId,
               type,
@@ -183,7 +250,7 @@ export async function sendToUser(
               body: notification.body,
               data: notification.data,
               status: 'pending',
-              error_message: 'Native push not yet implemented'
+              error_message: 'Android FCM not yet implemented'
             });
           }
 
