@@ -589,89 +589,109 @@ export async function runPostAuthFlow({
     }
 
     // ============================================================
-    // STEP 2: Bootstrap avatar AI service
+    // STEPS 2, 3, 4: Run in PARALLEL for faster execution
+    // These are independent operations that don't depend on each other
     // ============================================================
-    console.log('[PostAuth] Step 2/8: Bootstrapping avatar AI service...');
-    try {
-      const avatarRes = await fetch('/api/avatar/bootstrap', {
-        method: 'POST',
-        credentials: 'include',
-      });
+    console.log('[PostAuth] Steps 2-4/8: Running avatar bootstrap, plan session, and avatar verification in PARALLEL...');
 
-      if (!avatarRes.ok) {
-        const errorText = await avatarRes.text();
-        console.error('[PostAuth] Avatar bootstrap failed:', {
-          status: avatarRes.status,
-          statusText: avatarRes.statusText,
-          body: errorText,
-        });
-      } else {
-        console.log('[PostAuth] ✅ Avatar AI service bootstrapped');
-      }
-    } catch (err) {
-      console.error('[PostAuth] Error bootstrapping avatar:', err);
-      // Non-critical, continue
-    }
-
-    // ============================================================
-    // STEP 3: Attach pending plan session (if exists)
-    // ============================================================
-    console.log('[PostAuth] Step 3/8: Checking for pending plan session...');
-    try {
-      const planSession = await getPlanSession(storage);
-
-      if (planSession) {
-        console.log('[PostAuth] Found pending plan session, attaching...');
-
-        const attachRes = await fetch('/api/session/attach', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
-          body: JSON.stringify({ session: planSession }),
-        });
-
-        if (!attachRes.ok) {
-          const errorText = await attachRes.text();
-          console.error('[PostAuth] Plan session attachment failed:', {
-            status: attachRes.status,
-            statusText: attachRes.statusText,
-            body: errorText,
+    const parallelTasks = await Promise.allSettled([
+      // STEP 2: Bootstrap avatar AI service
+      (async () => {
+        console.log('[PostAuth] [Parallel] Starting avatar bootstrap...');
+        try {
+          const avatarRes = await fetch('/api/avatar/bootstrap', {
+            method: 'POST',
+            credentials: 'include',
           });
-        } else {
-          const result = await attachRes.json();
-          console.log('[PostAuth] ✅ Plan session attached:', result);
+
+          if (!avatarRes.ok) {
+            const errorText = await avatarRes.text();
+            console.error('[PostAuth] Avatar bootstrap failed:', {
+              status: avatarRes.status,
+              statusText: avatarRes.statusText,
+              body: errorText,
+            });
+            return { step: 2, success: false };
+          } else {
+            console.log('[PostAuth] ✅ Avatar AI service bootstrapped');
+            return { step: 2, success: true };
+          }
+        } catch (err) {
+          console.error('[PostAuth] Error bootstrapping avatar:', err);
+          return { step: 2, success: false, error: err };
         }
+      })(),
 
-        // Clear plan session regardless of success/failure
-        await clearPlanSession(storage);
-        console.log('[PostAuth] Plan session cleared from storage');
-      } else {
-        console.log('[PostAuth] No pending plan session found');
-      }
-    } catch (err) {
-      console.error('[PostAuth] Error handling plan session:', err);
-      // Non-critical, continue
-    }
+      // STEP 3: Attach pending plan session (if exists)
+      (async () => {
+        console.log('[PostAuth] [Parallel] Checking for pending plan session...');
+        try {
+          const planSession = await getPlanSession(storage);
 
-    // ============================================================
-    // STEP 4: Ensure avatar exists in database
-    // ============================================================
-    console.log('[PostAuth] Step 4/8: Ensuring avatar exists in database...');
-    try {
-      const avatar = await ensureAvatar(supabase, userId);
+          if (planSession) {
+            console.log('[PostAuth] Found pending plan session, attaching...');
 
-      if (avatar) {
-        console.log('[PostAuth] ✅ Avatar ready:', avatar);
-      } else {
-        console.warn('[PostAuth] ⚠️  Avatar creation skipped or failed');
-      }
+            const attachRes = await fetch('/api/session/attach', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              credentials: 'include',
+              body: JSON.stringify({ session: planSession }),
+            });
 
-      // Small delay for DB replication
-      await new Promise((resolve) => setTimeout(resolve, 150));
-    } catch (err) {
-      console.error('[PostAuth] Error ensuring avatar:', err);
-      // Non-critical, continue
-    }
+            if (!attachRes.ok) {
+              const errorText = await attachRes.text();
+              console.error('[PostAuth] Plan session attachment failed:', {
+                status: attachRes.status,
+                statusText: attachRes.statusText,
+                body: errorText,
+              });
+            } else {
+              const result = await attachRes.json();
+              console.log('[PostAuth] ✅ Plan session attached:', result);
+            }
+
+            // Clear plan session regardless of success/failure
+            await clearPlanSession(storage);
+            console.log('[PostAuth] Plan session cleared from storage');
+            return { step: 3, success: true, hadSession: true };
+          } else {
+            console.log('[PostAuth] No pending plan session found');
+            return { step: 3, success: true, hadSession: false };
+          }
+        } catch (err) {
+          console.error('[PostAuth] Error handling plan session:', err);
+          return { step: 3, success: false, error: err };
+        }
+      })(),
+
+      // STEP 4: Ensure avatar exists in database
+      (async () => {
+        console.log('[PostAuth] [Parallel] Ensuring avatar exists in database...');
+        try {
+          const avatar = await ensureAvatar(supabase, userId);
+
+          if (avatar) {
+            console.log('[PostAuth] ✅ Avatar ready:', avatar);
+            return { step: 4, success: true };
+          } else {
+            console.warn('[PostAuth] ⚠️  Avatar creation skipped or failed');
+            return { step: 4, success: false };
+          }
+        } catch (err) {
+          console.error('[PostAuth] Error ensuring avatar:', err);
+          return { step: 4, success: false, error: err };
+        }
+      })(),
+    ]);
+
+    // Log parallel task results
+    console.log('[PostAuth] ✅ Parallel tasks completed:', parallelTasks.map((r, i) => ({
+      step: i + 2,
+      status: r.status,
+    })));
+
+    // Small delay for DB replication after parallel operations
+    await new Promise((resolve) => setTimeout(resolve, 100));
 
     // ============================================================
     // STEP 5: Bootstrap journey plan

@@ -5,18 +5,14 @@ import { supabase } from "@/lib/supabase";
 import { useState, useEffect } from "react";
 import { getOnboardingDataOrNull } from "@/lib/onboarding-storage";
 import { translateAuthError, validateEmail, validatePassword, validatePasswordMatch } from "@/lib/i18n/authHe";
-import { usePlatform } from "@/lib/platform";
-import { runPostAuthFlow } from "@/lib/auth/post-auth";
 
 export default function SignupClient() {
-  const { storage } = usePlatform();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [acceptMarketing, setAcceptMarketing] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [migrating, setMigrating] = useState(false);
 
   // Force re-render when returning from external browser (iOS Simulator fix)
   const [, forceUpdate] = useState(0);
@@ -87,31 +83,9 @@ export default function SignupClient() {
           setLoading(false);
         } else if (data.session) {
           // Session is available immediately (no email confirmation required)
-          console.log('[Signup] Session available, starting post-auth flow');
-          setMigrating(true);
-
-          try {
-            // Run unified post-auth flow
-            const targetRoute = await runPostAuthFlow({
-              user: data.user,
-              session: data.session,
-              provider: 'email',
-              storage,
-              supabase,
-              onboardingDataOverride: onboardingData,
-            });
-
-            setMigrating(false);
-
-            // Navigate to appropriate page based on profile completeness
-            console.log("[Signup] Redirecting to:", targetRoute);
-            window.location.href = targetRoute;
-          } catch (err) {
-            console.error('[Signup] Post-auth flow failed:', err);
-            setMigrating(false);
-            setError('ההרשמה הושלמה, אך אירעה שגיאה בהכנת התוכנית שלך. נסה להתחבר שוב.');
-            setLoading(false);
-          }
+          // Navigate to processing page for faster perceived performance
+          console.log('[Signup] Session available, navigating to processing page');
+          window.location.href = '/auth/processing?provider=email';
       } else {
         // Email confirmation required
         setError("נשלח לך מייל אימות. אנא בדוק את תיבת הדואר שלך.");
@@ -211,10 +185,10 @@ export default function SignupClient() {
 
           <button
             type="submit"
-            disabled={loading || migrating}
+            disabled={loading}
             className="mt-6 h-14 w-full rounded-full bg-[#E2F163] text-black font-bold text-lg transition-transform active:scale-98 active:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {migrating ? "שומר את התוכנית שלך..." : loading ? "רושם..." : "הרשמה"}
+            {loading ? "רושם..." : "הרשמה"}
           </button>
         </form>
 

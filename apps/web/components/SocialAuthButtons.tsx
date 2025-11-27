@@ -6,9 +6,7 @@ import { startGoogleSignIn, startAppleSignIn } from "@/lib/auth/oauth";
 import { usePlatform } from "@/lib/platform";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/lib/supabase";
-import { runPostAuthFlow } from "@/lib/auth/post-auth";
 import { isNative } from "@/lib/platform/isNative";
-import { getOnboardingDataOrNull } from "@/lib/onboarding-storage";
 import type { Session, SupabaseClient } from "@supabase/supabase-js";
 
 type Size = "lg" | "md";
@@ -81,14 +79,13 @@ export default function SocialAuthButtons({
       console.log("[SocialAuthButtons] OAuth result received, checking for session...");
 
       if (isNative()) {
-        console.log("[SocialAuthButtons] Native platform detected, running post-auth flow");
+        console.log("[SocialAuthButtons] Native platform detected, waiting for session...");
 
         // Wait for session to become available (handles race condition)
         const session = await waitForSession(supabase, { retries: 10, delayMs: 150 });
 
         if (!session || !session.user) {
           // Session not available after retries - navigate to main app anyway
-          // The session should be available, and if not, AuthProvider will redirect to login
           console.warn('[SocialAuthButtons] Session not immediately available after native OAuth');
           console.warn('[SocialAuthButtons] Navigating to /journey anyway - session should be available');
           setLoading(null);
@@ -100,38 +97,9 @@ export default function SocialAuthButtons({
         console.log("[SocialAuthButtons] Triggering success haptic");
         await haptics?.success?.();
 
-        console.log("[SocialAuthButtons] Running post-auth flow for Google OAuth");
-
-        // Load onboarding data to pass to post-auth flow
-        const onboardingData = getOnboardingDataOrNull();
-        console.log("[SocialAuthButtons] Onboarding data loaded:", !!onboardingData);
-        if (onboardingData) {
-          console.log("[SocialAuthButtons] Onboarding summary:", {
-            goal: onboardingData.goals?.[0],
-            height: onboardingData.height_cm,
-            weight: onboardingData.weight_kg,
-            gender: onboardingData.gender,
-            diet: onboardingData.diet,
-            activity: onboardingData.activity,
-            birthdate: onboardingData.birthdate, // ADD birthdate to log
-            hasBirthdate: !!onboardingData.birthdate,
-          });
-        } else {
-          console.log("[SocialAuthButtons] WARNING: No onboarding data found!");
-        }
-
-        // Run unified post-auth flow
-        const targetRoute = await runPostAuthFlow({
-          user: session.user,
-          session,
-          provider: 'google',
-          storage: platform.storage,
-          supabase,
-          onboardingDataOverride: onboardingData,
-        });
-
-        console.log("[SocialAuthButtons] Post-auth flow completed, navigating to:", targetRoute);
-        window.location.href = targetRoute;
+        // Navigate to processing page for faster perceived performance
+        console.log("[SocialAuthButtons] Navigating to processing page for Google OAuth");
+        window.location.href = '/auth/processing?provider=google';
       } else {
         console.log("[SocialAuthButtons] Web platform - redirect should have occurred");
         // On web, redirect happens automatically, this code shouldn't execute
@@ -217,38 +185,9 @@ export default function SocialAuthButtons({
         console.log("[SocialAuthButtons] Triggering success haptic");
         await haptics?.success?.();
 
-        console.log("[SocialAuthButtons] Running post-auth flow for Apple OAuth");
-
-        // Load onboarding data to pass to post-auth flow
-        const onboardingData = getOnboardingDataOrNull();
-        console.log("[SocialAuthButtons] Onboarding data loaded:", !!onboardingData);
-        if (onboardingData) {
-          console.log("[SocialAuthButtons] Onboarding summary:", {
-            goal: onboardingData.goals?.[0],
-            height: onboardingData.height_cm,
-            weight: onboardingData.weight_kg,
-            gender: onboardingData.gender,
-            diet: onboardingData.diet,
-            activity: onboardingData.activity,
-            birthdate: onboardingData.birthdate, // ADD birthdate to log
-            hasBirthdate: !!onboardingData.birthdate,
-          });
-        } else {
-          console.log("[SocialAuthButtons] WARNING: No onboarding data found!");
-        }
-
-        // Run unified post-auth flow
-        const targetRoute = await runPostAuthFlow({
-          user: session.user,
-          session,
-          provider: 'apple',
-          storage: platform.storage,
-          supabase,
-          onboardingDataOverride: onboardingData,
-        });
-
-        console.log("[SocialAuthButtons] Post-auth flow completed, navigating to:", targetRoute);
-        window.location.href = targetRoute;
+        // Navigate to processing page for faster perceived performance
+        console.log("[SocialAuthButtons] Navigating to processing page for Apple OAuth");
+        window.location.href = '/auth/processing?provider=apple';
       } else {
         console.log("[SocialAuthButtons] Web platform - redirect should have occurred");
         // On web, redirect happens automatically, this code shouldn't execute
