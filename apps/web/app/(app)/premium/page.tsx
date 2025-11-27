@@ -8,7 +8,7 @@
 "use client";
 
 import { useAuth } from "@/contexts/AuthProvider";
-import { Crown, Loader2, CheckCircle2 } from "lucide-react";
+import { Loader2, CheckCircle2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { openExternal } from "@/lib/openExternal";
@@ -17,29 +17,14 @@ import Image from "next/image";
 
 export default function PremiumPage() {
   const router = useRouter();
-  const { user, loading, isPremium, isSubscriptionLoading, subscription } =
-    useAuth();
-  const [autoRedirectCountdown, setAutoRedirectCountdown] = useState(800);
+  const { user, loading, isPremium, isSubscriptionLoading } = useAuth();
   const [selectedPlan, setSelectedPlan] = useState<"monthly" | "yearly">("yearly");
 
-  // If user is premium, auto-redirect to /journey after a short delay
+  // If user is premium, immediately redirect to /journey (no delay, no UI flash)
   useEffect(() => {
     if (isPremium && user) {
-      console.log("[Premium] User is premium, auto-redirecting to /journey");
-
-      const timer = setTimeout(() => {
-        router.replace("/journey");
-      }, 800);
-
-      // Countdown timer for visual feedback
-      const countdownInterval = setInterval(() => {
-        setAutoRedirectCountdown((prev) => Math.max(0, prev - 100));
-      }, 100);
-
-      return () => {
-        clearTimeout(timer);
-        clearInterval(countdownInterval);
-      };
+      console.log("[Premium] User is premium, immediately redirecting to /journey");
+      router.replace("/journey");
     }
   }, [isPremium, user, router]);
 
@@ -50,11 +35,6 @@ export default function PremiumPage() {
       router.replace("/login");
     }
   }, [loading, isSubscriptionLoading, user, router]);
-
-  // Handle immediate redirect to journey (for premium users who don't want to wait)
-  const handleGoToApp = () => {
-    router.replace("/journey");
-  };
 
   // Handle CTA click (stub for Apple IAP integration)
   const handleSubscribe = () => {
@@ -84,46 +64,12 @@ export default function PremiumPage() {
     return null;
   }
 
-  // If premium, show success message and redirect
+  // If premium, show loading and redirect immediately (no success message flash)
   if (isPremium) {
     return (
-      <div className="min-h-screen bg-[#0b0d0e] text-white flex flex-col items-center justify-center px-6 pb-safe">
-        {/* Success Icon */}
-        <div className="relative mb-6">
-          <div className="absolute inset-0 bg-lime-400/20 blur-3xl rounded-full" />
-          <div className="relative p-6 rounded-full bg-lime-400/10 border-2 border-lime-400/30">
-            <Crown className="w-16 h-16 text-lime-400" />
-          </div>
-        </div>
-
-        {/* Success Message */}
-        <h1 className="text-3xl font-bold text-center mb-3">
-          יש לך כבר מנוי פעיל 🎉
-        </h1>
-
-        {/* Subscription Details */}
-        {subscription && (
-          <p className="text-white/60 text-center mb-8">
-            {subscription.plan === "yearly" ? "מנוי שנתי" : "מנוי חודשי"}
-            {subscription.currentPeriodEnd &&
-              ` • תוקף עד ${new Date(
-                subscription.currentPeriodEnd
-              ).toLocaleDateString("he-IL")}`}
-          </p>
-        )}
-
-        {/* Auto-redirect message */}
-        <p className="text-white/40 text-sm text-center mb-6">
-          מעביר אותך למסע הכושר שלך...
-        </p>
-
-        {/* Immediate CTA */}
-        <button
-          onClick={handleGoToApp}
-          className="px-8 py-4 rounded-2xl bg-lime-400 text-black font-semibold text-lg hover:bg-lime-500 transition-colors active:scale-95"
-        >
-          להיכנס עכשיו לאפליקציה
-        </button>
+      <div className="min-h-screen bg-[#0b0d0e] flex flex-col items-center justify-center gap-4">
+        <Loader2 className="w-10 h-10 text-lime-400 animate-spin" />
+        <p className="text-white/60 text-sm">מעביר אותך לאפליקציה…</p>
       </div>
     );
   }
