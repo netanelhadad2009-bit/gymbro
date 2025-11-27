@@ -120,12 +120,10 @@ export default function ProfilePage() {
 
     if (!ok) return;
 
-    try {
-      await supabase.auth.signOut();
-      router.replace("/");
-    } catch (error) {
-      console.error("Error during logout:", error);
-    }
+    // Navigate to dedicated logout page (outside PremiumGate protection)
+    // This prevents race condition where PremiumGate redirects to /login
+    // before our redirect to / can happen
+    router.push("/logout");
   };
 
   useEffect(() => {
