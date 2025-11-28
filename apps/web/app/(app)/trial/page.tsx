@@ -1,11 +1,10 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 export default function TrialPage() {
-  const router = useRouter();
+  const [isNavigating, setIsNavigating] = useState(false);
 
   // Prevent back navigation to signup/registration pages
   useEffect(() => {
@@ -25,7 +24,10 @@ export default function TrialPage() {
   }, []);
 
   const handleStartJourney = () => {
-    router.push("/premium");
+    if (isNavigating) return;
+    setIsNavigating(true);
+    // Use direct navigation for faster, more reliable navigation in Capacitor
+    window.location.href = "/premium";
   };
 
   return (
@@ -58,9 +60,10 @@ export default function TrialPage() {
       <div className="pt-1 pb-3 shrink-0 px-4">
         <button
           onClick={handleStartJourney}
-          className="w-full py-4 rounded-full bg-[#E2F163] text-black font-bold text-lg transition-transform active:scale-[0.98] shadow-lg"
+          disabled={isNavigating}
+          className="w-full py-4 rounded-full bg-[#E2F163] text-black font-bold text-lg transition-transform active:scale-[0.98] shadow-lg disabled:opacity-70"
         >
-          אני רוצה להתחיל את המסע
+          {isNavigating ? "טוען..." : "אני רוצה להתחיל את המסע"}
         </button>
       </div>
     </main>
