@@ -1,17 +1,18 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export default function TrialPage() {
   const [isNavigating, setIsNavigating] = useState(false);
+  const navigatingRef = useRef(false);
 
   // Prevent back navigation to signup/registration pages
   useEffect(() => {
     // Replace the current history entry to prevent going back
     window.history.pushState(null, '', window.location.href);
 
-    const handlePopState = (e: PopStateEvent) => {
+    const handlePopState = () => {
       // Prevent back navigation by pushing the current state again
       window.history.pushState(null, '', window.location.href);
     };
@@ -24,9 +25,12 @@ export default function TrialPage() {
   }, []);
 
   const handleStartJourney = () => {
-    if (isNavigating) return;
+    // Use ref for immediate check (no React re-render delay)
+    if (navigatingRef.current) return;
+    navigatingRef.current = true;
     setIsNavigating(true);
-    // Use direct navigation for faster, more reliable navigation in Capacitor
+
+    // Navigate immediately
     window.location.href = "/premium";
   };
 
@@ -60,8 +64,12 @@ export default function TrialPage() {
       <div className="pt-1 pb-3 shrink-0 px-4">
         <button
           onClick={handleStartJourney}
+          onTouchEnd={(e) => {
+            e.preventDefault();
+            handleStartJourney();
+          }}
           disabled={isNavigating}
-          className="w-full py-4 rounded-full bg-[#E2F163] text-black font-bold text-lg transition-transform active:scale-[0.98] shadow-lg disabled:opacity-70"
+          className="w-full py-4 rounded-full bg-[#E2F163] text-black font-bold text-lg transition-transform active:scale-[0.98] shadow-lg disabled:opacity-70 touch-manipulation"
         >
           {isNavigating ? "טוען..." : "אני רוצה להתחיל את המסע"}
         </button>
