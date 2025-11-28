@@ -1,12 +1,9 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
+import { useEffect } from "react";
 
 export default function TrialPage() {
-  const [isNavigating, setIsNavigating] = useState(false);
-  const navigatingRef = useRef(false);
-
   // Prevent back navigation to signup/registration pages
   useEffect(() => {
     // Replace the current history entry to prevent going back
@@ -23,16 +20,6 @@ export default function TrialPage() {
       window.removeEventListener('popstate', handlePopState);
     };
   }, []);
-
-  const handleStartJourney = () => {
-    // Use ref for immediate check (no React re-render delay)
-    if (navigatingRef.current) return;
-    navigatingRef.current = true;
-    setIsNavigating(true);
-
-    // Navigate immediately
-    window.location.href = "/premium";
-  };
 
   return (
     <main
@@ -60,19 +47,14 @@ export default function TrialPage() {
         />
       </div>
 
-      {/* Bottom section - CTA button */}
+      {/* Bottom section - CTA link (using anchor for instant response without JS hydration) */}
       <div className="pt-1 pb-3 shrink-0 px-4">
-        <button
-          onClick={handleStartJourney}
-          onTouchEnd={(e) => {
-            e.preventDefault();
-            handleStartJourney();
-          }}
-          disabled={isNavigating}
-          className="w-full py-4 rounded-full bg-[#E2F163] text-black font-bold text-lg transition-transform active:scale-[0.98] shadow-lg disabled:opacity-70 touch-manipulation"
+        <a
+          href="/premium"
+          className="block w-full py-4 rounded-full bg-[#E2F163] text-black font-bold text-lg text-center transition-transform active:scale-[0.98] shadow-lg touch-manipulation"
         >
-          {isNavigating ? "טוען..." : "אני רוצה להתחיל את המסע"}
-        </button>
+          אני רוצה להתחיל את המסע
+        </a>
       </div>
     </main>
   );
