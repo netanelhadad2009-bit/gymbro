@@ -1115,7 +1115,7 @@ export default function NutritionPage() {
           {/* Image Preview with Scanning Animation */}
           <div className="relative w-full max-w-md aspect-square rounded-2xl overflow-hidden mb-6">
             <img
-              src={scanningImageUrl}
+              src={scanningImageUrl || ''}
               alt="סורק תמונה"
               className="w-full h-full object-cover"
             />
