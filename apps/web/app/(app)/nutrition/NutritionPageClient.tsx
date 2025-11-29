@@ -613,12 +613,17 @@ export default function NutritionPage() {
 
   // Handle photo scan for AI meal analysis
   const handleScanPhoto = async (file: File) => {
+    console.log('[Nutrition] handleScanPhoto called, file:', file.name, file.size);
+
     // Create local object URL for preview FIRST (before any async operations)
     const imageUrl = URL.createObjectURL(file);
+    console.log('[Nutrition] Created imageUrl:', imageUrl);
+
     setScanningImageUrl(imageUrl);
     setUploadingPhoto(true);
+    console.log('[Nutrition] States set - uploadingPhoto=true, scanningImageUrl=', imageUrl);
 
-    try {
+    try{
       // Get fresh session token
       const { data: { session: currentSession } } = await supabase.auth.getSession();
 
@@ -1101,7 +1106,10 @@ export default function NutritionPage() {
       />
 
       {/* Image scanning overlay with preview */}
-      {uploadingPhoto && scanningImageUrl && (
+      {(() => {
+        console.log('[Nutrition] Render check - uploadingPhoto:', uploadingPhoto, 'scanningImageUrl:', scanningImageUrl);
+        return uploadingPhoto && scanningImageUrl;
+      })() && (
         <div className="fixed inset-0 bg-black flex flex-col items-center justify-center z-[70] p-4">
           {/* Image Preview with Scanning Animation */}
           <div className="relative w-full max-w-md aspect-square rounded-2xl overflow-hidden mb-6">
