@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { flushSync } from "react-dom";
 import { useSearchParams, useRouter } from "next/navigation";
 import StickyHeader from "@/components/ui/StickyHeader";
 import { CaloriesWidget } from "@/components/nutrition/CaloriesWidget";
@@ -620,9 +621,13 @@ export default function NutritionPage() {
     console.log('[Nutrition] 🔥 Created imageUrl:', imageUrl);
 
     console.log('[Nutrition] 🔥 About to set states - uploadingPhoto=true, scanningImageUrl=', imageUrl);
-    setScanningImageUrl(imageUrl);
-    setUploadingPhoto(true);
-    console.log('[Nutrition] 🔥 States set!');
+    // Use flushSync to force React to apply state updates immediately
+    // This prevents re-renders from showing old state values
+    flushSync(() => {
+      setScanningImageUrl(imageUrl);
+      setUploadingPhoto(true);
+    });
+    console.log('[Nutrition] 🔥 States set with flushSync!');
 
     try{
       console.log('[Nutrition] 🔥 Getting session...');
