@@ -41,8 +41,20 @@ export default function NutritionPage() {
   const [error, setError] = useState<string | null>(null);
   const [currentDayIndex, setCurrentDayIndex] = useState(() => new Date().getDay()); // Initialize to current day of week (0-6)
   const [showSummary, setShowSummary] = useState(false);
-  const [uploadingPhoto, setUploadingPhoto] = useState(false);
-  const [scanningImageUrl, setScanningImageUrl] = useState<string | null>(null);
+  const [uploadingPhoto, setUploadingPhoto] = useState(() => {
+    // Check sessionStorage on mount to restore scanning state
+    if (typeof window !== 'undefined') {
+      return sessionStorage.getItem('nutrition_scanning') === 'true';
+    }
+    return false;
+  });
+  const [scanningImageUrl, setScanningImageUrl] = useState<string | null>(() => {
+    // Check sessionStorage on mount to restore image URL
+    if (typeof window !== 'undefined') {
+      return sessionStorage.getItem('nutrition_scanning_image');
+    }
+    return null;
+  });
   const [userMeals, setUserMeals] = useState<any[]>([]);
 
   // Barcode scanner state
@@ -58,6 +70,18 @@ export default function NutritionPage() {
     carbs?: number;
     fat?: number;
   }>({});
+
+  // Log scanning state on mount for debugging
+  useEffect(() => {
+    const scanning = sessionStorage.getItem('nutrition_scanning');
+    const imageUrl = sessionStorage.getItem('nutrition_scanning_image');
+    console.log('[Nutrition] 🎨 Component mounted with scanning state:', {
+      scanning,
+      imageUrl: imageUrl ? imageUrl.substring(0, 50) + '...' : null,
+      uploadingPhoto,
+      scanningImageUrl: scanningImageUrl ? scanningImageUrl.substring(0, 50) + '...' : null
+    });
+  }, []);
 
   // Notify context when summary sheet opens/closes
   useEffect(() => {
@@ -621,13 +645,17 @@ export default function NutritionPage() {
     console.log('[Nutrition] 🔥 Created imageUrl:', imageUrl);
 
     console.log('[Nutrition] 🔥 About to set states - uploadingPhoto=true, scanningImageUrl=', imageUrl);
+    // Store in sessionStorage to persist across component re-mounts
+    sessionStorage.setItem('nutrition_scanning', 'true');
+    sessionStorage.setItem('nutrition_scanning_image', imageUrl);
+
     // Use flushSync to force React to apply state updates immediately
     // This prevents re-renders from showing old state values
     flushSync(() => {
       setScanningImageUrl(imageUrl);
       setUploadingPhoto(true);
     });
-    console.log('[Nutrition] 🔥 States set with flushSync!');
+    console.log('[Nutrition] 🔥 States set with flushSync and sessionStorage!');
 
     try{
       console.log('[Nutrition] 🔥 Getting session...');
@@ -765,6 +793,9 @@ export default function NutritionPage() {
       }
     } finally {
       console.log('[Nutrition] 🔥 FINALLY block - resetting states');
+      // Clear sessionStorage
+      sessionStorage.removeItem('nutrition_scanning');
+      sessionStorage.removeItem('nutrition_scanning_image');
       setUploadingPhoto(false);
       setScanningImageUrl(null);
       console.log('[Nutrition] 🔥 States reset in finally block');
