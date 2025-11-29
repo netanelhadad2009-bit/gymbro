@@ -638,167 +638,35 @@ export default function NutritionPage() {
 
   // Handle photo scan for AI meal analysis
   const handleScanPhoto = async (file: File) => {
-    console.log('[Nutrition] 🔥 handleScanPhoto called with file:', file.name, file.size, file.type);
+    console.log('[Nutrition] handleScanPhoto called with file:', file.name, file.size, file.type);
 
-    // Create local object URL for preview FIRST (before any async operations)
-    const imageUrl = URL.createObjectURL(file);
-    console.log('[Nutrition] 🔥 Created imageUrl:', imageUrl);
-
-    console.log('[Nutrition] 🔥 About to set states - uploadingPhoto=true, scanningImageUrl=', imageUrl);
-    // Store in sessionStorage to persist across component re-mounts
-    sessionStorage.setItem('nutrition_scanning', 'true');
-    sessionStorage.setItem('nutrition_scanning_image', imageUrl);
-
-    // Use flushSync to force React to apply state updates immediately
-    // This prevents re-renders from showing old state values
-    flushSync(() => {
-      setScanningImageUrl(imageUrl);
-      setUploadingPhoto(true);
-    });
-    console.log('[Nutrition] 🔥 States set with flushSync and sessionStorage!');
-
-    try{
-      console.log('[Nutrition] 🔥 Getting session...');
-      // Get fresh session token
-      const { data: { session: currentSession } } = await supabase.auth.getSession();
-      console.log('[Nutrition] 🔥 Session obtained:', !!currentSession);
-
-      if (!currentSession?.access_token) {
-        console.log('[Nutrition] 🔥 No session token!');
-        throw new Error("לא מחובר. אנא התחבר שוב.");
-      }
-
-      console.log('[Nutrition] 🔥 Creating FormData...');
-      const formData = new FormData();
-      formData.append("file", file);
-      console.log('[Nutrition] 🔥 FormData created, starting fetch...');
-
-      let response;
-      try {
-        response = await fetch("/api/ai/vision/nutrition", {
-          method: "POST",
-          headers: {
-            "Authorization": `Bearer ${currentSession.access_token}`,
-          },
-          body: formData,
-          // Don't set Content-Type; browser sets multipart boundary automatically
-        });
-      } catch (networkError) {
-        console.error("[VISION] Network error:", networkError);
-        const hebrewError = getVisionError('network_error');
-
-        // Haptic feedback for error
-        if (navigator.vibrate) {
-          navigator.vibrate([30, 30, 30]);
-        }
-
-        toast({
-          title: hebrewError.title,
-          description: hebrewError.description,
-          variant: 'destructive',
-          duration: 5000,
-        });
-
-        throw new Error(hebrewError.title);
-      }
-
-      if (!response.ok) {
-        const error = await response.json().catch(() => ({}));
-
-        // Log the error for debugging
-        console.error("[VISION] API error:", {
-          code: error.code,
-          message: error.message,
-          hint: error.hint,
-          details: error.details,
-        });
-
-        // Get Hebrew error message from code
-        const errorCode = error.code || 'unknown';
-        const hebrewError = getVisionError(errorCode);
-
-        // Haptic feedback for error
-        if (navigator.vibrate) {
-          navigator.vibrate([30, 30, 30]);
-        }
-
-        // Show Hebrew toast with error
-        toast({
-          title: hebrewError.title,
-          description: hebrewError.description,
-          variant: 'destructive',
-          duration: 5000,
-        });
-
-        throw new Error(hebrewError.title);
-      }
-
-      const result = await response.json();
-
-      if (!result.ok || !result.meal) {
-        throw new Error("Invalid response from AI vision API");
-      }
-
-      // Extract the meal result
-      const mealResult: VisionMealResult = {
-        meal_name: result.meal.name,
-        calories: result.meal.calories,
-        protein: result.meal.protein,
-        carbs: result.meal.carbs,
-        fat: result.meal.fat,
-        confidence: result.meal.confidence,
-        health_score: result.meal.health_score,
-        ingredients: result.meal.ingredients,
-        image_url: result.meal.image_url, // Supabase storage URL if uploaded
-      };
-
-      // Use Supabase URL if available, otherwise use local preview
-      const finalImageUrl = mealResult.image_url || imageUrl;
-
-      // Store result in temp cache
-      if (userId) {
-        setMealReviewCache(userId, {
-          result: mealResult,
-          imageUrl: finalImageUrl,
-          createdAt: Date.now(),
-        });
-      }
-
-      console.log('[Nutrition] 🔥 Navigating to review page...');
-      // Navigate to review page
-      router.push("/nutrition/scan/review");
-      console.log('[Nutrition] 🔥 Navigation triggered');
-    } catch (error: any) {
-      console.error("[Nutrition] 🔥 ERROR in handleScanPhoto:", {
-        message: error.message,
-        hasSession: !!session,
-        hasToken: !!session?.access_token,
+    try {
+      // Convert file to data URL so we can pass it through page navigation
+      const reader = new FileReader();
+      const imageDataUrl = await new Promise<string>((resolve, reject) => {
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
       });
 
-      // If error wasn't already handled by toast above, show generic error
-      if (error.message && !error.message.includes('לא הצלחנו') && !error.message.includes('שגיאה')) {
-        const genericError = getVisionError('unknown');
+      // Store pending scan data in sessionStorage
+      sessionStorage.setItem('nutrition_pending_scan', JSON.stringify({
+        imageDataUrl,
+        fileName: file.name,
+        fileSize: file.size,
+      }));
 
-        // Haptic feedback for error
-        if (navigator.vibrate) {
-          navigator.vibrate([30, 30, 30]);
-        }
-
-        toast({
-          title: genericError.title,
-          description: error.message || genericError.description,
-          variant: 'destructive',
-          duration: 5000,
-        });
-      }
-    } finally {
-      console.log('[Nutrition] 🔥 FINALLY block - resetting states');
-      // Clear sessionStorage
-      sessionStorage.removeItem('nutrition_scanning');
-      sessionStorage.removeItem('nutrition_scanning_image');
-      setUploadingPhoto(false);
-      setScanningImageUrl(null);
-      console.log('[Nutrition] 🔥 States reset in finally block');
+      console.log('[Nutrition] Navigating to analyzing page...');
+      // Navigate to analyzing page which will show the scanning animation
+      router.push("/nutrition/scan/analyzing");
+    } catch (error: any) {
+      console.error("[Nutrition] Error preparing scan:", error);
+      toast({
+        title: "שגיאה",
+        description: "שגיאה בעיבוד התמונה. נסה שוב.",
+        variant: 'destructive',
+        duration: 3000,
+      });
     }
   };
 
