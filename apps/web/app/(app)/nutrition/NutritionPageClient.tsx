@@ -625,15 +625,20 @@ export default function NutritionPage() {
     console.log('[Nutrition] 🔥 States set!');
 
     try{
+      console.log('[Nutrition] 🔥 Getting session...');
       // Get fresh session token
       const { data: { session: currentSession } } = await supabase.auth.getSession();
+      console.log('[Nutrition] 🔥 Session obtained:', !!currentSession);
 
       if (!currentSession?.access_token) {
+        console.log('[Nutrition] 🔥 No session token!');
         throw new Error("לא מחובר. אנא התחבר שוב.");
       }
 
+      console.log('[Nutrition] 🔥 Creating FormData...');
       const formData = new FormData();
       formData.append("file", file);
+      console.log('[Nutrition] 🔥 FormData created, starting fetch...');
 
       let response;
       try {
@@ -726,10 +731,12 @@ export default function NutritionPage() {
         });
       }
 
+      console.log('[Nutrition] 🔥 Navigating to review page...');
       // Navigate to review page
       router.push("/nutrition/scan/review");
+      console.log('[Nutrition] 🔥 Navigation triggered');
     } catch (error: any) {
-      console.error("[VISION] Photo scan error:", {
+      console.error("[Nutrition] 🔥 ERROR in handleScanPhoto:", {
         message: error.message,
         hasSession: !!session,
         hasToken: !!session?.access_token,
@@ -752,8 +759,10 @@ export default function NutritionPage() {
         });
       }
     } finally {
+      console.log('[Nutrition] 🔥 FINALLY block - resetting states');
       setUploadingPhoto(false);
       setScanningImageUrl(null);
+      console.log('[Nutrition] 🔥 States reset in finally block');
     }
   };
 
