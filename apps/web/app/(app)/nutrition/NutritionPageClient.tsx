@@ -41,6 +41,7 @@ export default function NutritionPage() {
   const [currentDayIndex, setCurrentDayIndex] = useState(() => new Date().getDay()); // Initialize to current day of week (0-6)
   const [showSummary, setShowSummary] = useState(false);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const [scanningImageUrl, setScanningImageUrl] = useState<string | null>(null);
   const [userMeals, setUserMeals] = useState<any[]>([]);
 
   // Barcode scanner state
@@ -612,7 +613,11 @@ export default function NutritionPage() {
 
   // Handle photo scan for AI meal analysis
   const handleScanPhoto = async (file: File) => {
+    // Create local object URL for preview FIRST (before any async operations)
+    const imageUrl = URL.createObjectURL(file);
+    setScanningImageUrl(imageUrl);
     setUploadingPhoto(true);
+
     try {
       // Get fresh session token
       const { data: { session: currentSession } } = await supabase.auth.getSession();
@@ -620,9 +625,6 @@ export default function NutritionPage() {
       if (!currentSession?.access_token) {
         throw new Error("לא מחובר. אנא התחבר שוב.");
       }
-
-      // Create local object URL for preview
-      const imageUrl = URL.createObjectURL(file);
 
       const formData = new FormData();
       formData.append("file", file);
@@ -745,6 +747,7 @@ export default function NutritionPage() {
       }
     } finally {
       setUploadingPhoto(false);
+      setScanningImageUrl(null);
     }
   };
 
@@ -1097,15 +1100,39 @@ export default function NutritionPage() {
         onScanBarcode={() => setShowBarcodeScanner(true)}
       />
 
-      {/* Loading overlay for photo upload */}
-      {uploadingPhoto && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-[70]">
-          <div className="bg-neutral-900 rounded-2xl p-6 space-y-4 max-w-sm mx-4">
-            <div className="flex justify-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-lime-400"></div>
+      {/* Image scanning overlay with preview */}
+      {uploadingPhoto && scanningImageUrl && (
+        <div className="fixed inset-0 bg-black flex flex-col items-center justify-center z-[70] p-4">
+          {/* Image Preview with Scanning Animation */}
+          <div className="relative w-full max-w-md aspect-square rounded-2xl overflow-hidden mb-6">
+            <img
+              src={scanningImageUrl}
+              alt="סורק תמונה"
+              className="w-full h-full object-cover"
+            />
+
+            {/* Scanning line animation */}
+            <div className="absolute inset-0 overflow-hidden">
+              <div className="absolute w-full h-1 bg-gradient-to-r from-transparent via-lime-400 to-transparent animate-scan-line shadow-[0_0_20px_rgba(190,242,100,0.5)]"></div>
             </div>
-            <p className="text-white text-center">מנתח את התמונה...</p>
-            <p className="text-neutral-400 text-sm text-center">זה עשוי לקחת כמה שניות</p>
+
+            {/* Scanning grid overlay */}
+            <div className="absolute inset-0 bg-gradient-to-b from-lime-400/10 via-transparent to-lime-400/10 animate-pulse"></div>
+
+            {/* Corner brackets */}
+            <div className="absolute top-4 left-4 w-8 h-8 border-t-2 border-l-2 border-lime-400"></div>
+            <div className="absolute top-4 right-4 w-8 h-8 border-t-2 border-r-2 border-lime-400"></div>
+            <div className="absolute bottom-4 left-4 w-8 h-8 border-b-2 border-l-2 border-lime-400"></div>
+            <div className="absolute bottom-4 right-4 w-8 h-8 border-b-2 border-r-2 border-lime-400"></div>
+          </div>
+
+          {/* Status Text */}
+          <div className="text-center space-y-2">
+            <div className="flex items-center justify-center gap-2">
+              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-lime-400"></div>
+              <p className="text-white font-medium text-lg">מנתח את התמונה...</p>
+            </div>
+            <p className="text-neutral-400 text-sm">זה עשוי לקחת כמה שניות</p>
           </div>
         </div>
       )}
