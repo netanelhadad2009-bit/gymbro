@@ -56,15 +56,15 @@ export default function FloatingAddMealButton({ onScanPhoto, onScanBarcode }: Pr
    * Converts base64 or URI to File if needed (Capacitor mobile)
    */
   const handleGalleryPicked = async (result: { uri?: string; file?: File; base64?: string }) => {
-    console.log("[FloatingAddMealButton] 📸 Gallery picked, closing sheet");
-    setOpen(false);
+    console.log("[FloatingAddMealButton] 📸 Gallery picked");
 
     try {
       if (result.file) {
         // Web: already a File
         console.log("[FloatingAddMealButton] 📸 Calling onScanPhoto with web file:", result.file.name);
         onScanPhoto(result.file);
-        console.log("[FloatingAddMealButton] 📸 onScanPhoto called");
+        console.log("[FloatingAddMealButton] 📸 onScanPhoto called, now closing sheet");
+        setOpen(false);
       } else if (result.base64) {
         // Capacitor: convert base64 to File
         console.log("[FloatingAddMealButton] 📸 Converting base64 to File");
@@ -79,7 +79,8 @@ export default function FloatingAddMealButton({ onScanPhoto, onScanBarcode }: Pr
         const file = new File([blob], `photo_${Date.now()}.jpg`, { type: "image/jpeg" });
         console.log("[FloatingAddMealButton] 📸 Calling onScanPhoto with converted file:", file.name, file.size);
         onScanPhoto(file);
-        console.log("[FloatingAddMealButton] 📸 onScanPhoto called");
+        console.log("[FloatingAddMealButton] 📸 onScanPhoto called, now closing sheet");
+        setOpen(false);
       } else if (result.uri) {
         // Fallback: try URI (might not work on all platforms)
         console.log("[FloatingAddMealButton] Attempting to fetch URI:", result.uri);
@@ -87,9 +88,12 @@ export default function FloatingAddMealButton({ onScanPhoto, onScanBarcode }: Pr
         const blob = await response.blob();
         const file = new File([blob], `photo_${Date.now()}.jpg`, { type: "image/jpeg" });
         onScanPhoto(file);
+        console.log("[FloatingAddMealButton] 📸 onScanPhoto called (URI), now closing sheet");
+        setOpen(false);
       }
     } catch (error) {
       console.error("[FloatingAddMealButton] Error converting to File:", error);
+      setOpen(false); // Close sheet on error
       alert("שגיאה בעיבוד התמונה. נסה שוב.");
     }
   };
