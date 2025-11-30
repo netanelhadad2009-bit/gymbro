@@ -54,13 +54,28 @@ export default function AnalyzingPage() {
 
       try {
         console.log('[Analyzing] Converting data URL to File...');
-        console.log('[Analyzing] About to fetch imageDataUrl, length:', imageDataUrl?.length);
-        // Convert data URL back to File
-        const response = await fetch(imageDataUrl);
-        console.log('[Analyzing] Fetched data URL, status:', response.status, 'ok:', response.ok);
-        console.log('[Analyzing] Creating blob from response...');
-        const blob = await response.blob();
+        console.log('[Analyzing] Data URL length:', imageDataUrl?.length);
+
+        // Extract base64 data from data URL (iOS WebView doesn't support fetch with data URLs)
+        const base64Match = imageDataUrl.match(/^data:image\/\w+;base64,(.+)$/);
+        if (!base64Match) {
+          throw new Error('Invalid data URL format');
+        }
+
+        const base64Data = base64Match[1];
+        console.log('[Analyzing] Extracted base64 data, length:', base64Data.length);
+
+        // Convert base64 to Blob
+        console.log('[Analyzing] Decoding base64...');
+        const byteCharacters = atob(base64Data);
+        const byteNumbers = new Array(byteCharacters.length);
+        for (let i = 0; i < byteCharacters.length; i++) {
+          byteNumbers[i] = byteCharacters.charCodeAt(i);
+        }
+        const byteArray = new Uint8Array(byteNumbers);
+        const blob = new Blob([byteArray], { type: "image/jpeg" });
         console.log('[Analyzing] Created blob, size:', blob.size, 'type:', blob.type);
+
         const file = new File([blob], fileName, { type: "image/jpeg" });
         console.log('[Analyzing] Created File:', file.name, file.size, file.type);
 
