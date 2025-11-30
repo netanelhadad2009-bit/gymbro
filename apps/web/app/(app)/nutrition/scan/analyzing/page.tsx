@@ -11,41 +11,72 @@ import type { VisionMealResult } from "@/lib/nutrition/types";
 import * as storage from "@/lib/storage";
 
 export default function AnalyzingPage() {
+  console.log('[Analyzing] 🎬 Component rendering/re-rendering');
   const router = useRouter();
   const { user } = useAuth();
   const { toast } = useToast();
   const [imageUrl, setImageUrl] = useState<string | null>(null);
 
   useEffect(() => {
+    console.log('[Analyzing] 🎯 useEffect triggered, deps:', { hasRouter: !!router, hasToast: !!toast, hasUser: !!user });
     const analyze = async () => {
+      console.log('[Analyzing] Starting analysis...');
+
       // Get the pending scan from sessionStorage
       const pendingScanJson = sessionStorage.getItem('nutrition_pending_scan');
+      console.log('[Analyzing] Pending scan JSON:', pendingScanJson ? 'found' : 'not found');
+
       if (!pendingScanJson) {
         console.error('[Analyzing] No pending scan found');
         router.replace('/nutrition');
         return;
       }
 
-      const pendingScan = JSON.parse(pendingScanJson);
+      let pendingScan;
+      try {
+        pendingScan = JSON.parse(pendingScanJson);
+        console.log('[Analyzing] Parsed pending scan:', {
+          hasImageDataUrl: !!pendingScan.imageDataUrl,
+          fileName: pendingScan.fileName,
+          fileSize: pendingScan.fileSize,
+          imageDataUrlPrefix: pendingScan.imageDataUrl?.substring(0, 50)
+        });
+      } catch (parseError) {
+        console.error('[Analyzing] Error parsing pending scan JSON:', parseError);
+        router.replace('/nutrition');
+        return;
+      }
+
       const { imageDataUrl, fileName, fileSize } = pendingScan;
 
       setImageUrl(imageDataUrl);
+      console.log('[Analyzing] Set image URL for display');
 
       try {
+        console.log('[Analyzing] Converting data URL to File...');
+        console.log('[Analyzing] About to fetch imageDataUrl, length:', imageDataUrl?.length);
         // Convert data URL back to File
         const response = await fetch(imageDataUrl);
+        console.log('[Analyzing] Fetched data URL, status:', response.status, 'ok:', response.ok);
+        console.log('[Analyzing] Creating blob from response...');
         const blob = await response.blob();
+        console.log('[Analyzing] Created blob, size:', blob.size, 'type:', blob.type);
         const file = new File([blob], fileName, { type: "image/jpeg" });
+        console.log('[Analyzing] Created File:', file.name, file.size, file.type);
 
         // Get fresh session token
+        console.log('[Analyzing] Getting Supabase session...');
         const { data: { session: currentSession } } = await supabase.auth.getSession();
+        console.log('[Analyzing] Got session, has token:', !!currentSession?.access_token);
 
         if (!currentSession?.access_token) {
           throw new Error("לא מחובר. אנא התחבר שוב.");
         }
 
+        console.log('[Analyzing] Creating FormData...');
         const formData = new FormData();
         formData.append("file", file);
+        console.log('[Analyzing] FormData created, calling API...');
 
         const apiResponse = await fetch("/api/ai/vision/nutrition", {
           method: "POST",
@@ -54,6 +85,8 @@ export default function AnalyzingPage() {
           },
           body: formData,
         });
+
+        console.log('[Analyzing] API response received, status:', apiResponse.status, 'ok:', apiResponse.ok);
 
         if (!apiResponse.ok) {
           const error = await apiResponse.json().catch(() => ({}));
@@ -75,13 +108,17 @@ export default function AnalyzingPage() {
           throw new Error(hebrewError.title);
         }
 
+        console.log('[Analyzing] Parsing API response JSON...');
         const result = await apiResponse.json();
+        console.log('[Analyzing] Parsed result:', { ok: result.ok, hasMeal: !!result.meal });
 
         if (!result.ok || !result.meal) {
+          console.error('[Analyzing] Invalid API response:', result);
           throw new Error("Invalid response from AI vision API");
         }
 
         // Extract the meal result
+        console.log('[Analyzing] Extracting meal result...');
         const mealResult: VisionMealResult = {
           meal_name: result.meal.name,
           calories: result.meal.calories,
@@ -94,26 +131,42 @@ export default function AnalyzingPage() {
           image_url: result.meal.image_url,
         };
 
+        console.log('[Analyzing] Meal result extracted successfully');
+
         // Use Supabase URL if available, otherwise use local preview
         const finalImageUrl = mealResult.image_url || imageDataUrl;
+        console.log('[Analyzing] Final image URL:', finalImageUrl ? 'set' : 'missing');
 
         // Store result in temp cache
+        console.log('[Analyzing] Getting user ID for cache...');
         const userId = await storage.getCurrentUserId();
+        console.log('[Analyzing] User ID:', userId ? 'found' : 'not found');
         if (userId) {
+          console.log('[Analyzing] Setting meal review cache...');
           setMealReviewCache(userId, {
             result: mealResult,
             imageUrl: finalImageUrl,
             createdAt: Date.now(),
           });
+          console.log('[Analyzing] Cache set successfully');
         }
 
         // Clear pending scan
+        console.log('[Analyzing] Clearing pending scan from sessionStorage...');
         sessionStorage.removeItem('nutrition_pending_scan');
 
         // Navigate to review page
+        console.log('[Analyzing] Navigating to review page...');
         router.push("/nutrition/scan/review");
       } catch (error: any) {
-        console.error("[Analyzing] Error:", error);
+        console.error("[Analyzing] Error caught:", {
+          message: error?.message,
+          stack: error?.stack,
+          name: error?.name,
+          errorObject: error,
+          errorString: String(error),
+          errorJSON: JSON.stringify(error, Object.getOwnPropertyNames(error))
+        });
 
         // Clear pending scan
         sessionStorage.removeItem('nutrition_pending_scan');
