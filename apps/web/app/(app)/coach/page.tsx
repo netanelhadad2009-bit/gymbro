@@ -187,6 +187,8 @@ export default function CoachPage() {
         if (json?.ok) {
           console.log("[Chat] fallback fetched:", json.messages?.length);
           mergeInsert(json.messages as Msg[]);
+          // Update timestamp to prevent continuous polling when idle
+          lastInsertTsRef.current = Date.now();
         }
       }
     }, 8000);
