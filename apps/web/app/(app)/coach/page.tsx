@@ -176,24 +176,10 @@ export default function CoachPage() {
       lastInsertTsRef.current = Date.now();
     });
 
-    // Fallback: if no realtime insert within 8s after a send, force one refresh
-    const t = setInterval(async () => {
-      const elapsed = Date.now() - lastInsertTsRef.current;
-      if (elapsed > 8000) {
-        console.log("[Chat] fallback refetch (no realtime for 8s)");
-        // Opportunistic small refresh
-        const res = await fetch("/api/coach/messages");
-        const json = await res.json();
-        if (json?.ok) {
-          console.log("[Chat] fallback fetched:", json.messages?.length);
-          mergeInsert(json.messages as Msg[]);
-          // Update timestamp to prevent continuous polling when idle
-          lastInsertTsRef.current = Date.now();
-        }
-      }
-    }, 8000);
+    // No fallback polling - realtime should work reliably
+    // If realtime is broken, messages will still appear on page refresh
 
-    return () => { off(); clearInterval(t); };
+    return () => off();
   }, [userId]);
 
   // Fetch profile (runs once after userId is set)
