@@ -120,14 +120,13 @@ export default function CoachPage() {
 
         // If this is a real message (not temp ID), check for optimistic duplicates
         if (!r.id.startsWith('temp-')) {
-          // Remove any temp messages with the same content and role within 10 seconds
-          const rTime = new Date(r.created_at).getTime();
+          // Remove any temp messages with the same content and role
+          // Don't check timestamp - client/server time can differ
           for (const [id, existing] of map.entries()) {
             if (
               id.startsWith('temp-') &&
               existing.role === r.role &&
-              existing.content === r.content &&
-              Math.abs(new Date(existing.created_at).getTime() - rTime) < 10000
+              existing.content === r.content
             ) {
               console.log("[mergeInsert] removing optimistic duplicate:", id);
               map.delete(id);
