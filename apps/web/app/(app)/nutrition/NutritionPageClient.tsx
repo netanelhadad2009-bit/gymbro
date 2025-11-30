@@ -510,28 +510,17 @@ export default function NutritionPage() {
           }
         });
 
-        // Step 4: Merge database and localStorage data
-        // Database takes priority (is source of truth)
+        // Step 4: Use database data as source of truth (already filtered by current week)
+        // Don't merge localStorage to avoid stale data from previous weeks
+        // localStorage is only used as fallback for offline/guest users
         const mergedMap = new Map<number, Set<number>>();
 
-        // Add all database entries
+        // Use database entries only (already filtered to current week in step 3)
         dbMap.forEach((meals, dayIdx) => {
           mergedMap.set(dayIdx, new Set(meals));
         });
 
-        // Add localStorage entries that aren't in database (offline actions)
-        localMap.forEach((meals, dayIdx) => {
-          if (!mergedMap.has(dayIdx)) {
-            mergedMap.set(dayIdx, new Set(meals));
-          } else {
-            // Merge sets
-            meals.forEach(mealIdx => {
-              mergedMap.get(dayIdx)!.add(mealIdx);
-            });
-          }
-        });
-
-        // Update state with merged data
+        // Update state with database data only
         setEatenMealsByDay(mergedMap);
 
         // Save merged data back to localStorage for offline access
