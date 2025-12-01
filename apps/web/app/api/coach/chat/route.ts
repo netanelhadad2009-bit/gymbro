@@ -4,7 +4,14 @@ import OpenAI from "openai";
 import { supabaseServer } from "@/lib/supabase-server";
 import { getUserProfileSync } from "@/lib/profile/getProfile";
 import { buildSystemPrompt } from "@/lib/coach/systemPrompt";
-import { getUserContext, summarizeMealsForPrompt, summarizeWeighInsForPrompt } from "@/lib/coach/context";
+import {
+  getFullUserContext,
+  summarizeMealsForPrompt,
+  summarizeWeighInsForPrompt,
+  summarizeWorkoutForPrompt,
+  summarizePlanMealsForPrompt,
+  summarizeProgressForPrompt,
+} from "@/lib/coach/context";
 import { detectIntent, getIntentName } from "@/lib/coach/intent";
 import { generateDirectResponse } from "@/lib/coach/directResponse";
 import removeMarkdown from "remove-markdown";
@@ -163,13 +170,16 @@ export async function POST(req: NextRequest) {
       };
     }
 
-    // Try to load user context (meals, weigh-ins) - failures are non-fatal
+    // Try to load full user context (meals, weigh-ins, workouts, plan meals, progress)
     try {
-      userContext = await getUserContext(supabase, { days: 30 });
-      console.log("[AI Coach] Context loaded:", {
+      userContext = await getFullUserContext(supabase, { days: 30 });
+      console.log("[AI Coach] Full context loaded:", {
         hasProfile: !!userContext?.profile,
         mealCount: userContext?.recent_meals?.length || 0,
         weighInCount: userContext?.weigh_ins?.length || 0,
+        hasWorkoutProgram: !!userContext?.workout_program,
+        planMealsCount: userContext?.plan_meals?.length || 0,
+        hasProgress: !!userContext?.progress,
       });
     } catch (contextErr: any) {
       console.error("[AI Coach] Context fetch failed (non-fatal):", contextErr?.message || contextErr);
@@ -242,26 +252,58 @@ export async function POST(req: NextRequest) {
 
 נתוני המשתמש שלך: {contextHe}
 
+יש לך גישה מלאה לנתונים הבאים של המשתמש:
+- פרופיל אישי (מין, גיל, גובה, משקל, יעד, דיאטה, ניסיון, פעילות, BMI)
+- היסטוריית ארוחות ותזונה (מה אכל)
+- תפריט מתוכנן (מה צריך לאכול)
+- תוכנית אימונים (תרגילים, ימים, התקדמות)
+- היסטוריית שקילות ומגמת משקל
+- התקדמות כללית (נקודות, רצפים, תגים)
+
 חוקי עבודה קשיחים:
-1. השתמש בנתוני המשתמש (מין, גיל, גובה, משקל, יעד, דיאטה, ניסיון, פעילות, BMI) בכל תשובה רלוונטית.
-2. אל תאמר "אין לי גישה" או "איני יודע" — תמיד יש לך גישה לנתונים שבראש ההודעה הזו.
-3. אם נתון חסר — שאל בעדינות בעברית ("מה הגובה שלך?") ואז תן תשובה שימושית גם בלעדיו.
+1. השתמש בנתונים בכל תשובה רלוונטית. אם המשתמש שואל על האימון הבא - תסתכל על תוכנית האימונים.
+2. אל תאמר "אין לי גישה" או "איני יודע" — תמיד יש לך גישה לנתונים בהודעת המערכת.
+3. אם נתון ספציפי חסר — שאל בעדינות בעברית ("מה הגובה שלך?") ואז תן תשובה שימושית גם בלעדיו.
 4. התאם המלצות למטרה: ירידה במשקל = גירעון קלורי, עלייה במסה = עודף קלורי, חיטוב = שמירה + חלבון.
 5. תשובות תמיד בעברית, קצרות, ממוספרות, בטקסט פשוט (בלי Markdown, כוכביות, או האשטגים).
+6. כשעונה על שאלות לגבי אימונים - ציין את שם התוכנית, התרגילים הספציפיים והסטים/חזרות.
+7. כשעונה על שאלות לגבי תזונה - השווה בין מה שאכל (ארוחות) לבין מה שהיה צריך לאכול (תפריט).
 
 דוגמאות:
 - אם המשקל נמוך מהממוצע → הדגש תזונה מחזקת ועודף קלורי.
 - אם המטרה ירידה במשקל → התמקד בגירעון קלורי + חלבון גבוה.
-- אם רמת הניסיון מתחיל → הצע תוכניות פשוטות ותמיכה רגשית.`;
+- אם רמת הניסיון מתחיל → הצע תוכניות פשוטות ותמיכה רגשית.
+- אם נשאל "מה האימון הבא" → ענה לפי תוכנית האימונים עם התרגילים הספציפיים.`;
 
-      // Add data context (meals, weigh-ins)
+      // Add comprehensive data context (meals, weigh-ins, workouts, plan meals, progress)
       let dataContext = "";
       if (userContext) {
         const mealsSummary = summarizeMealsForPrompt(userContext);
         const weightSummary = summarizeWeighInsForPrompt(userContext);
-        dataContext = `\n\n--- נתוני משתמש אחרונים ---\n\nתזונה:\n${mealsSummary}\n\nמשקל:\n${weightSummary}\n\n--- סוף נתונים ---`;
+        const workoutSummary = summarizeWorkoutForPrompt(userContext);
+        const planMealsSummary = summarizePlanMealsForPrompt(userContext);
+        const progressSummary = summarizeProgressForPrompt(userContext);
+
+        dataContext = `\n\n--- נתוני משתמש מלאים ---
+
+תזונה (הארוחות שנאכלו):
+${mealsSummary}
+
+משקל:
+${weightSummary}
+
+תוכנית אימונים:
+${workoutSummary}
+
+תפריט מתוכנן (מה צריך לאכול):
+${planMealsSummary}
+
+התקדמות ופעילות:
+${progressSummary}
+
+--- סוף נתונים ---`;
       } else {
-        dataContext = `\n\nשים לב: אין נתוני תזונה או שקילה. עודד את המשתמש להוסיף מידע.`;
+        dataContext = `\n\nשים לב: אין נתונים זמינים. עודד את המשתמש להוסיף מידע ולהשתמש ביישום.`;
       }
 
       // Build dynamic nudge for missing/concerning data
@@ -375,6 +417,9 @@ export async function POST(req: NextRequest) {
       hasData: {
         meals: (userContext?.recent_meals?.length || 0) > 0,
         weighIns: (userContext?.weigh_ins?.length || 0) > 0,
+        workoutProgram: !!userContext?.workout_program,
+        planMeals: (userContext?.plan_meals?.length || 0) > 0,
+        progress: !!userContext?.progress,
       },
     });
 

@@ -1,11 +1,76 @@
 /**
  * User Context for AI Coach
  *
- * Fetches and formats user data (profile, meals, weigh-ins) for AI coach responses.
+ * Fetches and formats user data (profile, meals, weigh-ins, workouts, progress) for AI coach responses.
  * All queries respect RLS and use cookie-based authentication.
  */
 
 import type { SupabaseClient } from "@supabase/supabase-js";
+
+/**
+ * Workout exercise structure
+ */
+export interface WorkoutExercise {
+  name: string;
+  sets: number;
+  reps: string;
+  rest_seconds: number | null;
+}
+
+/**
+ * Workout day structure
+ */
+export interface WorkoutDay {
+  day_number: number;
+  title: string;
+  completed: boolean;
+  exercises: WorkoutExercise[];
+}
+
+/**
+ * Workout program structure
+ */
+export interface WorkoutProgram {
+  id: string;
+  title: string;
+  goal: "gain" | "loss" | "recomp" | null;
+  start_date: string;
+  workouts: WorkoutDay[];
+}
+
+/**
+ * Plan meal from menu
+ */
+export interface PlanMeal {
+  day_index: number;
+  meal_index: number;
+  name: string;
+  calories: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+  eaten_at: string | null;
+}
+
+/**
+ * User badge/achievement
+ */
+export interface UserBadge {
+  badge_code: string;
+  earned_at: string;
+}
+
+/**
+ * User progress data
+ */
+export interface UserProgress {
+  total_points: number;
+  badges: UserBadge[];
+  current_streak: number;
+  longest_streak: number;
+  meals_logged_this_week: number;
+  workouts_completed_this_week: number;
+}
 
 /**
  * User context structure returned by fn_user_context
@@ -57,6 +122,10 @@ export interface UserContext {
     weight_kg: number;
     notes: string | null;
   }>;
+  // New enhanced data
+  workout_program?: WorkoutProgram | null;
+  plan_meals?: PlanMeal[];
+  progress?: UserProgress | null;
 }
 
 /**
@@ -281,4 +350,348 @@ export function checkDataCompleteness(ctx: UserContext | null): {
     hasWeighIns,
     suggestions,
   };
+}
+
+/**
+ * Get user's current workout program with exercises
+ *
+ * @param supabase - Supabase client
+ * @returns Workout program or null
+ */
+export async function getWorkoutProgram(
+  supabase: SupabaseClient
+): Promise<WorkoutProgram | null> {
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) return null;
+
+  // Get the most recent program
+  const { data: program, error: programError } = await supabase
+    .from("programs")
+    .select("id, title, goal, start_date")
+    .eq("user_id", user.id)
+    .order("start_date", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (programError || !program) {
+    console.log("[Coach] No workout program found");
+    return null;
+  }
+
+  // Get workouts with exercises
+  const { data: workouts, error: workoutsError } = await supabase
+    .from("workouts")
+    .select(`
+      day_number,
+      title,
+      completed,
+      workout_exercises (
+        name,
+        sets,
+        reps,
+        rest_seconds
+      )
+    `)
+    .eq("program_id", program.id)
+    .order("day_number", { ascending: true });
+
+  if (workoutsError) {
+    console.warn("[Coach] Workouts fetch error:", workoutsError.message);
+  }
+
+  return {
+    id: program.id,
+    title: program.title,
+    goal: program.goal,
+    start_date: program.start_date,
+    workouts: (workouts || []).map((w: any) => ({
+      day_number: w.day_number,
+      title: w.title,
+      completed: w.completed || false,
+      exercises: (w.workout_exercises || []).map((e: any) => ({
+        name: e.name,
+        sets: e.sets,
+        reps: e.reps,
+        rest_seconds: e.rest_seconds,
+      })),
+    })),
+  };
+}
+
+/**
+ * Get user's meal plan (plan meals from menu)
+ *
+ * @param supabase - Supabase client
+ * @returns Array of plan meals for current week
+ */
+export async function getPlanMeals(
+  supabase: SupabaseClient
+): Promise<PlanMeal[]> {
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) return [];
+
+  // Get plan meals for the current week
+  const weekStart = new Date();
+  weekStart.setDate(weekStart.getDate() - weekStart.getDay()); // Start of week (Sunday)
+  weekStart.setHours(0, 0, 0, 0);
+
+  const { data: planMeals, error } = await supabase
+    .from("meals")
+    .select("*")
+    .eq("user_id", user.id)
+    .eq("source", "plan")
+    .gte("date", weekStart.toISOString().split("T")[0])
+    .order("date", { ascending: true });
+
+  if (error) {
+    console.warn("[Coach] Plan meals fetch error:", error.message);
+    return [];
+  }
+
+  return (planMeals || []).map((m: any) => ({
+    day_index: new Date(m.date).getDay(),
+    meal_index: m.meal_index || 0,
+    name: m.name,
+    calories: m.calories || 0,
+    protein: m.protein || 0,
+    carbs: m.carbs || 0,
+    fat: m.fat || 0,
+    eaten_at: m.eaten_at,
+  }));
+}
+
+/**
+ * Get user's progress data (points, badges, streaks)
+ *
+ * @param supabase - Supabase client
+ * @returns User progress or null
+ */
+export async function getUserProgress(
+  supabase: SupabaseClient
+): Promise<UserProgress | null> {
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) return null;
+
+  // Get total points
+  const { data: pointsData } = await supabase
+    .from("points_events")
+    .select("points")
+    .eq("user_id", user.id);
+
+  const totalPoints = (pointsData || []).reduce(
+    (sum: number, p: any) => sum + (p.points || 0),
+    0
+  );
+
+  // Get badges
+  const { data: badges } = await supabase
+    .from("user_badges")
+    .select("badge_code, earned_at")
+    .eq("user_id", user.id)
+    .order("earned_at", { ascending: false });
+
+  // Get meals logged this week
+  const weekStart = new Date();
+  weekStart.setDate(weekStart.getDate() - weekStart.getDay());
+  weekStart.setHours(0, 0, 0, 0);
+
+  const { count: mealsThisWeek } = await supabase
+    .from("meals")
+    .select("*", { count: "exact", head: true })
+    .eq("user_id", user.id)
+    .gte("date", weekStart.toISOString().split("T")[0]);
+
+  // Get workouts completed this week
+  const { data: programs } = await supabase
+    .from("programs")
+    .select("id")
+    .eq("user_id", user.id);
+
+  let workoutsCompletedThisWeek = 0;
+  if (programs && programs.length > 0) {
+    const programIds = programs.map((p: any) => p.id);
+    const { count } = await supabase
+      .from("workouts")
+      .select("*", { count: "exact", head: true })
+      .in("program_id", programIds)
+      .eq("completed", true);
+    workoutsCompletedThisWeek = count || 0;
+  }
+
+  // Calculate streak from consecutive days with meals logged
+  let currentStreak = 0;
+  let longestStreak = 0;
+  const { data: mealDates } = await supabase
+    .from("meals")
+    .select("date")
+    .eq("user_id", user.id)
+    .order("date", { ascending: false })
+    .limit(90);
+
+  if (mealDates && mealDates.length > 0) {
+    const uniqueDates = [...new Set(mealDates.map((m: any) => m.date))].sort().reverse();
+    const today = new Date().toISOString().split("T")[0];
+
+    // Check if user logged today or yesterday
+    let checkDate = new Date(today);
+    let streak = 0;
+
+    for (const dateStr of uniqueDates) {
+      const mealDate = new Date(dateStr as string);
+      const expectedDate = new Date(checkDate);
+
+      if (mealDate.toISOString().split("T")[0] === expectedDate.toISOString().split("T")[0]) {
+        streak++;
+        checkDate.setDate(checkDate.getDate() - 1);
+      } else if (mealDate < expectedDate) {
+        break;
+      }
+    }
+    currentStreak = streak;
+    longestStreak = streak; // Simplified - would need historical data for true longest
+  }
+
+  return {
+    total_points: totalPoints,
+    badges: (badges || []).map((b: any) => ({
+      badge_code: b.badge_code,
+      earned_at: b.earned_at,
+    })),
+    current_streak: currentStreak,
+    longest_streak: longestStreak,
+    meals_logged_this_week: mealsThisWeek || 0,
+    workouts_completed_this_week: workoutsCompletedThisWeek,
+  };
+}
+
+/**
+ * Get comprehensive user context including all data
+ *
+ * @param supabase - Supabase client
+ * @param options - Query options
+ * @returns Full user context with workouts, plan meals, and progress
+ */
+export async function getFullUserContext(
+  supabase: SupabaseClient,
+  options: { days?: number } = {}
+): Promise<UserContext | null> {
+  // Get base context
+  const baseContext = await getUserContext(supabase, options);
+  if (!baseContext) return null;
+
+  // Fetch additional data in parallel
+  const [workoutProgram, planMeals, progress] = await Promise.all([
+    getWorkoutProgram(supabase),
+    getPlanMeals(supabase),
+    getUserProgress(supabase),
+  ]);
+
+  return {
+    ...baseContext,
+    workout_program: workoutProgram,
+    plan_meals: planMeals,
+    progress: progress,
+  };
+}
+
+/**
+ * Summarize workout program for AI prompt (Hebrew, compact)
+ *
+ * @param ctx - User context
+ * @returns Hebrew-formatted workout summary
+ */
+export function summarizeWorkoutForPrompt(ctx: UserContext | null): string {
+  if (!ctx?.workout_program) {
+    return "אין תוכנית אימונים פעילה.";
+  }
+
+  const prog = ctx.workout_program;
+  const lines: string[] = [];
+
+  lines.push(`תוכנית: ${prog.title}`);
+  lines.push(`מטרה: ${prog.goal === "gain" ? "עלייה במסה" : prog.goal === "loss" ? "ירידה במשקל" : "חיטוב"}`);
+
+  const completed = prog.workouts.filter((w) => w.completed).length;
+  const total = prog.workouts.length;
+  lines.push(`התקדמות: ${completed}/${total} אימונים הושלמו`);
+
+  // List upcoming workouts
+  const upcoming = prog.workouts.filter((w) => !w.completed).slice(0, 3);
+  if (upcoming.length > 0) {
+    lines.push("\nאימונים קרובים:");
+    for (const w of upcoming) {
+      const exerciseCount = w.exercises.length;
+      lines.push(`- יום ${w.day_number}: ${w.title} (${exerciseCount} תרגילים)`);
+    }
+  }
+
+  return lines.join("\n");
+}
+
+/**
+ * Summarize plan meals for AI prompt (Hebrew, compact)
+ *
+ * @param ctx - User context
+ * @returns Hebrew-formatted meal plan summary
+ */
+export function summarizePlanMealsForPrompt(ctx: UserContext | null): string {
+  if (!ctx?.plan_meals || ctx.plan_meals.length === 0) {
+    return "אין תפריט שבועי מוגדר.";
+  }
+
+  const dayNames = ["ראשון", "שני", "שלישי", "רביעי", "חמישי", "שישי", "שבת"];
+  const mealsByDay = new Map<number, PlanMeal[]>();
+
+  for (const meal of ctx.plan_meals) {
+    if (!mealsByDay.has(meal.day_index)) {
+      mealsByDay.set(meal.day_index, []);
+    }
+    mealsByDay.get(meal.day_index)!.push(meal);
+  }
+
+  const lines: string[] = ["תפריט השבוע:"];
+
+  for (const [dayIndex, meals] of mealsByDay) {
+    const dayName = dayNames[dayIndex] || `יום ${dayIndex}`;
+    const totalCal = meals.reduce((sum, m) => sum + m.calories, 0);
+    const eaten = meals.filter((m) => m.eaten_at).length;
+    lines.push(`${dayName}: ${meals.length} ארוחות (${totalCal} קל'), ${eaten} נאכלו`);
+  }
+
+  return lines.join("\n");
+}
+
+/**
+ * Summarize user progress for AI prompt (Hebrew, compact)
+ *
+ * @param ctx - User context
+ * @returns Hebrew-formatted progress summary
+ */
+export function summarizeProgressForPrompt(ctx: UserContext | null): string {
+  if (!ctx?.progress) {
+    return "אין נתוני התקדמות זמינים.";
+  }
+
+  const prog = ctx.progress;
+  const lines: string[] = [];
+
+  lines.push(`נקודות: ${prog.total_points}`);
+  lines.push(`רצף נוכחי: ${prog.current_streak} ימים`);
+  lines.push(`ארוחות השבוע: ${prog.meals_logged_this_week}`);
+  lines.push(`אימונים השבוע: ${prog.workouts_completed_this_week}`);
+
+  if (prog.badges.length > 0) {
+    lines.push(`תגים: ${prog.badges.length} הושגו`);
+  }
+
+  return lines.join("\n");
 }
