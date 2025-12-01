@@ -12,7 +12,7 @@
 "use client";
 
 import "./journey.css";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useOrbs, OrbTask } from "@/lib/journey/stages/useOrbs";
 import { useAvatar } from "@/lib/avatar/useAvatar";
 import { StagePickerSheet } from "@/components/journey/StagePickerSheet";
@@ -33,6 +33,7 @@ import { PointsSummaryCard } from "@/components/journey/PointsSummaryCard";
 import { usePointsSummary } from "@/lib/points/usePoints";
 import { Stage } from "@/lib/journey/stages/useStages";
 import { LoadingScreen } from "@/components/ui/LoadingScreen";
+import { track } from "@/lib/mixpanel";
 
 export default function JourneyPage() {
   const { avatar, colorToken } = useAvatar();
@@ -67,6 +68,15 @@ export default function JourneyPage() {
     pointsEarned: number;
   } | null>(null);
   const router = useRouter();
+  const hasTrackedPageView = useRef(false);
+
+  // [analytics] Track journey page viewed
+  useEffect(() => {
+    if (!isLoading && stages.length > 0 && !hasTrackedPageView.current) {
+      hasTrackedPageView.current = true;
+      track("journey_page_viewed", {});
+    }
+  }, [isLoading, stages.length]);
 
   // Fetch points summary
   const { summary: pointsSummary, isLoading: isPointsLoading } = usePointsSummary();
@@ -106,6 +116,13 @@ export default function JourneyPage() {
 
   // Handle opening orb detail sheet
   const handleOpenOrb = (orb: OrbTask) => {
+    // [analytics] Track orb opened
+    track("orb_opened", {
+      task_id: orb.id,
+      key_code: orb.keyCode,
+      stage_id: orb.stageId,
+    });
+
     setSelectedOrb(orb);
     setDetailSheetOpen(true);
   };
@@ -118,6 +135,13 @@ export default function JourneyPage() {
     const result = await completeTask(selectedOrb.stageId, taskId);
 
     if (result.ok) {
+      // [analytics] Track task completed
+      track("task_completed", {
+        task_id: taskId,
+        key_code: selectedOrb.keyCode,
+        stage_id: selectedOrb.stageId,
+      });
+
       // Show confetti for task completion
       setShowConfetti(true);
       setTimeout(() => setShowConfetti(false), 3000);
@@ -126,6 +150,12 @@ export default function JourneyPage() {
       if (result.stageCompleted && selectedStage) {
         // Calculate total points earned from this stage
         const stagePointsEarned = selectedStage.tasks.reduce((sum, task) => sum + task.points, 0);
+
+        // [analytics] Track stage completed
+        track("stage_completed", {
+          stage_id: selectedStage.id,
+          stage_title: selectedStage.title_he,
+        });
 
         // Find the next stage
         const currentStageIndex = stages.findIndex(s => s.id === selectedStage.id);

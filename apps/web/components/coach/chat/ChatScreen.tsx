@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useChat } from "@/hooks/useChat";
 import { ChatHeader } from "./ChatHeader";
 import { MessageList } from "./MessageList";
+import { track } from "@/lib/mixpanel";
 
 type Props = {
   coachName: string;
@@ -15,8 +16,17 @@ export function ChatScreen({ coachName, coachAvatar }: Props) {
   const router = useRouter();
   const [threadId, setThreadId] = useState<string | null>(null);
   const [loadingThread, setLoadingThread] = useState(true);
+  const hasTrackedOpen = useRef(false);
 
   const chat = useChat(threadId);
+
+  // [analytics] Track coach chat opened once per session
+  useEffect(() => {
+    if (threadId && !hasTrackedOpen.current) {
+      hasTrackedOpen.current = true;
+      track("coach_chat_opened", {});
+    }
+  }, [threadId]);
 
   // Runtime guard: force-remove any composer elements
   useEffect(() => {

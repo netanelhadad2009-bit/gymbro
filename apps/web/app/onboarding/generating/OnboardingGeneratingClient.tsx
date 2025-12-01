@@ -21,6 +21,7 @@ import {
 import { saveProgramDraft, cleanupStorage, type ProgramDraft, PROGRAM_DRAFT_VERSION } from "@/lib/program-draft";
 import { mapErrorToHe, type HebrewError } from "@/lib/errors/generating-errors";
 import { chaosMode } from "@/lib/chaos";
+import { track } from "@/lib/mixpanel";
 
 /**
  * Nutrition API timeout (90s for slow models/network in iOS WKWebView)
@@ -1072,6 +1073,12 @@ export default function OnboardingGeneratingClient() {
         if (mounted) {
           setMessage('התוכניות מוכנות!');
         }
+
+        // [analytics] Track onboarding completed
+        const onboardingData = getOnboardingData();
+        track("onboarding_completed", {
+          has_notifications_enabled: onboardingData?.notifications_opt_in ?? false,
+        });
 
         console.log('[Generating] All generation complete, serverProgress:', PROGRESS.WORKOUT_DONE, 'generationComplete: true');
 

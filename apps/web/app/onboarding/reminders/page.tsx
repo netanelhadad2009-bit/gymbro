@@ -22,6 +22,7 @@ import {
   type PushPermissionStatus
 } from '@/lib/notifications/permissions';
 import { Settings } from 'lucide-react';
+import { track } from "@/lib/mixpanel";
 
 interface DiagnosticsData {
   permission: NotificationPermission;
@@ -141,9 +142,20 @@ export default function RemindersPage() {
       setMsg(null);
       markPromptShown();
 
+      // [analytics] Track push permission prompt shown
+      track("push_permission_prompt_shown", {
+        platform: Capacitor.getPlatform(),
+      });
+
       console.log('[RemindersPage] Requesting push permission');
       const status = await requestPushPermission();
       setPermissionStatus(status);
+
+      // [analytics] Track push permission result
+      track("push_permission_result", {
+        platform: Capacitor.getPlatform(),
+        status,
+      });
 
       console.log('[RemindersPage] Permission result:', status);
 

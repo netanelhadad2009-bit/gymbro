@@ -10,6 +10,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useMemo, useEffect, useRef } from "react";
 import { STEP_INDEX, TOTAL_STEPS, type OnboardingStepId, getPrevStep, getStepPath } from "@/lib/onboarding/steps";
 import { OnboardingProvider } from "./OnboardingContext";
+import { track } from "@/lib/mixpanel";
 
 export default function OnboardingLayout({
   children,
@@ -19,12 +20,24 @@ export default function OnboardingLayout({
   const pathname = usePathname();
   const router = useRouter();
   const contentRef = useRef<HTMLDivElement>(null);
+  const lastTrackedStep = useRef<string | null>(null);
 
   // Extract current step ID from pathname
   const currentStepId = useMemo(() => {
     const segments = pathname.split("/");
     return segments[segments.length - 1] as OnboardingStepId;
   }, [pathname]);
+
+  // [analytics] Track onboarding step viewed
+  useEffect(() => {
+    if (currentStepId && currentStepId !== lastTrackedStep.current) {
+      lastTrackedStep.current = currentStepId;
+      track("onboarding_step_viewed", {
+        step_name: currentStepId,
+        step_index: STEP_INDEX[currentStepId] ?? -1,
+      });
+    }
+  }, [currentStepId]);
 
   // Reset scroll position when navigating between pages
   useEffect(() => {

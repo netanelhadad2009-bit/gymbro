@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { flushSync } from "react-dom";
 import { useSearchParams, useRouter } from "next/navigation";
 import StickyHeader from "@/components/ui/StickyHeader";
@@ -27,6 +27,7 @@ import { useSheet } from "@/contexts/SheetContext";
 import { useToast } from "@/components/ui/use-toast";
 import { getVisionError, he } from "@/lib/i18n/he";
 import { Keyboard } from "@capacitor/keyboard";
+import { track } from "@/lib/mixpanel";
 
 export default function NutritionPage() {
   const { user, session } = useAuth();
@@ -70,6 +71,15 @@ export default function NutritionPage() {
     carbs?: number;
     fat?: number;
   }>({});
+  const hasTrackedTabView = useRef(false);
+
+  // [analytics] Track nutrition tab viewed
+  useEffect(() => {
+    if (!hasTrackedTabView.current) {
+      hasTrackedTabView.current = true;
+      track("nutrition_tab_viewed", {});
+    }
+  }, []);
 
   // Log scanning state on mount for debugging
   useEffect(() => {
@@ -729,6 +739,11 @@ export default function NutritionPage() {
     const result = await lookupBarcode(barcode);
     console.log("[Nutrition] Lookup result:", result);
 
+    // [analytics] Track barcode scanned
+    track("barcode_scanned", {
+      success: result.ok,
+    });
+
     if (result.ok) {
       console.log("[Nutrition] Product found:", result.product);
 
@@ -759,6 +774,11 @@ export default function NutritionPage() {
 
   // Handle successful nutrition log from barcode
   const handleNutritionLogSuccess = () => {
+    // [analytics] Track meal added via barcode
+    track("meal_added", {
+      source: "barcode",
+    });
+
     // Close nutrition facts sheet
     setShowNutritionFacts(false);
     setScannedProduct(null);

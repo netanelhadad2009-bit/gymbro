@@ -5,6 +5,7 @@ import { supabase } from "@/lib/supabase";
 import { createWeighIn } from "@/lib/weighins/queries";
 import { useSheet } from "@/contexts/SheetContext";
 import { Keyboard } from "@capacitor/keyboard";
+import { track } from "@/lib/mixpanel";
 
 type AddWeighInModalProps = {
   isOpen: boolean;
@@ -132,6 +133,11 @@ export function AddWeighInModal({ isOpen, onClose, userId, onSuccess }: AddWeigh
       if (!result.ok) {
         throw new Error(result.error || "שגיאה בהוספת שקילה");
       }
+
+      // [analytics] Track weigh-in logged
+      track("weigh_in_logged", {
+        weight: weightNum,
+      });
 
       // Reset form
       setWeight("");

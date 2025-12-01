@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useAuth } from "@/contexts/AuthProvider";
 import { subscribeProgressUpdates } from "@/lib/progress/realtime";
 import { ProgressPageSkeleton } from "@/components/progress/Skeletons";
@@ -15,6 +15,7 @@ import { WeighInsSection } from "@/components/weighins/WeighInsSection";
 import { formatKcal, formatKg, formatDelta, getDeltaVariant, getCalorieVariant } from "@/lib/progress/format";
 import { Flame, TrendingUp, Target, Activity } from "lucide-react";
 import type { ProgressKPIs, WeightPoint, DailyNutrition } from "@/lib/progress/queries";
+import { track } from "@/lib/mixpanel";
 
 type ProgressData = {
   kpis: ProgressKPIs;
@@ -28,6 +29,14 @@ export default function ProgressPage() {
   const [data, setData] = useState<ProgressData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const hasTrackedPageView = useRef(false);
+
+  // [analytics] Track progress tab viewed once per session
+  useEffect(() => {
+    if (hasTrackedPageView.current) return;
+    hasTrackedPageView.current = true;
+    track("progress_tab_viewed", {});
+  }, []);
 
   // Fetch progress data
   const fetchData = async (selectedRange: Range = range) => {

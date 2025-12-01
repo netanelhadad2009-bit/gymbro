@@ -5,6 +5,7 @@ import { supabase } from "@/lib/supabase";
 import { useState, useEffect } from "react";
 import { getOnboardingDataOrNull } from "@/lib/onboarding-storage";
 import { translateAuthError, validateEmail, validatePassword, validatePasswordMatch } from "@/lib/i18n/authHe";
+import { track } from "@/lib/mixpanel";
 
 export default function SignupClient() {
   const [email, setEmail] = useState("");
@@ -85,6 +86,8 @@ export default function SignupClient() {
           // Session is available immediately (no email confirmation required)
           // Navigate to processing page for faster perceived performance
           console.log('[Signup] Session available, navigating to processing page');
+          // [analytics] Track signup completed for email method
+          track("signup_completed", { method: "email" });
           window.location.href = '/auth/processing?provider=email';
       } else {
         // Email confirmation required

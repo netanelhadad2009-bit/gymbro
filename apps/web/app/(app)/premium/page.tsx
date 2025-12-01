@@ -10,7 +10,7 @@
 import { useAuth } from "@/contexts/AuthProvider";
 import { Loader2, CheckCircle2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { openExternal } from "@/lib/openExternal";
 import { PRIVACY_URL, TERMS_URL } from "@/lib/legalLinks";
 import Image from "next/image";
@@ -18,12 +18,14 @@ import { purchaseAppleSubscription, initializeStore, type PlanType } from "@/lib
 import { saveAppleSubscription } from "@/lib/subscription/client";
 import { Dialog } from "@capacitor/dialog";
 import { Capacitor } from "@capacitor/core";
+import { track } from "@/lib/mixpanel";
 
 export default function PremiumPage() {
   const router = useRouter();
   const { user, loading, isPremium, isSubscriptionLoading, refreshSubscription } = useAuth();
   const [selectedPlan, setSelectedPlan] = useState<PlanType>("yearly");
   const [isPurchasing, setIsPurchasing] = useState(false);
+  const hasTrackedPaywallView = useRef(false);
 
   // If user is premium, immediately redirect to /journey (no delay, no UI flash)
   useEffect(() => {
@@ -51,12 +53,32 @@ export default function PremiumPage() {
     }
   }, []);
 
+  // Track paywall view (only once per mount, only for non-premium users)
+  useEffect(() => {
+    if (!loading && !isSubscriptionLoading && user && !isPremium && !hasTrackedPaywallView.current) {
+      hasTrackedPaywallView.current = true;
+      track("paywall_viewed", { source: "in_app" });
+    }
+  }, [loading, isSubscriptionLoading, user, isPremium]);
+
   // Handle CTA click - Real Apple IAP purchase
   const handleSubscribe = async () => {
     if (isPurchasing) return;
 
+    // [analytics] Track subscribe click with plan details
+    track("subscribe_click", {
+      plan: selectedPlan,
+      is_recommended: selectedPlan === "yearly",
+    });
+
     console.log(`[PremiumPurchase] Subscribe button clicked - Plan: ${selectedPlan}`);
     setIsPurchasing(true);
+
+    // [analytics] Track subscription purchase started
+    track("subscription_purchase_started", {
+      plan: selectedPlan,
+      platform: Capacitor.isNativePlatform() ? "ios" : "web",
+    });
 
     try {
       const result = await purchaseAppleSubscription(selectedPlan);
@@ -64,6 +86,13 @@ export default function PremiumPage() {
       console.log("[PremiumPurchase] Purchase result:", result);
 
       if (result.success) {
+        // [analytics] Track subscription purchase success
+        track("subscription_purchase_success", {
+          plan: selectedPlan,
+          platform: "ios",
+          transaction_id: result.transactionId,
+        });
+
         console.log("[PremiumPurchase] Purchase successful, saving subscription to Supabase");
 
         // Save subscription to Supabase
@@ -99,6 +128,13 @@ export default function PremiumPage() {
       } else {
         // Show error message (unless user cancelled)
         if (result.error && result.error !== "הרכישה בוטלה") {
+          // [analytics] Track subscription purchase failed
+          track("subscription_purchase_failed", {
+            plan: selectedPlan,
+            platform: "ios",
+            error_type: "purchase_error",
+          });
+
           console.error("[PremiumPurchase] Purchase failed:", result.error);
           if (Capacitor.isNativePlatform()) {
             await Dialog.alert({
@@ -110,10 +146,23 @@ export default function PremiumPage() {
             alert(result.error);
           }
         } else {
+          // [analytics] Track subscription purchase cancelled
+          track("subscription_purchase_cancelled", {
+            plan: selectedPlan,
+            platform: "ios",
+          });
           console.log("[PremiumPurchase] Purchase cancelled by user");
         }
       }
     } catch (error: any) {
+      // [analytics] Track subscription purchase failed with exception
+      track("subscription_purchase_failed", {
+        plan: selectedPlan,
+        platform: "ios",
+        error_type: "exception",
+        error_code: error?.code ?? null,
+      });
+
       // Enhanced error logging
       console.error("[PremiumPurchase] Unexpected error caught in handleSubscribe");
       console.error("[PremiumPurchase] Error type:", typeof error);
