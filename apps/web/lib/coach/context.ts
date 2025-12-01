@@ -162,19 +162,126 @@ export async function getUserContext(
   const sinceStr = since.toISOString().split("T")[0];
   const untilStr = until.toISOString().split("T")[0];
 
-  // Call SQL function (RLS enforced)
+  // Try SQL function first (RLS enforced)
   const { data, error } = await supabase.rpc("fn_user_context", {
     p_user_id: user.id,
     p_since: sinceStr,
     p_until: untilStr,
   });
 
-  if (error) {
-    console.error("[getUserContext] SQL function error:", error);
-    return null;
+  if (!error && data) {
+    console.log("[getUserContext] SQL function success");
+    return data as UserContext;
   }
 
-  return data as UserContext;
+  // SQL function failed - fall back to direct queries
+  console.warn("[getUserContext] SQL function failed, using direct queries:", error?.message);
+
+  // Fallback: query tables directly
+  try {
+    // Get profile
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    // Get recent meals
+    const { data: meals } = await supabase
+      .from("meals")
+      .select("name, date, calories, protein, carbs, fat, created_at")
+      .eq("user_id", user.id)
+      .gte("date", sinceStr)
+      .order("created_at", { ascending: false })
+      .limit(50);
+
+    // Get weigh-ins
+    const { data: weighIns } = await supabase
+      .from("weigh_ins")
+      .select("date, weight_kg, notes")
+      .eq("user_id", user.id)
+      .order("date", { ascending: false })
+      .limit(12);
+
+    console.log("[getUserContext] Fallback queries complete:", {
+      hasProfile: !!profile,
+      mealCount: meals?.length || 0,
+      weighInCount: weighIns?.length || 0,
+    });
+
+    // Build nutrition aggregates from meals
+    const dailyTotals: Array<{
+      date: string;
+      calories: number;
+      protein: number;
+      carbs: number;
+      fat: number;
+      meal_count: number;
+    }> = [];
+
+    if (meals && meals.length > 0) {
+      const byDate = new Map<string, typeof dailyTotals[0]>();
+      for (const m of meals) {
+        const d = m.date;
+        if (!byDate.has(d)) {
+          byDate.set(d, { date: d, calories: 0, protein: 0, carbs: 0, fat: 0, meal_count: 0 });
+        }
+        const day = byDate.get(d)!;
+        day.calories += m.calories || 0;
+        day.protein += m.protein || 0;
+        day.carbs += m.carbs || 0;
+        day.fat += m.fat || 0;
+        day.meal_count++;
+      }
+      dailyTotals.push(...Array.from(byDate.values()).sort((a, b) => b.date.localeCompare(a.date)));
+    }
+
+    return {
+      user_id: user.id,
+      date_range: { since: sinceStr, until: untilStr },
+      profile: profile ? {
+        age: profile.age,
+        gender: profile.gender,
+        height_cm: profile.height_cm,
+        weight_kg: profile.weight_kg,
+        target_weight_kg: profile.target_weight_kg,
+        goal: profile.goal,
+        diet: profile.diet,
+        activity_level: profile.activity_level,
+        workout_days_per_week: profile.workout_days_per_week,
+        injuries: profile.injuries,
+      } : {
+        age: null, gender: null, height_cm: null, weight_kg: null,
+        target_weight_kg: null, goal: null, diet: null,
+        activity_level: null, workout_days_per_week: null, injuries: null,
+      },
+      nutrition: {
+        daily_totals: dailyTotals,
+        averages: {
+          "7d": { calories: 0, protein: 0 },
+          "14d": { calories: 0, protein: 0 },
+          "30d": { calories: 0, protein: 0 },
+        },
+      },
+      recent_meals: (meals || []).slice(0, 5).map((m: any) => ({
+        name: m.name,
+        date: m.date,
+        calories: m.calories,
+        protein: m.protein,
+        carbs: m.carbs,
+        fat: m.fat,
+        created_at: m.created_at,
+      })),
+      weigh_ins: (weighIns || []).map((w: any) => ({
+        date: w.date,
+        weight_kg: w.weight_kg,
+        notes: w.notes,
+      })),
+    };
+  } catch (fallbackErr) {
+    console.error("[getUserContext] Fallback queries failed:", fallbackErr);
+    return null;
+  }
 }
 
 /**
