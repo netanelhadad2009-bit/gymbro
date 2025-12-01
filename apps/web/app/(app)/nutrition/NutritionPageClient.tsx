@@ -28,6 +28,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { getVisionError, he } from "@/lib/i18n/he";
 import { Keyboard } from "@capacitor/keyboard";
 import { track } from "@/lib/mixpanel";
+import { compressImage } from "@/lib/utils/imageCompression";
 
 export default function NutritionPage() {
   const { user, session } = useAuth();
@@ -640,20 +641,40 @@ export default function NutritionPage() {
     console.log('[Nutrition] handleScanPhoto called with file:', file.name, file.size, file.type);
 
     try {
-      // Convert file to data URL so we can pass it through page navigation
-      const reader = new FileReader();
-      const imageDataUrl = await new Promise<string>((resolve, reject) => {
-        reader.onload = () => resolve(reader.result as string);
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
+      // Compress image to avoid sessionStorage size limits (~5MB)
+      // Large photos from camera can be 4-8MB, which exceeds the limit when base64 encoded
+      console.log('[Nutrition] Compressing image...');
+      const imageDataUrl = await compressImage(file, {
+        maxWidth: 1024,
+        maxHeight: 1024,
+        quality: 0.85,
       });
 
-      // Store pending scan data in sessionStorage
-      sessionStorage.setItem('nutrition_pending_scan', JSON.stringify({
-        imageDataUrl,
-        fileName: file.name,
-        fileSize: file.size,
-      }));
+      // Verify the compressed size is reasonable for sessionStorage
+      const compressedSize = imageDataUrl.length;
+      console.log('[Nutrition] Compressed image size:', compressedSize, 'chars');
+
+      if (compressedSize > 4 * 1024 * 1024) {
+        // Still too large, try more aggressive compression
+        console.log('[Nutrition] Image still large, applying aggressive compression...');
+        const aggressiveDataUrl = await compressImage(file, {
+          maxWidth: 800,
+          maxHeight: 800,
+          quality: 0.7,
+        });
+        sessionStorage.setItem('nutrition_pending_scan', JSON.stringify({
+          imageDataUrl: aggressiveDataUrl,
+          fileName: file.name,
+          fileSize: file.size,
+        }));
+      } else {
+        // Store pending scan data in sessionStorage
+        sessionStorage.setItem('nutrition_pending_scan', JSON.stringify({
+          imageDataUrl,
+          fileName: file.name,
+          fileSize: file.size,
+        }));
+      }
 
       console.log('[Nutrition] Navigating to analyzing page...');
       // Navigate to analyzing page which will show the scanning animation
