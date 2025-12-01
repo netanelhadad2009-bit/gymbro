@@ -290,16 +290,20 @@ export default function CoachPage() {
         throw new Error(`${errorMsg}${errorCode}${errorStage}`);
       }
 
-      // Optimistically insert assistant's message immediately (don't wait for Realtime)
-      // The API returns the full message object - use it for instant rendering
+      // Replace temp user message with real one from API (has correct server timestamp)
+      // This ensures proper ordering before realtime delivers
+      if (json.userMessage) {
+        console.log("[AI Coach] Replacing temp user message with server version");
+        mergeInsert(json.userMessage as Msg);
+      }
+
+      // Also add assistant message from API response for instant rendering
+      // Realtime will eventually deliver the same message, but mergeInsert deduplicates by ID
       if (json.assistantMessage) {
-        console.log("[AI Coach] Optimistically rendering assistant message");
+        console.log("[AI Coach] Adding assistant message from API");
         mergeInsert(json.assistantMessage as Msg);
         lastInsertTsRef.current = Date.now();
       }
-
-      // Note: Realtime will eventually deliver the same message, but mergeInsert
-      // will deduplicate it automatically (see lines 88-102)
     } catch (error: any) {
       console.error("[AI Coach] Send error:", error);
       alert("שגיאה בשליחת ההודעה:\n" + error.message);

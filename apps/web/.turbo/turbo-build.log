@@ -9,10 +9,32 @@
     · webpackBuildWorker
 
    Creating an optimized production build ...
- ✓ Compiled successfully
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (114kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+ ⚠ Compiled with warnings
+
+../../node_modules/.pnpm/@supabase+realtime-js@2.15.5/node_modules/@supabase/realtime-js/dist/module/lib/websocket-factory.js
+A Node.js API is used (process.versions at line: 35) which is not supported in the Edge Runtime.
+Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+
+Import trace for requested module:
+../../node_modules/.pnpm/@supabase+realtime-js@2.15.5/node_modules/@supabase/realtime-js/dist/module/lib/websocket-factory.js
+../../node_modules/.pnpm/@supabase+realtime-js@2.15.5/node_modules/@supabase/realtime-js/dist/module/index.js
+../../node_modules/.pnpm/@supabase+supabase-js@2.58.0/node_modules/@supabase/supabase-js/dist/module/index.js
+../../node_modules/.pnpm/@supabase+ssr@0.7.0_@supabase+supabase-js@2.58.0/node_modules/@supabase/ssr/dist/module/createBrowserClient.js
+../../node_modules/.pnpm/@supabase+ssr@0.7.0_@supabase+supabase-js@2.58.0/node_modules/@supabase/ssr/dist/module/index.js
+
+../../node_modules/.pnpm/@supabase+supabase-js@2.58.0/node_modules/@supabase/supabase-js/dist/module/index.js
+A Node.js API is used (process.version at line: 24) which is not supported in the Edge Runtime.
+Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+
+Import trace for requested module:
+../../node_modules/.pnpm/@supabase+supabase-js@2.58.0/node_modules/@supabase/supabase-js/dist/module/index.js
+../../node_modules/.pnpm/@supabase+ssr@0.7.0_@supabase+supabase-js@2.58.0/node_modules/@supabase/ssr/dist/module/createBrowserClient.js
+../../node_modules/.pnpm/@supabase+ssr@0.7.0_@supabase+supabase-js@2.58.0/node_modules/@supabase/ssr/dist/module/index.js
+
    Linting and checking validity of types ...
    Collecting page data ...
-   Generating static pages (0/66) ...
+   Generating static pages (0/72) ...
 [API] /api/auth/session exception: n [Error]: Dynamic server usage: Route /api/auth/session couldn't be rendered statically because it used `cookies`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error
     at l (/Users/netanelhadad/Projects/gymbro/apps/web/.next/server/chunks/6463.js:1:37154)
     at f (/Users/netanelhadad/Projects/gymbro/apps/web/.next/server/chunks/6406.js:9:4910)
@@ -41,6 +63,49 @@
   description: "Route /api/israel-moh/search couldn't be rendered statically because it used `nextUrl.searchParams`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error",
   digest: 'DYNAMIC_SERVER_USAGE'
 }
+[MyFoodsSearch] Error: n [Error]: Dynamic server usage: Route /api/my-foods/search couldn't be rendered statically because it used `cookies`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error
+    at l (/Users/netanelhadad/Projects/gymbro/apps/web/.next/server/chunks/6463.js:1:37154)
+    at f (/Users/netanelhadad/Projects/gymbro/apps/web/.next/server/chunks/6406.js:9:4910)
+    at a (/Users/netanelhadad/Projects/gymbro/apps/web/.next/server/app/api/avatar/bootstrap/route.js:1:15963)
+    at u (/Users/netanelhadad/Projects/gymbro/apps/web/.next/server/app/api/my-foods/search/route.js:1:1076)
+    at /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_@playwright+test@1.56.1_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:36944
+    at /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_@playwright+test@1.56.1_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/lib/trace/tracer.js:140:36
+    at NoopContextManager.with (/Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_@playwright+test@1.56.1_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:7062)
+    at ContextAPI.with (/Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_@playwright+test@1.56.1_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:518)
+    at NoopTracer.startActiveSpan (/Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_@playwright+test@1.56.1_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:18093)
+    at ProxyTracer.startActiveSpan (/Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_@playwright+test@1.56.1_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:18854) {
+  description: "Route /api/my-foods/search couldn't be rendered statically because it used `cookies`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+[Streak] Fatal error: B [Error]: Dynamic server usage: Route /api/streak couldn't be rendered statically because it used `request.headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error
+    at V (/Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_@playwright+test@1.56.1_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:21777)
+    at Object.get (/Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_@playwright+test@1.56.1_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:29137)
+    at i (/Users/netanelhadad/Projects/gymbro/apps/web/.next/server/app/api/barcode/lookup/route.js:18:5877)
+    at c (/Users/netanelhadad/Projects/gymbro/apps/web/.next/server/app/api/streak/route.js:1:1076)
+    at /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_@playwright+test@1.56.1_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:36944
+    at /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_@playwright+test@1.56.1_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/lib/trace/tracer.js:140:36
+    at NoopContextManager.with (/Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_@playwright+test@1.56.1_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:7062)
+    at ContextAPI.with (/Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_@playwright+test@1.56.1_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:518)
+    at NoopTracer.startActiveSpan (/Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_@playwright+test@1.56.1_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:18093)
+    at ProxyTracer.startActiveSpan (/Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_@playwright+test@1.56.1_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:18854) {
+  description: "Route /api/streak couldn't be rendered statically because it used `request.headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+[Streak] Error: B [Error]: Dynamic server usage: Route /api/streak couldn't be rendered statically because it used `request.headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error
+    at V (/Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_@playwright+test@1.56.1_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:21777)
+    at Object.get (/Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_@playwright+test@1.56.1_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:29137)
+    at i (/Users/netanelhadad/Projects/gymbro/apps/web/.next/server/app/api/barcode/lookup/route.js:18:5877)
+    at c (/Users/netanelhadad/Projects/gymbro/apps/web/.next/server/app/api/streak/route.js:1:1076)
+    at /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_@playwright+test@1.56.1_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:36944
+    at /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_@playwright+test@1.56.1_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/lib/trace/tracer.js:140:36
+    at NoopContextManager.with (/Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_@playwright+test@1.56.1_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:7062)
+    at ContextAPI.with (/Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_@playwright+test@1.56.1_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:518)
+    at NoopTracer.startActiveSpan (/Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_@playwright+test@1.56.1_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:18093)
+    at ProxyTracer.startActiveSpan (/Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_@playwright+test@1.56.1_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:18854) {
+  description: "Route /api/streak couldn't be rendered statically because it used `request.headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+[ServerError] Internal server error
 [ResultsMeta API] Error: n [Error]: Dynamic server usage: Route /api/onboarding/results-meta couldn't be rendered statically because it used `cookies`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error
     at l (/Users/netanelhadad/Projects/gymbro/apps/web/.next/server/chunks/6463.js:1:37154)
     at f (/Users/netanelhadad/Projects/gymbro/apps/web/.next/server/chunks/6406.js:9:4910)
@@ -55,63 +120,7 @@
   description: "Route /api/onboarding/results-meta couldn't be rendered statically because it used `cookies`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error",
   digest: 'DYNAMIC_SERVER_USAGE'
 }
-[MyFoodsSearch] Error: n [Error]: Dynamic server usage: Route /api/my-foods/search couldn't be rendered statically because it used `cookies`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error
-    at l (/Users/netanelhadad/Projects/gymbro/apps/web/.next/server/chunks/6463.js:1:37154)
-    at f (/Users/netanelhadad/Projects/gymbro/apps/web/.next/server/chunks/6406.js:9:4910)
-    at n (/Users/netanelhadad/Projects/gymbro/apps/web/.next/server/app/api/barcode/lookup/route.js:24:232)
-    at u (/Users/netanelhadad/Projects/gymbro/apps/web/.next/server/app/api/my-foods/search/route.js:1:1076)
-    at /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_@playwright+test@1.56.1_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:36944
-    at /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_@playwright+test@1.56.1_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/lib/trace/tracer.js:140:36
-    at NoopContextManager.with (/Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_@playwright+test@1.56.1_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:7062)
-    at ContextAPI.with (/Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_@playwright+test@1.56.1_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:518)
-    at NoopTracer.startActiveSpan (/Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_@playwright+test@1.56.1_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:18093)
-    at ProxyTracer.startActiveSpan (/Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_@playwright+test@1.56.1_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:18854) {
-  description: "Route /api/my-foods/search couldn't be rendered statically because it used `cookies`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error",
-  digest: 'DYNAMIC_SERVER_USAGE'
-}
-[Streak] Fatal error: B [Error]: Dynamic server usage: Route /api/streak couldn't be rendered statically because it used `request.headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error
-    at V (/Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_@playwright+test@1.56.1_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:21777)
-    at Object.get (/Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_@playwright+test@1.56.1_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:29137)
-    at i (/Users/netanelhadad/Projects/gymbro/apps/web/.next/server/chunks/9507.js:1:2237)
-    at c (/Users/netanelhadad/Projects/gymbro/apps/web/.next/server/app/api/streak/route.js:1:1076)
-    at /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_@playwright+test@1.56.1_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:36944
-    at /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_@playwright+test@1.56.1_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/lib/trace/tracer.js:140:36
-    at NoopContextManager.with (/Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_@playwright+test@1.56.1_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:7062)
-    at ContextAPI.with (/Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_@playwright+test@1.56.1_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:518)
-    at NoopTracer.startActiveSpan (/Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_@playwright+test@1.56.1_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:18093)
-    at ProxyTracer.startActiveSpan (/Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_@playwright+test@1.56.1_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:18854) {
-  description: "Route /api/streak couldn't be rendered statically because it used `request.headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error",
-  digest: 'DYNAMIC_SERVER_USAGE'
-}
-[Streak] Error: B [Error]: Dynamic server usage: Route /api/streak couldn't be rendered statically because it used `request.headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error
-    at V (/Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_@playwright+test@1.56.1_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:21777)
-    at Object.get (/Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_@playwright+test@1.56.1_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:29137)
-    at i (/Users/netanelhadad/Projects/gymbro/apps/web/.next/server/chunks/9507.js:1:2237)
-    at c (/Users/netanelhadad/Projects/gymbro/apps/web/.next/server/app/api/streak/route.js:1:1076)
-    at /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_@playwright+test@1.56.1_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:36944
-    at /Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_@playwright+test@1.56.1_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/lib/trace/tracer.js:140:36
-    at NoopContextManager.with (/Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_@playwright+test@1.56.1_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:7062)
-    at ContextAPI.with (/Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_@playwright+test@1.56.1_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:518)
-    at NoopTracer.startActiveSpan (/Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_@playwright+test@1.56.1_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:18093)
-    at ProxyTracer.startActiveSpan (/Users/netanelhadad/Projects/gymbro/node_modules/.pnpm/next@14.2.12_@playwright+test@1.56.1_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:18854) {
-  description: "Route /api/streak couldn't be rendered statically because it used `request.headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error",
-  digest: 'DYNAMIC_SERVER_USAGE'
-}
-[ServerError] Internal server error
-   Generating static pages (16/66) 
-[Platform] Initializing WEB environment
-[Platform] Initializing WEB environment
-[Platform] Initializing WEB environment
-[Platform] Initializing WEB environment
-[Platform] Initializing WEB environment
-[Platform] Initializing WEB environment
-[Platform] Initializing WEB environment
-[Platform] Initializing WEB environment
-[Platform] Initializing WEB environment
-[Platform] Initializing WEB environment
-[Platform] Initializing WEB environment
-[Platform] Initializing WEB environment
-   Generating static pages (32/66) 
+   Generating static pages (18/72) 
 [Platform] Initializing WEB environment
 [Platform] Initializing WEB environment
 [Platform] Initializing WEB environment
@@ -130,7 +139,8 @@
 [Platform] Initializing WEB environment
 [Platform] Initializing WEB environment
 [Platform] Initializing WEB environment
-   Generating static pages (49/66) 
+[Platform] Initializing WEB environment
+   Generating static pages (36/72) 
 [Platform] Initializing WEB environment
 [Platform] Initializing WEB environment
 [Platform] Initializing WEB environment
@@ -141,12 +151,29 @@
 [Platform] Initializing WEB environment
 [Platform] Initializing WEB environment
 [Platform] Initializing WEB environment
- ✓ Generating static pages (66/66)
+[Platform] Initializing WEB environment
+[Platform] Initializing WEB environment
+[Platform] Initializing WEB environment
+[Platform] Initializing WEB environment
+[Platform] Initializing WEB environment
+[Platform] Initializing WEB environment
+[Platform] Initializing WEB environment
+[Platform] Initializing WEB environment
+[Platform] Initializing WEB environment
+   Generating static pages (54/72) 
+[Platform] Initializing WEB environment
+[Platform] Initializing WEB environment
+[Platform] Initializing WEB environment
+[Platform] Initializing WEB environment
+[Platform] Initializing WEB environment
+[Platform] Initializing WEB environment
+[Platform] Initializing WEB environment
+ ✓ Generating static pages (72/72)
    Finalizing page optimization ...
    Collecting build traces ...
 
 Route (app)                                     Size     First Load JS
-┌ ○ /                                           8.71 kB         146 kB
+┌ ○ /                                           3.49 kB         146 kB
 ├ ○ /_not-found                                 882 B          88.6 kB
 ├ ƒ /api/account/delete                         0 B                0 B
 ├ ƒ /api/ai/commit                              0 B                0 B
@@ -215,63 +242,69 @@ Route (app)                                     Size     First Load JS
 ├ ƒ /api/programs/create                        0 B                0 B
 ├ ƒ /api/progress/[range]                       0 B                0 B
 ├ ƒ /api/push/register-native                   0 B                0 B
+├ ƒ /api/push/send                              0 B                0 B
 ├ ƒ /api/push/subscribe                         0 B                0 B
 ├ ƒ /api/push/test                              0 B                0 B
 ├ ƒ /api/session/attach                         0 B                0 B
 ├ ƒ /api/streak                                 0 B                0 B
 ├ ƒ /api/streak/mark                            0 B                0 B
-├ ○ /auth/callback                              1.63 kB         137 kB
-├ ○ /coach                                      7.94 kB         208 kB
+├ ○ /auth/callback                              2.36 kB         233 kB
+├ ○ /auth/processing                            9.86 kB         148 kB
+├ ○ /coach                                      10 kB           211 kB
 ├ ○ /coach/book                                 1.23 kB        88.9 kB
-├ ƒ /coach/chat                                 4.82 kB         181 kB
-├ ƒ /dashboard                                  152 B          87.9 kB
+├ ƒ /coach/chat                                 4.92 kB         276 kB
+├ ƒ /dashboard                                  152 B          87.8 kB
 ├ ƒ /exercises                                  2.79 kB         112 kB
-├ ○ /journey                                    30.6 kB         219 kB
+├ ○ /journey                                    28.7 kB         319 kB
 ├ ○ /journey/nutrition                          4.17 kB         147 kB
-├ ○ /login                                      4.64 kB         148 kB
+├ ○ /login                                      4.86 kB         152 kB
 ├ ○ /logout                                     1.08 kB         137 kB
-├ ƒ /nutrition                                  140 kB          332 kB
-├ ○ /nutrition/add-manual                       2.71 kB         135 kB
-├ ○ /nutrition/edit-targets                     8.66 kB         144 kB
-├ ƒ /nutrition/food/[id]                        5.77 kB        93.5 kB
-├ ƒ /nutrition/food/manual/[id]                 5.53 kB        93.2 kB
-├ ƒ /nutrition/meal/[id]                        5.46 kB        93.2 kB
-├ ○ /nutrition/scan/review                      10.3 kB         189 kB
-├ ƒ /nutrition/search                           10.1 kB         138 kB
-├ ○ /onboarding/activity                        4.06 kB        91.8 kB
-├ ○ /onboarding/birthdate                       7.78 kB        95.5 kB
-├ ○ /onboarding/diet                            4.58 kB        92.3 kB
-├ ○ /onboarding/experience                      3.25 kB          91 kB
-├ ○ /onboarding/gender                          6.66 kB         142 kB
-├ ƒ /onboarding/generating                      11.7 kB         152 kB
-├ ○ /onboarding/goal-summary                    2.23 kB        89.9 kB
-├ ○ /onboarding/goals                           8.1 kB          144 kB
-├ ○ /onboarding/longterm                        4.37 kB         132 kB
-├ ○ /onboarding/metrics                         7.74 kB        95.4 kB
-├ ○ /onboarding/motivation                      3.31 kB          91 kB
-├ ○ /onboarding/pace                            7.5 kB         95.2 kB
-├ ○ /onboarding/preview                         8.02 kB         138 kB
-├ ○ /onboarding/readiness                       5.37 kB         141 kB
-├ ○ /onboarding/reminders                       6.1 kB         96.9 kB
-├ ○ /onboarding/target-weight                   7.57 kB        95.3 kB
-├ ○ /onboarding/training-frequency              4.17 kB        91.9 kB
-├ ○ /points                                     12.7 kB         143 kB
+├ ƒ /nutrition                                  148 kB          435 kB
+├ ○ /nutrition/add-manual                       3.56 kB         140 kB
+├ ○ /nutrition/edit-targets                     6.84 kB         146 kB
+├ ƒ /nutrition/food/[id]                        3.54 kB        97.7 kB
+├ ƒ /nutrition/food/manual/[id]                 3.13 kB        97.3 kB
+├ ƒ /nutrition/meal/[id]                        3.2 kB         97.4 kB
+├ ○ /nutrition/scan/analyzing                   2.61 kB         145 kB
+├ ○ /nutrition/scan/review                      9.14 kB         192 kB
+├ ƒ /nutrition/search                           10.5 kB         141 kB
+├ ○ /onboarding/activity                        4.65 kB        92.3 kB
+├ ○ /onboarding/birthdate                       8.49 kB        96.2 kB
+├ ○ /onboarding/diet                            5.17 kB        92.9 kB
+├ ○ /onboarding/experience                      3.84 kB        91.5 kB
+├ ○ /onboarding/gender                          7.23 kB         143 kB
+├ ƒ /onboarding/generating                      11.6 kB         248 kB
+├ ○ /onboarding/goal-summary                    2.81 kB        90.5 kB
+├ ○ /onboarding/goals                           8.67 kB         145 kB
+├ ○ /onboarding/longterm                        4.38 kB         132 kB
+├ ○ /onboarding/metrics                         8.46 kB        96.1 kB
+├ ○ /onboarding/motivation                      3.9 kB         91.6 kB
+├ ○ /onboarding/pace                            8.07 kB        95.8 kB
+├ ○ /onboarding/preview                         6.44 kB         140 kB
+├ ○ /onboarding/rating                          4.34 kB         100 kB
+├ ○ /onboarding/readiness                       4.21 kB         140 kB
+├ ○ /onboarding/reminders                       6.68 kB         200 kB
+├ ○ /onboarding/target-weight                   8.15 kB        95.8 kB
+├ ○ /onboarding/training-frequency              4.75 kB        92.4 kB
+├ ○ /points                                     14.7 kB         197 kB
+├ ○ /premium                                    9.57 kB         249 kB
 ├ ○ /preview                                    5.79 kB         134 kB
-├ ○ /profile                                    10.2 kB         153 kB
-├ ○ /profile/edit                               6.84 kB         149 kB
-├ ○ /program-ready                              5 kB            141 kB
-├ ○ /progress                                   79 kB           218 kB
-├ ○ /reset-password                             1.68 kB         144 kB
-├ ○ /signup                                     4.51 kB         150 kB
-├ ƒ /streak                                     10.2 kB         188 kB
-├ ○ /test                                       152 B          87.9 kB
-├ ○ /weigh-ins                                  4.85 kB         144 kB
+├ ○ /profile                                    10.9 kB         154 kB
+├ ○ /profile/edit                               7.54 kB         150 kB
+├ ○ /program-ready                              6.22 kB         142 kB
+├ ○ /progress                                   77 kB           316 kB
+├ ○ /reset-password                             1.68 kB         145 kB
+├ ○ /signup                                     3.17 kB         246 kB
+├ ƒ /streak                                     10.1 kB         189 kB
+├ ○ /test                                       152 B          87.8 kB
+├ ○ /trial                                      1.11 kB          94 kB
+├ ○ /weigh-ins                                  2.56 kB         242 kB
 ├ ƒ /workouts                                   4.43 kB        98.9 kB
 └ ƒ /workouts/[programId]                       180 B          94.7 kB
 + First Load JS shared by all                   87.7 kB
-  ├ chunks/1397-29834db90f1dd50c.js             31.7 kB
+  ├ chunks/1397-a9ed94907c57ec29.js             31.7 kB
   ├ chunks/52741e22-6e89e964c644bec0.js         53.7 kB
-  └ other shared chunks (total)                 2.32 kB
+  └ other shared chunks (total)                 2.3 kB
 
 
 ƒ Middleware                                    63.9 kB

@@ -41,6 +41,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             print("[AppsFlyer] ⚠️ SDK not configured - check Info.plist keys")
         }
 
+        // MARK: - Debug: Log IDFV for AppsFlyer test device registration
+        #if DEBUG
+        if let idfv = UIDevice.current.identifierForVendor?.uuidString {
+            print("[Debug] IDFV:", idfv)
+        } else {
+            print("[Debug] IDFV is nil")
+        }
+        #endif
+
         return true
     }
 
