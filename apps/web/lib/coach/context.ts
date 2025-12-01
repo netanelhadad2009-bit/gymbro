@@ -139,20 +139,27 @@ export async function getUserContext(
   supabase: SupabaseClient,
   options: {
     days?: number; // Number of days to look back (default: 30)
+    userId?: string; // Optional: pass user ID directly to avoid auth.getUser() issues
   } = {}
 ): Promise<UserContext | null> {
   const { days = 30 } = options;
 
-  // Get authenticated user
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser();
+  // Get user ID - either from options or from auth
+  let userId = options.userId;
+  if (!userId) {
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
 
-  if (userError || !user) {
-    console.error("[getUserContext] Not authenticated:", userError);
-    return null;
+    if (userError || !user) {
+      console.error("[getUserContext] Not authenticated:", userError);
+      return null;
+    }
+    userId = user.id;
   }
+
+  console.log("[getUserContext] Using userId:", userId.slice(0, 8) + "...");
 
   // Calculate date range
   const until = new Date();
@@ -164,7 +171,7 @@ export async function getUserContext(
 
   // Try SQL function first (RLS enforced)
   const { data, error } = await supabase.rpc("fn_user_context", {
-    p_user_id: user.id,
+    p_user_id: userId,
     p_since: sinceStr,
     p_until: untilStr,
   });
@@ -183,14 +190,14 @@ export async function getUserContext(
     const { data: profile } = await supabase
       .from("profiles")
       .select("*")
-      .eq("id", user.id)
+      .eq("id", userId)
       .maybeSingle();
 
     // Get recent meals
     const { data: meals } = await supabase
       .from("meals")
       .select("name, date, calories, protein, carbs, fat, created_at")
-      .eq("user_id", user.id)
+      .eq("user_id", userId)
       .gte("date", sinceStr)
       .order("created_at", { ascending: false })
       .limit(50);
@@ -199,7 +206,7 @@ export async function getUserContext(
     const { data: weighIns } = await supabase
       .from("weigh_ins")
       .select("date, weight_kg, notes")
-      .eq("user_id", user.id)
+      .eq("user_id", userId)
       .order("date", { ascending: false })
       .limit(12);
 
@@ -237,7 +244,7 @@ export async function getUserContext(
     }
 
     return {
-      user_id: user.id,
+      user_id: userId,
       date_range: { since: sinceStr, until: untilStr },
       profile: profile ? {
         age: profile.age,
@@ -463,22 +470,20 @@ export function checkDataCompleteness(ctx: UserContext | null): {
  * Get user's current workout program with exercises
  *
  * @param supabase - Supabase client
+ * @param userId - User ID
  * @returns Workout program or null
  */
 export async function getWorkoutProgram(
-  supabase: SupabaseClient
+  supabase: SupabaseClient,
+  userId: string
 ): Promise<WorkoutProgram | null> {
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) return null;
+  if (!userId) return null;
 
   // Get the most recent program
   const { data: program, error: programError } = await supabase
     .from("programs")
     .select("id, title, goal, start_date")
-    .eq("user_id", user.id)
+    .eq("user_id", userId)
     .order("start_date", { ascending: false })
     .limit(1)
     .maybeSingle();
@@ -532,16 +537,14 @@ export async function getWorkoutProgram(
  * Get user's meal plan (plan meals from menu)
  *
  * @param supabase - Supabase client
+ * @param userId - User ID
  * @returns Array of plan meals for current week
  */
 export async function getPlanMeals(
-  supabase: SupabaseClient
+  supabase: SupabaseClient,
+  userId: string
 ): Promise<PlanMeal[]> {
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) return [];
+  if (!userId) return [];
 
   // Get plan meals for the current week
   const weekStart = new Date();
@@ -551,7 +554,7 @@ export async function getPlanMeals(
   const { data: planMeals, error } = await supabase
     .from("meals")
     .select("*")
-    .eq("user_id", user.id)
+    .eq("user_id", userId)
     .eq("source", "plan")
     .gte("date", weekStart.toISOString().split("T")[0])
     .order("date", { ascending: true });
@@ -577,22 +580,20 @@ export async function getPlanMeals(
  * Get user's progress data (points, badges, streaks)
  *
  * @param supabase - Supabase client
+ * @param userId - User ID
  * @returns User progress or null
  */
 export async function getUserProgress(
-  supabase: SupabaseClient
+  supabase: SupabaseClient,
+  userId: string
 ): Promise<UserProgress | null> {
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) return null;
+  if (!userId) return null;
 
   // Get total points
   const { data: pointsData } = await supabase
     .from("points_events")
     .select("points")
-    .eq("user_id", user.id);
+    .eq("user_id", userId);
 
   const totalPoints = (pointsData || []).reduce(
     (sum: number, p: any) => sum + (p.points || 0),
@@ -603,7 +604,7 @@ export async function getUserProgress(
   const { data: badges } = await supabase
     .from("user_badges")
     .select("badge_code, earned_at")
-    .eq("user_id", user.id)
+    .eq("user_id", userId)
     .order("earned_at", { ascending: false });
 
   // Get meals logged this week
@@ -614,14 +615,14 @@ export async function getUserProgress(
   const { count: mealsThisWeek } = await supabase
     .from("meals")
     .select("*", { count: "exact", head: true })
-    .eq("user_id", user.id)
+    .eq("user_id", userId)
     .gte("date", weekStart.toISOString().split("T")[0]);
 
   // Get workouts completed this week
   const { data: programs } = await supabase
     .from("programs")
     .select("id")
-    .eq("user_id", user.id);
+    .eq("user_id", userId);
 
   let workoutsCompletedThisWeek = 0;
   if (programs && programs.length > 0) {
@@ -640,7 +641,7 @@ export async function getUserProgress(
   const { data: mealDates } = await supabase
     .from("meals")
     .select("date")
-    .eq("user_id", user.id)
+    .eq("user_id", userId)
     .order("date", { ascending: false })
     .limit(90);
 
@@ -689,17 +690,20 @@ export async function getUserProgress(
  */
 export async function getFullUserContext(
   supabase: SupabaseClient,
-  options: { days?: number } = {}
+  options: { days?: number; userId?: string } = {}
 ): Promise<UserContext | null> {
-  // Get base context
+  // Get base context (pass userId if provided)
   const baseContext = await getUserContext(supabase, options);
   if (!baseContext) return null;
 
+  // Use userId from base context for subsequent queries
+  const userId = baseContext.user_id;
+
   // Fetch additional data in parallel
   const [workoutProgram, planMeals, progress] = await Promise.all([
-    getWorkoutProgram(supabase),
-    getPlanMeals(supabase),
-    getUserProgress(supabase),
+    getWorkoutProgram(supabase, userId),
+    getPlanMeals(supabase, userId),
+    getUserProgress(supabase, userId),
   ]);
 
   return {

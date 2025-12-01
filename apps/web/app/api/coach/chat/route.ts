@@ -171,8 +171,9 @@ export async function POST(req: NextRequest) {
     }
 
     // Try to load full user context (meals, weigh-ins, workouts, plan meals, progress)
+    // Pass userId directly to avoid auth.getUser() issues in server context
     try {
-      userContext = await getFullUserContext(supabase, { days: 30 });
+      userContext = await getFullUserContext(supabase, { days: 30, userId: user.id });
       console.log("[AI Coach] Full context loaded:", {
         hasProfile: !!userContext?.profile,
         mealCount: userContext?.recent_meals?.length || 0,
