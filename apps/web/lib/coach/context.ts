@@ -185,7 +185,7 @@ export async function getUserContext(
  */
 export function summarizeMealsForPrompt(ctx: UserContext | null): string {
   if (!ctx || !ctx.nutrition?.daily_totals || ctx.nutrition.daily_totals.length === 0) {
-    return "אין נתוני תזונה זמינים.";
+    return "המשתמש עדיין לא רשם ארוחות באפליקציה. עודד אותו להוסיף ארוחות.";
   }
 
   const lines: string[] = [];
@@ -229,7 +229,7 @@ export function summarizeMealsForPrompt(ctx: UserContext | null): string {
  */
 export function summarizeWeighInsForPrompt(ctx: UserContext | null): string {
   if (!ctx || !ctx.weigh_ins || ctx.weigh_ins.length === 0) {
-    return "אין נתוני שקילה זמינים. מומלץ להוסיף שקילות באופן קבוע.";
+    return "המשתמש עדיין לא רשם שקילות באפליקציה. עודד אותו להוסיף שקילה בעמוד הפרופיל.";
   }
 
   const weighIns = ctx.weigh_ins;
@@ -611,7 +611,7 @@ export async function getFullUserContext(
  */
 export function summarizeWorkoutForPrompt(ctx: UserContext | null): string {
   if (!ctx?.workout_program) {
-    return "אין תוכנית אימונים פעילה.";
+    return "המשתמש עדיין לא יצר תוכנית אימונים. עודד אותו ליצור תוכנית מותאמת אישית.";
   }
 
   const prog = ctx.workout_program;
@@ -645,7 +645,7 @@ export function summarizeWorkoutForPrompt(ctx: UserContext | null): string {
  */
 export function summarizePlanMealsForPrompt(ctx: UserContext | null): string {
   if (!ctx?.plan_meals || ctx.plan_meals.length === 0) {
-    return "אין תפריט שבועי מוגדר.";
+    return "המשתמש עדיין לא יצר תפריט שבועי. עודד אותו ליצור תפריט תזונה בעמוד התפריט.";
   }
 
   const dayNames = ["ראשון", "שני", "שלישי", "רביעי", "חמישי", "שישי", "שבת"];
@@ -678,7 +678,7 @@ export function summarizePlanMealsForPrompt(ctx: UserContext | null): string {
  */
 export function summarizeProgressForPrompt(ctx: UserContext | null): string {
   if (!ctx?.progress) {
-    return "אין נתוני התקדמות זמינים.";
+    return "המשתמש עדיין לא צבר נקודות או תגים. עודד אותו להשתמש באפליקציה באופן קבוע.";
   }
 
   const prog = ctx.progress;
