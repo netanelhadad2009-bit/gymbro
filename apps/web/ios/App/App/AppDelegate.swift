@@ -1,5 +1,6 @@
 import UIKit
 import Capacitor
+import AppsFlyerLib
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -21,7 +22,34 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
         #endif
 
+        // MARK: - AppsFlyer SDK Initialization
+        AppsFlyerConfig.logStatus()
+        if AppsFlyerConfig.isConfigured {
+            let af = AppsFlyerLib.shared()
+            af.appsFlyerDevKey = AppsFlyerConfig.devKey
+            af.appleAppID = AppsFlyerConfig.appId
+            af.delegate = self
+            // NOTE: Set isDebug = false before App Store release
+            #if DEBUG
+            af.isDebug = true
+            print("[AppsFlyer] Debug mode ENABLED (set isDebug=false for production)")
+            #else
+            af.isDebug = false
+            #endif
+            print("[AppsFlyer] ✅ SDK initialized successfully")
+        } else {
+            print("[AppsFlyer] ⚠️ SDK not configured - check Info.plist keys")
+        }
+
         return true
+    }
+
+    // MARK: - AppsFlyer App Lifecycle
+    func applicationDidBecomeActive(_ application: UIApplication) {
+        if AppsFlyerConfig.isConfigured {
+            AppsFlyerLib.shared().start()
+            print("[AppsFlyer] start() called in applicationDidBecomeActive")
+        }
     }
 
     // MARK: - Push Notification Delegates
@@ -74,4 +102,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         return ApplicationDelegateProxy.shared.application(application, continue: userActivity, restorationHandler: restorationHandler)
     }
 
+}
+
+// MARK: - AppsFlyer Delegate
+extension AppDelegate: AppsFlyerLibDelegate {
+    func onConversionDataSuccess(_ installData: [AnyHashable : Any]) {
+        print("[AppsFlyer] onConversionDataSuccess: \(installData)")
+    }
+
+    func onConversionDataFail(_ error: Error) {
+        print("[AppsFlyer] onConversionDataFail: \(error.localizedDescription)")
+    }
 }

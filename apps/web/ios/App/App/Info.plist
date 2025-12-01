@@ -107,5 +107,9 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
+	<key>AppsFlyerDevKey</key>
+	<string>Tm4JBxwBJwU7s9kuDWw9qE</string>
+	<key>AppsFlyerAppID</key>
+	<string>6755480205</string>
 </dict>
 </plist>

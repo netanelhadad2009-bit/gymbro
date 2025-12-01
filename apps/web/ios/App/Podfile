@@ -29,6 +29,7 @@ end
 target 'App' do
   capacitor_pods
   # Add your Pods here
+  pod 'AppsFlyerFramework'
 end
 
 post_install do |installer|

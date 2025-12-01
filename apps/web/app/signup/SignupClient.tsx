@@ -6,6 +6,7 @@ import { useState, useEffect } from "react";
 import { getOnboardingDataOrNull } from "@/lib/onboarding-storage";
 import { translateAuthError, validateEmail, validatePassword, validatePasswordMatch } from "@/lib/i18n/authHe";
 import { track } from "@/lib/mixpanel";
+import AppsFlyer from "@/lib/appsflyer";
 
 export default function SignupClient() {
   const [email, setEmail] = useState("");
@@ -88,6 +89,7 @@ export default function SignupClient() {
           console.log('[Signup] Session available, navigating to processing page');
           // [analytics] Track signup completed for email method
           track("signup_completed", { method: "email" });
+          AppsFlyer.logEvent("signup_completed", { method: "email" });
           window.location.href = '/auth/processing?provider=email';
       } else {
         // Email confirmation required

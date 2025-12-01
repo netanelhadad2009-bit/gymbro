@@ -19,6 +19,7 @@ import { saveAppleSubscription } from "@/lib/subscription/client";
 import { Dialog } from "@capacitor/dialog";
 import { Capacitor } from "@capacitor/core";
 import { track } from "@/lib/mixpanel";
+import AppsFlyer from "@/lib/appsflyer";
 
 export default function PremiumPage() {
   const router = useRouter();
@@ -58,6 +59,7 @@ export default function PremiumPage() {
     if (!loading && !isSubscriptionLoading && user && !isPremium && !hasTrackedPaywallView.current) {
       hasTrackedPaywallView.current = true;
       track("paywall_viewed", { source: "in_app" });
+      AppsFlyer.logEvent("paywall_viewed", { source: "in_app" });
     }
   }, [loading, isSubscriptionLoading, user, isPremium]);
 
@@ -70,12 +72,20 @@ export default function PremiumPage() {
       plan: selectedPlan,
       is_recommended: selectedPlan === "yearly",
     });
+    AppsFlyer.logEvent("subscribe_click", {
+      plan: selectedPlan,
+      is_recommended: selectedPlan === "yearly",
+    });
 
     console.log(`[PremiumPurchase] Subscribe button clicked - Plan: ${selectedPlan}`);
     setIsPurchasing(true);
 
     // [analytics] Track subscription purchase started
     track("subscription_purchase_started", {
+      plan: selectedPlan,
+      platform: Capacitor.isNativePlatform() ? "ios" : "web",
+    });
+    AppsFlyer.logEvent("subscription_purchase_started", {
       plan: selectedPlan,
       platform: Capacitor.isNativePlatform() ? "ios" : "web",
     });
@@ -88,6 +98,11 @@ export default function PremiumPage() {
       if (result.success) {
         // [analytics] Track subscription purchase success
         track("subscription_purchase_success", {
+          plan: selectedPlan,
+          platform: "ios",
+          transaction_id: result.transactionId,
+        });
+        AppsFlyer.logEvent("subscription_purchase_success", {
           plan: selectedPlan,
           platform: "ios",
           transaction_id: result.transactionId,
@@ -134,6 +149,11 @@ export default function PremiumPage() {
             platform: "ios",
             error_type: "purchase_error",
           });
+          AppsFlyer.logEvent("subscription_purchase_failed", {
+            plan: selectedPlan,
+            platform: "ios",
+            error_type: "purchase_error",
+          });
 
           console.error("[PremiumPurchase] Purchase failed:", result.error);
           if (Capacitor.isNativePlatform()) {
@@ -151,12 +171,22 @@ export default function PremiumPage() {
             plan: selectedPlan,
             platform: "ios",
           });
+          AppsFlyer.logEvent("subscription_purchase_cancelled", {
+            plan: selectedPlan,
+            platform: "ios",
+          });
           console.log("[PremiumPurchase] Purchase cancelled by user");
         }
       }
     } catch (error: any) {
       // [analytics] Track subscription purchase failed with exception
       track("subscription_purchase_failed", {
+        plan: selectedPlan,
+        platform: "ios",
+        error_type: "exception",
+        error_code: error?.code ?? null,
+      });
+      AppsFlyer.logEvent("subscription_purchase_failed", {
         plan: selectedPlan,
         platform: "ios",
         error_type: "exception",

@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { track } from "@/lib/mixpanel";
+import AppsFlyer from "@/lib/appsflyer";
 
 export default function OAuthCallbackPage() {
   const router = useRouter();
@@ -126,6 +127,7 @@ export default function OAuthCallbackPage() {
 
           // [analytics] Track signup completed for OAuth (new user)
           track("signup_completed", { method: provider });
+          AppsFlyer.logEvent("signup_completed", { method: provider });
 
           // New users always need onboarding
           console.log('[Auth Callback] 🎯 Redirecting new user to onboarding');

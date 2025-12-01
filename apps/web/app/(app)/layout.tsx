@@ -9,6 +9,7 @@ import { LoadingProvider } from "@/contexts/LoadingContext";
 import { PremiumGate } from "@/components/auth/PremiumGate";
 import { AnalyticsIdentity } from "@/components/analytics/AnalyticsIdentity";
 import { track } from "@/lib/mixpanel";
+import AppsFlyer from "@/lib/appsflyer";
 import { Capacitor } from "@capacitor/core";
 
 function AppLayoutContent({ children }: { children: React.ReactNode }) {
@@ -20,10 +21,13 @@ function AppLayoutContent({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (hasTrackedAppOpen.current) return;
     hasTrackedAppOpen.current = true;
+    const source = Capacitor.isNativePlatform() ? "native" : "web";
     track("app_opened", {
       path: pathname,
-      source: Capacitor.isNativePlatform() ? "native" : "web",
+      source,
     });
+    // [analytics] Also log to AppsFlyer (native only)
+    AppsFlyer.logEvent("app_opened", { source });
   }, [pathname]);
 
   // Hide bottom nav on scan/review pages (full-screen experience), premium page, trial page, when sheet is open, or when keyboard is visible
