@@ -315,6 +315,9 @@ ${progressSummary}
       const systemPrompt = systemPromptTemplate.replace("{contextHe}", ctxHe || "חסרים נתונים") + nudge + dataContext;
 
       // Few-shot examples to anchor behavior (Hebrew)
+      // Dynamic examples based on whether user has data
+      const hasWeighIns = (userContext?.weigh_ins?.length || 0) > 0;
+
       const fewShot: OpenAI.Chat.ChatCompletionMessageParam[] = [
         {
           role: "user",
@@ -330,7 +333,10 @@ ${progressSummary}
         },
         {
           role: "assistant",
-          content: "אני רואה שעדיין לא רשמת שקילות באפליקציה. בוא נתחיל לעקוב אחרי המשקל שלך!\n\nכדי להוסיף שקילה:\n1. לך לעמוד הפרופיל\n2. לחץ על הוסף שקילה\n3. הזן את המשקל הנוכחי שלך\n\nשקילה קבועה (פעם בשבוע באותה שעה) תעזור לנו לעקוב אחרי ההתקדמות שלך לקראת היעד של 62 קג!",
+          // Show data-based response if user HAS weigh-ins, otherwise show encouragement
+          content: hasWeighIns
+            ? "לפי נתוני השקילות שלך:\n\nמשקל אחרון: 75.4 ק\"ג\nמגמה: ירידה של 1.6 ק\"ג בשבוע האחרון\nסה\"כ שקילות: 6 רשומות\n\nהמגמה נראית טובה! המשך לשקול את עצמך פעם בשבוע באותה שעה כדי לקבל תמונה מדויקת של ההתקדמות."
+            : "אני רואה שעדיין לא רשמת שקילות באפליקציה. בוא נתחיל לעקוב אחרי המשקל שלך!\n\nכדי להוסיף שקילה:\n1. לך לעמוד הפרופיל\n2. לחץ על הוסף שקילה\n3. הזן את המשקל הנוכחי שלך",
         },
         {
           role: "user",
