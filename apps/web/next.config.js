@@ -116,8 +116,8 @@ const nextConfig = {
               "style-src 'self' 'unsafe-inline'",
               // Images: Allow from same origin, data URIs, blob, and HTTPS sources (for user uploads)
               "img-src 'self' data: blob: https:",
-              // API connections: Allow Supabase and OpenAI
-              "connect-src 'self' https://*.supabase.co https://api.openai.com wss://*.supabase.co",
+              // API connections: Allow Supabase, OpenAI, and Mixpanel
+              "connect-src 'self' https://*.supabase.co https://api.openai.com wss://*.supabase.co https://api-js.mixpanel.com https://api.mixpanel.com https://*.mixpanel.com",
               // Fonts: Allow from same origin and data URIs
               "font-src 'self' data:",
               // Frames: Only allow same origin (prevent clickjacking via iframes)
