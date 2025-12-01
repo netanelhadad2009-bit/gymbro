@@ -10,6 +10,13 @@ class BridgeViewController: CAPBridgeViewController, WKNavigationDelegate {
       "0.0.0.0",
       "gymbro-web-omega.vercel.app"  // Production Vercel domain
   ]
+
+    // Register custom Capacitor plugins
+    override open func capacitorDidLoad() {
+        bridge?.registerPluginInstance(AppsFlyerPlugin())
+        print("[Capacitor] ✅ AppsFlyerPlugin registered")
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad() // MUST be first so Capacitor builds WKWebView
 

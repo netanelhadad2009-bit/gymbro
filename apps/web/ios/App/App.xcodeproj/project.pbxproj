@@ -11,6 +11,8 @@
 		02B165DD2ED89D6C00BA3990 /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 02B165DC2ED89D6C00BA3990 /* StoreKit.framework */; };
 		0C538066592F488183E3495D /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = DB3890980AC24406B8C2E73D /* PrivacyInfo.xcprivacy */; };
 		14CC2C1A72794F791F642A31 /* BridgeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E79E2C9CB647D6ECED2B1E2D /* BridgeViewController.swift */; };
+		AF1001PLUGIN0123456789AB /* AppsFlyerPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF1002PLUGIN0123456789AB /* AppsFlyerPlugin.swift */; };
+		AF1001CONFIG0123456789AB /* AppsFlyerConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF1002CONFIG0123456789AB /* AppsFlyerConfig.swift */; };
 		2FAD9763203C412B000D30F8 /* config.xml in Resources */ = {isa = PBXBuildFile; fileRef = 2FAD9762203C412B000D30F8 /* config.xml */; };
 		3AF39E6C6B4457AF4D32B336 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EC437ED10857B02D4B7426C /* SceneDelegate.swift */; };
 		50379B232058CBB4000EE86E /* capacitor.config.json in Resources */ = {isa = PBXBuildFile; fileRef = 50379B222058CBB4000EE86E /* capacitor.config.json */; };
@@ -43,6 +45,8 @@
 		DB3890980AC24406B8C2E73D /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		E79E2C9CB647D6ECED2B1E2D /* BridgeViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BridgeViewController.swift; sourceTree = "<group>"; };
 		FC68EB0AF532CFC21C3344DD /* Pods-App.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-App.debug.xcconfig"; path = "Pods/Target Support Files/Pods-App/Pods-App.debug.xcconfig"; sourceTree = "<group>"; };
+		AF1002PLUGIN0123456789AB /* AppsFlyerPlugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppsFlyerPlugin.swift; sourceTree = "<group>"; };
+		AF1002CONFIG0123456789AB /* AppsFlyerConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppsFlyerConfig.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -103,6 +107,8 @@
 				50B271D01FEDC1A000F3C39B /* public */,
 				0EC437ED10857B02D4B7426C /* SceneDelegate.swift */,
 				E79E2C9CB647D6ECED2B1E2D /* BridgeViewController.swift */,
+				AF1002PLUGIN0123456789AB /* AppsFlyerPlugin.swift */,
+				AF1002CONFIG0123456789AB /* AppsFlyerConfig.swift */,
 			);
 			path = App;
 			sourceTree = "<group>";
@@ -128,6 +134,7 @@
 				504EC3011FED79650016851F /* Frameworks */,
 				504EC3021FED79650016851F /* Resources */,
 				9592DBEFFC6D2A0C8D5DEB22 /* [CP] Embed Pods Frameworks */,
+				A891E4156D698DB27B8C5C73 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -226,6 +233,21 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-App/Pods-App-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
+		A891E4156D698DB27B8C5C73 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-App/Pods-App-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -236,6 +258,8 @@
 				504EC3081FED79650016851F /* AppDelegate.swift in Sources */,
 				3AF39E6C6B4457AF4D32B336 /* SceneDelegate.swift in Sources */,
 				14CC2C1A72794F791F642A31 /* BridgeViewController.swift in Sources */,
+				AF1001PLUGIN0123456789AB /* AppsFlyerPlugin.swift in Sources */,
+				AF1001CONFIG0123456789AB /* AppsFlyerConfig.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
