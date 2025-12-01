@@ -25,12 +25,16 @@ export async function GET(request: NextRequest) {
     }
     const { user, supabase } = auth;
 
+    // Fetch last 100 messages (newest first), then reverse to show oldest first
     const { data, error } = await supabase
       .from("ai_messages")
       .select("id, role, content, created_at")
       .eq("user_id", user.id)
-      .order("created_at", { ascending: true })
-      .limit(50);
+      .order("created_at", { ascending: false })
+      .limit(100);
+
+    // Reverse to show in chronological order (oldest first)
+    const messages = data ? data.reverse() : [];
 
     if (error) {
       console.error("[Coach Messages] Select error:", error);
@@ -40,7 +44,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    return NextResponse.json({ ok: true, messages: data ?? [] });
+    return NextResponse.json({ ok: true, messages });
   } catch (error) {
     console.error("[Coach Messages] Error:", error);
     return handleApiError(error, 'CoachMessages');
