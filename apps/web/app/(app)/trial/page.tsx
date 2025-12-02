@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useEffect } from "react";
 
 export default function TrialPage() {
@@ -47,14 +48,15 @@ export default function TrialPage() {
         />
       </div>
 
-      {/* Bottom section - CTA link (using anchor for instant response without JS hydration) */}
+      {/* Bottom section - CTA link */}
       <div className="pt-1 pb-3 shrink-0 px-4">
-        <a
+        <Link
           href="/premium"
+          prefetch={true}
           className="block w-full py-4 rounded-full bg-[#E2F163] text-black font-bold text-lg text-center transition-transform active:scale-[0.98] shadow-lg touch-manipulation"
         >
           אני רוצה להתחיל את המסע
-        </a>
+        </Link>
       </div>
     </main>
   );
