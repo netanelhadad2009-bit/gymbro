@@ -1,10 +1,23 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
-import { useEffect } from "react";
+import { useEffect, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
+import { Loader2 } from "lucide-react";
 
 export default function TrialPage() {
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+  const [isNavigating, setIsNavigating] = useState(false);
+
+  const handleNavigate = () => {
+    if (isNavigating) return;
+    setIsNavigating(true);
+    startTransition(() => {
+      router.push("/premium");
+    });
+  };
+
   // Prevent back navigation to signup/registration pages
   useEffect(() => {
     // Replace the current history entry to prevent going back
@@ -48,15 +61,24 @@ export default function TrialPage() {
         />
       </div>
 
-      {/* Bottom section - CTA link */}
+      {/* Bottom section - CTA button */}
       <div className="pt-1 pb-3 shrink-0 px-4">
-        <Link
-          href="/premium"
-          prefetch={true}
-          className="block w-full py-4 rounded-full bg-[#E2F163] text-black font-bold text-lg text-center transition-transform active:scale-[0.98] shadow-lg touch-manipulation"
+        <button
+          onClick={handleNavigate}
+          disabled={isNavigating}
+          className={`block w-full py-4 rounded-full bg-[#E2F163] text-black font-bold text-lg text-center shadow-lg touch-manipulation transition-all duration-100 ${
+            isNavigating ? "opacity-80" : "active:scale-[0.98]"
+          }`}
         >
-          אני רוצה להתחיל את המסע
-        </Link>
+          {isNavigating ? (
+            <span className="flex items-center justify-center gap-2">
+              <Loader2 className="w-5 h-5 animate-spin" />
+              טוען...
+            </span>
+          ) : (
+            "אני רוצה להתחיל את המסע"
+          )}
+        </button>
       </div>
     </main>
   );
