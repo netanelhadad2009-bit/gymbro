@@ -4,9 +4,14 @@
 // BUILD-TIME ENVIRONMENT VALIDATION
 // =============================================================================
 // Validate critical environment variables at build time to fail fast
-// Skip validation in test environment
+// Skip validation in test environment and CI (runtime validation in lib/env.ts)
 
-if (process.env.NODE_ENV !== 'test') {
+const isVercel = process.env.VERCEL === '1';
+const isCI = process.env.CI === 'true' || isVercel;
+const skipValidation = process.env.NODE_ENV === 'test' || process.env.SKIP_ENV_VALIDATION === '1';
+
+if (!skipValidation && !isCI) {
+  // Only validate locally - Vercel/CI injects env vars and lib/env.ts handles runtime validation
   const requiredServerSecrets = [
     'SUPABASE_SERVICE_ROLE_KEY',
     'OPENAI_API_KEY',
@@ -46,6 +51,8 @@ if (process.env.NODE_ENV !== 'test') {
   }
 
   console.log('✅ Environment validation passed');
+} else if (isCI) {
+  console.log('⏭️  Skipping early env validation (CI/Vercel - runtime validation in lib/env.ts)');
 }
 
 // =============================================================================
