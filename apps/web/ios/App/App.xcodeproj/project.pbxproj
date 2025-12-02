@@ -13,6 +13,8 @@
 		14CC2C1A72794F791F642A31 /* BridgeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E79E2C9CB647D6ECED2B1E2D /* BridgeViewController.swift */; };
 		AF1001PLUGIN0123456789AB /* AppsFlyerPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF1002PLUGIN0123456789AB /* AppsFlyerPlugin.swift */; };
 		AF1001CONFIG0123456789AB /* AppsFlyerConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF1002CONFIG0123456789AB /* AppsFlyerConfig.swift */; };
+		SW1001CONFIG0123456789AB /* SuperwallConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = SW1002CONFIG0123456789AB /* SuperwallConfig.swift */; };
+		SW1003SUPERWALL123456789 /* SuperwallKit in Frameworks */ = {isa = PBXBuildFile; productRef = SW1004SUPERWALL123456789 /* SuperwallKit */; };
 		2FAD9763203C412B000D30F8 /* config.xml in Resources */ = {isa = PBXBuildFile; fileRef = 2FAD9762203C412B000D30F8 /* config.xml */; };
 		3AF39E6C6B4457AF4D32B336 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EC437ED10857B02D4B7426C /* SceneDelegate.swift */; };
 		50379B232058CBB4000EE86E /* capacitor.config.json in Resources */ = {isa = PBXBuildFile; fileRef = 50379B222058CBB4000EE86E /* capacitor.config.json */; };
@@ -47,6 +49,7 @@
 		FC68EB0AF532CFC21C3344DD /* Pods-App.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-App.debug.xcconfig"; path = "Pods/Target Support Files/Pods-App/Pods-App.debug.xcconfig"; sourceTree = "<group>"; };
 		AF1002PLUGIN0123456789AB /* AppsFlyerPlugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppsFlyerPlugin.swift; sourceTree = "<group>"; };
 		AF1002CONFIG0123456789AB /* AppsFlyerConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppsFlyerConfig.swift; sourceTree = "<group>"; };
+		SW1002CONFIG0123456789AB /* SuperwallConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuperwallConfig.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -56,12 +59,21 @@
 			files = (
 				A084ECDBA7D38E1E42DFC39D /* Pods_App.framework in Frameworks */,
 				02B165DD2ED89D6C00BA3990 /* StoreKit.framework in Frameworks */,
+				SW1003SUPERWALL123456789 /* SuperwallKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		SW1005CONFIG0123456789AB /* Config */ = {
+			isa = PBXGroup;
+			children = (
+				SW1002CONFIG0123456789AB /* SuperwallConfig.swift */,
+			);
+			path = Config;
+			sourceTree = "<group>";
+		};
 		27E2DDA53C4D2A4D1A88CE4A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -92,6 +104,7 @@
 		504EC3061FED79650016851F /* App */ = {
 			isa = PBXGroup;
 			children = (
+				SW1005CONFIG0123456789AB /* Config */,
 				02756C5A2EC46D34008D2A41 /* GoogleService-Info.plist..plist */,
 				02756C572EC46316008D2A41 /* App.entitlements */,
 				02756C582EC46317008D2A41 /* AppDebug.entitlements */,
@@ -141,6 +154,9 @@
 			dependencies = (
 			);
 			name = App;
+			packageProductDependencies = (
+				SW1004SUPERWALL123456789 /* SuperwallKit */,
+			);
 			productName = App;
 			productReference = 504EC3041FED79650016851F /* App.app */;
 			productType = "com.apple.product-type.application";
@@ -170,6 +186,9 @@
 				Base,
 			);
 			mainGroup = 504EC2FB1FED79650016851F;
+			packageReferences = (
+				SW1006PKGREF0123456789AB /* XCRemoteSwiftPackageReference "Superwall-iOS" */,
+			);
 			productRefGroup = 504EC3051FED79650016851F /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -260,6 +279,7 @@
 				14CC2C1A72794F791F642A31 /* BridgeViewController.swift in Sources */,
 				AF1001PLUGIN0123456789AB /* AppsFlyerPlugin.swift in Sources */,
 				AF1001CONFIG0123456789AB /* AppsFlyerConfig.swift in Sources */,
+				SW1001CONFIG0123456789AB /* SuperwallConfig.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -401,7 +421,7 @@
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
 				CODE_SIGN_ENTITLEMENTS = App/AppDebug.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = K5SDH2PTSX;
 				INFOPLIST_FILE = App/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
@@ -409,7 +429,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.1;
 				OTHER_SWIFT_FLAGS = "$(inherited) \"-D\" \"COCOAPODS\" \"-DDEBUG\"";
 				PRODUCT_BUNDLE_IDENTIFIER = com.fitjourney.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -429,7 +449,7 @@
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
 				CODE_SIGN_ENTITLEMENTS = App/AppRelease.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = K5SDH2PTSX;
 				INFOPLIST_FILE = App/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
@@ -437,7 +457,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.fitjourney.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -470,6 +490,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		SW1006PKGREF0123456789AB /* XCRemoteSwiftPackageReference "Superwall-iOS" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/superwall/Superwall-iOS";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 3.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		SW1004SUPERWALL123456789 /* SuperwallKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = SW1006PKGREF0123456789AB /* XCRemoteSwiftPackageReference "Superwall-iOS" */;
+			productName = SuperwallKit;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 504EC2FC1FED79650016851F /* Project object */;
 }
