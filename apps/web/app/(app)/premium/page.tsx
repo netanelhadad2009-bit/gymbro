@@ -119,6 +119,22 @@ export default function PremiumPage() {
           );
           if (savedSub) {
             console.log("[PremiumPurchase] Subscription saved to Supabase:", savedSub.id);
+
+            // Send admin notification email (fire-and-forget, best-effort)
+            fetch("/api/admin/notify-subscription", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                userId: savedSub.userId,
+                plan: savedSub.plan,
+                status: savedSub.status,
+                appleOriginalTransactionId: result.transactionId,
+                appleProductId: result.productId ?? null,
+                createdAt: new Date().toISOString(),
+              }),
+            }).catch((err) => {
+              console.error("[PremiumPurchase] Failed to notify admin:", err);
+            });
           } else {
             console.error("[PremiumPurchase] Failed to save subscription to Supabase");
           }
