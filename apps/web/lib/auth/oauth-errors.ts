@@ -26,15 +26,23 @@ export async function withOAuthErrorHandling<T>(
   try {
     return await fn();
   } catch (error: any) {
+    // Log detailed error information for debugging
+    console.error('[OAuthError] Provider:', provider);
+    console.error('[OAuthError] Error type:', error?.constructor?.name || typeof error);
+    console.error('[OAuthError] Error message:', error?.message);
+    console.error('[OAuthError] Error code:', error?.code);
+    console.error('[OAuthError] Full error:', JSON.stringify(error, Object.getOwnPropertyNames(error || {}), 2));
+
     // If error already contains cancellation info, preserve it
     if (error?.message?.toLowerCase().includes('cancel')) {
       throw new OAuthError(provider, 'התחברות בוטלה.', error);
     }
 
-    // Otherwise wrap with generic OAuth error
+    // Include more details in the error message for debugging
+    const errorDetails = error?.message || error?.code || String(error);
     throw new OAuthError(
       provider,
-      `OAuth error with ${provider}`,
+      `OAuth error with ${provider}: ${errorDetails}`,
       error
     );
   }

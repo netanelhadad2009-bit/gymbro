@@ -294,21 +294,38 @@ let isInitialized = false;
 async function ensureInitialized() {
   if (isInitialized) return;
 
+  // Detect platform - Apple Sign-In is only available on iOS
+  const platform = typeof window !== 'undefined' ? (window as any).Capacitor?.getPlatform() : 'unknown';
+  const isIOS = platform === 'ios';
+
   console.log('[OAuth Native] Initializing SocialLogin plugin');
+  console.log('[OAuth Native] Platform:', platform);
   console.log('[OAuth Native] Google Web Client ID:', GOOGLE_WEB_CLIENT_ID.substring(0, 20) + '...');
-  console.log('[OAuth Native] Apple Service ID:', APPLE_SERVICE_ID);
+  if (isIOS) {
+    console.log('[OAuth Native] Apple Service ID:', APPLE_SERVICE_ID);
+  }
 
   try {
     const SocialLogin = getSocialLogin();
-    await SocialLogin.initialize({
+
+    // Build initialization config based on platform
+    // Apple Sign-In requires redirectUrl on Android which we don't have,
+    // so we only initialize Apple on iOS where it's natively supported
+    const initConfig: any = {
       google: {
         webClientId: GOOGLE_WEB_CLIENT_ID,
         mode: 'offline'
-      },
-      apple: {
-        clientId: APPLE_SERVICE_ID
       }
-    });
+    };
+
+    // Only add Apple config on iOS
+    if (isIOS) {
+      initConfig.apple = {
+        clientId: APPLE_SERVICE_ID
+      };
+    }
+
+    await SocialLogin.initialize(initConfig);
 
     isInitialized = true;
     console.log('[OAuth Native] SocialLogin initialized successfully');
