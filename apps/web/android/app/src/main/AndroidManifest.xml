@@ -2,6 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <application
+        android:name=".FitJourneyApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -33,6 +34,15 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths"></meta-data>
         </provider>
+
+        <!-- Superwall SDK Activities -->
+        <activity
+            android:name="com.superwall.sdk.paywall.vc.SuperwallPaywallActivity"
+            android:theme="@style/Theme.AppCompat.DayNight.NoActionBar"
+            android:configChanges="orientation|screenSize|keyboardHidden" />
+        <activity android:name="com.superwall.sdk.debug.DebugViewActivity" />
+        <activity android:name="com.superwall.sdk.debug.localizations.SWLocalizationActivity" />
+        <activity android:name="com.superwall.sdk.debug.SWConsoleActivity" />
     </application>
 
     <!-- Permissions -->
@@ -53,4 +63,13 @@
 
     <!-- Push notifications (Android 13+) -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <!-- AppsFlyer: Advertising ID for attribution (Google Play policy compliant) -->
+    <uses-permission android:name="com.google.android.gms.permission.AD_ID" />
+
+    <!-- AppsFlyer: Access network state for attribution optimization -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <!-- Superwall: In-app billing for paywalls -->
+    <uses-permission android:name="com.android.vending.BILLING" />
 </manifest>

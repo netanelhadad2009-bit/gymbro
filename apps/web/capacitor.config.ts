@@ -73,6 +73,10 @@ const config: CapacitorConfig = {
     contentInset: "always",
     allowsLinkPreview: false,
   },
+  android: {
+    backgroundColor: "#0B0D0E",
+    allowMixedContent: false,  // Require HTTPS in WebView
+  },
   plugins: {
     Keyboard: {
       resize: "native" as any,  // Use native keyboard behavior (fixes constraint errors)

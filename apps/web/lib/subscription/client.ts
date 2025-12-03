@@ -3,32 +3,47 @@
  *
  * This module provides client-side utilities for fetching subscription data.
  * Use this in client components (with "use client" directive).
+ * Supports both Apple App Store (iOS) and Google Play (Android).
  */
 
+import { Capacitor } from "@capacitor/core";
 import { supabase } from "@/lib/supabase";
 import type { Subscription, SubscriptionRow } from "./types";
 import { mapRowToSubscription } from "./types";
 
+// Provider type for subscriptions
+export type SubscriptionProvider = 'apple' | 'google';
+
 /**
- * Save an Apple IAP subscription to Supabase
+ * Get the subscription provider based on the current platform
+ */
+export function getCurrentProvider(): SubscriptionProvider {
+  return Capacitor.getPlatform() === 'android' ? 'google' : 'apple';
+}
+
+/**
+ * Save an IAP subscription to Supabase (cross-platform)
  *
  * @param authUserId - The Supabase auth user ID
  * @param plan - 'monthly' or 'yearly'
- * @param transactionId - Apple transaction ID
+ * @param transactionId - Transaction ID from the store
+ * @param provider - Optional provider, defaults to current platform
  * @returns The created subscription or null if failed
  */
-export async function saveAppleSubscription(
+export async function saveSubscription(
   authUserId: string,
   plan: 'monthly' | 'yearly',
-  transactionId: string
+  transactionId: string,
+  provider: SubscriptionProvider = getCurrentProvider()
 ): Promise<Subscription | null> {
   const appUserId = `user_${authUserId}`;
 
-  console.log("[Subscription][Client] Saving Apple subscription", {
+  console.log(`[Subscription][Client] Saving ${provider} subscription`, {
     authUserId,
     appUserId,
     plan,
     transactionId,
+    provider,
   });
 
   try {
@@ -49,7 +64,7 @@ export async function saveAppleSubscription(
     const subscriptionData: Record<string, any> = {
       id: subscriptionId,
       userId: appUserId,
-      provider: 'apple',
+      provider: provider,
       status: 'active',
       plan: plan,
       currentPeriodEnd: periodEnd.toISOString(),
@@ -78,6 +93,7 @@ export async function saveAppleSubscription(
       userId: appUserId,
       status: data.status,
       plan: data.plan,
+      provider: data.provider,
     });
 
     return mapRowToSubscription(data as SubscriptionRow);
@@ -89,6 +105,39 @@ export async function saveAppleSubscription(
     });
     return null;
   }
+}
+
+/**
+ * Save an Apple IAP subscription to Supabase (legacy function, use saveSubscription instead)
+ *
+ * @param authUserId - The Supabase auth user ID
+ * @param plan - 'monthly' or 'yearly'
+ * @param transactionId - Apple transaction ID
+ * @returns The created subscription or null if failed
+ * @deprecated Use saveSubscription() instead for cross-platform support
+ */
+export async function saveAppleSubscription(
+  authUserId: string,
+  plan: 'monthly' | 'yearly',
+  transactionId: string
+): Promise<Subscription | null> {
+  return saveSubscription(authUserId, plan, transactionId, 'apple');
+}
+
+/**
+ * Save a Google Play subscription to Supabase
+ *
+ * @param authUserId - The Supabase auth user ID
+ * @param plan - 'monthly' or 'yearly'
+ * @param transactionId - Google Play order ID
+ * @returns The created subscription or null if failed
+ */
+export async function saveGoogleSubscription(
+  authUserId: string,
+  plan: 'monthly' | 'yearly',
+  transactionId: string
+): Promise<Subscription | null> {
+  return saveSubscription(authUserId, plan, transactionId, 'google');
 }
 
 /**

@@ -1,8 +1,12 @@
 /**
- * Apple IAP / StoreKit Purchase Module
+ * In-App Purchase Module (iOS & Android)
  *
- * Handles real Apple In-App Purchase subscriptions using cordova-plugin-purchase.
- * Product IDs:
+ * Handles In-App Purchase subscriptions using cordova-plugin-purchase.
+ * Supports:
+ * - Apple App Store (iOS)
+ * - Google Play Billing (Android)
+ *
+ * Product IDs (same for both platforms):
  * - com.fitjourney.app.premium.monthly
  * - com.fitjourney.app.premium.yearly
  *
@@ -208,17 +212,25 @@ export async function initializeStore(): Promise<boolean> {
     console.log('[PremiumPurchase] - Monthly:', PRODUCT_IDS.monthly);
     console.log('[PremiumPurchase] - Yearly:', PRODUCT_IDS.yearly);
 
-    // Register subscription products
+    // Determine platform for product registration
+    const platform = Capacitor.getPlatform();
+    const storePlatform = platform === 'android'
+      ? CdvPurchase.Platform.GOOGLE_PLAY
+      : CdvPurchase.Platform.APPLE_APPSTORE;
+
+    console.log('[PremiumPurchase] Platform:', platform, '-> Store:', storePlatform);
+
+    // Register subscription products for the current platform
     store.register([
       {
         id: PRODUCT_IDS.monthly,
         type: CdvPurchase.ProductType.PAID_SUBSCRIPTION,
-        platform: CdvPurchase.Platform.APPLE_APPSTORE,
+        platform: storePlatform,
       },
       {
         id: PRODUCT_IDS.yearly,
         type: CdvPurchase.ProductType.PAID_SUBSCRIPTION,
-        platform: CdvPurchase.Platform.APPLE_APPSTORE,
+        platform: storePlatform,
       },
     ]);
 
@@ -249,9 +261,9 @@ export async function initializeStore(): Promise<boolean> {
 
     console.log('[PremiumPurchase] Event handlers registered');
 
-    // Initialize the store with Apple App Store platform
-    console.log('[PremiumPurchase] Calling store.initialize([APPLE_APPSTORE])...');
-    await store.initialize([CdvPurchase.Platform.APPLE_APPSTORE]);
+    // Initialize the store with the appropriate platform
+    console.log(`[PremiumPurchase] Calling store.initialize([${storePlatform}])...`);
+    await store.initialize([storePlatform]);
     console.log('[PremiumPurchase] store.initialize() completed');
 
     // Refresh products from App Store

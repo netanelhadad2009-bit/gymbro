@@ -1,4 +1,12 @@
 apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+
+// Load local.properties for SDK keys
+def localProperties = new Properties()
+def localPropertiesFile = rootProject.file('local.properties')
+if (localPropertiesFile.exists()) {
+    localPropertiesFile.withInputStream { localProperties.load(it) }
+}
 
 android {
     namespace "com.fitjourney.app"
@@ -15,6 +23,16 @@ android {
              // Default: https://android.googlesource.com/platform/frameworks/base/+/282e181b58cf72b6ca770dc7ca5f91f135444502/tools/aapt/AaptAssets.cpp#61
             ignoreAssetsPattern '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
+
+        // BuildConfig fields for SDK keys (read from local.properties)
+        // Keys are kept in local.properties which is gitignored
+        def appsFlyerKey = localProperties.getProperty('APPSFLYER_DEV_KEY', '__REPLACE_WITH_APPSFLYER_DEV_KEY__')
+        def superwallKey = localProperties.getProperty('SUPERWALL_API_KEY', '__REPLACE_WITH_SUPERWALL_API_KEY__')
+        buildConfigField "String", "APPSFLYER_DEV_KEY", "\"${appsFlyerKey}\""
+        buildConfigField "String", "SUPERWALL_API_KEY", "\"${superwallKey}\""
+    }
+    buildFeatures {
+        buildConfig true
     }
     buildTypes {
         release {
@@ -40,6 +58,17 @@ dependencies {
     androidTestImplementation "androidx.test.ext:junit:$androidxJunitVersion"
     androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"
     implementation project(':capacitor-cordova-android-plugins')
+
+    // AppsFlyer SDK for attribution tracking
+    implementation 'com.appsflyer:af-android-sdk:6.15.2'
+    // Install Referrer for attribution (Google Play)
+    implementation 'com.android.installreferrer:installreferrer:2.2'
+
+    // Superwall SDK for paywall management (Maven Central)
+    implementation 'com.superwall.sdk:superwall-android:2.5.6'
+
+    // Kotlin standard library
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 }
 
 apply from: 'capacitor.build.gradle'
