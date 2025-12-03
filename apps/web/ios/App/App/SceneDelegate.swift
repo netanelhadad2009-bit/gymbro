@@ -1,8 +1,11 @@
 import UIKit
 import AppsFlyerLib
+import AppTrackingTransparency
+import AdSupport
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     var window: UIWindow?
+    private var hasRequestedATT = false
 
     func scene(_ scene: UIScene,
                willConnectTo session: UISceneSession,
@@ -33,6 +36,42 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         if AppsFlyerConfig.isConfigured {
             AppsFlyerLib.shared().start()
             print("[AppsFlyer] start() called in sceneDidBecomeActive")
+        }
+
+        // Request ATT permission (only once, after window is visible)
+        if !hasRequestedATT {
+            hasRequestedATT = true
+            // Delay to ensure UI is fully loaded
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                self.requestTrackingAuthorization()
+            }
+        }
+    }
+
+    // MARK: - App Tracking Transparency
+    private func requestTrackingAuthorization() {
+        if #available(iOS 14, *) {
+            print("[ATT] Requesting tracking authorization...")
+            ATTrackingManager.requestTrackingAuthorization { status in
+                DispatchQueue.main.async {
+                    switch status {
+                    case .authorized:
+                        let idfa = ASIdentifierManager.shared().advertisingIdentifier.uuidString
+                        print("[ATT] ✅ Authorized - IDFA: \(idfa)")
+                    case .denied:
+                        print("[ATT] ❌ Denied by user")
+                    case .notDetermined:
+                        print("[ATT] ⏳ Not determined")
+                    case .restricted:
+                        print("[ATT] 🚫 Restricted")
+                    @unknown default:
+                        print("[ATT] Unknown status")
+                    }
+                }
+            }
+        } else {
+            let idfa = ASIdentifierManager.shared().advertisingIdentifier.uuidString
+            print("[ATT] iOS < 14 - IDFA: \(idfa)")
         }
     }
 

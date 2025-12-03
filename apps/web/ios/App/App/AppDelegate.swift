@@ -46,10 +46,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             print("[AppsFlyer] ⚠️ SDK not configured - check Info.plist keys")
         }
 
-        // MARK: - Request ATT Permission (after a short delay for better UX)
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-            self.requestTrackingAuthorization()
-        }
+        // NOTE: ATT permission is now requested in SceneDelegate.sceneDidBecomeActive
+        // after the window is visible (required for the popup to appear)
 
         // MARK: - Superwall SDK Initialization (after AppsFlyer)
         SuperwallConfig.logStatus()
@@ -131,30 +129,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         return ApplicationDelegateProxy.shared.application(application, continue: userActivity, restorationHandler: restorationHandler)
     }
 
-    // MARK: - App Tracking Transparency
-    private func requestTrackingAuthorization() {
-        if #available(iOS 14, *) {
-            ATTrackingManager.requestTrackingAuthorization { status in
-                switch status {
-                case .authorized:
-                    let idfa = ASIdentifierManager.shared().advertisingIdentifier.uuidString
-                    print("[ATT] ✅ Authorized - IDFA: \(idfa)")
-                case .denied:
-                    print("[ATT] ❌ Denied by user")
-                case .notDetermined:
-                    print("[ATT] ⏳ Not determined")
-                case .restricted:
-                    print("[ATT] 🚫 Restricted")
-                @unknown default:
-                    print("[ATT] Unknown status")
-                }
-            }
-        } else {
-            // iOS < 14: IDFA is available without permission
-            let idfa = ASIdentifierManager.shared().advertisingIdentifier.uuidString
-            print("[ATT] iOS < 14 - IDFA: \(idfa)")
-        }
-    }
 }
 
 // MARK: - AppsFlyer Delegate
