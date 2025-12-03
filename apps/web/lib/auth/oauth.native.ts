@@ -19,7 +19,7 @@ function getSocialLogin() {
 }
 
 const GOOGLE_WEB_CLIENT_ID =
-  '122734915921-3kmos54i1erohqii9rtu6df0r3130obi.apps.googleusercontent.com';
+  '122734915921-puilvnnjdtvr8n86bvhnvoii9ogcao9s.apps.googleusercontent.com';
 
 // Apple Services ID - must match what's configured in Supabase Dashboard
 // This ensures the ID token has the correct 'aud' claim that Supabase expects
