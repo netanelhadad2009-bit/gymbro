@@ -385,18 +385,15 @@ export async function signInWithGoogleNative() {
     // Trigger native Google sign-in sheet
     // Note: Don't pass scopes - the plugin includes email, profile, openid by default
     // Passing scopes requires MainActivity modifications we don't have
+    // Note: Temporarily removing nonce for simpler flow (can add back later for security)
     console.log('[OAuth Native] Step 3: Calling SocialLogin.login() for Google...');
     const loginOptions: any = {
       provider: 'google',
-      options: {
-        nonce: hashedNonce
-      }
+      options: {}
     };
 
     console.log('[OAuth Native] Login options:', {
       provider: 'google',
-      hasNonce: true,
-      nonceLength: hashedNonce.length,
       webClientId: GOOGLE_WEB_CLIENT_ID.substring(0, 20) + '...',
     });
 
