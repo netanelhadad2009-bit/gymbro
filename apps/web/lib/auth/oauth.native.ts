@@ -436,13 +436,21 @@ export async function signInWithGoogleNative() {
     }
 
     // Send to Supabase
-    const { data, error } = await supabase.auth.signInWithIdToken({
+    // Only include nonce if the token has one (Android Credential Manager doesn't support nonces)
+    const signInOptions: { provider: 'google'; token: string; nonce?: string } = {
       provider: 'google',
       token: idToken,
-      nonce: rawNonce  // Always send raw nonce for verification
-    });
+    };
 
-    console.log('[OAuth Native] ✅ Sent raw nonce to Supabase for verification');
+    // Only add nonce if token has one - Supabase requires both or neither
+    if (nonceFromToken) {
+      signInOptions.nonce = rawNonce;
+      console.log('[OAuth Native] ✅ Including nonce in Supabase request');
+    } else {
+      console.log('[OAuth Native] ℹ️ No nonce in token, skipping nonce in Supabase request');
+    }
+
+    const { data, error } = await supabase.auth.signInWithIdToken(signInOptions);
 
     if (error) {
       console.error('[OAuth Native] ❌ Supabase signInWithIdToken error');
