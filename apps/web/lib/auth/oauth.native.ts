@@ -311,10 +311,12 @@ async function ensureInitialized() {
     // Build initialization config based on platform
     // Apple Sign-In requires redirectUrl on Android which we don't have,
     // so we only initialize Apple on iOS where it's natively supported
+    // Using 'online' mode for Google - simpler setup, returns ID token directly
+    // (offline mode requires MainActivity modifications for the plugin)
     const initConfig: any = {
       google: {
         webClientId: GOOGLE_WEB_CLIENT_ID,
-        mode: 'offline'
+        mode: 'online'
       }
     };
 
