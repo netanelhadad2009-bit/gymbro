@@ -11,7 +11,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Loader2 } from 'lucide-react';
 import { logMealFromFood, type FoodToLog, type MealType } from '@/lib/nutrition/log';
 import { useToast } from '@/components/ui/use-toast';
-import { useRouter } from 'next/navigation';
 import { useSheet } from '@/contexts/SheetContext';
 import { Keyboard } from '@capacitor/keyboard';
 
@@ -53,7 +52,6 @@ export function QuickAddSheet({
   const [isAdding, setIsAdding] = useState(false);
 
   const { toast } = useToast();
-  const router = useRouter();
   const { setIsSheetOpen, setIsKeyboardVisible } = useSheet();
 
   // Update sheet context when this sheet opens/closes
@@ -144,10 +142,8 @@ export function QuickAddSheet({
         duration: 3000,
       });
 
+      // Just close the sheet - stay on search page to allow adding more foods
       onClose();
-
-      // Navigate back to nutrition page
-      router.push('/nutrition?refresh=1');
     } catch (error: any) {
       console.error('[QuickAddSheet] Add error:', error);
       hapticError();

@@ -1,3 +1,19 @@
+/**
+ * Nutrition Page Structure:
+ * - CaloriesWidget + MacroCards: Display daily targets and consumed values
+ * - WeekDaySelector: Navigate between days
+ * - MealsList: Planned meals from nutrition plan (checkbox toggle)
+ * - UserMealsList: User-added meals (manual/AI-scanned) with edit/delete
+ *   - Clicking an entry opens EditLoggedFoodSheet for portion-based editing
+ * - FloatingAddMealButton: Photo scan or barcode scan to add meals
+ * - BarcodeScannerSheet -> NutritionFactsSheet: Add food from barcode
+ * - EditLoggedFoodSheet: Edit logged food portion with macro recalculation
+ *
+ * Data flow:
+ * - userMeals: fetched from /api/meals for selected date
+ * - plan: fetched from /api/nutrition/plan (cached)
+ * - eatenMealsByDay: tracks which plan meals are marked as eaten
+ */
 "use client";
 
 import { useEffect, useState, useRef } from "react";
@@ -9,9 +25,10 @@ import { MacroCard } from "@/components/nutrition/MacroCard";
 import { MealsList } from "@/components/nutrition/MealsList";
 import { WeekDaySelector } from "@/components/nutrition/WeekDaySelector";
 import { FloatingAddMealButton } from "@/components/nutrition/FloatingAddMealButton";
-import { UserMealsList } from "@/components/nutrition/UserMealsList";
+import { UserMealsList, type UserMeal } from "@/components/nutrition/UserMealsList";
 import { BarcodeScannerSheet } from "@/components/nutrition/BarcodeScannerSheet";
 import { NutritionFactsSheet } from "@/components/nutrition/NutritionFactsSheet";
+import { EditLoggedFoodSheet, type LoggedMealEntry } from "@/components/nutrition/EditLoggedFoodSheet";
 import { useBarcodeLookup, type LookupResult } from "@/lib/hooks/useBarcodeLookup";
 import type { NutritionPlanT } from "@/lib/schemas/nutrition";
 import type { BarcodeProduct } from "@/types/barcode";
@@ -64,6 +81,10 @@ export default function NutritionPage() {
   const [showNutritionFacts, setShowNutritionFacts] = useState(false);
   const [scannedProduct, setScannedProduct] = useState<BarcodeProduct | null>(null);
   const { lookup: lookupBarcode, isLoading: lookingUpBarcode } = useBarcodeLookup();
+
+  // Edit logged food sheet state
+  const [showEditSheet, setShowEditSheet] = useState(false);
+  const [selectedMealForEdit, setSelectedMealForEdit] = useState<LoggedMealEntry | null>(null);
 
   // Track custom target values (overrides plan targets)
   const [customTargets, setCustomTargets] = useState<{
@@ -626,6 +647,21 @@ export default function NutritionPage() {
     }
   }, [user, currentDayIndex]);
 
+  // Reload user meals when page becomes visible (e.g., after adding food from search)
+  useEffect(() => {
+    if (!user) return;
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        const dateString = getSelectedDate(currentDayIndex);
+        loadUserMeals(dateString);
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [user, currentDayIndex]);
+
   // Load user meals on mount and when refresh is requested
   useEffect(() => {
     if (searchParams.get("refresh") === "1") {
@@ -715,7 +751,7 @@ export default function NutritionPage() {
     }
   };
 
-  // Handle meal editing
+  // Handle meal editing (inline edit)
   const handleEditMeal = async (mealId: string, updates: any) => {
     try {
       const response = await fetch(`/api/meals?id=${mealId}`, {
@@ -736,6 +772,49 @@ export default function NutritionPage() {
       console.error("Edit error:", error);
       alert(error.message || "שגיאה בעדכון הארוחה");
     }
+  };
+
+  // Handle clicking on a meal entry to open edit sheet
+  const handleClickMealEntry = (meal: UserMeal) => {
+    console.log('[Nutrition] handleClickMealEntry called with meal:', meal.id, meal.name);
+    // Convert UserMeal to LoggedMealEntry format
+    const entry: LoggedMealEntry = {
+      id: meal.id,
+      name: meal.name,
+      brand: meal.brand,
+      calories: meal.calories,
+      protein: meal.protein,
+      carbs: meal.carbs,
+      fat: meal.fat,
+      portion_grams: meal.portion_grams,
+      source: meal.source,
+      image_url: meal.image_url,
+      created_at: meal.created_at,
+    };
+    console.log('[Nutrition] Setting selectedMealForEdit and showEditSheet');
+    setSelectedMealForEdit(entry);
+    setShowEditSheet(true);
+  };
+
+  // Handle meal update from edit sheet (optimistic update)
+  const handleMealUpdated = (updatedEntry: LoggedMealEntry) => {
+    // Optimistically update the local state
+    setUserMeals((prevMeals) =>
+      prevMeals.map((meal) =>
+        meal.id === updatedEntry.id
+          ? {
+              ...meal,
+              calories: updatedEntry.calories,
+              protein: updatedEntry.protein,
+              carbs: updatedEntry.carbs,
+              fat: updatedEntry.fat,
+              portion_grams: updatedEntry.portion_grams,
+            }
+          : meal
+      )
+    );
+    setSelectedMealForEdit(null);
+    setShowEditSheet(false);
   };
 
   // Handle barcode scan
@@ -965,6 +1044,7 @@ export default function NutritionPage() {
               meals={userMeals}
               onDelete={handleDeleteMeal}
               onEdit={handleEditMeal}
+              onClickEntry={handleClickMealEntry}
             />
 
             {/* Tips section */}
@@ -1110,6 +1190,14 @@ export default function NutritionPage() {
           onSuccess={handleNutritionLogSuccess}
         />
       )}
+
+      {/* Edit Logged Food Sheet */}
+      <EditLoggedFoodSheet
+        open={showEditSheet}
+        onOpenChange={setShowEditSheet}
+        entry={selectedMealForEdit}
+        onUpdated={handleMealUpdated}
+      />
 
       {/* Loading overlay for barcode lookup */}
       {lookingUpBarcode && (

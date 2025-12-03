@@ -86,6 +86,17 @@ export async function logMealFromFood(params: LogMealParams): Promise<LogMealRes
     // Get current date if not provided (using local timezone)
     const logDate = date || getTodayLocalDate();
 
+    // Normalize source to allowed database values
+    // Allowed: 'manual', 'ai_vision', 'israel_moh', 'saved_meal', 'plan'
+    const normalizeSource = (src?: string): string => {
+      const allowedSources = ['manual', 'ai_vision', 'israel_moh', 'saved_meal', 'plan'];
+      if (!src || !allowedSources.includes(src)) {
+        // Map 'logged', 'moh', or unknown sources to 'manual'
+        return 'manual';
+      }
+      return src;
+    };
+
     // Prepare meal data
     const mealData = {
       date: logDate,
@@ -99,7 +110,7 @@ export async function logMealFromFood(params: LogMealParams): Promise<LogMealRes
       sodium_mg: scaled.sodium_mg,
       portion_grams: portionGrams,
       meal_type: mealType,
-      source: food.source || 'manual',
+      source: normalizeSource(food.source),
       barcode: food.barcode || undefined,
       brand: food.brand || undefined,
       is_partial: food.isPartial || false,

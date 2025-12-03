@@ -52,6 +52,7 @@ const UpdateMealSchema = z.object({
   protein: Macro4.optional(),
   carbs: Macro4.optional(),
   fat: Macro4.optional(),
+  portion_grams: Macro4.optional(),
 });
 
 // GET /api/meals - Fetch user's meals

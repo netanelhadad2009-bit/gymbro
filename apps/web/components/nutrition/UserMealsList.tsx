@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { sanitizeNumeric4 } from "@/lib/forms/numeric4";
 
-type UserMeal = {
+export type UserMeal = {
   id: string;
   name: string;
   calories: number;
@@ -14,6 +14,8 @@ type UserMeal = {
   meal_type?: "breakfast" | "lunch" | "dinner" | "snack";
   image_url?: string;
   confidence?: number;
+  portion_grams?: number;
+  brand?: string;
   created_at: string;
 };
 
@@ -30,9 +32,10 @@ type Props = {
   meals: UserMeal[];
   onDelete?: (mealId: string) => void;
   onEdit?: (mealId: string, updates: Partial<UserMeal>) => void;
+  onClickEntry?: (meal: UserMeal) => void;
 };
 
-export function UserMealsList({ meals, onDelete, onEdit }: Props) {
+export function UserMealsList({ meals, onDelete, onEdit, onClickEntry }: Props) {
   const [editingMealId, setEditingMealId] = useState<string | null>(null);
   const [editValues, setEditValues] = useState<EditValues>({});
 
@@ -130,7 +133,14 @@ export function UserMealsList({ meals, onDelete, onEdit }: Props) {
               return (
                 <div
                   key={meal.id}
-                  className="bg-gradient-to-r from-purple-900/20 to-blue-900/20 border border-purple-700/50 rounded-2xl shadow-lg overflow-hidden"
+                  className="bg-gradient-to-r from-purple-900/20 to-blue-900/20 border border-purple-700/50 rounded-2xl shadow-lg overflow-hidden cursor-pointer active:opacity-90 transition-opacity"
+                  onClick={() => {
+                    console.log('[UserMealsList] Card clicked:', meal.id, 'isEditing:', isEditing, 'hasOnClickEntry:', !!onClickEntry);
+                    // Only trigger if not currently editing this meal
+                    if (!isEditing && onClickEntry) {
+                      onClickEntry(meal);
+                    }
+                  }}
                 >
             <div className="w-full p-4" dir="rtl">
               <div className="flex items-center justify-between">
@@ -141,6 +151,7 @@ export function UserMealsList({ meals, onDelete, onEdit }: Props) {
                         type="text"
                         value={editValues.name || ''}
                         onChange={(e) => setEditValues({ ...editValues, name: e.target.value })}
+                        onClick={(e) => e.stopPropagation()}
                         className="bg-neutral-800 text-white px-3 py-1 rounded-lg border border-neutral-600 focus:border-purple-500 focus:outline-none"
                         placeholder="שם הארוחה"
                       />
@@ -166,6 +177,7 @@ export function UserMealsList({ meals, onDelete, onEdit }: Props) {
                             const { text } = sanitizeNumeric4(e.target.value);
                             setEditValues({ ...editValues, calories: text });
                           }}
+                          onClick={(e) => e.stopPropagation()}
                           className="bg-neutral-800 text-white w-16 px-2 py-1 rounded border border-neutral-600 focus:border-lime-400 focus:outline-none active:translate-y-0.5 transition-transform duration-75"
                           maxLength={4}
                         />
@@ -182,6 +194,7 @@ export function UserMealsList({ meals, onDelete, onEdit }: Props) {
                             const { text } = sanitizeNumeric4(e.target.value);
                             setEditValues({ ...editValues, protein: text });
                           }}
+                          onClick={(e) => e.stopPropagation()}
                           className="bg-neutral-800 text-white w-16 px-2 py-1 rounded border border-neutral-600 focus:outline-none active:translate-y-0.5 transition-transform duration-75"
                           style={{ borderColor: '#C9456C' }}
                           maxLength={4}
@@ -199,6 +212,7 @@ export function UserMealsList({ meals, onDelete, onEdit }: Props) {
                             const { text } = sanitizeNumeric4(e.target.value);
                             setEditValues({ ...editValues, carbs: text });
                           }}
+                          onClick={(e) => e.stopPropagation()}
                           className="bg-neutral-800 text-white w-16 px-2 py-1 rounded border border-neutral-600 focus:outline-none active:translate-y-0.5 transition-transform duration-75"
                           style={{ borderColor: '#FFA856' }}
                           maxLength={4}
@@ -216,6 +230,7 @@ export function UserMealsList({ meals, onDelete, onEdit }: Props) {
                             const { text } = sanitizeNumeric4(e.target.value);
                             setEditValues({ ...editValues, fat: text });
                           }}
+                          onClick={(e) => e.stopPropagation()}
                           className="bg-neutral-800 text-white w-16 px-2 py-1 rounded border border-neutral-600 focus:outline-none active:translate-y-0.5 transition-transform duration-75"
                           style={{ borderColor: '#5B9BFF' }}
                           maxLength={4}
@@ -257,7 +272,10 @@ export function UserMealsList({ meals, onDelete, onEdit }: Props) {
                     <>
                       {/* Save button */}
                       <button
-                        onClick={saveEditing}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          saveEditing();
+                        }}
                         className="p-2 text-green-400 hover:bg-green-900/20 rounded-lg transition-colors"
                         aria-label="שמור שינויים"
                       >
@@ -276,7 +294,10 @@ export function UserMealsList({ meals, onDelete, onEdit }: Props) {
                       </button>
                       {/* Cancel button */}
                       <button
-                        onClick={cancelEditing}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          cancelEditing();
+                        }}
                         className="p-2 text-neutral-400 hover:bg-neutral-800 rounded-lg transition-colors"
                         aria-label="בטל"
                       >
@@ -300,7 +321,10 @@ export function UserMealsList({ meals, onDelete, onEdit }: Props) {
                       {/* Edit button */}
                       {onEdit && (
                         <button
-                          onClick={() => startEditing(meal)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            startEditing(meal);
+                          }}
                           className="p-2 text-blue-400 hover:bg-blue-900/20 rounded-lg transition-colors"
                           aria-label="ערוך ארוחה"
                         >
@@ -322,7 +346,10 @@ export function UserMealsList({ meals, onDelete, onEdit }: Props) {
                       {/* Delete button */}
                       {onDelete && (
                         <button
-                          onClick={() => onDelete(meal.id)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onDelete(meal.id);
+                          }}
                           className="p-2 text-red-400 hover:bg-red-900/20 rounded-lg transition-colors"
                           aria-label="מחק ארוחה"
                         >
