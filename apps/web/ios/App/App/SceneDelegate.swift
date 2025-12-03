@@ -1,4 +1,5 @@
 import UIKit
+import AppsFlyerLib
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     var window: UIWindow?
@@ -28,6 +29,11 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     func sceneDidBecomeActive(_ scene: UIScene) {
         // Called when the scene has moved from an inactive state to an active state.
+        // Start AppsFlyer SDK here (required for SceneDelegate-based apps)
+        if AppsFlyerConfig.isConfigured {
+            AppsFlyerLib.shared().start()
+            print("[AppsFlyer] start() called in sceneDidBecomeActive")
+        }
     }
 
     func sceneWillResignActive(_ scene: UIScene) {

@@ -2,6 +2,8 @@ import UIKit
 import Capacitor
 import AppsFlyerLib
 import SuperwallKit
+import AppTrackingTransparency
+import AdSupport
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -30,6 +32,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             af.appsFlyerDevKey = AppsFlyerConfig.devKey
             af.appleAppID = AppsFlyerConfig.appId
             af.delegate = self
+            // Wait up to 60 seconds for ATT user authorization before sending first launch
+            af.waitForATTUserAuthorization(timeoutInterval: 60)
             // NOTE: Set isDebug = false before App Store release
             #if DEBUG
             af.isDebug = true
@@ -40,6 +44,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             print("[AppsFlyer] ✅ SDK initialized successfully")
         } else {
             print("[AppsFlyer] ⚠️ SDK not configured - check Info.plist keys")
+        }
+
+        // MARK: - Request ATT Permission (after a short delay for better UX)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            self.requestTrackingAuthorization()
         }
 
         // MARK: - Superwall SDK Initialization (after AppsFlyer)
@@ -122,6 +131,30 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         return ApplicationDelegateProxy.shared.application(application, continue: userActivity, restorationHandler: restorationHandler)
     }
 
+    // MARK: - App Tracking Transparency
+    private func requestTrackingAuthorization() {
+        if #available(iOS 14, *) {
+            ATTrackingManager.requestTrackingAuthorization { status in
+                switch status {
+                case .authorized:
+                    let idfa = ASIdentifierManager.shared().advertisingIdentifier.uuidString
+                    print("[ATT] ✅ Authorized - IDFA: \(idfa)")
+                case .denied:
+                    print("[ATT] ❌ Denied by user")
+                case .notDetermined:
+                    print("[ATT] ⏳ Not determined")
+                case .restricted:
+                    print("[ATT] 🚫 Restricted")
+                @unknown default:
+                    print("[ATT] Unknown status")
+                }
+            }
+        } else {
+            // iOS < 14: IDFA is available without permission
+            let idfa = ASIdentifierManager.shared().advertisingIdentifier.uuidString
+            print("[ATT] iOS < 14 - IDFA: \(idfa)")
+        }
+    }
 }
 
 // MARK: - AppsFlyer Delegate
