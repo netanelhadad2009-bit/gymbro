@@ -101,9 +101,11 @@ export function EditLoggedFoodSheet({
       });
 
       const data = await response.json();
+      console.log('[EditLoggedFood] API response:', { ok: response.ok, status: response.status, data });
 
       if (!response.ok || !data.success) {
-        throw new Error(data.error || 'Failed to update meal');
+        const errorMessage = data.error || data.message || `Failed to update meal (${response.status})`;
+        throw new Error(errorMessage);
       }
 
       // Haptic success
@@ -125,6 +127,11 @@ export function EditLoggedFoodSheet({
       onOpenChange(false);
     } catch (err: unknown) {
       console.error('[EditLoggedFood] Save error:', err);
+      console.error('[EditLoggedFood] Error details:', {
+        type: typeof err,
+        isError: err instanceof Error,
+        message: err instanceof Error ? err.message : String(err),
+      });
       setError(err instanceof Error ? err.message : 'שגיאה בעדכון הארוחה');
     } finally {
       setIsSaving(false);
