@@ -44,13 +44,15 @@ export default function PremiumPage() {
     }
   }, [loading, isSubscriptionLoading, user, router]);
 
-  // Initialize IAP store on mount (only on native platforms)
+  // Initialize IAP store on mount (only on iOS - Android has billing library compatibility issues)
   useEffect(() => {
-    if (Capacitor.isNativePlatform()) {
+    if (Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'ios') {
       console.log("[PremiumPurchase] Initializing IAP store...");
       initializeStore().then((success) => {
         console.log("[PremiumPurchase] Store initialization result:", success);
       });
+    } else if (Capacitor.getPlatform() === 'android') {
+      console.log("[PremiumPurchase] Skipping IAP store initialization on Android (billing library compatibility issue)");
     }
   }, []);
 
