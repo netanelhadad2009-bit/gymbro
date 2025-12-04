@@ -6,11 +6,28 @@ export async function middleware(req: NextRequest) {
 
   const url = new URL(req.url);
   const path = url.pathname;
+  const userAgent = req.headers.get('user-agent') || '';
+
+  // Detect Capacitor native apps by User-Agent
+  // Capacitor apps have custom User-Agent containing the app bundle ID
+  // On iOS: "... Mobile/... com.fitjourney.app/..."
+  // On Android: "... wv)..." (WebView) or contains bundle ID
+  const isCapacitorApp = userAgent.includes('com.fitjourney.app') ||
+    (userAgent.includes('Mobile') && (userAgent.includes('wv)') || userAgent.includes('Android')));
 
   console.log(`[Middleware] Request: ${path}`, {
-    userAgent: req.headers.get('user-agent')?.slice(0, 50),
+    userAgent: userAgent.slice(0, 80),
+    isCapacitorApp,
     timestamp: new Date().toISOString(),
   });
+
+  // Skip auth check for native Capacitor apps
+  // Native apps store session in Capacitor Preferences (not cookies)
+  // Client-side auth is handled by the app itself
+  if (isCapacitorApp) {
+    console.log(`[Middleware] Native Capacitor app detected, skipping server-side auth check for: ${path}`);
+    return res;
+  }
 
   // Allow static assets, API calls, and mobile-boot without auth check
   if (
