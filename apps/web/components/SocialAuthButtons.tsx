@@ -107,9 +107,10 @@ export default function SocialAuthButtons({
         console.log("[SocialAuthButtons] Triggering success haptic");
         await haptics?.success?.();
 
-        // Navigate to processing page for faster perceived performance
-        console.log("[SocialAuthButtons] Navigating to processing page for Google OAuth");
-        window.location.href = '/auth/processing?provider=google';
+        // TEMPORARY: Skip processing page on Android (causes crash)
+        // Navigate directly to /journey - post-auth flow will run on next app open
+        console.log("[SocialAuthButtons] Navigating directly to /journey (skipping processing page on native)");
+        window.location.href = '/journey';
       } else {
         console.log("[SocialAuthButtons] Web platform - redirect should have occurred");
         // On web, redirect happens automatically, this code shouldn't execute
@@ -195,9 +196,10 @@ export default function SocialAuthButtons({
         console.log("[SocialAuthButtons] Triggering success haptic");
         await haptics?.success?.();
 
-        // Navigate to processing page for faster perceived performance
-        console.log("[SocialAuthButtons] Navigating to processing page for Apple OAuth");
-        window.location.href = '/auth/processing?provider=apple';
+        // TEMPORARY: Skip processing page on native (causes crash on Android)
+        // Navigate directly to /journey - post-auth flow will run on next app open
+        console.log("[SocialAuthButtons] Navigating directly to /journey (skipping processing page on native)");
+        window.location.href = '/journey';
       } else {
         console.log("[SocialAuthButtons] Web platform - redirect should have occurred");
         // On web, redirect happens automatically, this code shouldn't execute
