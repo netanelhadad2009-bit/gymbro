@@ -393,20 +393,25 @@ export async function signInWithGoogleNative() {
     // Trigger native Google sign-in sheet
     // Note: Don't pass scopes - the plugin includes email, profile, openid by default
     // Passing scopes requires MainActivity modifications we don't have
-    // Note: Temporarily removing nonce for simpler flow (can add back later for security)
+    // Pass nonce to the SDK so it includes our nonce in the token (required by Supabase)
     console.log('[OAuth Native] Step 3: Calling SocialLogin.login() for Google...');
-    const loginOptions: any = {
-      provider: 'google',
-      options: {}
-    };
-
     const platform = typeof window !== 'undefined' ? (window as any).Capacitor?.getPlatform() : 'unknown';
     const isIOS = platform === 'ios';
     const googleClientId = isIOS ? GOOGLE_IOS_CLIENT_ID : GOOGLE_WEB_CLIENT_ID;
+
+    const loginOptions: any = {
+      provider: 'google',
+      options: {
+        // Pass the hashed nonce to the SDK - it will be included in the ID token
+        nonce: hashedNonce
+      }
+    };
+
     console.log('[OAuth Native] Login options:', {
       provider: 'google',
       clientId: googleClientId.substring(0, 20) + '...',
       platform,
+      hasNonce: true,
     });
 
     const result = await SocialLogin.login(loginOptions);
