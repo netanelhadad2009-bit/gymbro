@@ -21,6 +21,10 @@ function getSocialLogin() {
 const GOOGLE_WEB_CLIENT_ID =
   '122734915921-puilvnnjdtvr8n86bvhnvoii9ogcao9s.apps.googleusercontent.com';
 
+// iOS Client ID - required for iOS native Google Sign-In (allows custom URL schemes)
+const GOOGLE_IOS_CLIENT_ID =
+  '122734915921-3kmos54i1erohqii9rtu6df0r3130obi.apps.googleusercontent.com';
+
 // Apple Services ID - must match what's configured in Supabase Dashboard
 // This ensures the ID token has the correct 'aud' claim that Supabase expects
 const APPLE_SERVICE_ID = 'com.fitjourney.app';
@@ -300,7 +304,11 @@ async function ensureInitialized() {
 
   console.log('[OAuth Native] Initializing SocialLogin plugin');
   console.log('[OAuth Native] Platform:', platform);
-  console.log('[OAuth Native] Google Web Client ID:', GOOGLE_WEB_CLIENT_ID.substring(0, 20) + '...');
+
+  // iOS requires iOS Client ID for native OAuth (custom URL schemes)
+  // Android uses Web Client ID (works with Credential Manager)
+  const googleClientId = isIOS ? GOOGLE_IOS_CLIENT_ID : GOOGLE_WEB_CLIENT_ID;
+  console.log('[OAuth Native] Google Client ID:', googleClientId.substring(0, 20) + '...');
   if (isIOS) {
     console.log('[OAuth Native] Apple Service ID:', APPLE_SERVICE_ID);
   }
@@ -315,7 +323,7 @@ async function ensureInitialized() {
     // (offline mode requires MainActivity modifications for the plugin)
     const initConfig: any = {
       google: {
-        webClientId: GOOGLE_WEB_CLIENT_ID,
+        webClientId: googleClientId,
         mode: 'online'
       }
     };
@@ -392,9 +400,13 @@ export async function signInWithGoogleNative() {
       options: {}
     };
 
+    const platform = typeof window !== 'undefined' ? (window as any).Capacitor?.getPlatform() : 'unknown';
+    const isIOS = platform === 'ios';
+    const googleClientId = isIOS ? GOOGLE_IOS_CLIENT_ID : GOOGLE_WEB_CLIENT_ID;
     console.log('[OAuth Native] Login options:', {
       provider: 'google',
-      webClientId: GOOGLE_WEB_CLIENT_ID.substring(0, 20) + '...',
+      clientId: googleClientId.substring(0, 20) + '...',
+      platform,
     });
 
     const result = await SocialLogin.login(loginOptions);
