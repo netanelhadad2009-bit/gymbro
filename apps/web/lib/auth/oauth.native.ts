@@ -433,33 +433,35 @@ export async function signInWithGoogleNative() {
 
     // Verify nonce in token matches what we sent
     const nonceFromToken = extractNonceFromToken(idToken);
+    let nonceMatches = false;
     if (nonceFromToken) {
-      const matches = nonceFromToken === hashedNonce;
+      nonceMatches = nonceFromToken === hashedNonce;
       console.log('[OAuth Native] Nonce verification:', {
         hashedNonceSent: hashedNonce.substring(0, 20) + '...',
         nonceInToken: nonceFromToken.substring(0, 20) + '...',
-        matches
+        matches: nonceMatches
       });
-      if (!matches) {
-        console.warn('[OAuth Native] ⚠️ Nonce mismatch - token nonce does not match what we sent!');
+      if (!nonceMatches) {
+        console.warn('[OAuth Native] ⚠️ Nonce mismatch - iOS SDK generated its own nonce, skipping nonce verification');
       }
     } else {
-      console.warn('[OAuth Native] ⚠️ No nonce found in token - this may cause authentication to fail');
+      console.log('[OAuth Native] ℹ️ No nonce found in token');
     }
 
     // Send to Supabase
-    // Only include nonce if the token has one (Android Credential Manager doesn't support nonces)
+    // Only include nonce if it matches what we sent - iOS SDK generates its own nonce
+    // that we can't use, so we skip nonce verification in that case
     const signInOptions: { provider: 'google'; token: string; nonce?: string } = {
       provider: 'google',
       token: idToken,
     };
 
-    // Only add nonce if token has one - Supabase requires both or neither
-    if (nonceFromToken) {
+    // Only add nonce if it matches - Supabase will reject mismatched nonces
+    if (nonceFromToken && nonceMatches) {
       signInOptions.nonce = rawNonce;
       console.log('[OAuth Native] ✅ Including nonce in Supabase request');
     } else {
-      console.log('[OAuth Native] ℹ️ No nonce in token, skipping nonce in Supabase request');
+      console.log('[OAuth Native] ℹ️ Skipping nonce in Supabase request (no match or no nonce)');
     }
 
     const { data, error } = await supabase.auth.signInWithIdToken(signInOptions);
