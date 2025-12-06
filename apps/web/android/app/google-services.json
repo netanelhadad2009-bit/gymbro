@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "388364865628",
+    "project_id": "fit-journey-4380a",
+    "storage_bucket": "fit-journey-4380a.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:388364865628:android:9206164690fb0398519699",
+        "android_client_info": {
+          "package_name": "com.fitjourney.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDU4TQg6VVr2RYylKj2ybVuIyGAOpLy7nE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
