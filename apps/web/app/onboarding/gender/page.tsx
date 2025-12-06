@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 import { useGender } from "@/contexts/GenderContext";
 import OnboardingShell from "../components/OnboardingShell";
 import PrimaryButton from "@/components/PrimaryButton";
+import { track } from "@/lib/mixpanel";
+import AppsFlyer from "@/lib/appsflyer";
 
 const genderOptions = [
   { value: "male", label: "זכר" },
@@ -18,6 +20,16 @@ export default function GenderPage() {
   const [selectedGender, setSelectedGender] = useState("female");
   const scrollRef = useRef<HTMLDivElement>(null);
   const { setGender } = useGender();
+
+  // Track onboarding started (only once per session)
+  const hasTrackedRef = useRef(false);
+  useEffect(() => {
+    if (!hasTrackedRef.current) {
+      hasTrackedRef.current = true;
+      track("onboarding_started", {});
+      AppsFlyer.logEvent("onboarding_started", {});
+    }
+  }, []);
 
   useEffect(() => {
     // Center the female option on mount
