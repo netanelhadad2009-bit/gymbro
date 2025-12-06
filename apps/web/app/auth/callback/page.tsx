@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { track } from "@/lib/mixpanel";
 import AppsFlyer from "@/lib/appsflyer";
+import { syncProfileAfterLogin } from "@/lib/profile/sync";
 
 export default function OAuthCallbackPage() {
   const router = useRouter();
@@ -116,6 +117,10 @@ export default function OAuthCallbackPage() {
             if (insertError.code === '23505') {
               console.warn('[Auth Callback] ⚠️ Profile already exists (race condition - another request created it)');
               // This is OK - the profile exists now, continue as existing user
+              // Run profile sync in case there's local onboarding data
+              console.log('[Auth Callback] Running profile sync for race condition case...');
+              const syncResult = await syncProfileAfterLogin(user.id);
+              console.log('[Auth Callback] Profile sync result:', syncResult);
             } else {
               console.error('[Auth Callback] ❌ Failed to create profile:', insertError);
               // Don't fail the auth flow, just log the error
@@ -123,6 +128,12 @@ export default function OAuthCallbackPage() {
             }
           } else {
             console.log('[Auth Callback] ✅ Profile created successfully');
+
+            // Run profile sync to apply any pending onboarding data
+            // This handles the case where user did onboarding before logging in
+            console.log('[Auth Callback] Running profile sync for new user...');
+            const syncResult = await syncProfileAfterLogin(user.id);
+            console.log('[Auth Callback] Profile sync result:', syncResult);
           }
 
           // [analytics] Track signup completed for OAuth (new user)
@@ -134,13 +145,26 @@ export default function OAuthCallbackPage() {
           router.replace("/onboarding/gender");
         } else {
           // ============================================================
-          // EXISTING USER FLOW - Check onboarding status and route accordingly
+          // EXISTING USER FLOW - Sync profile and route accordingly
           // ============================================================
-          console.log('[Auth Callback] 👤 EXISTING USER - Checking onboarding status');
+          console.log('[Auth Callback] 👤 EXISTING USER - Running profile sync');
 
-          const onboardingComplete = profile.has_completed_onboarding;
-          console.log('[Auth Callback] Onboarding status:', {
+          // CRITICAL: Run profile sync BEFORE checking onboarding status
+          // This ensures fresh onboarding data overwrites old profile data
+          const syncResult = await syncProfileAfterLogin(user.id);
+          console.log('[Auth Callback] Profile sync result:', syncResult);
+
+          // Re-fetch profile after sync to get updated status
+          const { data: updatedProfile } = await supabase
+            .from('profiles')
+            .select('has_completed_onboarding')
+            .eq('id', user.id)
+            .maybeSingle();
+
+          const onboardingComplete = updatedProfile?.has_completed_onboarding || profile.has_completed_onboarding;
+          console.log('[Auth Callback] Onboarding status after sync:', {
             has_completed_onboarding: onboardingComplete,
+            syncAction: syncResult.action,
           });
 
           if (onboardingComplete) {

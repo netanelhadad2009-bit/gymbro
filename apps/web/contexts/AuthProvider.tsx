@@ -5,6 +5,7 @@ import { supabase } from "@/lib/supabase";
 import type { User, Session } from "@supabase/supabase-js";
 import { clearAll, migrateGuestCache, cleanLegacyKeys, debugKeys, clearNutritionPlans } from "@/lib/storage";
 import { saveOnboardingData } from "@/lib/onboarding-storage";
+import { syncProfileAfterLogin, wasOnboardingJustCompleted } from "@/lib/profile/sync";
 import type { Subscription } from "@/lib/subscription/types";
 import { fetchActiveSubscriptionClient } from "@/lib/subscription/client";
 
@@ -126,8 +127,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
         migrateGuestCache(session.user.id);
 
-        // Sync Supabase user_metadata to localStorage with fresh timestamp
+        // Sync profile and metadata
         (async () => {
+          const userId = session.user!.id;
+
+          // CRITICAL: Check if onboarding was just completed
+          // If so, sync profile to database FIRST before any other operations
+          if (wasOnboardingJustCompleted()) {
+            console.log("[Auth] Onboarding just completed - running profile sync...");
+            try {
+              const syncResult = await syncProfileAfterLogin(userId);
+              console.log("[Auth] Profile sync result:", syncResult);
+            } catch (err) {
+              console.error("[Auth] Profile sync failed:", err);
+            }
+          }
+
           const { data } = await supabase.auth.getUser();
           const meta = data.user?.user_metadata ?? {};
 

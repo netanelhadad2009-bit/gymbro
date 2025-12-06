@@ -3,7 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { usePlatform } from "@/lib/platform";
-import { getOnboardingData } from "@/lib/onboarding-storage";
+import { getOnboardingData, saveOnboardingData } from "@/lib/onboarding-storage";
+import { setOnboardingJustCompleted } from "@/lib/profile/sync";
 import { buildNutritionRequest } from "@/lib/builders/nutritionRequest";
 import { profileFingerprint } from "@/lib/storage";
 import { NUTRITION_DAYS, WORKOUTS_ENABLED } from "@/lib/config";
@@ -1079,6 +1080,17 @@ export default function OnboardingGeneratingClient() {
         track("onboarding_completed", {
           has_notifications_enabled: onboardingData?.notifications_opt_in ?? false,
         });
+
+        // Set flag to ensure profile is synced with fresh onboarding data on next login
+        // This ensures that if the user reinstalls and redoes onboarding, the new data wins
+        setOnboardingJustCompleted();
+        // Also update the timestamp to mark this as fresh data
+        saveOnboardingData({
+          ...onboardingData,
+          updatedAt: Date.now(),
+          source: "onboarding_completed",
+        });
+        console.log('[Generating] Set onboarding_just_completed flag for profile sync');
 
         console.log('[Generating] All generation complete, serverProgress:', PROGRESS.WORKOUT_DONE, 'generationComplete: true');
 
