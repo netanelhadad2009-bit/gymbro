@@ -173,7 +173,7 @@ export async function sendToUser(
 
           } else if (sub.platform === 'ios') {
             // iOS APNs push
-            if (!sub.device_token) {
+            if (!sub.token) {
               console.warn(`[Notifications] No device token for iOS subscription ${sub.id}`);
               return;
             }
@@ -205,7 +205,7 @@ export async function sendToUser(
               }
             };
 
-            const result = await sendAPNsPush(sub.device_token, apnsPayload);
+            const result = await sendAPNsPush(sub.token!, apnsPayload);
 
             if (result.success) {
               sent++;

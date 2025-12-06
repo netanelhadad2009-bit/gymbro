@@ -8,6 +8,26 @@
       "schedule": "0 17 * * *"
     },
     {
+      "path": "/api/cron/notifications/midday-protein",
+      "schedule": "0 11 * * *"
+    },
+    {
+      "path": "/api/cron/notifications/weigh-in-reminder",
+      "schedule": "0 4 * * 5"
+    },
+    {
+      "path": "/api/cron/notifications/stage-completion",
+      "schedule": "*/15 * * * *"
+    },
+    {
+      "path": "/api/cron/notifications/journey-nudge",
+      "schedule": "0 9 * * *"
+    },
+    {
+      "path": "/api/cron/notifications/streak-celebration",
+      "schedule": "0 18 * * *"
+    },
+    {
       "path": "/api/cron/notifications/inactivity-check",
       "schedule": "0 7 * * *"
     }
