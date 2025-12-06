@@ -402,8 +402,9 @@ export async function signInWithGoogleNative() {
     const loginOptions: any = {
       provider: 'google',
       options: {
-        // Pass the hashed nonce to the SDK - it will be included in the ID token
-        nonce: hashedNonce
+        // Pass the RAW nonce to the SDK - the SDK will hash it and include the hash in the ID token
+        // Then we pass the raw nonce to Supabase, which also hashes it for comparison
+        nonce: rawNonce
       }
     };
 

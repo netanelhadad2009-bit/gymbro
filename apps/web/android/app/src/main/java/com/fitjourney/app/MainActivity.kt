@@ -1,6 +1,7 @@
 package com.fitjourney.app
 
 import android.os.Bundle
+import androidx.core.view.WindowCompat
 import com.getcapacitor.BridgeActivity
 
 /**
@@ -14,5 +15,8 @@ class MainActivity : BridgeActivity() {
         registerPlugin(AppsFlyerPlugin::class.java)
 
         super.onCreate(savedInstanceState)
+
+        // Enable edge-to-edge display
+        WindowCompat.setDecorFitsSystemWindows(window, false)
     }
 }
