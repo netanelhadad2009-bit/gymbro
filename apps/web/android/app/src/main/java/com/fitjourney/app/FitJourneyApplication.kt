@@ -4,11 +4,10 @@ import android.app.Application
 import android.util.Log
 import com.appsflyer.AppsFlyerConversionListener
 import com.appsflyer.AppsFlyerLib
-import com.superwall.sdk.Superwall
 
 /**
  * FitJourney Application class
- * Initializes AppsFlyer and Superwall SDKs at app startup
+ * Initializes AppsFlyer SDK at app startup
  * Mirrors iOS AppDelegate implementation
  */
 class FitJourneyApplication : Application() {
@@ -22,9 +21,6 @@ class FitJourneyApplication : Application() {
 
         // MARK: - AppsFlyer SDK Initialization
         initializeAppsFlyer()
-
-        // MARK: - Superwall SDK Initialization (after AppsFlyer)
-        initializeSuperwall()
 
         // MARK: - Debug: Log Android ID for test device registration
         if (BuildConfig.DEBUG) {
@@ -77,22 +73,5 @@ class FitJourneyApplication : Application() {
         }
 
         Log.d(TAG, "[AppsFlyer] SDK initialized successfully")
-    }
-
-    private fun initializeSuperwall() {
-        SuperwallConfig.logStatus()
-
-        if (!SuperwallConfig.isConfigured) {
-            Log.w(TAG, "[Superwall] SDK not configured - add SUPERWALL_API_KEY to local.properties")
-            return
-        }
-
-        try {
-            // Configure Superwall SDK 2.x
-            Superwall.configure(this, SuperwallConfig.apiKey)
-            Log.d(TAG, "[Superwall] SDK initialized successfully")
-        } catch (e: Exception) {
-            Log.e(TAG, "[Superwall] Failed to initialize: ${e.localizedMessage}")
-        }
     }
 }

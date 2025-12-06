@@ -149,6 +149,10 @@ export default function OAuthCallbackPage() {
           // ============================================================
           console.log('[Auth Callback] 👤 EXISTING USER - Running profile sync');
 
+          // [analytics] Track login completed for existing OAuth users
+          track("login_completed", { method: provider });
+          AppsFlyer.logEvent("login_completed", { method: provider });
+
           // CRITICAL: Run profile sync BEFORE checking onboarding status
           // This ensures fresh onboarding data overwrites old profile data
           const syncResult = await syncProfileAfterLogin(user.id);

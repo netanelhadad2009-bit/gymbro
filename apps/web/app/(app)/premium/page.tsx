@@ -98,16 +98,24 @@ export default function PremiumPage() {
       console.log("[PremiumPurchase] Purchase result:", result);
 
       if (result.success) {
+        // Calculate revenue based on plan for analytics
+        const revenue = selectedPlan === "yearly" ? 949 : 249.90;
+
         // [analytics] Track subscription purchase success
         track("subscription_purchase_success", {
           plan: selectedPlan,
           platform: "ios",
           transaction_id: result.transactionId,
+          revenue,
+          currency: "ILS",
         });
         AppsFlyer.logEvent("subscription_purchase_success", {
           plan: selectedPlan,
           platform: "ios",
           transaction_id: result.transactionId,
+          // AppsFlyer standard revenue fields for ROI tracking
+          af_revenue: revenue,
+          af_currency: "ILS",
         });
 
         console.log("[PremiumPurchase] Purchase successful, saving subscription to Supabase");

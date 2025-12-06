@@ -23,6 +23,7 @@ import { saveProgramDraft, cleanupStorage, type ProgramDraft, PROGRAM_DRAFT_VERS
 import { mapErrorToHe, type HebrewError } from "@/lib/errors/generating-errors";
 import { chaosMode } from "@/lib/chaos";
 import { track } from "@/lib/mixpanel";
+import AppsFlyer from "@/lib/appsflyer";
 
 /**
  * Nutrition API timeout (90s for slow models/network in iOS WKWebView)
@@ -1078,6 +1079,9 @@ export default function OnboardingGeneratingClient() {
         // [analytics] Track onboarding completed
         const onboardingData = getOnboardingData();
         track("onboarding_completed", {
+          has_notifications_enabled: onboardingData?.notifications_opt_in ?? false,
+        });
+        AppsFlyer.logEvent("onboarding_completed", {
           has_notifications_enabled: onboardingData?.notifications_opt_in ?? false,
         });
 

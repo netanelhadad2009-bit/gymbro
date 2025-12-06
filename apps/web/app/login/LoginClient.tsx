@@ -6,6 +6,8 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import texts from "@/lib/assistantTexts";
 import { translateAuthError, validateEmail, validatePassword } from "@/lib/i18n/authHe";
+import { track } from "@/lib/mixpanel";
+import AppsFlyer from "@/lib/appsflyer";
 
 export default function LoginClient() {
   const router = useRouter();
@@ -63,6 +65,11 @@ export default function LoginClient() {
         setError(translateAuthError(err, 'sign_in'));
       } else if (data?.user) {
         console.log("[LoginClient] Login successful, redirecting to /journey");
+
+        // [analytics] Track login completed (distinguishes returning users from new signups)
+        track("login_completed", { method: "email" });
+        AppsFlyer.logEvent("login_completed", { method: "email" });
+
         // Success - redirect to journey (middleware will handle if onboarding needed)
         router.push("/journey");
       }

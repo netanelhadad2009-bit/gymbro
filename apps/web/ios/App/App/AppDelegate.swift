@@ -1,7 +1,6 @@
 import UIKit
 import Capacitor
 import AppsFlyerLib
-import SuperwallKit
 import AppTrackingTransparency
 import AdSupport
 
@@ -48,16 +47,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         // NOTE: ATT permission is now requested in SceneDelegate.sceneDidBecomeActive
         // after the window is visible (required for the popup to appear)
-
-        // MARK: - Superwall SDK Initialization (after AppsFlyer)
-        SuperwallConfig.logStatus()
-        if SuperwallConfig.isConfigured {
-            Superwall.configure(apiKey: SuperwallConfig.apiKey)
-            Superwall.shared.delegate = self
-            print("[Superwall] ✅ SDK initialized successfully")
-        } else {
-            print("[Superwall] ⚠️ SDK not configured - add SUPERWALL_API_KEY to Info.plist")
-        }
 
         // MARK: - Debug: Log IDFV for AppsFlyer test device registration
         #if DEBUG
@@ -139,26 +128,5 @@ extension AppDelegate: AppsFlyerLibDelegate {
 
     func onConversionDataFail(_ error: Error) {
         print("[AppsFlyer] onConversionDataFail: \(error.localizedDescription)")
-    }
-}
-
-// MARK: - Superwall Delegate
-extension AppDelegate: SuperwallDelegate {
-    func handleSuperwallEvent(withInfo eventInfo: SuperwallEventInfo) {
-        print("[Superwall] Event: \(eventInfo.event)")
-    }
-
-    func subscriptionStatusDidChange(to newValue: SubscriptionStatus) {
-        print("[Superwall] Subscription status changed: \(newValue)")
-    }
-
-    func handleLog(level: String, scope: String, message: String?, info: [String : Any]?, error: Error?) {
-        #if DEBUG
-        let logMessage = message ?? "No message"
-        print("[Superwall] [\(level)] [\(scope)] \(logMessage)")
-        if let error = error {
-            print("[Superwall] Error: \(error.localizedDescription)")
-        }
-        #endif
     }
 }
