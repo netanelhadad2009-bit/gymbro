@@ -284,10 +284,11 @@ export async function setupNativePush(userId: string): Promise<void> {
     return;
   }
 
-  // Guard: Prevent duplicate setup for same user
+  // Note: We DON'T skip if setupCompleted - APNs tokens can be rotated by Apple
+  // and we should always re-register to ensure we have the latest valid token.
+  // The saveToSupabase function handles deactivating old tokens.
   if (setupCompleted && currentUserId === userId) {
-    console.log('[Push] ✓ Setup already completed for this user');
-    return;
+    console.log('[Push] Re-registering to refresh token (tokens can rotate)');
   }
 
   // Guard: Prevent concurrent setup
