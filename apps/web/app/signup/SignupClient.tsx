@@ -92,19 +92,24 @@ export default function SignupClient() {
           track("signup_completed", { method: "email" });
           AppsFlyer.logEvent("signup_completed", { method: "email" });
 
-          // [sheets] Fire-and-forget: Log signup to Google Sheets
-          fetch("/api/admin/sheets-signup", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              id: data.user.id,
-              email: data.user.email,
-              full_name: null,
-              device_id: getDeviceId(),
-              created_at: new Date().toISOString(),
-              source: "email",
-            }),
-          }).catch(() => {}); // Ignore errors - best effort
+          // [sheets] Log signup to Google Sheets - await to ensure it completes before redirect
+          // In Capacitor/iOS, immediate redirects can cancel pending requests
+          try {
+            await fetch("/api/admin/sheets-signup", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                id: data.user.id,
+                email: data.user.email,
+                full_name: null,
+                device_id: getDeviceId(),
+                created_at: new Date().toISOString(),
+                source: "email",
+              }),
+            });
+          } catch {
+            // Ignore errors - best effort
+          }
 
           window.location.href = '/auth/processing?provider=email';
       } else {
