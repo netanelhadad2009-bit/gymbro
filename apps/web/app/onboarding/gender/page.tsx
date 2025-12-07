@@ -32,14 +32,32 @@ export default function GenderPage() {
       AppsFlyer.logEvent("onboarding_started", {});
 
       // [sheets] Fire-and-forget: Log anonymous onboarding start to Google Sheets
-      // Only track if user is NOT logged in (anonymous users who start before signup)
-      supabase.auth.getSession().then(({ data: { session } }) => {
+      // Only track if: (1) user is NOT logged in, (2) we haven't tracked this device before
+      const deviceId = getDeviceId();
+      const sheetsTrackedKey = `sheets_onboarding_tracked_${deviceId}`;
+
+      // Check if we already tracked this device
+      if (typeof window !== "undefined" && localStorage.getItem(sheetsTrackedKey)) {
+        console.log("[Sheets] Already tracked onboarding for this device");
+        return;
+      }
+
+      // Use auth state change to reliably check if logged in
+      const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+        // Only run once on initial load
+        subscription.unsubscribe();
+
         if (!session) {
+          // Mark as tracked to prevent duplicates
+          if (typeof window !== "undefined") {
+            localStorage.setItem(sheetsTrackedKey, "true");
+          }
+
           fetch("/api/admin/onboarding-start", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-              device_id: getDeviceId(),
+              device_id: deviceId,
               created_at: new Date().toISOString(),
             }),
           }).catch(() => {}); // Ignore errors - best effort
