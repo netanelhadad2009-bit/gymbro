@@ -56,6 +56,7 @@
     "cordova-plugin-purchase": "^13.12.1",
     "date-fns": "^4.1.0",
     "framer-motion": "^12.23.22",
+    "googleapis": "^140.0.0",
     "lucide-react": "^0.544.0",
     "mixpanel-browser": "^2.72.0",
     "next": "14.2.12",

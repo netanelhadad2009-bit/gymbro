@@ -31,7 +31,9 @@
     "doctor:ios": "tools/dev/run-from-root.sh node tools/dev/doctor-ios.mjs",
     "doctor:rls": "node -e \"fetch('http://localhost:3000/api/debug/rls').then(r=>r.json()).then(j=>console.log(JSON.stringify(j,null,2)))\"",
     "migrate:rls:diag": "echo 'Run 015_rls_diagnostics.sql in Supabase SQL editor or: supabase db push'",
-    "bootstrap:ios-usb": "tools/dev/run-from-root.sh tools/dev/bootstrap-iphone-usb.sh"
+    "bootstrap:ios-usb": "tools/dev/run-from-root.sh tools/dev/bootstrap-iphone-usb.sh",
+    "create:google-sheets": "tsx apps/web/scripts/createGoogleSheets.ts",
+    "setup:google-sheets-headers": "tsx apps/web/scripts/setupGoogleSheetsHeaders.ts"
   },
   "devDependencies": {
     "@supabase/supabase-js": "^2.58.0",

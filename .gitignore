@@ -25,3 +25,7 @@ supabase/.temp/
 gitleaks-*.json
 secrets-replacements.txt
 .vercel
+
+# Service account credentials (NEVER commit these)
+**/service-accounts/*.json
+**/service-accounts/

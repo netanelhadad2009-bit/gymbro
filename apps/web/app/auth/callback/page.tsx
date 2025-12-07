@@ -6,6 +6,7 @@ import { supabase } from "@/lib/supabase";
 import { track } from "@/lib/mixpanel";
 import AppsFlyer from "@/lib/appsflyer";
 import { syncProfileAfterLogin } from "@/lib/profile/sync";
+import { getDeviceId } from "@/lib/storage";
 
 export default function OAuthCallbackPage() {
   const router = useRouter();
@@ -139,6 +140,20 @@ export default function OAuthCallbackPage() {
           // [analytics] Track signup completed for OAuth (new user)
           track("signup_completed", { method: provider });
           AppsFlyer.logEvent("signup_completed", { method: provider });
+
+          // [sheets] Fire-and-forget: Log signup to Google Sheets
+          fetch("/api/admin/sheets-signup", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              id: user.id,
+              email: user.email,
+              full_name: metadata.full_name || metadata.name || null,
+              device_id: getDeviceId(),
+              created_at: new Date().toISOString(),
+              source: provider,
+            }),
+          }).catch(() => {}); // Ignore errors - best effort
 
           // New users always need onboarding
           console.log('[Auth Callback] 🎯 Redirecting new user to onboarding');

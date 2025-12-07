@@ -20,6 +20,7 @@ import { Dialog } from "@capacitor/dialog";
 import { Capacitor } from "@capacitor/core";
 import { track } from "@/lib/mixpanel";
 import AppsFlyer from "@/lib/appsflyer";
+import { getDeviceId } from "@/lib/storage";
 
 export default function PremiumPage() {
   const router = useRouter();
@@ -145,6 +146,19 @@ export default function PremiumPage() {
             }).catch((err) => {
               console.error("[PremiumPurchase] Failed to notify admin:", err);
             });
+
+            // [sheets] Fire-and-forget: Log subscription to Google Sheets
+            fetch("/api/admin/sheets-subscription", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                id: user.id,
+                email: user.email,
+                device_id: getDeviceId(),
+                plan: selectedPlan,
+                status: "active",
+              }),
+            }).catch(() => {}); // Ignore errors - best effort
           } else {
             console.error("[PremiumPurchase] Failed to save subscription to Supabase");
           }

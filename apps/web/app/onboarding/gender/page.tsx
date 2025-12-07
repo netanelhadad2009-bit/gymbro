@@ -8,6 +8,8 @@ import OnboardingShell from "../components/OnboardingShell";
 import PrimaryButton from "@/components/PrimaryButton";
 import { track } from "@/lib/mixpanel";
 import AppsFlyer from "@/lib/appsflyer";
+import { getDeviceId } from "@/lib/storage";
+import { supabase } from "@/lib/supabase";
 
 const genderOptions = [
   { value: "male", label: "זכר" },
@@ -28,6 +30,21 @@ export default function GenderPage() {
       hasTrackedRef.current = true;
       track("onboarding_started", {});
       AppsFlyer.logEvent("onboarding_started", {});
+
+      // [sheets] Fire-and-forget: Log anonymous onboarding start to Google Sheets
+      // Only track if user is NOT logged in (anonymous users who start before signup)
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        if (!session) {
+          fetch("/api/admin/onboarding-start", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              device_id: getDeviceId(),
+              created_at: new Date().toISOString(),
+            }),
+          }).catch(() => {}); // Ignore errors - best effort
+        }
+      });
     }
   }, []);
 
