@@ -9,6 +9,7 @@ import { NextRequest, NextResponse } from "next/server";
 import {
   appendAllUsers,
   appendRegisteredNoSub,
+  appendMarketingOptIn,
   removeFromOnboardingStartedNoSignup,
   ExportableProfile,
 } from "@/lib/googleSheets";
@@ -54,6 +55,12 @@ export async function POST(request: NextRequest) {
       fullName: profile.full_name ?? null,
       source: profile.source ?? null,
     });
+
+    // If user opted in to marketing emails, add to "fitjourney mail yes" sheet
+    if (body.accept_marketing && profile.email) {
+      console.log("[SheetsSignup] User opted in to marketing emails:", profile.email);
+      void appendMarketingOptIn(profile.email);
+    }
 
     // If user has a device_id, remove them from Onboarding_Started_No_Signup
     // (they were tracked there before signing up)

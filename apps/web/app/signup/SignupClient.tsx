@@ -105,6 +105,7 @@ export default function SignupClient() {
                 device_id: getDeviceId(),
                 created_at: new Date().toISOString(),
                 source: "email",
+                accept_marketing: acceptMarketing,
               }),
             });
           } catch {

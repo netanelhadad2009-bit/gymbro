@@ -425,6 +425,14 @@ export async function appendOnboardingStartedNoSignup(
   );
 }
 
+/**
+ * Append email to "fitjourney mail yes" sheet (users who opted in to marketing emails)
+ * Sheet has single column: email
+ */
+export async function appendMarketingOptIn(email: string) {
+  return appendRow("fitjourney mail yes", [email]);
+}
+
 // ============================================================================
 // Check if configured (for conditional usage)
 // ============================================================================
