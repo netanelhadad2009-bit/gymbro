@@ -12,6 +12,7 @@ import {
   ExportableProfile,
   ExportableSubscription,
 } from "@/lib/googleSheets";
+import { notifyNewPurchase } from "@/lib/whatsapp";
 
 export async function POST(request: NextRequest) {
   try {
@@ -63,6 +64,14 @@ export async function POST(request: NextRequest) {
       console.log(`[SheetsSubscription] Remove from Registered_No_Sub result: ${removed ? 'SUCCESS' : 'NOT_FOUND'}`);
     }).catch((err) => {
       console.error("[SheetsSubscription] Remove from Registered_No_Sub error:", err);
+    });
+
+    // Fire-and-forget: Send WhatsApp notification
+    void notifyNewPurchase({
+      email: profile.email,
+      fullName: profile.full_name ?? null,
+      plan: subscription.plan ?? "unknown",
+      status: subscription.status ?? "active",
     });
 
     return NextResponse.json({ ok: true });

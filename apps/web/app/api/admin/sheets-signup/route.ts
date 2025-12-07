@@ -12,6 +12,7 @@ import {
   removeFromOnboardingStartedNoSignup,
   ExportableProfile,
 } from "@/lib/googleSheets";
+import { notifyNewSignup } from "@/lib/whatsapp";
 
 export async function POST(request: NextRequest) {
   try {
@@ -46,6 +47,13 @@ export async function POST(request: NextRequest) {
     // New signups don't have a subscription yet
     void appendAllUsers(profile, { plan: null, status: null });
     void appendRegisteredNoSub(profile);
+
+    // Fire-and-forget: Send WhatsApp notification
+    void notifyNewSignup({
+      email: profile.email,
+      fullName: profile.full_name ?? null,
+      source: profile.source ?? null,
+    });
 
     // If user has a device_id, remove them from Onboarding_Started_No_Signup
     // (they were tracked there before signing up)

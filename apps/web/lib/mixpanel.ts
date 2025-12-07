@@ -11,7 +11,8 @@ const isEnabled =
 if (isEnabled) {
   mixpanel.init(MIXPANEL_TOKEN as string, {
     debug: isDev,
-    track_pageview: false,
+    // Enable automatic pageview tracking (required for heatmaps)
+    track_pageview: "url-with-path",
 
     // --- Session Replay Configuration ---
     // Dev/Preview: 100% sampling to verify setup
