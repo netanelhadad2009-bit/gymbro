@@ -8,6 +8,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import {
   appendRegisteredWithSub,
+  removeFromRegisteredNoSub,
   ExportableProfile,
   ExportableSubscription,
 } from "@/lib/googleSheets";
@@ -53,8 +54,16 @@ export async function POST(request: NextRequest) {
       plan: subscription.plan,
     });
 
-    // Fire-and-forget: Log to Registered_With_Sub sheet
+    // Log to Registered_With_Sub sheet and remove from Registered_No_Sub
+    console.log("[SheetsSubscription] Adding to Registered_With_Sub and removing from Registered_No_Sub");
+    console.log("[SheetsSubscription] User ID for removal:", profile.id);
+
     void appendRegisteredWithSub(profile, subscription);
+    void removeFromRegisteredNoSub(profile.id).then((removed) => {
+      console.log(`[SheetsSubscription] Remove from Registered_No_Sub result: ${removed ? 'SUCCESS' : 'NOT_FOUND'}`);
+    }).catch((err) => {
+      console.error("[SheetsSubscription] Remove from Registered_No_Sub error:", err);
+    });
 
     return NextResponse.json({ ok: true });
   } catch (error) {

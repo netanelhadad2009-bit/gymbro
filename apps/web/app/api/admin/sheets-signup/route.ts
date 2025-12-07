@@ -9,6 +9,7 @@ import { NextRequest, NextResponse } from "next/server";
 import {
   appendAllUsers,
   appendRegisteredNoSub,
+  removeFromOnboardingStartedNoSignup,
   ExportableProfile,
 } from "@/lib/googleSheets";
 
@@ -45,6 +46,17 @@ export async function POST(request: NextRequest) {
     // New signups don't have a subscription yet
     void appendAllUsers(profile, { plan: null, status: null });
     void appendRegisteredNoSub(profile);
+
+    // If user has a device_id, remove them from Onboarding_Started_No_Signup
+    // (they were tracked there before signing up)
+    if (profile.device_id) {
+      console.log("[SheetsSignup] Removing from Onboarding_Started_No_Signup, device_id:", profile.device_id);
+      void removeFromOnboardingStartedNoSignup(profile.device_id).then((removed) => {
+        console.log(`[SheetsSignup] Remove from Onboarding_Started_No_Signup result: ${removed ? 'SUCCESS' : 'NOT_FOUND'}`);
+      }).catch((err) => {
+        console.error("[SheetsSignup] Remove from Onboarding_Started_No_Signup error:", err);
+      });
+    }
 
     return NextResponse.json({ ok: true });
   } catch (error) {

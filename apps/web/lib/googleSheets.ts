@@ -121,6 +121,187 @@ export async function appendRow(
   }
 }
 
+/**
+ * Get sheet ID by name (needed for delete operations)
+ */
+async function getSheetIdByName(sheetName: string): Promise<number | null> {
+  const sheets = await getSheetsClient();
+  if (!sheets || !SPREADSHEET_ID) return null;
+
+  try {
+    const response = await sheets.spreadsheets.get({
+      spreadsheetId: SPREADSHEET_ID,
+    });
+    const sheet = response.data.sheets?.find(
+      (s) => s.properties?.title === sheetName
+    );
+    return sheet?.properties?.sheetId ?? null;
+  } catch (err) {
+    console.error(`[GoogleSheets] ❌ Error getting sheet ID for ${sheetName}:`, err);
+    return null;
+  }
+}
+
+/**
+ * Find row index by user ID (column C, index 2)
+ * @param sheetName - The name of the sheet tab
+ * @param userId - The user ID to search for
+ * @returns Row index (1-based) or null if not found
+ */
+export async function findRowByUserId(
+  sheetName: string,
+  userId: string
+): Promise<number | null> {
+  const sheets = await getSheetsClient();
+  if (!sheets || !SPREADSHEET_ID) {
+    console.warn("[GoogleSheets] findRowByUserId skipped – missing config");
+    return null;
+  }
+
+  try {
+    // Get all values from column C (user_id)
+    const response = await sheets.spreadsheets.values.get({
+      spreadsheetId: SPREADSHEET_ID,
+      range: `${sheetName}!C:C`,
+    });
+
+    const values = response.data.values;
+    if (!values) return null;
+
+    // Find the row with matching user ID (1-based index)
+    for (let i = 0; i < values.length; i++) {
+      if (values[i][0] === userId) {
+        return i + 1; // Convert to 1-based row number
+      }
+    }
+    return null;
+  } catch (err) {
+    console.error(`[GoogleSheets] ❌ Error finding user in ${sheetName}:`, err);
+    return null;
+  }
+}
+
+/**
+ * Delete a row from a specific sheet
+ * @param sheetName - The name of the sheet tab
+ * @param rowIndex - The row index to delete (1-based)
+ */
+export async function deleteRow(
+  sheetName: string,
+  rowIndex: number
+): Promise<boolean> {
+  const sheets = await getSheetsClient();
+  if (!sheets || !SPREADSHEET_ID) {
+    console.warn("[GoogleSheets] deleteRow skipped – missing config");
+    return false;
+  }
+
+  try {
+    const sheetId = await getSheetIdByName(sheetName);
+    if (sheetId === null) {
+      console.error(`[GoogleSheets] ❌ Sheet ${sheetName} not found`);
+      return false;
+    }
+
+    await sheets.spreadsheets.batchUpdate({
+      spreadsheetId: SPREADSHEET_ID,
+      requestBody: {
+        requests: [
+          {
+            deleteDimension: {
+              range: {
+                sheetId: sheetId,
+                dimension: "ROWS",
+                startIndex: rowIndex - 1, // Convert to 0-based
+                endIndex: rowIndex, // Exclusive end
+              },
+            },
+          },
+        ],
+      },
+    });
+    console.log(`[GoogleSheets] ✅ Deleted row ${rowIndex} from ${sheetName}`);
+    return true;
+  } catch (err) {
+    console.error(`[GoogleSheets] ❌ Error deleting row from ${sheetName}:`, err);
+    return false;
+  }
+}
+
+/**
+ * Remove a user from a sheet by their user ID
+ * @param sheetName - The name of the sheet tab
+ * @param userId - The user ID to remove
+ */
+export async function removeUserFromSheet(
+  sheetName: string,
+  userId: string
+): Promise<boolean> {
+  const rowIndex = await findRowByUserId(sheetName, userId);
+  if (rowIndex === null) {
+    console.log(`[GoogleSheets] User ${userId} not found in ${sheetName}`);
+    return false;
+  }
+  return deleteRow(sheetName, rowIndex);
+}
+
+/**
+ * Remove user from Registered_No_Sub sheet
+ */
+export async function removeFromRegisteredNoSub(userId: string): Promise<boolean> {
+  return removeUserFromSheet("Registered_No_Sub", userId);
+}
+
+/**
+ * Find row index by device ID (column D, index 3)
+ * Used for Onboarding_Started_No_Signup which tracks by device_id before user signs up
+ */
+export async function findRowByDeviceId(
+  sheetName: string,
+  deviceId: string
+): Promise<number | null> {
+  const sheets = await getSheetsClient();
+  if (!sheets || !SPREADSHEET_ID) {
+    console.warn("[GoogleSheets] findRowByDeviceId skipped – missing config");
+    return null;
+  }
+
+  try {
+    // Get all values from column D (device_id)
+    const response = await sheets.spreadsheets.values.get({
+      spreadsheetId: SPREADSHEET_ID,
+      range: `${sheetName}!D:D`,
+    });
+
+    const values = response.data.values;
+    if (!values) return null;
+
+    // Find the row with matching device ID (1-based index)
+    for (let i = 0; i < values.length; i++) {
+      if (values[i][0] === deviceId) {
+        return i + 1; // Convert to 1-based row number
+      }
+    }
+    return null;
+  } catch (err) {
+    console.error(`[GoogleSheets] ❌ Error finding device in ${sheetName}:`, err);
+    return null;
+  }
+}
+
+/**
+ * Remove from Onboarding_Started_No_Signup by device ID
+ * Called when a user who started onboarding anonymously finally signs up
+ */
+export async function removeFromOnboardingStartedNoSignup(deviceId: string): Promise<boolean> {
+  const rowIndex = await findRowByDeviceId("Onboarding_Started_No_Signup", deviceId);
+  if (rowIndex === null) {
+    console.log(`[GoogleSheets] Device ${deviceId} not found in Onboarding_Started_No_Signup`);
+    return false;
+  }
+  return deleteRow("Onboarding_Started_No_Signup", rowIndex);
+}
+
 // ============================================================================
 // Types
 // ============================================================================
