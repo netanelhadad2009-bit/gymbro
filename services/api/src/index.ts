@@ -9,6 +9,7 @@ import { devEnvRouter } from "./routes/dev-env";
 import { devAdminRouter } from "./routes/dev-admin";
 import { aiRouter } from "./routes/ai";
 import { planRouter } from "./routes/plan";
+import { journeyRouter } from "./routes/journey";
 
 const app = express();
 
@@ -78,12 +79,17 @@ app.use("/dev", devRouter);
 app.use("/dev", devEnvRouter);
 app.use("/dev", devAdminRouter);
 
-// AI routes
+// AI routes (mounted at both /ai and /api/ai for compatibility)
 app.use("/ai", aiRouter);
 app.use("/ai", planRouter);
+app.use("/api/ai", aiRouter);
+app.use("/api/ai", planRouter);
+
+// Journey routes (mounted at /api/journey for compatibility)
+app.use("/api/journey", journeyRouter);
 
 const port = Number(process.env.PORT) || 3001;
-const server = app.listen(port, () => {
+const server = app.listen(port, '0.0.0.0', () => {
   console.log(`\n🟢 API running on http://localhost:${port}`);
   console.log("✓ Mounted routes:");
   console.log("  /health, /db");
@@ -96,6 +102,7 @@ const server = app.listen(port, () => {
   console.log("  /ai/nutrition");
   console.log("  /ai/commit");
   console.log("  /ai/program/:userId");
+  console.log("  /api/journey/stages/generate");
   console.log(`\n📡 CORS allowed origins: ${uniqueOrigins.join(', ')}`);
   console.log(`   Web origin from env: ${WEB_ORIGIN}\n`);
 });

@@ -122,19 +122,19 @@ export default function LongtermPage() {
 
   return (
     <OnboardingShell
-      title="FitJourney יוצר תוצאות לאורך זמן"
-      subtitle="רוב המשתמשים שלנו שומרים על ההתקדמות שלהם גם אחרי חודשים ארוכים."
+      title="FitJourney creates lasting results"
+      subtitle="Most of our users maintain their progress even after many months."
       progress={getStepProgress('longterm')}
       footer={
         <PrimaryButton onPress={handleContinue} disabled={!isAnimationComplete}>
-          המשך
+          Continue
         </PrimaryButton>
       }
     >
       <View style={styles.content}>
         {/* Graph Card */}
         <View style={styles.card}>
-          <Text style={styles.chartTitle}>המשקל שלך</Text>
+          <Text style={styles.chartTitle}>Your Weight</Text>
 
           {/* Chart */}
           <View style={styles.chartContainer}>
@@ -215,7 +215,7 @@ export default function LongtermPage() {
 
             {/* Traditional diet label - animated */}
             <Animated.View style={[styles.traditionalLabel, { opacity: circleOpacity }]}>
-              <Text style={styles.traditionalLabelText}>ללא FitJourney</Text>
+              <Text style={styles.traditionalLabelText}>Without FitJourney</Text>
             </Animated.View>
 
             {/* FitJourney label - animated */}
@@ -225,8 +225,8 @@ export default function LongtermPage() {
 
             {/* X-axis labels */}
             <View style={styles.xAxisLabels}>
-              <Text style={styles.xAxisLabel}>חודש 6</Text>
-              <Text style={styles.xAxisLabel}>חודש 1</Text>
+              <Text style={styles.xAxisLabel}>Month 6</Text>
+              <Text style={styles.xAxisLabel}>Month 1</Text>
             </View>
           </View>
         </View>
@@ -235,7 +235,7 @@ export default function LongtermPage() {
         <View style={styles.statsCard}>
           <Text style={styles.statText}>
             <Text style={styles.statHighlight}>82%</Text>
-            {' ממשתמשי FitJourney שומרים על ההישגים שלהם גם אחרי 6 חודשים.'}
+            {' of FitJourney users maintain their achievements even after 6 months.'}
           </Text>
         </View>
       </View>
@@ -258,7 +258,7 @@ const styles = StyleSheet.create({
     fontSize: typography.size.xl,
     fontWeight: typography.weight.bold,
     color: colors.text.primary,
-    textAlign: 'right',
+    textAlign: 'left',
     marginBottom: spacing.md,
   },
   chartContainer: {

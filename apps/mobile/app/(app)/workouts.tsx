@@ -6,7 +6,6 @@ import {
   ScrollView,
   TouchableOpacity,
   ActivityIndicator,
-  I18nManager,
   Animated,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -22,10 +21,6 @@ import {
   Play,
   Plus,
 } from 'lucide-react-native';
-
-// Force RTL for Hebrew
-I18nManager.allowRTL(true);
-I18nManager.forceRTL(true);
 
 // Types
 interface Exercise {
@@ -71,9 +66,9 @@ interface ProgramWithWorkouts {
 // Goal translations
 const goalToHebrew = (goal: string | null): string => {
   switch (goal) {
-    case 'gain': return 'בניית מסה';
-    case 'loss': return 'חיטוב';
-    case 'recomp': return 'ריקומפ';
+    case 'gain': return 'Muscle Gain';
+    case 'loss': return 'Fat Loss';
+    case 'recomp': return 'Recomp';
     default: return '';
   }
 };
@@ -313,7 +308,7 @@ export default function WorkoutsScreen() {
 
     } catch (err) {
       console.error('Error loading workouts:', err);
-      setError('שגיאה בטעינת האימונים');
+      setError('Error loading workouts');
     } finally {
       setLoading(false);
     }
@@ -349,7 +344,7 @@ export default function WorkoutsScreen() {
         <View style={styles.errorContainer}>
           <Text style={styles.errorText}>{error}</Text>
           <TouchableOpacity style={styles.retryButton} onPress={loadWorkoutsData}>
-            <Text style={styles.retryButtonText}>נסה שוב</Text>
+            <Text style={styles.retryButtonText}>Try Again</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>

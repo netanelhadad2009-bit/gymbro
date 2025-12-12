@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -6,10 +6,10 @@ import {
   ScrollView,
   TouchableOpacity,
   Alert,
-  I18nManager,
   Linking,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useRouter, useFocusEffect } from 'expo-router';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
 import {
@@ -18,9 +18,9 @@ import {
   typography,
   borderRadius,
   spacing,
-  genderToHe,
-  goalToHe,
-  dietToHe,
+  genderToEn,
+  goalToEn,
+  dietToEn,
 } from '../../lib/theme';
 import {
   LogOut,
@@ -28,11 +28,8 @@ import {
   FileText,
   Trash2,
   ChevronLeft,
+  MessageCircle,
 } from 'lucide-react-native';
-
-// Force RTL for Hebrew
-I18nManager.allowRTL(true);
-I18nManager.forceRTL(true);
 
 interface ProfileData {
   email?: string;
@@ -74,13 +71,17 @@ function LoadingSkeleton() {
 }
 
 export default function ProfileScreen() {
+  const router = useRouter();
   const { user, signOut } = useAuth();
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    loadProfile();
-  }, [user]);
+  // Reload profile data whenever the screen comes into focus
+  useFocusEffect(
+    useCallback(() => {
+      loadProfile();
+    }, [user])
+  );
 
   const loadProfile = async () => {
     if (!user) {
@@ -96,7 +97,14 @@ export default function ProfileScreen() {
         .from('profiles')
         .select('*')
         .eq('id', user.id)
-        .single();
+        .maybeSingle();
+
+      // Get avatar data as fallback
+      const { data: avatarData } = await supabase
+        .from('avatars')
+        .select('*')
+        .eq('user_id', user.id)
+        .maybeSingle();
 
       // Get goal from latest program
       const { data: programData } = await supabase
@@ -109,16 +117,81 @@ export default function ProfileScreen() {
 
       const metadata = user.user_metadata || {};
 
-      // Build profile with data from database and fallbacks
+      // If profile is empty, try to backfill from AsyncStorage onboarding data
+      let onboardingData = null;
+      if (!profileData || (!profileData.age && !profileData.weight_kg && !profileData.height_cm)) {
+        try {
+          const AsyncStorage = require('@react-native-async-storage/async-storage').default;
+          const stored = await AsyncStorage.getItem('onboarding-data');
+          if (stored) {
+            onboardingData = JSON.parse(stored);
+            console.log('[Profile] Found onboarding data in AsyncStorage, backfilling profile...');
+
+            // Calculate age from birthdate
+            const calculateAge = (birthdate: string | undefined): number | undefined => {
+              if (!birthdate) return undefined;
+              try {
+                const birthDate = new Date(birthdate);
+                const today = new Date();
+                let age = today.getFullYear() - birthDate.getFullYear();
+                const monthDiff = today.getMonth() - birthDate.getMonth();
+                if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+                  age--;
+                }
+                return age > 0 ? age : undefined;
+              } catch {
+                return undefined;
+              }
+            };
+
+            const age = calculateAge(onboardingData.birthdate);
+
+            // Backfill profile with onboarding data
+            await supabase
+              .from('profiles')
+              .upsert({
+                id: user.id,
+                gender: onboardingData.gender,
+                age: age,
+                weight_kg: onboardingData.weight_kg,
+                target_weight_kg: onboardingData.target_weight_kg,
+                height_cm: onboardingData.height_cm,
+                goal: onboardingData.goals?.[0],
+                diet: onboardingData.diet,
+                birthdate: onboardingData.birthdate,
+                updated_at: new Date().toISOString(),
+              }, {
+                onConflict: 'id'
+              });
+
+            console.log('[Profile] ✅ Profile backfilled from AsyncStorage');
+
+            // Reload profile data after backfill
+            const { data: refreshedProfile } = await supabase
+              .from('profiles')
+              .select('*')
+              .eq('id', user.id)
+              .maybeSingle();
+
+            if (refreshedProfile) {
+              profileData = refreshedProfile as any;
+            }
+          }
+        } catch (err) {
+          console.warn('[Profile] Could not backfill from AsyncStorage:', err);
+        }
+      }
+
+      // Build profile with data from database and fallbacks (profile → avatar → onboarding → metadata)
       const profileResult: ProfileData = {
         email: user.email,
-        gender: profileData?.gender || metadata.gender,
-        age: profileData?.age || metadata.age,
-        weight: profileData?.weight || profileData?.weight_kg || metadata.weight_kg,
-        target_weight: profileData?.target_weight || metadata.target_weight_kg,
-        height_cm: profileData?.height_cm || metadata.height_cm,
-        goal: programData?.goal || profileData?.goal || metadata.goal,
-        diet_type: profileData?.diet_type || profileData?.diet || metadata.diet,
+        gender: profileData?.gender || avatarData?.gender || onboardingData?.gender || metadata.gender,
+        age: profileData?.age || onboardingData?.age || metadata.age,
+        weight: profileData?.weight || profileData?.weight_kg || onboardingData?.weight_kg || metadata.weight_kg,
+        target_weight: profileData?.target_weight || profileData?.target_weight_kg || onboardingData?.target_weight_kg || metadata.target_weight_kg,
+        height_cm: profileData?.height_cm || onboardingData?.height_cm || metadata.height_cm,
+        goal: programData?.goal || avatarData?.goal || profileData?.goal || onboardingData?.goals?.[0] || metadata.goal,
+        diet_type: profileData?.diet_type || profileData?.diet || avatarData?.diet || onboardingData?.diet || metadata.diet,
       };
 
       setProfile(profileResult);
@@ -138,7 +211,10 @@ export default function ProfileScreen() {
         {
           text: texts.profile.logout,
           style: 'destructive',
-          onPress: signOut,
+          onPress: async () => {
+            await signOut();
+            router.replace('/(auth)/');
+          },
         },
       ]
     );
@@ -146,15 +222,62 @@ export default function ProfileScreen() {
 
   const handleDeleteAccount = () => {
     Alert.alert(
-      'מחיקת חשבון',
-      'פעולה זו תמחק את כל הנתונים שלך לצמיתות. האם אתה בטוח?',
+      'Delete Account',
+      'This will permanently delete all your data. Are you sure? This action cannot be undone.',
       [
-        { text: texts.profile.cancel, style: 'cancel' },
+        { text: 'Cancel', style: 'cancel' },
         {
-          text: 'מחק חשבון',
+          text: 'Delete Account',
           style: 'destructive',
           onPress: async () => {
-            Alert.alert('שגיאה', 'מחיקת חשבון עדיין לא זמינה');
+            try {
+              // Get the API base URL from environment
+              const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL || 'http://localhost:3000';
+
+              // Get current session token for authentication
+              const { data: { session } } = await supabase.auth.getSession();
+
+              if (!session) {
+                Alert.alert('Error', 'You must be logged in to delete your account');
+                return;
+              }
+
+              // Call the account deletion API endpoint
+              const response = await fetch(`${API_BASE_URL}/api/account/delete`, {
+                method: 'DELETE',
+                headers: {
+                  'Authorization': `Bearer ${session.access_token}`,
+                  'Content-Type': 'application/json',
+                },
+              });
+
+              // Check if deletion was successful
+              if (response.ok) {
+                console.log('[Profile] Account deleted successfully');
+                await signOut();
+                router.replace('/(auth)/');
+                return;
+              }
+
+              // Handle error response
+              const errorText = await response.text();
+              console.error('[Profile] Account deletion failed:', errorText);
+
+              // If the error is "User not found", it might mean the account was already deleted
+              // In this case, just sign out and continue
+              if (errorText.includes('User not found') || errorText.includes('unauthorized')) {
+                console.log('[Profile] User not found - account may already be deleted, signing out');
+                await signOut();
+                router.replace('/(auth)/');
+                return;
+              }
+
+              // For other errors, show error message
+              Alert.alert('Error', 'Failed to delete account. Please try again.');
+            } catch (error) {
+              console.error('[Profile] Error during account deletion:', error);
+              Alert.alert('Error', 'An unexpected error occurred. Please try again.');
+            }
           },
         },
       ]
@@ -163,7 +286,7 @@ export default function ProfileScreen() {
 
   const openUrl = (url: string) => {
     Linking.openURL(url).catch(() => {
-      Alert.alert('שגיאה', 'לא ניתן לפתוח את הקישור');
+      Alert.alert('Error', 'Unable to open link');
     });
   };
 
@@ -191,16 +314,19 @@ export default function ProfileScreen() {
           ) : (
             <>
               <ReadonlyField label={texts.profile.email} value={profile?.email} />
-              <ReadonlyField label={texts.profile.gender} value={genderToHe(profile?.gender)} />
+              <ReadonlyField label={texts.profile.gender} value={genderToEn(profile?.gender)} />
               <ReadonlyField label={texts.profile.age} value={profile?.age} />
               <ReadonlyField label={texts.profile.weight} value={profile?.weight} />
               <ReadonlyField label={texts.profile.targetWeight} value={profile?.target_weight} />
               <ReadonlyField label={texts.profile.height} value={profile?.height_cm} />
-              <ReadonlyField label={texts.profile.goal} value={goalToHe(profile?.goal)} />
-              <ReadonlyField label={texts.profile.dietType} value={dietToHe(profile?.diet_type)} />
+              <ReadonlyField label={texts.profile.goal} value={goalToEn(profile?.goal)} />
+              <ReadonlyField label={texts.profile.dietType} value={dietToEn(profile?.diet_type)} />
 
               {/* Edit Profile Link */}
-              <TouchableOpacity style={styles.editLink}>
+              <TouchableOpacity
+                style={styles.editLink}
+                onPress={() => router.push('/(app)/profile/edit')}
+              >
                 <Text style={styles.editLinkText}>{texts.profile.editProfile}</Text>
                 <ChevronLeft size={16} color={colors.accent.primary} />
               </TouchableOpacity>
@@ -214,7 +340,7 @@ export default function ProfileScreen() {
             {/* Privacy Policy */}
             <TouchableOpacity
               style={styles.settingsRow}
-              onPress={() => openUrl('https://fitjourney.app/privacy')}
+              onPress={() => openUrl('https://fitjourney1.carrd.co/')}
             >
               <View style={styles.settingsRowContent}>
                 <Shield size={18} color={colors.text.secondary} />
@@ -225,7 +351,7 @@ export default function ProfileScreen() {
             {/* Terms of Use */}
             <TouchableOpacity
               style={styles.settingsRow}
-              onPress={() => openUrl('https://fitjourney.app/terms')}
+              onPress={() => openUrl('https://fitjourney2.carrd.co/')}
             >
               <View style={styles.settingsRowContent}>
                 <FileText size={18} color={colors.text.secondary} />
@@ -261,20 +387,26 @@ export default function ProfileScreen() {
           </View>
         )}
 
-        {/* Support Card */}
+        {/* WhatsApp Support */}
         {!loading && (
-          <View style={styles.supportCard}>
-            <Text style={styles.supportTitle}>צריך עזרה?</Text>
-            <Text style={styles.supportText}>
-              אנחנו כאן בשבילך! שלח לנו הודעה ב-WhatsApp
-            </Text>
-            <TouchableOpacity
-              style={styles.supportButton}
-              onPress={() => openUrl('https://wa.me/972500000000')}
-            >
-              <Text style={styles.supportButtonText}>שלח הודעה</Text>
-            </TouchableOpacity>
-          </View>
+          <TouchableOpacity
+            style={styles.whatsappButton}
+            onPress={() => openUrl('https://wa.me/972505338240?text=%D7%94%D7%99%D7%99%20FitJourney%2C%20%D7%99%D7%A9%20%D7%9C%D7%99%20%D7%A9%D7%90%D7%9C%D7%94%3A')}
+            activeOpacity={0.85}
+          >
+            <View style={styles.whatsappIconOuter}>
+              <View style={styles.whatsappIconInner}>
+                <MessageCircle size={22} color="#25D366" fill="#25D366" />
+              </View>
+            </View>
+            <View style={styles.whatsappContent}>
+              <Text style={styles.whatsappTitle}>Need Help?</Text>
+              <Text style={styles.whatsappSubtitle}>Chat with us on WhatsApp</Text>
+            </View>
+            <View style={styles.whatsappArrow}>
+              <ChevronLeft size={20} color="rgba(255,255,255,0.6)" style={{ transform: [{ rotate: '180deg' }] }} />
+            </View>
+          </TouchableOpacity>
         )}
 
         {/* Bottom spacing */}
@@ -297,7 +429,7 @@ const styles = StyleSheet.create({
     fontSize: typography.size['2xl'],
     fontWeight: typography.weight.bold,
     color: colors.text.primary,
-    textAlign: 'right',
+    textAlign: 'left',
   },
   scrollView: {
     flex: 1,
@@ -316,7 +448,7 @@ const styles = StyleSheet.create({
     fontSize: typography.size.sm,
     color: colors.text.secondary,
     marginBottom: spacing.xs,
-    textAlign: 'right',
+    textAlign: 'left',
   },
   fieldValue: {
     backgroundColor: colors.background.cardAlt,
@@ -329,7 +461,7 @@ const styles = StyleSheet.create({
   fieldValueText: {
     fontSize: typography.size.base,
     color: colors.text.primary,
-    textAlign: 'right',
+    textAlign: 'left',
   },
   skeletonLabel: {
     width: 80,
@@ -337,7 +469,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background.cardAlt,
     borderRadius: borderRadius.sm,
     marginBottom: spacing.xs,
-    alignSelf: 'flex-end',
+    alignSelf: 'flex-start',
   },
   skeletonValue: {
     height: 40,
@@ -349,7 +481,7 @@ const styles = StyleSheet.create({
   editLink: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'flex-end',
+    justifyContent: 'flex-start',
     marginTop: spacing.sm,
     gap: spacing.xs,
   },
@@ -379,37 +511,51 @@ const styles = StyleSheet.create({
   deleteText: {
     color: colors.semantic.error,
   },
-  supportCard: {
-    backgroundColor: colors.background.card,
-    borderRadius: borderRadius['2xl'],
-    padding: spacing.lg,
+  whatsappButton: {
+    backgroundColor: '#128C7E',
+    borderRadius: borderRadius.xl,
+    padding: spacing.md,
     marginBottom: spacing.lg,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    shadowColor: '#128C7E',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  whatsappIconOuter: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#fff',
+    justifyContent: 'center',
     alignItems: 'center',
   },
-  supportTitle: {
-    fontSize: typography.size.lg,
-    fontWeight: typography.weight.bold,
-    color: colors.text.primary,
-    marginBottom: spacing.sm,
+  whatsappIconInner: {
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  supportText: {
-    fontSize: typography.size.sm,
-    color: colors.text.secondary,
-    textAlign: 'center',
-    marginBottom: spacing.lg,
+  whatsappContent: {
+    flex: 1,
   },
-  supportButton: {
-    backgroundColor: '#25D366',
-    paddingVertical: spacing.md,
-    paddingHorizontal: spacing['2xl'],
-    borderRadius: borderRadius.lg,
-  },
-  supportButtonText: {
-    color: colors.text.primary,
+  whatsappTitle: {
     fontSize: typography.size.base,
-    fontWeight: typography.weight.semibold,
+    fontWeight: typography.weight.bold,
+    color: '#fff',
+    textAlign: 'left',
+  },
+  whatsappSubtitle: {
+    fontSize: typography.size.sm,
+    color: 'rgba(255, 255, 255, 0.8)',
+    marginTop: 2,
+    textAlign: 'left',
+  },
+  whatsappArrow: {
+    marginLeft: spacing.xs,
   },
   bottomSpacing: {
-    height: spacing['4xl'],
+    height: 140, // Extra space to prevent tab bar from hiding content
   },
 });

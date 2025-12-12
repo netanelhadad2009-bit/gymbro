@@ -35,9 +35,9 @@ export default function RemindersPage() {
       } else {
         // Permission denied
         Alert.alert(
-          'התראות נדחו',
-          'תוכל להפעיל התראות מאוחר יותר בהגדרות',
-          [{ text: 'המשך', onPress: () => handleSkip() }]
+          'Notifications Declined',
+          'You can enable notifications later in settings',
+          [{ text: 'Continue', onPress: () => handleSkip() }]
         );
       }
     } catch (error) {
@@ -61,13 +61,13 @@ export default function RemindersPage() {
       <View style={styles.content}>
         {/* Title above card */}
         <Text style={styles.titleText}>
-          הישאר במסלול{'\n'}עם התראות
+          Stay on track{'\n'}with reminders
         </Text>
 
         {/* Permission Card */}
         <View style={styles.permissionCard}>
           <Text style={styles.cardTitle}>
-            {'\u200F'}"FitJourney" מבקש לשלוח לך התראות
+            "FitJourney" would like to send you notifications
           </Text>
 
           <View style={styles.buttonRow}>
@@ -76,14 +76,14 @@ export default function RemindersPage() {
               onPress={handleEnableNotifications}
               disabled={isLoading}
             >
-              <Text style={styles.allowButtonText}>אישור</Text>
+              <Text style={styles.allowButtonText}>Allow</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.denyButton}
               onPress={handleSkip}
               disabled={isLoading}
             >
-              <Text style={styles.denyButtonText}>סירוב</Text>
+              <Text style={styles.denyButtonText}>Don't Allow</Text>
             </TouchableOpacity>
           </View>
         </View>

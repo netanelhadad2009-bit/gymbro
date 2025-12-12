@@ -21,25 +21,25 @@ export default function ReadinessPage() {
 
   const getReadinessLabel = (level: number | null) => {
     if (!level) return '';
-    if (level <= 3) return 'עוד לא בטוח';
-    if (level <= 5) return 'מתחיל להיות מוכן';
-    if (level <= 7) return 'מוכן לשינוי';
-    if (level <= 9) return 'מאוד מוכן';
-    return 'מוכן לגמרי!';
+    if (level <= 3) return 'Not quite ready';
+    if (level <= 5) return 'Getting there';
+    if (level <= 7) return 'Ready for change';
+    if (level <= 9) return 'Very ready';
+    return 'Absolutely ready!';
   };
 
   return (
     <OnboardingShell
       title={
         <Text style={styles.titleText}>
-          כמה אתה מוכן להתחיל{'\n'}את השינוי?
+          How ready are you{'\n'}to start?
         </Text>
       }
-      subtitle="דרג את רמת המוכנות שלך מ-1 עד 10"
+      subtitle="Rate your readiness from 1 to 10"
       progress={getStepProgress('readiness')}
       footer={
         <PrimaryButton onPress={handleContinue} disabled={!selected}>
-          הבא
+          Next
         </PrimaryButton>
       }
     >
@@ -83,8 +83,8 @@ export default function ReadinessPage() {
 
         {/* Scale Labels */}
         <View style={styles.scaleLabels}>
-          <Text style={styles.scaleLabel}>לא מוכן</Text>
-          <Text style={styles.scaleLabel}>מוכן לגמרי</Text>
+          <Text style={styles.scaleLabel}>Not ready</Text>
+          <Text style={styles.scaleLabel}>Fully ready</Text>
         </View>
       </View>
     </OnboardingShell>
@@ -96,7 +96,7 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: typography.weight.bold,
     color: colors.text.primary,
-    textAlign: 'right',
+    textAlign: 'left',
     lineHeight: 36,
   },
   content: {

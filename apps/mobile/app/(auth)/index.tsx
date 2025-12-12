@@ -1,11 +1,7 @@
-import { View, Text, StyleSheet, Image, TouchableOpacity, I18nManager, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity, Dimensions } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors, typography, borderRadius, spacing } from '../../lib/theme';
-
-// Force RTL for Hebrew
-I18nManager.allowRTL(true);
-I18nManager.forceRTL(true);
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -20,7 +16,7 @@ export default function WelcomeScreen() {
           <Text style={styles.title}>FitJourney</Text>
           <View style={styles.titleUnderline} />
           <Text style={styles.subtitle}>
-            המאמן הדיגיטלי שלך — מותאם אישית אליך.
+            Your personal digital trainer
           </Text>
         </View>
 
@@ -40,7 +36,7 @@ export default function WelcomeScreen() {
             style={styles.ctaButton}
             onPress={() => router.push('/onboarding/gender')}
           >
-            <Text style={styles.ctaButtonText}>התחל את השאלון</Text>
+            <Text style={styles.ctaButtonText}>Get Started</Text>
           </TouchableOpacity>
 
           {/* Login Link */}
@@ -49,15 +45,15 @@ export default function WelcomeScreen() {
             onPress={() => router.push('/(auth)/login')}
           >
             <Text style={styles.loginLinkText}>
-              כבר יש לך משתמש? <Text style={styles.loginLinkBold}>התחבר עכשיו</Text>
+              Already have an account? <Text style={styles.loginLinkBold}>Log In</Text>
             </Text>
           </TouchableOpacity>
 
           {/* Terms */}
           <Text style={styles.termsText}>
-            בלחיצה על התחל את השאלון, אתה מסכים ל-{'\n'}
-            <Text style={styles.termsLink}>תנאי השימוש</Text> ו-
-            <Text style={styles.termsLink}>מדיניות הפרטיות</Text> שלנו.
+            By clicking Get Started, you agree to our{'\n'}
+            <Text style={styles.termsLink}>Terms of Service</Text> and{' '}
+            <Text style={styles.termsLink}>Privacy Policy</Text>.
           </Text>
         </View>
       </View>

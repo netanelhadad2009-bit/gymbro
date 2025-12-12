@@ -16,16 +16,16 @@ const avatars = [
 
 const testimonials = [
   {
-    name: 'יוסי כהן',
+    name: 'Josh Miller',
     avatar: 'https://i.pravatar.cc/100?img=14',
     rating: 5,
-    text: '"האפליקציה עזרה לי להגיע ליעדים שלי בצורה מדויקת ופשוטה. התוכנית מותאמת אישית ונותנת לי בדיוק את מה שאני צריך."',
+    text: '"This app helped me reach my goals in a precise and simple way. The plan is personalized and gives me exactly what I need."',
   },
   {
-    name: 'דני לוי',
+    name: 'Dan Smith',
     avatar: 'https://i.pravatar.cc/100?img=15',
     rating: 5,
-    text: '"חוויית משתמש מעולה! הכל מאוד אינטואיטיבי וקל לשימוש. אני מרגיש שהאפליקציה באמת מבינה אותי ואת הצרכים שלי."',
+    text: '"Amazing user experience! Everything is very intuitive and easy to use. I feel like the app really understands me and my needs."',
   },
 ];
 
@@ -47,12 +47,12 @@ export default function RatingPage() {
 
   return (
     <OnboardingShell
-      title="תן לנו דירוג"
+      title="Rate Us"
       subtitle=""
       progress={getStepProgress('rating')}
       footer={
         <PrimaryButton onPress={handleContinue} disabled={!isButtonEnabled}>
-          הבא
+          Next
         </PrimaryButton>
       }
     >
@@ -77,7 +77,7 @@ export default function RatingPage() {
 
         {/* Main Message */}
         <Text style={styles.mainMessage}>
-          {'\u200F'}FitJourney נבנתה{'\n'}עבור אנשים כמוך
+          FitJourney is built{'\n'}for people like you
         </Text>
 
         {/* Avatars Row */}
@@ -97,7 +97,7 @@ export default function RatingPage() {
 
         {/* Users Count Text */}
         <Text style={styles.usersText}>
-          אלפי משתמשים כבר בתהליך עם FitJourney
+          Thousands of users already on their journey with FitJourney
         </Text>
 
         {/* Testimonial Cards */}
@@ -188,7 +188,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md,
   },
   testimonialHeader: {
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: spacing.md,
@@ -215,7 +215,7 @@ const styles = StyleSheet.create({
   testimonialText: {
     fontSize: typography.size.sm,
     color: colors.text.secondary,
-    textAlign: 'right',
+    textAlign: 'left',
     lineHeight: 22,
   },
 });

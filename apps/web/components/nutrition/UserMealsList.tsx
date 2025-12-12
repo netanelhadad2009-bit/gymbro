@@ -75,12 +75,12 @@ export function UserMealsList({ meals, onDelete, onEdit, onClickEntry }: Props) 
     return null;
   }
 
-  // Meal type labels in Hebrew
+  // Meal type labels in English
   const mealTypeLabels: Record<string, string> = {
-    breakfast: 'ארוחת בוקר',
-    lunch: 'צהריים',
-    dinner: 'ערב',
-    snack: 'חטיפים',
+    breakfast: 'Breakfast',
+    lunch: 'Lunch',
+    dinner: 'Dinner',
+    snack: 'Snacks',
   };
 
   // Meal type emojis

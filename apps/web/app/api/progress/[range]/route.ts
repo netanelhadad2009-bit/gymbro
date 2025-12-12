@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { supabaseServer } from "@/lib/supabase-server";
+import { createServerSupabaseClientWithAuth } from "@/lib/supabase-server";
 import { getWeightSeries, getDailyNutrition, getKpis } from "@/lib/progress/queries";
 
 export const dynamic = "force-dynamic";
@@ -39,8 +39,8 @@ export async function GET(
       );
     }
 
-    // Auth
-    const supabase = supabaseServer();
+    // Auth - supports both cookie and Bearer token authentication
+    const supabase = await createServerSupabaseClientWithAuth();
     const {
       data: { user },
       error: userErr,

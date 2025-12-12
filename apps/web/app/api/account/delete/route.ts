@@ -4,7 +4,7 @@
  */
 
 import { NextResponse } from "next/server";
-import { createServerSupabaseClient } from "@/lib/supabase-server";
+import { createServerSupabaseClientWithAuth } from "@/lib/supabase-server";
 import { createClient } from "@supabase/supabase-js";
 
 export const runtime = "nodejs";
@@ -12,8 +12,8 @@ export const dynamic = "force-dynamic";
 
 export async function DELETE() {
   try {
-    // 1. Verify authentication with regular client
-    const supabase = await createServerSupabaseClient();
+    // 1. Verify authentication (supports both cookie-based and Bearer token auth)
+    const supabase = await createServerSupabaseClientWithAuth();
     const {
       data: { user },
       error: userErr,
@@ -128,7 +128,105 @@ export async function DELETE() {
       }
     }
 
-    // 5. Delete profile data (if exists)
+    // 5. Delete journey stages data
+    // 5a. Get all user stage IDs
+    const { data: userStages, error: usErr } = await admin
+      .from("user_stages")
+      .select("id")
+      .eq("user_id", userId);
+
+    if (usErr) {
+      console.error("[API] Error fetching user_stages:", usErr);
+      // Continue anyway
+    }
+
+    const userStageIds = (userStages ?? []).map((s) => s.id);
+
+    // 5b. Delete user_stage_tasks
+    if (userStageIds.length > 0) {
+      const { error: ustDelErr } = await admin
+        .from("user_stage_tasks")
+        .delete()
+        .in("user_stage_id", userStageIds);
+
+      if (ustDelErr) {
+        console.error("[API] Error deleting user_stage_tasks:", ustDelErr);
+        // Continue anyway
+      }
+    }
+
+    // 5c. Delete user_stages
+    const { error: usDelErr } = await admin
+      .from("user_stages")
+      .delete()
+      .eq("user_id", userId);
+
+    if (usDelErr) {
+      console.error("[API] Error deleting user_stages:", usDelErr);
+      // Continue anyway
+    }
+
+    // 6. Delete meals and related data
+    // 6a. Get all meal IDs
+    const { data: meals, error: mealsErr } = await admin
+      .from("meals")
+      .select("id")
+      .eq("user_id", userId);
+
+    if (mealsErr) {
+      console.error("[API] Error fetching meals:", mealsErr);
+      // Continue anyway
+    }
+
+    const mealIds = (meals ?? []).map((m) => m.id);
+
+    // 6b. Delete meal_foods
+    if (mealIds.length > 0) {
+      const { error: mfDelErr } = await admin
+        .from("meal_foods")
+        .delete()
+        .in("meal_id", mealIds);
+
+      if (mfDelErr) {
+        console.error("[API] Error deleting meal_foods:", mfDelErr);
+        // Continue anyway
+      }
+    }
+
+    // 6c. Delete meals
+    const { error: mealsDelErr } = await admin
+      .from("meals")
+      .delete()
+      .eq("user_id", userId);
+
+    if (mealsDelErr) {
+      console.error("[API] Error deleting meals:", mealsDelErr);
+      // Continue anyway
+    }
+
+    // 7. Delete weight logs
+    const { error: weightLogsDelErr } = await admin
+      .from("weight_logs")
+      .delete()
+      .eq("user_id", userId);
+
+    if (weightLogsDelErr) {
+      console.error("[API] Error deleting weight_logs:", weightLogsDelErr);
+      // Continue anyway
+    }
+
+    // 8. Delete avatars
+    const { error: avatarDelErr } = await admin
+      .from("avatars")
+      .delete()
+      .eq("user_id", userId);
+
+    if (avatarDelErr) {
+      console.error("[API] Error deleting avatars:", avatarDelErr);
+      // Continue anyway
+    }
+
+    // 9. Delete profile data (if exists)
     const { error: profileDelErr } = await admin
       .from("profiles")
       .delete()
@@ -139,7 +237,7 @@ export async function DELETE() {
       // Don't fail the operation if profile doesn't exist
     }
 
-    // 6. Finally, delete the auth user
+    // 10. Finally, delete the auth user
     const { error: authErr } = await admin.auth.admin.deleteUser(userId);
 
     if (authErr) {

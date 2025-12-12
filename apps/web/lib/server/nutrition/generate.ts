@@ -7,17 +7,17 @@ import { assertDietCompliance } from "@/lib/ai/json";
 import { profileFingerprint } from "@/lib/storage";
 
 /**
- * Input payload for nutrition plan generation
+ * Input payload for nutrition plan generation (English enums)
  */
 export type NutritionPayload = {
-  gender_he: string;
+  gender: "male" | "female" | "other";
   age: number;
   height_cm: number;
   weight_kg: number;
   target_weight_kg: number;
-  activity_level_he: string;
-  goal_he: string;
-  diet_type_he: string;
+  activity: "sedentary" | "light" | "moderate" | "high";
+  goal: "loss" | "gain" | "recomp" | "maintain";
+  diet: "none" | "vegan" | "vegetarian" | "keto" | "paleo" | "low_carb" | "mediterranean";
   days: number;
 };
 
@@ -31,17 +31,17 @@ export type NutritionGenerationResult = {
 };
 
 /**
- * Validation schema for nutrition payload
+ * Validation schema for nutrition payload (English enums)
  */
 export const NutritionPayloadSchema = z.object({
-  gender_he: z.string().min(1, "gender_he is required"),
+  gender: z.enum(["male", "female", "other"], { errorMap: () => ({ message: "gender must be 'male', 'female', or 'other'" }) }),
   age: z.number().int().positive("age must be a positive integer"),
   height_cm: z.number().positive("height_cm must be positive"),
   weight_kg: z.number().positive("weight_kg must be positive"),
   target_weight_kg: z.number().positive("target_weight_kg must be positive"),
-  activity_level_he: z.string().min(1, "activity_level_he is required"),
-  goal_he: z.string().min(1, "goal_he is required"),
-  diet_type_he: z.string().min(1, "diet_type_he is required"),
+  activity: z.enum(["sedentary", "light", "moderate", "high"], { errorMap: () => ({ message: "activity must be 'sedentary', 'light', 'moderate', or 'high'" }) }),
+  goal: z.enum(["loss", "gain", "recomp", "maintain"], { errorMap: () => ({ message: "goal must be 'loss', 'gain', 'recomp', or 'maintain'" }) }),
+  diet: z.enum(["none", "vegan", "vegetarian", "keto", "paleo", "low_carb", "mediterranean"], { errorMap: () => ({ message: "diet must be one of the supported diet types" }) }),
   days: z.number().int().positive().max(14).default(1),
 });
 
@@ -98,8 +98,8 @@ export async function generateNutritionPlan(
     });
   }
 
-  // Extract diet token and forbidden keywords for compliance checking
-  const dietToken = mapDietHeToToken(validPayload.diet_type_he);
+  // Map diet enum to token for compliance checking
+  const dietToken = mapDietHeToToken(validPayload.diet);
   const forbiddenKeywords = getForbiddenKeywords(dietToken);
   const model = process.env.OPENAI_MODEL_NUTRITION || "gpt-4o-mini";
 

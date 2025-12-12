@@ -14,23 +14,33 @@ import {
   ExportableProfile,
 } from "@/lib/googleSheets";
 import { notifyNewSignup } from "@/lib/whatsapp";
+import { requireAuth, checkRateLimit, RateLimitPresets, ErrorResponses } from "@/lib/api/security";
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
+    // Rate limiting to prevent abuse
+    const rateLimit = await checkRateLimit(request, {
+      ...RateLimitPresets.strict,
+      keyPrefix: 'admin-sheets-signup',
+    });
 
-    // Validate required fields
-    if (!body.id) {
-      return NextResponse.json(
-        { ok: false, error: "id is required" },
-        { status: 400 }
-      );
+    if (!rateLimit.allowed) {
+      return ErrorResponses.rateLimited(rateLimit.resetAt, rateLimit.limit);
     }
 
-    // Build exportable profile
+    // Authentication check
+    const auth = await requireAuth();
+    if (!auth.success) {
+      return auth.response;
+    }
+    const { user } = auth;
+
+    const body = await request.json();
+
+    // Build exportable profile - use authenticated user's ID, not client-provided
     const profile: ExportableProfile = {
-      id: String(body.id),
-      email: body.email ?? null,
+      id: user.id,
+      email: user.email ?? body.email ?? null,
       full_name: body.full_name ?? null,
       device_id: body.device_id ?? null,
       created_at: body.created_at ?? new Date().toISOString(),

@@ -32,13 +32,13 @@ export const createServerSupabaseClient = async () => {
 /**
  * Create Supabase client with support for both cookie-based and Bearer token authentication
  * Checks Authorization header first, then falls back to cookies
- * Use this in API routes that need to support programmatic access (e.g., E2E tests)
+ * Use this in API routes that need to support programmatic access (e.g., mobile app, E2E tests)
  */
 export const createServerSupabaseClientWithAuth = async () => {
   const headersList = await headers();
   const authHeader = headersList.get('authorization');
 
-  // Check for Bearer token first
+  // Check for Bearer token first (mobile app sends access_token as Bearer token)
   if (authHeader?.startsWith('Bearer ')) {
     const token = authHeader.substring(7);
     const supabase = createSupabaseClient(
@@ -47,6 +47,7 @@ export const createServerSupabaseClientWithAuth = async () => {
       {
         auth: {
           persistSession: false,
+          autoRefreshToken: false,
         },
         global: {
           headers: {
@@ -55,6 +56,13 @@ export const createServerSupabaseClientWithAuth = async () => {
         },
       }
     );
+
+    // Wrap getUser to use the token directly
+    // This ensures auth.getUser() works with Bearer tokens
+    const originalGetUser = supabase.auth.getUser.bind(supabase.auth);
+    supabase.auth.getUser = async () => {
+      return originalGetUser(token);
+    };
 
     return supabase;
   }

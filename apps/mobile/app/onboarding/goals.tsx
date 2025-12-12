@@ -12,17 +12,17 @@ type GoalKey = 'gain' | 'loss' | 'recomp';
 const goalOptions: { value: GoalKey; label: string; IconComponent: React.ComponentType<any> }[] = [
   {
     value: 'gain',
-    label: 'לעלות במסת שריר',
+    label: 'Build muscle mass',
     IconComponent: ChevronsUp,
   },
   {
     value: 'loss',
-    label: 'לרדת באחוזי שומן ולהתחטב',
+    label: 'Lose body fat and get lean',
     IconComponent: ArrowDown,
   },
   {
     value: 'recomp',
-    label: 'לשפר הרגלים ולשמור על הגוף',
+    label: 'Improve habits and maintain',
     IconComponent: Crosshair,
   },
 ];
@@ -51,10 +51,10 @@ export default function GoalsPage() {
     <OnboardingShell
       title={
         <Text style={styles.titleText}>
-          מה אתה רוצה להשיג{'\n'}עם FitJourney?
+          What do you want{'\n'}to achieve with FitJourney?
         </Text>
       }
-      subtitle="כל תשובה כאן היא לגיטימית - ומאיתנו נבנה איתך תהליך שמתאים בדיוק לך."
+      subtitle="Every answer here is valid - we'll build a plan that's perfect for you."
       progress={getStepProgress('goals')}
       footer={
         <PrimaryButton
@@ -62,7 +62,7 @@ export default function GoalsPage() {
           disabled={!selectedGoal}
           loading={isLoading}
         >
-          הבא
+          Next
         </PrimaryButton>
       }
     >
@@ -107,7 +107,7 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: typography.weight.bold,
     color: colors.text.primary,
-    textAlign: 'right',
+    textAlign: 'left',
     lineHeight: 36,
   },
   optionsContainer: {
@@ -132,7 +132,7 @@ const styles = StyleSheet.create({
     fontWeight: typography.weight.semibold,
     color: colors.text.primary,
     flex: 1,
-    textAlign: 'right',
+    textAlign: 'left',
   },
   optionLabelSelected: {
     color: colors.background.primary,

@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import { Redirect } from 'expo-router';
 import { useAuth } from '../contexts/AuthContext';
@@ -15,12 +14,12 @@ export default function Index() {
     );
   }
 
-  // Redirect based on auth state
+  // User logged in → go to app
   if (user) {
     return <Redirect href="/(app)/journey" />;
   }
 
-  // Redirect to welcome screen (auth index)
+  // User not logged in → go to auth
   return <Redirect href="/(auth)" />;
 }
 

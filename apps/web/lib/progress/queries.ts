@@ -6,8 +6,11 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 export type WeightPoint = {
-  t: string; // ISO timestamp
+  id: string;
+  t: string; // ISO timestamp (created_at for proper ordering)
+  date: string; // YYYY-MM-DD (user-selected date for display)
   kg: number;
+  notes?: string | null;
 };
 
 export type DailyNutrition = {
@@ -59,10 +62,10 @@ export async function getWeightSeries(
 
   const { data, error } = await supabase
     .from("weigh_ins")
-    .select("date, weight_kg")
+    .select("id, date, weight_kg, notes, created_at")
     .eq("user_id", userId)
     .gte("date", cutoffDate.toISOString())
-    .order("date", { ascending: true });
+    .order("created_at", { ascending: true });
 
   if (error) {
     console.error("[Progress] Weight query error:", error);
@@ -70,8 +73,11 @@ export async function getWeightSeries(
   }
 
   return (data || []).map((row) => ({
-    t: row.date,
+    id: row.id,
+    t: row.created_at || row.date, // Use created_at for ordering
+    date: row.date, // User-selected date for display
     kg: row.weight_kg,
+    notes: row.notes,
   }));
 }
 

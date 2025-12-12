@@ -10,10 +10,10 @@ import { useSheet } from "@/contexts/SheetContext";
 import { Keyboard } from "@capacitor/keyboard";
 
 const MEAL_TYPES: { value: MealType; label: string; emoji: string }[] = [
-  { value: 'breakfast', label: 'ארוחת בוקר', emoji: '🌅' },
-  { value: 'lunch', label: 'צהריים', emoji: '☀️' },
-  { value: 'dinner', label: 'ערב', emoji: '🌙' },
-  { value: 'snack', label: 'חטיף', emoji: '🍎' },
+  { value: 'breakfast', label: 'Breakfast', emoji: '🌅' },
+  { value: 'lunch', label: 'Lunch', emoji: '☀️' },
+  { value: 'dinner', label: 'Dinner', emoji: '🌙' },
+  { value: 'snack', label: 'Snack', emoji: '🍎' },
 ];
 
 export default function AddManualMealPage() {

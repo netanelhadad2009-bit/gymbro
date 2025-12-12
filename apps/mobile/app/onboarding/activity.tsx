@@ -11,20 +11,20 @@ type ActivityLevel = 'sedentary' | 'light' | 'high';
 const activityOptions: { value: ActivityLevel; title: string; subtitle: string; bars: number }[] = [
   {
     value: 'sedentary',
-    title: 'כמעט בלי תנועה',
-    subtitle: 'יושב רוב היום',
+    title: 'Sedentary',
+    subtitle: 'Sitting most of the day',
     bars: 1,
   },
   {
     value: 'light',
-    title: 'תנועה קלה',
-    subtitle: 'זז קצת במהלך היום',
+    title: 'Light activity',
+    subtitle: 'Moving around during the day',
     bars: 2,
   },
   {
     value: 'high',
-    title: 'תנועה גבוהה',
-    subtitle: 'עובד פיזית או כל היום על הרגליים',
+    title: 'High activity',
+    subtitle: 'Physical work or on feet all day',
     bars: 3,
   },
 ];
@@ -75,12 +75,12 @@ export default function ActivityPage() {
     <OnboardingShell
       title={
         <Text style={styles.titleText}>
-          מהי רמת הפעילות{'\n'}היומית שלך?
+          What's your{'\n'}daily activity level?
         </Text>
       }
       subtitle={
         <Text style={styles.subtitleText}>
-          התשובה שלך תעזור לנו להתאים את{'\n'}התפריט בדיוק בשבילך.
+          This helps us personalize{'\n'}your nutrition plan perfectly.
         </Text>
       }
       progress={getStepProgress('activity')}
@@ -90,7 +90,7 @@ export default function ActivityPage() {
           disabled={!selected}
           loading={isLoading}
         >
-          הבא
+          Next
         </PrimaryButton>
       }
     >
@@ -141,13 +141,13 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: typography.weight.bold,
     color: colors.text.primary,
-    textAlign: 'right',
+    textAlign: 'left',
     lineHeight: 36,
   },
   subtitleText: {
     fontSize: typography.size.base,
     color: colors.text.secondary,
-    textAlign: 'right',
+    textAlign: 'left',
     lineHeight: 24,
   },
   optionsContainer: {
@@ -182,7 +182,7 @@ const styles = StyleSheet.create({
     fontSize: typography.size.lg,
     fontWeight: typography.weight.semibold,
     color: colors.text.primary,
-    textAlign: 'right',
+    textAlign: 'left',
   },
   optionTitleSelected: {
     color: colors.background.primary,
@@ -190,7 +190,7 @@ const styles = StyleSheet.create({
   optionSubtitle: {
     fontSize: typography.size.sm,
     color: 'rgba(255,255,255,0.6)',
-    textAlign: 'right',
+    textAlign: 'left',
     marginTop: spacing.xs,
   },
   optionSubtitleSelected: {

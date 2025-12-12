@@ -34,6 +34,43 @@ interface PostAuthFlowParams {
 }
 
 /**
+ * Retry helper for API calls with exponential backoff
+ * @param fn Function to retry
+ * @param maxRetries Maximum number of retry attempts
+ * @param delayMs Initial delay in milliseconds (doubles each retry)
+ * @param operationName Name of operation for logging
+ */
+async function retryWithBackoff<T>(
+  fn: () => Promise<T>,
+  maxRetries: number = 3,
+  delayMs: number = 1000,
+  operationName: string = 'operation'
+): Promise<T> {
+  let lastError: any;
+
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      return await fn();
+    } catch (error) {
+      lastError = error;
+      console.warn(
+        `[PostAuth] ${operationName} failed (attempt ${attempt}/${maxRetries}):`,
+        error
+      );
+
+      if (attempt < maxRetries) {
+        const delay = delayMs * Math.pow(2, attempt - 1);
+        console.log(`[PostAuth] Retrying ${operationName} in ${delay}ms...`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+      }
+    }
+  }
+
+  console.error(`[PostAuth] ${operationName} failed after ${maxRetries} attempts`);
+  throw lastError;
+}
+
+/**
  * Normalize persona values to canonical form
  * Maps various input formats to standard persona codes
  */
@@ -595,29 +632,39 @@ export async function runPostAuthFlow({
     console.log('[PostAuth] Steps 2-4/8: Running avatar bootstrap, plan session, and avatar verification in PARALLEL...');
 
     const parallelTasks = await Promise.allSettled([
-      // STEP 2: Bootstrap avatar AI service
+      // STEP 2: Bootstrap avatar AI service with retry logic
       (async () => {
         console.log('[PostAuth] [Parallel] Starting avatar bootstrap...');
         try {
-          const avatarRes = await fetch('/api/avatar/bootstrap', {
-            method: 'POST',
-            credentials: 'include',
-          });
+          await retryWithBackoff(
+            async () => {
+              const avatarRes = await fetch('/api/avatar/bootstrap', {
+                method: 'POST',
+                credentials: 'include',
+              });
 
-          if (!avatarRes.ok) {
-            const errorText = await avatarRes.text();
-            console.error('[PostAuth] Avatar bootstrap failed:', {
-              status: avatarRes.status,
-              statusText: avatarRes.statusText,
-              body: errorText,
-            });
-            return { step: 2, success: false };
-          } else {
-            console.log('[PostAuth] ✅ Avatar AI service bootstrapped');
-            return { step: 2, success: true };
-          }
+              if (!avatarRes.ok) {
+                const errorText = await avatarRes.text();
+                console.error('[PostAuth] Avatar bootstrap failed:', {
+                  status: avatarRes.status,
+                  statusText: avatarRes.statusText,
+                  body: errorText,
+                });
+                throw new Error(`Avatar bootstrap failed: ${avatarRes.status}`);
+              }
+
+              console.log('[PostAuth] ✅ Avatar AI service bootstrapped');
+              return true;
+            },
+            3, // max retries
+            1000, // initial delay
+            'Avatar bootstrap'
+          );
+
+          return { step: 2, success: true };
         } catch (err) {
-          console.error('[PostAuth] Error bootstrapping avatar:', err);
+          console.error('[PostAuth] Error bootstrapping avatar after retries:', err);
+          // Non-critical - avatar can be created later
           return { step: 2, success: false, error: err };
         }
       })(),
@@ -719,77 +766,104 @@ export async function runPostAuthFlow({
 
     try {
       const [journeyResult, stagesResult] = await Promise.all([
-        // STEP 5: Bootstrap journey plan
+        // STEP 5: Bootstrap journey plan with retry logic
         (async () => {
           console.log('[PostAuth] [Parallel] Starting journey plan bootstrap...');
-          const bootstrapRes = await fetch('/api/journey/plan/bootstrap', {
-            method: 'POST',
-            credentials: 'include',
-          });
 
-          if (!bootstrapRes.ok) {
-            const errorText = await bootstrapRes.text();
-            console.error('[PostAuth] Journey bootstrap failed:', {
-              status: bootstrapRes.status,
-              statusText: bootstrapRes.statusText,
-              body: errorText,
-            });
-            throw new Error(`Journey bootstrap failed: ${bootstrapRes.status}`);
-          }
+          const result = await retryWithBackoff(
+            async () => {
+              const bootstrapRes = await fetch('/api/journey/plan/bootstrap', {
+                method: 'POST',
+                credentials: 'include',
+              });
 
-          const bootstrapData = await bootstrapRes.json();
-          console.log('[PostAuth] ✅ Journey plan bootstrapped:', bootstrapData);
-          return { step: 5, success: true, data: bootstrapData };
+              if (!bootstrapRes.ok) {
+                const errorText = await bootstrapRes.text();
+                console.error('[PostAuth] Journey bootstrap failed:', {
+                  status: bootstrapRes.status,
+                  statusText: bootstrapRes.statusText,
+                  body: errorText,
+                });
+                throw new Error(`Journey bootstrap failed: ${bootstrapRes.status}`);
+              }
+
+              const bootstrapData = await bootstrapRes.json();
+              console.log('[PostAuth] ✅ Journey plan bootstrapped:', bootstrapData);
+              return bootstrapData;
+            },
+            3, // max retries
+            1000, // initial delay
+            'Journey bootstrap'
+          );
+
+          return { step: 5, success: true, data: result };
         })(),
 
-        // STEP 6: Bootstrap or attach workout stages
+        // STEP 6: Bootstrap or attach workout stages with retry logic
         (async () => {
           if (hasPreGeneratedStages) {
             console.log('[PostAuth] [Parallel] Found pre-generated stages, attaching...');
 
-            const attachStagesRes = await fetch('/api/journey/stages/attach', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              credentials: 'include',
-              body: JSON.stringify({ stages: cachedStages }),
-            });
+            const result = await retryWithBackoff(
+              async () => {
+                const attachStagesRes = await fetch('/api/journey/stages/attach', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  credentials: 'include',
+                  body: JSON.stringify({ stages: cachedStages }),
+                });
 
-            if (!attachStagesRes.ok) {
-              const errorText = await attachStagesRes.text();
-              console.error('[PostAuth] Stages attachment failed:', {
-                status: attachStagesRes.status,
-                statusText: attachStagesRes.statusText,
-                body: errorText,
-              });
-              throw new Error(`Stages attachment failed: ${attachStagesRes.status}`);
-            }
+                if (!attachStagesRes.ok) {
+                  const errorText = await attachStagesRes.text();
+                  console.error('[PostAuth] Stages attachment failed:', {
+                    status: attachStagesRes.status,
+                    statusText: attachStagesRes.statusText,
+                    body: errorText,
+                  });
+                  throw new Error(`Stages attachment failed: ${attachStagesRes.status}`);
+                }
 
-            const attachResult = await attachStagesRes.json();
-            console.log('[PostAuth] ✅ Pre-generated stages attached:', attachResult);
+                const attachResult = await attachStagesRes.json();
+                console.log('[PostAuth] ✅ Pre-generated stages attached:', attachResult);
+                return attachResult;
+              },
+              3, // max retries
+              1000, // initial delay
+              'Stages attachment'
+            );
 
             // Stages are cleared with PlanSession in Step 8
-            return { step: 6, success: true, mode: 'attached', data: attachResult };
+            return { step: 6, success: true, mode: 'attached', data: result };
           } else {
             console.log('[PostAuth] [Parallel] No pre-generated stages, bootstrapping fresh...');
 
-            const bootstrapStagesRes = await fetch('/api/journey/stages/bootstrap', {
-              method: 'POST',
-              credentials: 'include',
-            });
+            const result = await retryWithBackoff(
+              async () => {
+                const bootstrapStagesRes = await fetch('/api/journey/stages/bootstrap', {
+                  method: 'POST',
+                  credentials: 'include',
+                });
 
-            if (!bootstrapStagesRes.ok) {
-              const errorText = await bootstrapStagesRes.text();
-              console.error('[PostAuth] Stages bootstrap failed:', {
-                status: bootstrapStagesRes.status,
-                statusText: bootstrapStagesRes.statusText,
-                body: errorText,
-              });
-              throw new Error(`Stages bootstrap failed: ${bootstrapStagesRes.status}`);
-            }
+                if (!bootstrapStagesRes.ok) {
+                  const errorText = await bootstrapStagesRes.text();
+                  console.error('[PostAuth] Stages bootstrap failed:', {
+                    status: bootstrapStagesRes.status,
+                    statusText: bootstrapStagesRes.statusText,
+                    body: errorText,
+                  });
+                  throw new Error(`Stages bootstrap failed: ${bootstrapStagesRes.status}`);
+                }
 
-            const bootstrapResult = await bootstrapStagesRes.json();
-            console.log('[PostAuth] ✅ Fresh stages bootstrapped:', bootstrapResult);
-            return { step: 6, success: true, mode: 'bootstrapped', data: bootstrapResult };
+                const bootstrapResult = await bootstrapStagesRes.json();
+                console.log('[PostAuth] ✅ Fresh stages bootstrapped:', bootstrapResult);
+                return bootstrapResult;
+              },
+              3, // max retries
+              1000, // initial delay
+              'Stages bootstrap'
+            );
+
+            return { step: 6, success: true, mode: 'bootstrapped', data: result };
           }
         })(),
       ]);

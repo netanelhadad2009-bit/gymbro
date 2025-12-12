@@ -62,7 +62,7 @@ IMPORTANT: You MUST include ALL fields in your response.
 
 Response format:
 {
-  "meal_name": "string (REQUIRED - in Hebrew)",
+  "meal_name": "string (REQUIRED - in English)",
   "calories": number (REQUIRED),
   "protein": number (REQUIRED - in grams),
   "carbs": number (REQUIRED - in grams),
@@ -72,7 +72,7 @@ Response format:
 }
 
 Field requirements:
-- meal_name: MUST be in Hebrew (עברית)
+- meal_name: MUST be in English
 - calories: Total calories for the portion shown
 - protein: Grams of protein
 - carbs: Grams of carbohydrates
@@ -194,7 +194,7 @@ export async function POST(req: NextRequest) {
     }
 
     // G. Validate and build payload
-    const meal_name = String(parsed.meal_name || "ארוחה");
+    const meal_name = String(parsed.meal_name || "Meal");
     const calories = Math.max(0, Math.min(9999, Math.round(Number(parsed.calories || 0))));
     const protein = Math.max(0, Math.min(9999, Math.round(Number(parsed.protein || 0))));
     const carbs = Math.max(0, Math.min(9999, Math.round(Number(parsed.carbs || 0))));

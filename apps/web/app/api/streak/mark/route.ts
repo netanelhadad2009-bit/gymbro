@@ -47,11 +47,11 @@ export async function POST(request: NextRequest) {
     const { user } = auth;
 
     // Validate request body (optional body with source field)
-    let source = 'auto';
+    let source: string = 'auto';
     try {
       const validation = await validateBody(request, MarkStreakSchema);
       if (validation.success) {
-        source = validation.data.source;
+        source = validation.data.source ?? 'auto';
       }
     } catch {
       // Empty body is allowed - use default

@@ -13,18 +13,30 @@ import {
   ExportableSubscription,
 } from "@/lib/googleSheets";
 import { notifyNewPurchase } from "@/lib/whatsapp";
+import { requireAuth, checkRateLimit, RateLimitPresets, ErrorResponses } from "@/lib/api/security";
 
 export async function POST(request: NextRequest) {
   try {
+    // Rate limiting to prevent abuse
+    const rateLimit = await checkRateLimit(request, {
+      ...RateLimitPresets.strict,
+      keyPrefix: 'admin-sheets-sub',
+    });
+
+    if (!rateLimit.allowed) {
+      return ErrorResponses.rateLimited(rateLimit.resetAt, rateLimit.limit);
+    }
+
+    // Authentication check
+    const auth = await requireAuth();
+    if (!auth.success) {
+      return auth.response;
+    }
+    const { user } = auth;
+
     const body = await request.json();
 
     // Validate required fields
-    if (!body.id) {
-      return NextResponse.json(
-        { ok: false, error: "id is required" },
-        { status: 400 }
-      );
-    }
     if (!body.plan) {
       return NextResponse.json(
         { ok: false, error: "plan is required" },
@@ -32,10 +44,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Build exportable profile
+    // Build exportable profile - use authenticated user's ID, not client-provided
     const profile: ExportableProfile = {
-      id: String(body.id),
-      email: body.email ?? null,
+      id: user.id,
+      email: user.email ?? body.email ?? null,
       full_name: body.full_name ?? null,
       device_id: body.device_id ?? null,
       created_at: body.created_at ?? null,

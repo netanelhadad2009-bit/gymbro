@@ -148,17 +148,17 @@ export async function logMealFromFood(params: LogMealParams): Promise<LogMealRes
 }
 
 /**
- * Format meal type for display (Hebrew)
+ * Format meal type for display (English)
  */
 export function formatMealType(mealType: MealType): string {
   const labels: Record<MealType, string> = {
-    breakfast: 'ארוחת בוקר',
-    lunch: 'ארוחת צהריים',
-    dinner: 'ארוחת ערב',
-    snack: 'חטיף',
+    breakfast: 'Breakfast',
+    lunch: 'Lunch',
+    dinner: 'Dinner',
+    snack: 'Snack',
   };
 
-  return labels[mealType] || 'חטיף';
+  return labels[mealType] || 'Snack';
 }
 
 /**

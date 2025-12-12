@@ -11,20 +11,20 @@ type FrequencyValue = 'low' | 'medium' | 'high';
 const options: { value: FrequencyValue; label: string; caption: string; dots: number }[] = [
   {
     value: 'low',
-    label: '0–2 אימונים',
-    caption: 'מתאמן לפעמים',
+    label: '0-2 workouts',
+    caption: 'Occasional exerciser',
     dots: 1,
   },
   {
     value: 'medium',
-    label: '3–5 אימונים',
-    caption: 'מתאמן באופן קבוע',
+    label: '3-5 workouts',
+    caption: 'Regular exerciser',
     dots: 3,
   },
   {
     value: 'high',
-    label: '6+ אימונים',
-    caption: 'מתאמן מקצועי / ספורטאי ייעודי',
+    label: '6+ workouts',
+    caption: 'Serious athlete',
     dots: 6,
   },
 ];
@@ -62,18 +62,18 @@ export default function TrainingFrequencyPage() {
     <OnboardingShell
       title={
         <Text style={styles.titleText}>
-          כמה אימונים אתה עושה{'\n'}בשבוע?
+          How many workouts{'\n'}per week?
         </Text>
       }
       subtitle={
         <Text style={styles.subtitleText}>
-          זה יעזור לנו להבין את רמת הפעילות שלך{'\n'}ולהתאים את התוכנית האישית.
+          This helps us understand your activity level{'\n'}and personalize your plan.
         </Text>
       }
       progress={getStepProgress('training-frequency')}
       footer={
         <PrimaryButton onPress={handleContinue} disabled={!selected}>
-          הבא
+          Next
         </PrimaryButton>
       }
     >
@@ -124,13 +124,13 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: typography.weight.bold,
     color: colors.text.primary,
-    textAlign: 'right',
+    textAlign: 'left',
     lineHeight: 36,
   },
   subtitleText: {
     fontSize: typography.size.base,
     color: colors.text.secondary,
-    textAlign: 'right',
+    textAlign: 'left',
     lineHeight: 24,
   },
   optionsContainer: {
@@ -157,7 +157,7 @@ const styles = StyleSheet.create({
     fontSize: typography.size.lg,
     fontWeight: typography.weight.bold,
     color: colors.text.primary,
-    textAlign: 'right',
+    textAlign: 'left',
   },
   optionLabelSelected: {
     color: colors.background.primary,
@@ -165,7 +165,7 @@ const styles = StyleSheet.create({
   optionCaption: {
     fontSize: typography.size.sm,
     color: 'rgba(255,255,255,0.6)',
-    textAlign: 'right',
+    textAlign: 'left',
     marginTop: spacing.xs,
   },
   optionCaptionSelected: {

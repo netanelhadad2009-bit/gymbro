@@ -9,8 +9,8 @@ import { colors, typography, spacing, borderRadius } from '../../lib/theme';
 
 const ITEM_HEIGHT = 60;
 const MONTHS = [
-  'ינואר', 'פברואר', 'מרץ', 'אפריל', 'מאי', 'יוני',
-  'יולי', 'אוגוסט', 'ספטמבר', 'אוקטובר', 'נובמבר', 'דצמבר'
+  'January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December'
 ];
 
 const currentYear = new Date().getFullYear();
@@ -93,10 +93,10 @@ export default function BirthdatePage() {
 
   return (
     <OnboardingShell
-      title="מתי נולדת?"
+      title="When were you born?"
       subtitle={
         <Text style={styles.subtitleText}>
-          הגיל שלך משפיע על ההמלצות{'\n'}שתקבל באופן שוטף.
+          Your age affects the recommendations{'\n'}you'll receive.
         </Text>
       }
       progress={getStepProgress('birthdate')}
@@ -106,13 +106,13 @@ export default function BirthdatePage() {
           {isUnder18 && (
             <View style={styles.warningBox}>
               <Text style={styles.warningText}>
-                השימוש באפליקציה מיועד לגילאי 18 ומעלה.{'\n'}
-                הגיל שלך: {age} שנים
+                This app is intended for ages 18 and up.{'\n'}
+                Your age: {age} years
               </Text>
             </View>
           )}
           <PrimaryButton onPress={handleContinue} disabled={isUnder18}>
-            הבא
+            Next
           </PrimaryButton>
         </View>
       }
@@ -121,7 +121,7 @@ export default function BirthdatePage() {
       <View style={styles.pickersRow}>
         {/* Day Picker */}
         <View style={styles.pickerColumn}>
-          <Text style={styles.pickerLabel}>יום</Text>
+          <Text style={styles.pickerLabel}>Day</Text>
           <View style={styles.pickerWrapper}>
             <LinearGradient colors={[colors.background.primary, 'transparent']} style={styles.gradientTop} pointerEvents="none" />
             <View style={styles.highlightBar} pointerEvents="none" />
@@ -150,7 +150,7 @@ export default function BirthdatePage() {
 
         {/* Month Picker */}
         <View style={[styles.pickerColumn, { flex: 1.3 }]}>
-          <Text style={styles.pickerLabel}>חודש</Text>
+          <Text style={styles.pickerLabel}>Month</Text>
           <View style={styles.pickerWrapper}>
             <LinearGradient colors={[colors.background.primary, 'transparent']} style={styles.gradientTop} pointerEvents="none" />
             <View style={styles.highlightBar} pointerEvents="none" />
@@ -179,7 +179,7 @@ export default function BirthdatePage() {
 
         {/* Year Picker */}
         <View style={styles.pickerColumn}>
-          <Text style={styles.pickerLabel}>שנה</Text>
+          <Text style={styles.pickerLabel}>Year</Text>
           <View style={styles.pickerWrapper}>
             <LinearGradient colors={[colors.background.primary, 'transparent']} style={styles.gradientTop} pointerEvents="none" />
             <View style={styles.highlightBar} pointerEvents="none" />
@@ -209,7 +209,7 @@ export default function BirthdatePage() {
 
       {/* Age Display */}
       <View style={styles.ageDisplay}>
-        <Text style={styles.ageText}>הגיל שלך {age} שנים</Text>
+        <Text style={styles.ageText}>Your age: {age} years</Text>
       </View>
     </OnboardingShell>
   );
@@ -219,7 +219,7 @@ const styles = StyleSheet.create({
   subtitleText: {
     fontSize: typography.size.base,
     color: colors.text.secondary,
-    textAlign: 'right',
+    textAlign: 'left',
     lineHeight: 24,
   },
   pickersRow: {
@@ -309,7 +309,7 @@ const styles = StyleSheet.create({
     color: '#f87171',
     fontWeight: typography.weight.semibold,
     fontSize: typography.size.base,
-    textAlign: 'right',
+    textAlign: 'left',
     lineHeight: 24,
   },
 });

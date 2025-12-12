@@ -1,11 +1,28 @@
 import { NextRequest, NextResponse } from "next/server";
 import { sendNewSubscriptionEmail } from "@/lib/email/adminNotifications";
+import { requireAuth, checkRateLimit, RateLimitPresets, ErrorResponses } from "@/lib/api/security";
 
 export async function POST(request: NextRequest) {
   try {
+    // Rate limiting to prevent abuse
+    const rateLimit = await checkRateLimit(request, {
+      ...RateLimitPresets.strict,
+      keyPrefix: 'admin-notify-sub',
+    });
+
+    if (!rateLimit.allowed) {
+      return ErrorResponses.rateLimited(rateLimit.resetAt, rateLimit.limit);
+    }
+
+    // Authentication check
+    const auth = await requireAuth();
+    if (!auth.success) {
+      return auth.response;
+    }
+    const { user } = auth;
+
     const body = await request.json();
     const {
-      userId,
       plan,
       status,
       appleOriginalTransactionId,
@@ -13,9 +30,8 @@ export async function POST(request: NextRequest) {
       createdAt,
     } = body;
 
-    if (!userId) {
-      return NextResponse.json({ error: "userId is required" }, { status: 400 });
-    }
+    // Use authenticated user's ID - never trust client-provided userId
+    const userId = user.id;
 
     // Fire-and-forget: don't await, let email send in background
     sendNewSubscriptionEmail({

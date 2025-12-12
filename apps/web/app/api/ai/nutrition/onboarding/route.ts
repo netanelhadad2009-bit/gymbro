@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { generateNutritionPlan, NutritionPayloadSchema } from "@/lib/server/nutrition/generate";
-import { checkRateLimit, RateLimitPresets, ErrorResponses, handleApiError } from "@/lib/api/security";
+import { checkRateLimit, ErrorResponses, handleApiError } from "@/lib/api/security";
 import { logger, sanitizeRequestBody } from "@/lib/logger";
 
 export const dynamic = "force-dynamic";
@@ -16,6 +16,12 @@ const NO_CACHE_HEADERS = {
  *
  * Generate a nutrition plan during onboarding (unauthenticated)
  * This endpoint is called by the onboarding flow BEFORE user signup
+ *
+ * Accepts English enum values directly from mobile app:
+ * - gender: "male" | "female" | "other"
+ * - activity: "sedentary" | "light" | "moderate" | "high"
+ * - goal: "loss" | "gain" | "recomp" | "maintain"
+ * - diet: "none" | "vegan" | "vegetarian" | "keto" | "paleo" | "low_carb" | "mediterranean"
  *
  * Requirements:
  * - All profile fields must be provided
@@ -53,11 +59,11 @@ export async function POST(req: NextRequest) {
     // Hard clamp: force days to 1 before validation (ignore any input)
     const bodyWithForcedDays = { ...rawBody, days: 1 };
 
-    logger.debug('Onboarding nutrition request payload', {
+    logger.debug('Onboarding nutrition request payload (English enums)', {
       payload: sanitizeRequestBody(bodyWithForcedDays),
     });
 
-    // Strict validation - return 422 on invalid input
+    // Validate English payload directly - no conversion needed
     const validationResult = NutritionPayloadSchema.safeParse(bodyWithForcedDays);
 
     if (!validationResult.success) {
@@ -81,6 +87,9 @@ export async function POST(req: NextRequest) {
     logger.info('Starting onboarding nutrition generation', {
       model,
       days: payload.days,
+      gender: payload.gender,
+      goal: payload.goal,
+      diet: payload.diet,
     });
 
     // Generate nutrition plan using shared utility with verbose logging

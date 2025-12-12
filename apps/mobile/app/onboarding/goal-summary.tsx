@@ -15,19 +15,19 @@ const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 // Motivational messages based on goal
 const motivationalContent: Record<string, { title: string; message: string; stat: string }> = {
   gain: {
-    title: 'המסע שלך לחיזוק הגוף מתחיל',
-    message: 'כל קילו שתוסיף הוא צעד קדימה לעבר הגרסה החזקה שלך.',
-    stat: '89% מהמשתמשים שלנו רואים שיפור תוך 30 יום',
+    title: 'Your journey to build strength begins',
+    message: 'Every pound you gain is a step toward your stronger self.',
+    stat: '89% of our users see improvement within 30 days',
   },
   loss: {
-    title: 'המסע שלך לגוף בריא יותר מתחיל',
-    message: 'כל יום הוא הזדמנות חדשה להתקרב ליעד שלך.',
-    stat: '82% מהמשתמשים שלנו משיגים את היעד שלהם',
+    title: 'Your journey to a healthier body begins',
+    message: 'Every day is a new chance to get closer to your goal.',
+    stat: '82% of our users achieve their target',
   },
   recomp: {
-    title: 'המסע שלך לאיזון מושלם מתחיל',
-    message: 'שמירה על הגוף דורשת עקביות - ואנחנו כאן לעזור.',
-    stat: '91% מהמשתמשים שלנו שומרים על ההרגלים',
+    title: 'Your journey to perfect balance begins',
+    message: 'Maintaining your body requires consistency - we\'re here to help.',
+    stat: '91% of our users maintain their habits',
   },
 };
 
@@ -123,7 +123,7 @@ export default function GoalSummaryPage() {
       progress={getStepProgress('goal-summary')}
       footer={
         <PrimaryButton onPress={handleContinue} disabled={!isAnimationComplete}>
-          בואו נתחיל את המסע
+          Let's Begin the Journey
         </PrimaryButton>
       }
     >
@@ -145,7 +145,7 @@ export default function GoalSummaryPage() {
         {/* Journey Visualization */}
         <View style={styles.journeyCard}>
           <View style={styles.journeyHeader}>
-            <Text style={styles.journeyTitle}>המסע שלך</Text>
+            <Text style={styles.journeyTitle}>Your Journey</Text>
           </View>
 
           {/* Visual Path */}
@@ -204,8 +204,8 @@ export default function GoalSummaryPage() {
             {/* Start label */}
             <View style={[styles.pointLabel, { left: 15, top: pathHeight / 2 + 20 }]}>
               <Footprints size={16} color={colors.text.tertiary} />
-              <Text style={styles.pointLabelText}>היום</Text>
-              <Text style={styles.pointWeight}>{currentWeight} ק״ג</Text>
+              <Text style={styles.pointLabelText}>Today</Text>
+              <Text style={styles.pointWeight}>{currentWeight} kg</Text>
             </View>
 
             {/* End label */}
@@ -218,8 +218,8 @@ export default function GoalSummaryPage() {
               ]}
             >
               <Flag size={16} color={colors.accent.primary} />
-              <Text style={[styles.pointLabelText, { color: colors.accent.primary }]}>היעד</Text>
-              <Text style={[styles.pointWeight, { color: colors.accent.primary }]}>{targetWeight} ק״ג</Text>
+              <Text style={[styles.pointLabelText, { color: colors.accent.primary }]}>Goal</Text>
+              <Text style={[styles.pointWeight, { color: colors.accent.primary }]}>{targetWeight} kg</Text>
             </Animated.View>
           </View>
 
@@ -227,10 +227,10 @@ export default function GoalSummaryPage() {
           {weightDiff !== 0 && (
             <View style={styles.diffBadge}>
               <Text style={styles.diffBadgeText}>
-                {isGain ? '+' : ''}{weightDiff} ק״ג
+                {isGain ? '+' : ''}{weightDiff} kg
               </Text>
               <Text style={styles.diffBadgeLabel}>
-                {isGain ? 'לעלות' : 'לרדת'}
+                {isGain ? 'to gain' : 'to lose'}
               </Text>
             </View>
           )}
@@ -247,8 +247,8 @@ export default function GoalSummaryPage() {
         {/* Commitment message */}
         <Animated.View style={[styles.commitmentSection, { opacity: sparkleOpacity }]}>
           <Text style={styles.commitmentText}>
-            הצעד הראשון הוא תמיד הקשה ביותר.{'\n'}
-            <Text style={styles.commitmentHighlight}>ואתה כבר עשית אותו.</Text>
+            The first step is always the hardest.{'\n'}
+            <Text style={styles.commitmentHighlight}>And you've already taken it.</Text>
           </Text>
         </Animated.View>
       </Animated.View>
@@ -359,7 +359,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: typography.size.sm,
     color: colors.text.secondary,
-    textAlign: 'right',
+    textAlign: 'left',
   },
   commitmentSection: {
     alignItems: 'center',

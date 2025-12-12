@@ -98,131 +98,185 @@ export const typography = {
   },
 } as const;
 
-// Hebrew text labels
+// English text labels
 export const texts = {
   // Auth
   auth: {
-    login: 'התחברות',
-    signup: 'הרשמה',
-    email: 'אימייל',
-    emailPlaceholder: 'הכנס את האימייל שלך',
-    password: 'סיסמה',
-    passwordPlaceholder: 'הכנס סיסמה',
-    loginButton: 'התחבר',
-    loggingIn: 'מתחבר...',
-    signupButton: 'הרשם',
-    signingUp: 'נרשם...',
-    welcomeBack: 'ברוך הבא',
-    createAccount: 'צור חשבון',
-    alreadyHaveAccount: 'כבר יש לך חשבון?',
-    dontHaveAccount: "אין לך חשבון?",
-    or: 'או',
-    continueWithGoogle: 'המשך עם Google',
-    continueWithApple: 'המשך עם Apple',
+    login: 'Log In',
+    signup: 'Sign Up',
+    email: 'Email',
+    emailPlaceholder: 'Enter your email',
+    password: 'Password',
+    passwordPlaceholder: 'Enter password',
+    loginButton: 'Log In',
+    loggingIn: 'Logging in...',
+    signupButton: 'Sign Up',
+    signingUp: 'Signing up...',
+    welcomeBack: 'Welcome Back',
+    createAccount: 'Create Account',
+    alreadyHaveAccount: 'Already have an account?',
+    dontHaveAccount: "Don't have an account?",
+    or: 'or',
+    continueWithGoogle: 'Continue with Google',
+    continueWithApple: 'Continue with Apple',
   },
 
   // Navigation
   nav: {
-    journey: 'מסע',
-    workouts: 'אימונים',
-    nutrition: 'תזונה',
-    profile: 'פרופיל',
+    journey: 'Journey',
+    workouts: 'Workouts',
+    nutrition: 'Nutrition',
+    profile: 'Profile',
   },
 
   // Profile
   profile: {
-    title: 'פרופיל',
-    email: 'אימייל',
-    gender: 'מגדר',
-    age: 'גיל',
-    weight: 'משקל (ק"ג)',
-    targetWeight: 'משקל יעד (ק"ג)',
-    height: 'גובה (ס"מ)',
-    goal: 'מטרה',
-    dietType: 'סוג דיאטה',
-    editProfile: 'ערוך פרופיל',
-    logout: 'התנתקות',
-    logoutConfirm: 'האם אתה בטוח שברצונך להתנתק?',
-    logoutTitle: 'התנתקות',
-    cancel: 'ביטול',
-    privacyPolicy: 'מדיניות פרטיות',
-    termsOfUse: 'תנאי שימוש',
-    deleteAccount: 'מחיקת חשבון',
+    title: 'Profile',
+    email: 'Email',
+    gender: 'Gender',
+    age: 'Age',
+    weight: 'Weight (kg)',
+    targetWeight: 'Target Weight (kg)',
+    height: 'Height (cm)',
+    goal: 'Goal',
+    dietType: 'Diet Type',
+    editProfile: 'Edit Profile',
+    logout: 'Log Out',
+    logoutConfirm: 'Are you sure you want to log out?',
+    logoutTitle: 'Log Out',
+    cancel: 'Cancel',
+    privacyPolicy: 'Privacy Policy',
+    termsOfUse: 'Terms of Use',
+    deleteAccount: 'Delete Account',
   },
 
   // Journey
   journey: {
-    title: 'מסע הכושר שלי',
-    changeStage: 'שנה שלב',
-    lockedStage: 'שלב נעול',
-    lockedStageDesc: 'כל המשימות בשלב זה נעולות. השלם את השלב הקודם כדי לפתוח.',
-    goToActiveStage: 'עבור לשלב הנוכחי',
-    loading: 'טוען את המסע שלך...',
-    noStages: 'אין שלבים זמינים',
-    createStages: 'צור שלבים',
-    connectionError: 'שגיאת חיבור',
-    tryAgain: 'נסה שוב',
-    streak: 'רצף ימים',
+    title: 'My Fitness Journey',
+    changeStage: 'Change Stage',
+    lockedStage: 'Stage Locked',
+    lockedStageDesc: 'All tasks in this stage are locked. Complete the previous stage to unlock.',
+    goToActiveStage: 'Go to Current Stage',
+    loading: 'Loading your journey...',
+    noStages: 'No stages available',
+    createStages: 'Create Stages',
+    connectionError: 'Connection Error',
+    tryAgain: 'Try Again',
+    streak: 'Day Streak',
   },
 
   // Workouts
   workouts: {
-    title: 'אימונים',
-    myWorkouts: 'האימונים שלי',
-    noPrograms: 'אין תוכניות אימון',
-    noProgramsDesc: 'צור תוכנית אימון מותאמת אישית כדי להתחיל',
-    createProgram: 'צור תוכנית',
-    continueWorkout: 'המשך אימון',
-    startWorkout: 'התחל אימון',
-    viewWorkout: 'צפה באימון',
-    completed: 'הושלם',
-    ready: 'מוכן',
-    exercises: 'תרגילים',
-    exercisesCount: 'תרגילים',
-    day: 'יום',
-    progress: 'התקדמות',
-    workoutsCompleted: 'אימונים הושלמו',
-    sets: 'סטים',
-    reps: 'חזרות',
-    rest: 'מנוחה',
-    seconds: 'שניות',
+    title: 'Workouts',
+    myWorkouts: 'My Workouts',
+    noPrograms: 'No workout programs',
+    noProgramsDesc: 'Create a personalized workout program to get started',
+    createProgram: 'Create Program',
+    continueWorkout: 'Continue Workout',
+    startWorkout: 'Start Workout',
+    viewWorkout: 'View Workout',
+    completed: 'Completed',
+    ready: 'Ready',
+    exercises: 'Exercises',
+    exercisesCount: 'Exercises',
+    day: 'Day',
+    progress: 'Progress',
+    workoutsCompleted: 'Workouts Completed',
+    sets: 'Sets',
+    reps: 'Reps',
+    rest: 'Rest',
+    seconds: 'seconds',
   },
 
   // Nutrition
   nutrition: {
-    title: 'תזונה',
-    calories: 'קלוריות',
-    protein: 'חלבון',
-    carbs: 'פחמימות',
-    fat: 'שומנים',
-    consumed: 'נצרך',
-    target: 'יעד',
-    remaining: 'נותר',
-    meals: 'ארוחות',
-    addMeal: 'הוסף ארוחה',
-    scanBarcode: 'סרוק ברקוד',
-    scanPhoto: 'צלם תמונה',
-    viewSummary: 'צפה בסיכום מלא',
-    tips: 'טיפים',
-    shoppingList: 'רשימת קניות',
-    close: 'סגור',
+    title: 'Nutrition',
+    calories: 'Calories',
+    protein: 'Protein',
+    carbs: 'Carbs',
+    fat: 'Fat',
+    consumed: 'Consumed',
+    target: 'Target',
+    remaining: 'Remaining',
+    meals: 'Meals',
+    addMeal: 'Add Meal',
+    scanBarcode: 'Scan Barcode',
+    scanPhoto: 'Take Photo',
+    viewSummary: 'View Full Summary',
+    tips: 'Tips',
+    shoppingList: 'Shopping List',
+    close: 'Close',
   },
 
   // General
   general: {
-    loading: 'טוען...',
-    error: 'שגיאה',
-    save: 'שמור',
-    cancel: 'ביטול',
-    delete: 'מחק',
-    edit: 'ערוך',
-    confirm: 'אישור',
-    or: 'או',
+    loading: 'Loading...',
+    error: 'Error',
+    save: 'Save',
+    cancel: 'Cancel',
+    delete: 'Delete',
+    edit: 'Edit',
+    confirm: 'Confirm',
+    or: 'or',
   },
 } as const;
 
 // Gender translations
-export const genderToHe = (gender?: string): string => {
+export const genderToEn = (gender?: string): string => {
+  if (!gender) return '—';
+  switch (gender.toLowerCase()) {
+    case 'male':
+      return 'Male';
+    case 'female':
+      return 'Female';
+    case 'other':
+      return 'Other';
+    default:
+      return gender;
+  }
+};
+
+// Goal translations
+export const goalToEn = (goal?: string | null): string => {
+  if (!goal) return '—';
+  switch (goal.toLowerCase()) {
+    case 'gain':
+    case 'muscle_gain':
+      return 'Build Muscle';
+    case 'loss':
+    case 'fat_loss':
+      return 'Lose Weight';
+    case 'recomp':
+    case 'recomposition':
+      return 'Body Recomposition';
+    case 'maintain':
+      return 'Maintain Weight';
+    default:
+      return goal;
+  }
+};
+
+// Diet type translations
+export const dietToEn = (diet?: string): string => {
+  if (!diet) return '—';
+  switch (diet.toLowerCase()) {
+    case 'omnivore':
+      return 'Omnivore';
+    case 'vegetarian':
+      return 'Vegetarian';
+    case 'vegan':
+      return 'Vegan';
+    case 'keto':
+      return 'Keto';
+    case 'paleo':
+      return 'Paleo';
+    default:
+      return diet;
+  }
+};
+
+// Hebrew translations
+export const genderToHe = (gender?: string | null): string => {
   if (!gender) return '—';
   switch (gender.toLowerCase()) {
     case 'male':
@@ -236,32 +290,35 @@ export const genderToHe = (gender?: string): string => {
   }
 };
 
-// Goal translations
 export const goalToHe = (goal?: string | null): string => {
   if (!goal) return '—';
   switch (goal.toLowerCase()) {
     case 'gain':
     case 'muscle_gain':
+    case 'muscle building':
       return 'בניית שריר';
     case 'loss':
-    case 'fat_loss':
-      return 'הורדת משקל';
+    case 'weight_loss':
+    case 'fat loss':
+      return 'ירידה במשקל';
     case 'recomp':
     case 'recomposition':
-      return 'שיפור הרכב גוף';
+    case 'body recomposition':
+      return 'שיפור מבנה גוף';
     case 'maintain':
+    case 'maintenance':
       return 'שמירה על משקל';
     default:
       return goal;
   }
 };
 
-// Diet type translations
-export const dietToHe = (diet?: string): string => {
+export const dietToHe = (diet?: string | null): string => {
   if (!diet) return '—';
   switch (diet.toLowerCase()) {
+    case 'regular':
     case 'omnivore':
-      return 'אומניבור';
+      return 'רגיל';
     case 'vegetarian':
       return 'צמחוני';
     case 'vegan':

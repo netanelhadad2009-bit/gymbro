@@ -15,15 +15,15 @@ const STEP = 0.1;
 // Get recommendation based on pace value
 const getRecommendation = (pace: number): { message: string; type: 'slow' | 'recommended' | 'fast' | 'danger' } => {
   if (pace < 0.4) {
-    return { message: 'איטי מאוד – אפשר להגביר', type: 'slow' };
+    return { message: 'Very slow - you can speed up', type: 'slow' };
   } else if (pace < 0.7) {
-    return { message: 'איטי אבל בטוח', type: 'slow' };
+    return { message: 'Slow but safe', type: 'slow' };
   } else if (pace <= 0.9) {
-    return { message: `מומלץ: ${pace.toFixed(1)} ק״ג לשבוע`, type: 'recommended' };
+    return { message: `Recommended: ${pace.toFixed(1)} kg/week`, type: 'recommended' };
   } else if (pace <= 1.2) {
-    return { message: 'מהיר – ודא התאוששות טובה', type: 'fast' };
+    return { message: 'Fast - ensure good recovery', type: 'fast' };
   } else {
-    return { message: 'מהיר מדי – שקול להאט', type: 'danger' };
+    return { message: 'Too fast - consider slowing down', type: 'danger' };
   }
 };
 
@@ -56,21 +56,21 @@ export default function PacePage() {
     <OnboardingShell
       title={
         <Text style={styles.titleText}>
-          באיזה קצב תרצה{'\n'}להגיע למטרה?
+          What's your{'\n'}target pace?
         </Text>
       }
-      subtitle="קצב ירידה במשקל לשבוע"
+      subtitle="Weight change per week"
       progress={getStepProgress('pace')}
       footer={
         <PrimaryButton onPress={handleContinue}>
-          הבא
+          Next
         </PrimaryButton>
       }
     >
       <View style={styles.content}>
         {/* Large Value Display */}
         <View style={styles.valueDisplay}>
-          <Text style={styles.valueUnit}>ק״ג</Text>
+          <Text style={styles.valueUnit}>kg</Text>
           <Text style={styles.valueNumber}>{pace.toFixed(1)}</Text>
         </View>
 
@@ -90,8 +90,8 @@ export default function PacePage() {
 
           {/* Min/Max Labels */}
           <View style={styles.sliderLabels}>
-            <Text style={styles.sliderLabel}>{MIN_PACE} ק״ג</Text>
-            <Text style={styles.sliderLabel}>{MAX_PACE} ק״ג</Text>
+            <Text style={styles.sliderLabel}>{MIN_PACE} kg</Text>
+            <Text style={styles.sliderLabel}>{MAX_PACE} kg</Text>
           </View>
         </View>
 
@@ -123,7 +123,7 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: typography.weight.bold,
     color: colors.text.primary,
-    textAlign: 'right',
+    textAlign: 'left',
     lineHeight: 36,
   },
   content: {

@@ -41,16 +41,16 @@ export default function TargetWeightPage() {
 
   return (
     <OnboardingShell
-      title="מה משקל היעד שלך?"
+      title="What's your target weight?"
       subtitle={
         <Text style={styles.subtitleText}>
-          כדי לדעת לאן לכוון – חשוב שנכיר{'\n'}את היעד שלך.
+          To know where you're headed,{'\n'}we need to know your goal.
         </Text>
       }
       progress={getStepProgress('target-weight')}
       footer={
         <PrimaryButton onPress={handleContinue} loading={isLoading}>
-          הבא
+          Next
         </PrimaryButton>
       }
     >
@@ -58,7 +58,7 @@ export default function TargetWeightPage() {
         {/* Weight Display */}
         <View style={styles.weightDisplay}>
           <Text style={styles.weightValue}>{targetWeight}</Text>
-          <Text style={styles.weightUnit}>ק״ג</Text>
+          <Text style={styles.weightUnit}>kg</Text>
         </View>
 
         {/* Slider */}
@@ -75,8 +75,8 @@ export default function TargetWeightPage() {
             thumbTintColor={colors.text.primary}
           />
           <View style={styles.sliderLabels}>
-            <Text style={styles.sliderLabel}>120 ק״ג</Text>
-            <Text style={styles.sliderLabel}>40 ק״ג</Text>
+            <Text style={styles.sliderLabel}>120 kg</Text>
+            <Text style={styles.sliderLabel}>40 kg</Text>
           </View>
         </View>
       </View>
@@ -88,7 +88,7 @@ const styles = StyleSheet.create({
   subtitleText: {
     fontSize: typography.size.base,
     color: colors.text.secondary,
-    textAlign: 'right',
+    textAlign: 'left',
     lineHeight: 24,
   },
   content: {

@@ -34,27 +34,26 @@ const openai = new OpenAI({
 });
 
 /**
- * Serialize user context to Hebrew for system prompt
+ * Serialize user context for system prompt
  *
- * Formats all available profile fields into a compact Hebrew string.
+ * Formats all available profile fields into a compact string.
  * Explicitly checks for numbers (including 0) to avoid dropping valid data.
  */
-function serializeContextHe(ctx: UserContext): string {
+function serializeContext(ctx: UserContext): string {
   const parts: string[] = [];
 
   if (ctx.gender) {
-    const genderHe = ctx.gender === 'male' ? 'זכר' : ctx.gender === 'female' ? 'נקבה' : ctx.gender;
-    parts.push(`מין: ${genderHe}`);
+    parts.push(`Gender: ${ctx.gender}`);
   }
-  if (typeof ctx.age === 'number') parts.push(`גיל: ${ctx.age}`);
-  if (typeof ctx.height_cm === 'number') parts.push(`גובה: ${ctx.height_cm} ס"מ`);
-  if (typeof ctx.weight_kg === 'number') parts.push(`משקל: ${ctx.weight_kg} ק"ג`);
-  if (typeof ctx.target_weight_kg === 'number') parts.push(`יעד: ${ctx.target_weight_kg} ק"ג`);
-  if (ctx.activity) parts.push(`פעילות: ${ctx.activity}`);
-  if (ctx.diet) parts.push(`דיאטה: ${ctx.diet}`);
-  if (Array.isArray(ctx.goals) && ctx.goals.length) parts.push(`מטרות: ${ctx.goals.join(' / ')}`);
-  if (ctx.frequency) parts.push(`תדירות: ${ctx.frequency}`);
-  if (ctx.experience) parts.push(`ניסיון: ${ctx.experience}`);
+  if (typeof ctx.age === 'number') parts.push(`Age: ${ctx.age}`);
+  if (typeof ctx.height_cm === 'number') parts.push(`Height: ${ctx.height_cm} cm`);
+  if (typeof ctx.weight_kg === 'number') parts.push(`Weight: ${ctx.weight_kg} kg`);
+  if (typeof ctx.target_weight_kg === 'number') parts.push(`Target: ${ctx.target_weight_kg} kg`);
+  if (ctx.activity) parts.push(`Activity: ${ctx.activity}`);
+  if (ctx.diet) parts.push(`Diet: ${ctx.diet}`);
+  if (Array.isArray(ctx.goals) && ctx.goals.length) parts.push(`Goals: ${ctx.goals.join(' / ')}`);
+  if (ctx.frequency) parts.push(`Frequency: ${ctx.frequency}`);
+  if (ctx.experience) parts.push(`Experience: ${ctx.experience}`);
   if (typeof ctx.bmi === 'number') parts.push(`BMI: ${ctx.bmi}`);
 
   return parts.join(', ').slice(0, 1500);
@@ -67,38 +66,38 @@ function serializeContextHe(ctx: UserContext): string {
  * or when specific conditions warrant special attention (e.g., low BMI, missing goals).
  *
  * @param ctx - User context
- * @returns Hebrew nudge string or empty string if no critical issues
+ * @returns English nudge string or empty string if no critical issues
  */
 function buildDynamicNudge(ctx: UserContext): string {
   const missing: string[] = [];
   const concerns: string[] = [];
 
   // Check for missing critical fields
-  if (!ctx.gender) missing.push('מין');
-  if (typeof ctx.age !== 'number') missing.push('גיל');
-  if (typeof ctx.height_cm !== 'number') missing.push('גובה');
-  if (typeof ctx.weight_kg !== 'number') missing.push('משקל נוכחי');
-  if (typeof ctx.target_weight_kg !== 'number') missing.push('משקל יעד');
-  if (!ctx.goals || ctx.goals.length === 0) missing.push('מטרות');
-  if (!ctx.diet) missing.push('סוג תזונה');
+  if (!ctx.gender) missing.push('gender');
+  if (typeof ctx.age !== 'number') missing.push('age');
+  if (typeof ctx.height_cm !== 'number') missing.push('height');
+  if (typeof ctx.weight_kg !== 'number') missing.push('current weight');
+  if (typeof ctx.target_weight_kg !== 'number') missing.push('target weight');
+  if (!ctx.goals || ctx.goals.length === 0) missing.push('goals');
+  if (!ctx.diet) missing.push('diet type');
 
   // Check for concerning conditions
   if (typeof ctx.bmi === 'number' && ctx.bmi < 18.5) {
-    concerns.push('BMI נמוך מהנורמה - שים דגש על תזונה מחזקת');
+    concerns.push('BMI is below normal - emphasize nutritious eating and caloric surplus');
   }
   if (typeof ctx.bmi === 'number' && ctx.bmi > 30) {
-    concerns.push('BMI גבוה - שים דגש על גירעון קלורי מתון');
+    concerns.push('BMI is high - emphasize moderate caloric deficit');
   }
 
   const parts: string[] = [];
   if (missing.length > 0) {
-    parts.push(`חסרים נתונים: ${missing.join(', ')}.`);
+    parts.push(`Missing data: ${missing.join(', ')}.`);
   }
   if (concerns.length > 0) {
     parts.push(concerns.join('. '));
   }
 
-  return parts.length > 0 ? `\n\nהערה: ${parts.join(' ')}` : '';
+  return parts.length > 0 ? `\n\nNote: ${parts.join(' ')}` : '';
 }
 
 export async function POST(req: NextRequest) {
@@ -244,38 +243,38 @@ export async function POST(req: NextRequest) {
 
       console.log(`[AI Coach] Loaded ${history?.length || 0} prior messages`);
 
-      // Build enhanced system prompt with NEW context serialization
-      const ctxHe = serializeContextHe(ctx);
-      console.debug("[Coach][SystemCtx] →", ctxHe.slice(0, 250), "... len=", ctxHe.length);
+      // Build enhanced system prompt with context serialization
+      const ctxStr = serializeContext(ctx);
+      console.debug("[Coach][SystemCtx] →", ctxStr.slice(0, 250), "... len=", ctxStr.length);
 
-      // Strict Hebrew-first system prompt template (context injected below) - Updated for FitJourney brand
-      const systemPromptTemplate = `אתה "המאמן האישי של FitJourney" — עוזר אימונים ותזונה בעברית.
+      // English system prompt template - FitJourney Personal Coach
+      const systemPromptTemplate = `You are "FitJourney Personal Coach" — a fitness and nutrition assistant.
 
-נתוני המשתמש שלך: {contextHe}
+User Profile: {context}
 
-יש לך גישה מלאה לנתונים הבאים של המשתמש:
-- פרופיל אישי (מין, גיל, גובה, משקל, יעד, דיאטה, ניסיון, פעילות, BMI)
-- היסטוריית ארוחות ותזונה (מה אכל)
-- תפריט מתוכנן (מה צריך לאכול)
-- תוכנית אימונים (תרגילים, ימים, התקדמות)
-- היסטוריית שקילות ומגמת משקל
-- התקדמות כללית (נקודות, רצפים, תגים)
+You have full access to the following user data:
+- Personal profile (gender, age, height, weight, goal, diet, experience, activity, BMI)
+- Meal history and nutrition (what they ate)
+- Planned menu (what they should eat)
+- Workout program (exercises, days, progress)
+- Weight history and trends
+- Overall progress (points, streaks, badges)
 
-חוקי עבודה קשיחים:
-1. השתמש בנתונים בכל תשובה רלוונטית. אם המשתמש שואל על האימון הבא - תסתכל על תוכנית האימונים.
-2. לעולם אל תאמר "אין לי גישה" או "עדיין אין לי גישה" — יש לך גישה מלאה לכל הנתונים! אם הנתונים ריקים, זה אומר שהמשתמש עדיין לא הוסיף מידע לאפליקציה. במקרה כזה, עודד אותו להוסיף את המידע.
-3. אם המשתמש לא רשם ארוחות/שקילות/אימונים - אל תאמר "אין לי גישה". במקום זה אמור: "אני רואה שעדיין לא רשמת [ארוחות/שקילות/וכו']. בוא נתחיל!" ותן הדרכה.
-4. התאם המלצות למטרה: ירידה במשקל = גירעון קלורי, עלייה במסה = עודף קלורי, חיטוב = שמירה + חלבון.
-5. תשובות תמיד בעברית, קצרות, ממוספרות, בטקסט פשוט (בלי Markdown, כוכביות, או האשטגים).
-6. כשעונה על שאלות לגבי אימונים - ציין את שם התוכנית, התרגילים הספציפיים והסטים/חזרות.
-7. כשעונה על שאלות לגבי תזונה - השווה בין מה שאכל (ארוחות) לבין מה שהיה צריך לאכול (תפריט).
-8. זכור: "אין נתונים" לא אומר "אין גישה". יש לך גישה מלאה, פשוט המשתמש עדיין לא הזין מידע.
+Core Rules:
+1. Use the data in every relevant response. If the user asks about their next workout - check the workout program.
+2. NEVER say "I don't have access" or "I don't have that information" — you have full access to all data! If the data is empty, it means the user hasn't added info to the app yet. In that case, encourage them to add the information.
+3. If the user hasn't logged meals/weigh-ins/workouts - don't say "I don't have access". Instead say: "I see you haven't logged [meals/weigh-ins/etc.] yet. Let's get started!" and provide guidance.
+4. Match recommendations to goal: weight loss = caloric deficit, muscle gain = caloric surplus, body recomp = maintenance + high protein.
+5. Always respond in English, keep answers short, numbered, in plain text (no Markdown, asterisks, or hashtags).
+6. When answering workout questions - mention the program name, specific exercises, and sets/reps.
+7. When answering nutrition questions - compare what they ate (meals) vs what they should eat (menu plan).
+8. Remember: "No data" doesn't mean "no access". You have full access, the user just hasn't entered info yet.
 
-דוגמאות:
-- אם המשקל נמוך מהממוצע → הדגש תזונה מחזקת ועודף קלורי.
-- אם המטרה ירידה במשקל → התמקד בגירעון קלורי + חלבון גבוה.
-- אם רמת הניסיון מתחיל → הצע תוכניות פשוטות ותמיכה רגשית.
-- אם נשאל "מה האימון הבא" → ענה לפי תוכנית האימונים עם התרגילים הספציפיים.`;
+Guidelines:
+- If weight is below average → emphasize nutritious eating and caloric surplus.
+- If goal is weight loss → focus on caloric deficit + high protein.
+- If experience level is beginner → suggest simple programs and emotional support.
+- If asked "what's my next workout" → answer based on workout program with specific exercises.`;
 
       // Add comprehensive data context (meals, weigh-ins, workouts, plan meals, progress)
       let dataContext = "";
@@ -286,65 +285,65 @@ export async function POST(req: NextRequest) {
         const planMealsSummary = summarizePlanMealsForPrompt(userContext);
         const progressSummary = summarizeProgressForPrompt(userContext);
 
-        dataContext = `\n\n--- נתוני משתמש מלאים ---
+        dataContext = `\n\n--- Full User Data ---
 
-תזונה (הארוחות שנאכלו):
+Nutrition (Meals Eaten):
 ${mealsSummary}
 
-משקל:
+Weight:
 ${weightSummary}
 
-תוכנית אימונים:
+Workout Program:
 ${workoutSummary}
 
-תפריט מתוכנן (מה צריך לאכול):
+Meal Plan (What to Eat):
 ${planMealsSummary}
 
-התקדמות ופעילות:
+Progress & Activity:
 ${progressSummary}
 
---- סוף נתונים ---`;
+--- End of Data ---`;
       } else {
-        dataContext = `\n\nשים לב: אין נתונים זמינים. עודד את המשתמש להוסיף מידע ולהשתמש ביישום.`;
+        dataContext = `\n\nNote: No data available. Encourage the user to add info and use the app.`;
       }
 
       // Build dynamic nudge for missing/concerning data
       const nudge = buildDynamicNudge(ctx);
 
       // Inject context into template
-      const systemPrompt = systemPromptTemplate.replace("{contextHe}", ctxHe || "חסרים נתונים") + nudge + dataContext;
+      const systemPrompt = systemPromptTemplate.replace("{context}", ctxStr || "Missing data") + nudge + dataContext;
 
-      // Few-shot examples to anchor behavior (Hebrew)
+      // Few-shot examples to anchor behavior (English)
       // Dynamic examples based on whether user has data
       const hasWeighIns = (userContext?.weigh_ins?.length || 0) > 0;
 
       const fewShot: OpenAI.Chat.ChatCompletionMessageParam[] = [
         {
           role: "user",
-          content: "כמה חלבון אני צריך היום?",
+          content: "How much protein do I need today?",
         },
         {
           role: "assistant",
-          content: "בהתאם לנתונים שלך (מין: זכר, גיל: 23, משקל: 55 קג, יעד: 62 קג, מטרה: עלייה במסה) — אני ממליץ על כ-110 גרם חלבון ביום (כ-2 גרם לקילו משקל גוף). זה יעזור לבנות מסת שריר בשילוב עם אימוני כוח. תוכל לחלק את זה ל-4-5 ארוחות ביום.",
+          content: "Based on your data (Gender: male, Age: 23, Weight: 55 kg, Target: 62 kg, Goal: muscle gain) — I recommend about 110g of protein per day (roughly 2g per kg of body weight). This will help build muscle mass combined with strength training. You can split this across 4-5 meals throughout the day.",
         },
         {
           role: "user",
-          content: "מה אתה יודע על השקילות שלי?",
+          content: "What do you know about my weigh-ins?",
         },
         {
           role: "assistant",
           // Show data-based response if user HAS weigh-ins, otherwise show encouragement
           content: hasWeighIns
-            ? "לפי נתוני השקילות שלך:\n\nמשקל אחרון: 75.4 ק\"ג\nמגמה: ירידה של 1.6 ק\"ג בשבוע האחרון\nסה\"כ שקילות: 6 רשומות\n\nהמגמה נראית טובה! המשך לשקול את עצמך פעם בשבוע באותה שעה כדי לקבל תמונה מדויקת של ההתקדמות."
-            : "אני רואה שעדיין לא רשמת שקילות באפליקציה. בוא נתחיל לעקוב אחרי המשקל שלך!\n\nכדי להוסיף שקילה:\n1. לך לעמוד הפרופיל\n2. לחץ על הוסף שקילה\n3. הזן את המשקל הנוכחי שלך",
+            ? "Based on your weigh-in data:\n\nLatest weight: 75.4 kg\nTrend: Down 1.6 kg in the last week\nTotal weigh-ins: 6 records\n\nThe trend looks good! Keep weighing yourself once a week at the same time to get an accurate picture of your progress."
+            : "I see you haven't logged any weigh-ins in the app yet. Let's start tracking your weight!\n\nTo add a weigh-in:\n1. Go to the Profile page\n2. Tap Add Weigh-in\n3. Enter your current weight",
         },
         {
           role: "user",
-          content: "ספר לי על עצמי",
+          content: "Tell me about myself",
         },
         {
           role: "assistant",
-          content: "לפי המידע שלי:\n\n- מין: זכר\n- גיל: 23\n- גובה: 175 סמ\n- משקל נוכחי: 55 קג\n- משקל יעד: 62 קג\n- BMI: 18.0 (נמוך מהנורמה)\n- מטרה: עלייה במסה\n- ניסיון: מתחיל\n\nאני כאן כדי לעזור לך להגיע ליעד! האם יש משהו ספציפי שתרצה לשפר?",
+          content: "Based on my data:\n\n- Gender: Male\n- Age: 23\n- Height: 175 cm\n- Current weight: 55 kg\n- Target weight: 62 kg\n- BMI: 18.0 (below normal)\n- Goal: Build muscle\n- Experience: Beginner\n\nI'm here to help you reach your goal! Is there something specific you'd like to improve?",
         },
       ];
 
@@ -364,7 +363,7 @@ ${progressSummary}
       // Debug: Log final prompt structure
       console.debug("[Coach] System prompt length:", systemPrompt.length);
       console.debug("[Coach] System prompt preview (first 500 chars):", systemPrompt.slice(0, 500));
-      console.log("[Coach] Full context string being injected:", ctxHe);
+      console.log("[Coach] Full context string being injected:", ctxStr);
       console.log("[Coach] Few-shot examples count:", fewShot.length / 2);
       console.log("[Coach] Total message array length:", messages.length);
 
@@ -379,7 +378,7 @@ ${progressSummary}
         max_tokens: 500,
       });
 
-      const rawResponse = completion.choices[0]?.message?.content || "משהו השתבש, נסה שוב 😅";
+      const rawResponse = completion.choices[0]?.message?.content || "Something went wrong, please try again.";
       tokenCount = completion.usage?.total_tokens || 0;
 
       // Clean Markdown formatting to display as plain text

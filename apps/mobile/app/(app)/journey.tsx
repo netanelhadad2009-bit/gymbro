@@ -9,7 +9,6 @@ import {
   Modal,
   Animated,
   Dimensions,
-  I18nManager,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../../contexts/AuthContext';
@@ -30,10 +29,6 @@ import {
   X,
   ChevronLeft,
 } from 'lucide-react-native';
-
-// Force RTL for Hebrew
-I18nManager.allowRTL(true);
-I18nManager.forceRTL(true);
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -278,8 +273,8 @@ function StagePickerSheet({
           <View style={styles.sheetHandle} />
 
           <View style={styles.sheetHeader}>
-            <Text style={styles.sheetTitle}>בחרו שלב</Text>
-            <Text style={styles.sheetSubtitle}>עברו בין שלבי המסע שלכם</Text>
+            <Text style={styles.sheetTitle}>Choose Stage</Text>
+            <Text style={styles.sheetSubtitle}>Navigate through your journey stages</Text>
           </View>
 
           <ScrollView style={styles.stageList}>
@@ -323,8 +318,8 @@ function StagePickerSheet({
                       )}
                       <Text style={styles.stageProgress}>
                         {stage.is_completed
-                          ? 'כל המשימות הושלמו'
-                          : `${completedTasks} מתוך ${totalTasks} משימות הושלמו`
+                          ? 'All tasks completed'
+                          : `${completedTasks} of ${totalTasks} tasks completed`
                         }
                       </Text>
                     </View>
@@ -333,7 +328,7 @@ function StagePickerSheet({
                   <View style={styles.stageItemRight}>
                     {isActive && (
                       <View style={styles.activeBadge}>
-                        <Text style={styles.activeBadgeText}>פעיל</Text>
+                        <Text style={styles.activeBadgeText}>Active</Text>
                       </View>
                     )}
                     <ChevronLeft size={20} color={colors.text.tertiary} />
@@ -400,7 +395,7 @@ function TaskDetailSheet({
             <Text style={styles.taskDetailTitle}>{task.title_he}</Text>
             <View style={styles.taskPointsRow}>
               <Trophy size={16} color={colors.accent.primary} />
-              <Text style={styles.taskPointsText}>+{task.points} נקודות</Text>
+              <Text style={styles.taskPointsText}>+{task.points} points</Text>
             </View>
 
             {/* Description */}
@@ -432,7 +427,7 @@ function TaskDetailSheet({
             {task.is_completed ? (
               <View style={styles.completedBanner}>
                 <Check size={20} color={colors.semantic.success} />
-                <Text style={styles.completedText}>משימה הושלמה!</Text>
+                <Text style={styles.completedText}>Task completed!</Text>
               </View>
             ) : task.canComplete ? (
               <TouchableOpacity
@@ -443,13 +438,13 @@ function TaskDetailSheet({
                 {completing ? (
                   <ActivityIndicator color={colors.background.primary} />
                 ) : (
-                  <Text style={styles.completeButtonText}>השלם משימה</Text>
+                  <Text style={styles.completeButtonText}>Complete Task</Text>
                 )}
               </TouchableOpacity>
             ) : (
               <View style={styles.cantCompleteSection}>
                 <Text style={styles.cantCompleteText}>
-                  השלם את הפעולה הנדרשת כדי לסיים את המשימה
+                  Complete the required action to finish this task
                 </Text>
               </View>
             )}
@@ -527,7 +522,7 @@ export default function JourneyScreen() {
 
       // Fetch stages with tasks
       const { data: stagesData, error: stagesError } = await supabase
-        .from('user_journey_stages')
+        .from('user_stages')
         .select(`
           *,
           tasks:user_stage_tasks(*)
@@ -691,7 +686,7 @@ export default function JourneyScreen() {
             ]}
           />
           <Text style={styles.stageSelectorText}>
-            {selectedStage?.title_he || 'בחר שלב'}
+            {selectedStage ? selectedStage.title_he : 'Select Stage'}
           </Text>
           <ChevronDown size={18} color={colors.text.secondary} />
         </TouchableOpacity>

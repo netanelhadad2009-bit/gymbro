@@ -1,0 +1,58 @@
+# Dependencies - EAS will install these on the cloud
+node_modules/
+**/node_modules/
+
+# iOS Pods - EAS will run pod install
+ios/Pods/
+**/ios/Pods/
+apps/mobile/ios/Pods/
+
+# Other platform folders (building iOS only)
+android/
+**/android/
+apps/mobile/android/
+
+# Local environment files
+.env.local
+.env.*.local
+
+# Build artifacts
+*.tsbuildinfo
+.turbo/
+.vercel/
+
+# Expo cache
+.expo/
+apps/mobile/.expo/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.log
+
+# Testing
+coverage/
+__tests__/
+
+# IDE
+.idea/
+.vscode/
+.cursor/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+
+# Documentation and markdown files (not needed for build)
+*.md
+!README.md
+
+# Supabase local
+supabase/.branches/
+supabase/.temp/

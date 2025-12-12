@@ -7,11 +7,11 @@ import { saveOnboardingData, getStepProgress } from '../../lib/onboarding-storag
 import { colors, typography, spacing, borderRadius } from '../../lib/theme';
 
 const experienceOptions = [
-  { value: 'never', label: 'לא הצלחתי להתמיד לאורך זמן' },
-  { value: 'results', label: 'לא הצלחתי לראות תוצאות' },
-  { value: 'knowledge', label: 'אין לי מספיק ידע תזונתי' },
-  { value: 'time', label: 'לא מצאתי מספיק זמן' },
-  { value: 'sure', label: 'אני לא בטוח/ה' },
+  { value: 'never', label: 'Struggled to stay consistent' },
+  { value: 'results', label: 'Didn\'t see results' },
+  { value: 'knowledge', label: 'Lack nutrition knowledge' },
+  { value: 'time', label: 'Couldn\'t find enough time' },
+  { value: 'sure', label: 'I\'m not sure' },
 ];
 
 export default function ExperiencePage() {
@@ -29,18 +29,18 @@ export default function ExperiencePage() {
     <OnboardingShell
       title={
         <Text style={styles.titleText}>
-          מה עצר אותך עד עכשיו{'\n'}מלהגיע למטרה שלך?
+          What's stopped you{'\n'}from reaching your goal?
         </Text>
       }
       subtitle={
         <Text style={styles.subtitleText}>
-          התשובה שלך תעזור לנו להציע פתרון{'\n'}שיהיה מדוייק בשבילך.
+          Your answer helps us tailor{'\n'}the perfect solution for you.
         </Text>
       }
       progress={getStepProgress('experience')}
       footer={
         <PrimaryButton onPress={handleContinue} disabled={!selected}>
-          הבא
+          Next
         </PrimaryButton>
       }
     >
@@ -78,13 +78,13 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: typography.weight.bold,
     color: colors.text.primary,
-    textAlign: 'right',
+    textAlign: 'left',
     lineHeight: 36,
   },
   subtitleText: {
     fontSize: typography.size.base,
     color: colors.text.secondary,
-    textAlign: 'right',
+    textAlign: 'left',
     lineHeight: 24,
   },
   optionsContainer: {
@@ -105,7 +105,7 @@ const styles = StyleSheet.create({
     fontSize: typography.size.base,
     fontWeight: typography.weight.medium,
     color: colors.text.primary,
-    textAlign: 'right',
+    textAlign: 'left',
   },
   optionLabelSelected: {
     color: colors.background.primary,

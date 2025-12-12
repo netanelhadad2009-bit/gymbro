@@ -18,23 +18,26 @@ export function mapActivityHe(s?: string) {
 export type DietToken = "vegan" | "vegetarian" | "keto" | "paleo" | "regular";
 
 /**
- * Map Hebrew diet type OR English token to normalized token (strict version)
+ * Map English diet enum to normalized token
+ * Now exclusively uses English enums from mobile app
  */
 export function mapDietHeToToken(input?: string): DietToken {
   const normalized = (input || "").trim().toLowerCase();
 
-  // Check Hebrew names
-  if (normalized.includes("טבעוני")) return "vegan";
-  if (normalized.includes("צמחוני")) return "vegetarian";
-  if (normalized.includes("קטוגני") || normalized.includes("קטו")) return "keto";
-  if (normalized.includes("פלאו") || normalized.includes("פליאו")) return "paleo";
-
-  // Check English tokens (from diet selection page)
+  // Primary: English enums from mobile API
   if (normalized === "vegan") return "vegan";
   if (normalized === "vegetarian") return "vegetarian";
   if (normalized === "keto") return "keto";
   if (normalized === "paleo") return "paleo";
-  if (normalized === "none") return "regular";
+  if (normalized === "none" || normalized === "regular") return "regular";
+  if (normalized === "low_carb") return "keto"; // Map low_carb to keto rules
+  if (normalized === "mediterranean") return "regular"; // Mediterranean maps to regular with preferences
+
+  // Backward compatibility: Hebrew names (legacy)
+  if (normalized.includes("טבעוני")) return "vegan";
+  if (normalized.includes("צמחוני")) return "vegetarian";
+  if (normalized.includes("קטוגני") || normalized.includes("קטו")) return "keto";
+  if (normalized.includes("פלאו") || normalized.includes("פליאו")) return "paleo";
 
   // Default to regular
   return "regular";

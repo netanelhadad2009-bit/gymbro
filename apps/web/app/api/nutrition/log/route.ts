@@ -28,14 +28,14 @@ const logSchema = z.object({
   }),
 });
 
-// Get meal type in Hebrew
-function getMealTypeHebrew(type?: MealType): string {
+// Get meal type label in English
+function getMealTypeLabel(type?: MealType): string {
   switch (type) {
-    case 'breakfast': return 'ארוחת בוקר';
-    case 'lunch': return 'ארוחת צהריים';
-    case 'dinner': return 'ארוחת ערב';
-    case 'snack': return 'חטיף';
-    default: return 'ארוחה';
+    case 'breakfast': return 'Breakfast';
+    case 'lunch': return 'Lunch';
+    case 'dinner': return 'Dinner';
+    case 'snack': return 'Snack';
+    default: return 'Meal';
   }
 }
 

@@ -7,11 +7,11 @@ import { saveOnboardingData, getStepProgress } from '../../lib/onboarding-storag
 import { colors, typography, spacing, borderRadius } from '../../lib/theme';
 
 const motivationOptions = [
-  { value: 'health', label: 'בריאות טובה יותר' },
-  { value: 'appearance', label: 'מראה חיצוני' },
-  { value: 'energy', label: 'יותר אנרגיה ביום יום' },
-  { value: 'confidence', label: 'ביטחון עצמי' },
-  { value: 'performance', label: 'שיפור ביצועים ספורטיביים' },
+  { value: 'health', label: 'Better health' },
+  { value: 'appearance', label: 'Physical appearance' },
+  { value: 'energy', label: 'More daily energy' },
+  { value: 'confidence', label: 'Self-confidence' },
+  { value: 'performance', label: 'Athletic performance' },
 ];
 
 export default function MotivationPage() {
@@ -29,14 +29,14 @@ export default function MotivationPage() {
     <OnboardingShell
       title={
         <Text style={styles.titleText}>
-          מה הדבר הכי חשוב{'\n'}שתרצה להשיג?
+          What's most important{'\n'}to you?
         </Text>
       }
-      subtitle="בחר את המוטיבציה העיקרית שלך"
+      subtitle="Choose your main motivation"
       progress={getStepProgress('motivation')}
       footer={
         <PrimaryButton onPress={handleContinue} disabled={!selected}>
-          הבא
+          Next
         </PrimaryButton>
       }
     >
@@ -74,7 +74,7 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: typography.weight.bold,
     color: colors.text.primary,
-    textAlign: 'right',
+    textAlign: 'left',
     lineHeight: 36,
   },
   optionsContainer: {
@@ -95,7 +95,7 @@ const styles = StyleSheet.create({
     fontSize: typography.size.base,
     fontWeight: typography.weight.medium,
     color: colors.text.primary,
-    textAlign: 'right',
+    textAlign: 'left',
   },
   optionLabelSelected: {
     color: colors.background.primary,

@@ -1,7 +1,7 @@
 import { getDietGuidelines, type DietToken } from "@/lib/mappers/nutrition";
 
 /**
- * System prompt for nutrition plan generation with JSON Schema enforcement
+ * System prompt for nutrition plan generation with JSON Schema enforcement (English)
  */
 export function nutritionSystem(extraNote = ""): string {
   return `You are a professional nutritionist creating PERSONALIZED meal plans.
@@ -9,16 +9,17 @@ Return a SINGLE valid JSON object that conforms EXACTLY to the provided JSON Sch
 
 ABSOLUTE OUTPUT RULES - NO EXCEPTIONS:
 - Output JSON ONLY via the provided JSON Schema
-- Do NOT output markdown, code fences (no \`\`\`), labels (e.g., 'תזונה:'), or any text outside JSON
+- Do NOT output markdown, code fences (no \`\`\`), labels, or any text outside JSON
 - The API enforces a strict JSON Schema; any deviation will be rejected
 - Start your response with { and end with }. Nothing else.
 - Use plain JSON only, with standard quotes and commas
-- All text content (such as meal names, notes) may be in Hebrew, but keys and structure must match the schema
+- All text content (meal names, notes, descriptions) should be in English
+- Keys and structure must match the schema exactly
 - No trailing commas. No NaN/Infinity. No comments. No additional keys beyond the schema
 
 ⚠️ PERSONALIZATION REQUIREMENTS - NON-NEGOTIABLE:
 - Calculate calories using BMR (Basal Metabolic Rate) and activity factor for THIS SPECIFIC user
-- Adjust macro ratios based on THEIR goal (loss/gain/muscle)
+- Adjust macro ratios based on THEIR goal (loss/gain/recomp/maintain)
 - Vary meal choices - do NOT reuse the same foods from previous plans
 - Generate UNIQUE combinations each time - the same user profile should yield different meals
 - Tailor portion sizes to THEIR weight, height, age, and gender
@@ -28,13 +29,13 @@ HARD DIET COMPLIANCE RULES:
 - You MUST comply with the requested diet. This is NON-NEGOTIABLE.
 - If an ingredient conflicts with the diet, replace it with a compliant alternative.
 - Double-check every food item against the diet restrictions before including it.
-- ANY violation will cause the plan to be rejected and regenerated.
+- ANY violation will cause the plan to be REJECTED and regenerated.
 - When in doubt, choose a safer alternative that clearly complies with the diet.
 
 CONTENT RULES:
-- All text must be in Hebrew.
+- All user-facing text must be in English (meal names, food items, descriptions).
 - Units must be metric (grams, milliliters, kilocalories).
-- Shopping list units MUST be EXACTLY: "g", "ml", or "pcs" (no Hebrew units, no other formats)
+- Shopping list units MUST be EXACTLY: "g", "ml", or "pcs" (no other formats)
 - Adapt to their fitness goal (fat loss, muscle gain, recomposition, maintenance).
 - Macronutrients and food choices should reflect both the goal and the chosen diet.
 - Focus on accessible, realistic meals using common whole foods.
@@ -48,7 +49,7 @@ STRUCTURE RULES:
 
 EXACT JSON STRUCTURE REQUIRED:
 {
-  "summary": "תקציר בעברית שמתאר את התפריט ואת העקרונות שלו",
+  "summary": "English summary describing the meal plan and its principles",
   "dailyTargets": {
     "calories": number,
     "protein_g": number,
@@ -62,10 +63,10 @@ EXACT JSON STRUCTURE REQUIRED:
       "day": number (1, 2, 3...),
       "meals": [
         {
-          "name": "ארוחת בוקר" | "ביניים" | "צהריים" | "ערב",
+          "name": "Breakfast" | "Snack" | "Lunch" | "Dinner",
           "items": [
             {
-              "food": "food name in Hebrew",
+              "food": "food name in English",
               "amount_g": number,
               "notes": "optional notes"
             }
@@ -76,11 +77,11 @@ EXACT JSON STRUCTURE REQUIRED:
             "carbs_g": number,
             "fat_g": number
           },
-          "prep": "preparation instructions",
+          "prep": "preparation instructions in English",
           "swaps": [
             {
-              "option": "alternative food",
-              "equivalence_note": "why it's equivalent"
+              "option": "alternative food in English",
+              "equivalence_note": "why it's equivalent in English"
             }
           ]
         }
@@ -89,48 +90,73 @@ EXACT JSON STRUCTURE REQUIRED:
   ],
   "shoppingList": [
     {
-      "item": "item name",
+      "item": "item name in English",
       "quantity": number (WEEKLY total - multiply daily amounts by 7),
       "unit": MUST BE EXACTLY ONE OF: "g", "ml", "pcs" (NO OTHER VALUES ALLOWED - use g for solids, ml for liquids, pcs for countable items)
     }
   ],
-  "tips": ["tip 1", "tip 2"]
+  "tips": ["tip 1 in English", "tip 2 in English"]
 }
 
-MEAL NAME MUST BE EXACTLY ONE OF: "ארוחת בוקר", "ביניים", "צהריים", "ערב"
-Language: Hebrew
+MEAL NAME MUST BE EXACTLY ONE OF: "Breakfast", "Snack", "Lunch", "Dinner"
+Language: English (for user-facing text)
 Units: Metric
 Output: Strict JSON following the NutritionPlan schema.${extraNote ? `\n\n${extraNote}` : ""}`;
 }
 
+/**
+ * User prompt for nutrition plan generation (English with user data)
+ */
 export function nutritionUser(p: {
-  gender_he?: string;
+  gender?: string;
   age?: number | null;
   height_cm?: number | null;
   weight_kg?: number | null;
   target_weight_kg?: number | null;
-  activity_level_he?: string;
-  goal_he?: string;
-  diet_type_he?: string;
+  activity?: string;
+  goal?: string;
+  diet?: string;
   dietToken?: DietToken;
   days?: number;
 }) {
-  // Use provided diet token or derive from Hebrew
+  // Use provided diet token or map from diet enum
   const dietToken = p.dietToken || "regular";
   const dietGuidelines = getDietGuidelines(dietToken);
 
+  // Convert English enums to readable format
+  const genderLabel = p.gender === "male" ? "Male" : p.gender === "female" ? "Female" : "Other";
+  const activityLabel =
+    p.activity === "sedentary" ? "Sedentary (little or no exercise)" :
+    p.activity === "light" ? "Light (exercise 1-3 days/week)" :
+    p.activity === "moderate" ? "Moderate (exercise 3-5 days/week)" :
+    p.activity === "high" ? "High (exercise 6-7 days/week)" : "Moderate";
+
+  const goalLabel =
+    p.goal === "loss" ? "Weight Loss" :
+    p.goal === "gain" ? "Muscle Gain" :
+    p.goal === "recomp" ? "Body Recomposition" :
+    p.goal === "maintain" ? "Weight Maintenance" : "Weight Loss";
+
+  const dietLabel =
+    p.diet === "vegan" ? "Vegan" :
+    p.diet === "vegetarian" ? "Vegetarian (Pescatarian - includes fish)" :
+    p.diet === "keto" ? "Ketogenic" :
+    p.diet === "paleo" ? "Paleo" :
+    p.diet === "low_carb" ? "Low Carb" :
+    p.diet === "mediterranean" ? "Mediterranean" : "Regular/Balanced";
+
   return `
-User Info:
-מין: ${p.gender_he || "—"}
-גיל: ${p.age ?? "—"}
-גובה: ${p.height_cm ?? "—"} ס"מ
-משקל: ${p.weight_kg ?? "—"} ק"ג
-יעד משקל: ${p.target_weight_kg ?? "—"} ק"ג
-רמת פעילות: ${p.activity_level_he || "—"}
-מטרה: ${p.goal_he || "—"}
-תפריט תזונתי מועדף (Hebrew): ${p.diet_type_he || "רגילה"}
-Diet Type (Token): ${dietToken}
-מספר ימים: ${p.days ?? 7}
+User Profile:
+Gender: ${genderLabel}
+Age: ${p.age ?? "—"}
+Height: ${p.height_cm ?? "—"} cm
+Weight: ${p.weight_kg ?? "—"} kg
+Target Weight: ${p.target_weight_kg ?? "—"} kg
+Activity Level: ${activityLabel}
+Goal: ${goalLabel}
+Diet Preference: ${dietLabel}
+Diet Token: ${dietToken}
+Number of Days: ${p.days ?? 7}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 CRITICAL DIET COMPLIANCE REQUIREMENT:
@@ -145,16 +171,17 @@ If you include ANY forbidden food, the entire plan will be REJECTED.
 
 Instructions:
 1. CALCULATE PERSONALIZED CALORIES using the user's BMR and activity level
-   - Use Mifflin-St Jeor equation: BMR = 10×weight(kg) + 6.25×height(cm) - 5×age(years) + gender_factor
-   - Multiply by activity factor (low=1.2, medium=1.5, high=1.7)
-   - Adjust for goal: weight loss (-500 kcal), muscle gain (+300 kcal)
-2. Create ONE daily plan (4 meals: ארוחת בוקר, ביניים, צהריים, ערב)
+   - Use Mifflin-St Jeor equation: BMR = 10×weight(kg) + 6.25×height(cm) - 5×age(years) + gender_factor (male: +5, female: -161)
+   - Multiply by activity factor (sedentary=1.2, light=1.4, moderate=1.6, high=1.8)
+   - Adjust for goal: weight loss (-500 kcal), muscle gain (+300 kcal), recomp (maintenance), maintenance (0)
+2. Create ONE daily plan (4 meals: Breakfast, Snack, Lunch, Dinner)
 3. Vary food choices - avoid repeating the same ingredients as previous plans
 4. Keep it SIMPLE - 2-4 food items per meal
 5. VERIFY every ingredient against the diet rules above
 6. Generate shopping list with WEEKLY quantities (multiply each ingredient by 7 for full week)
    ⚠️ CRITICAL: Shopping list "unit" MUST be EXACTLY "g", "ml", or "pcs" - NO OTHER VALUES
 7. Return ONLY valid JSON - no code blocks, no backticks, no prose
+8. All user-facing text (meal names, food items, descriptions) must be in ENGLISH
 
 ⚠️ CRITICAL: Each generation must produce UNIQUE meal selections and PERSONALIZED calorie targets.
 Do NOT generate generic or template plans. Calculate everything fresh for THIS user.

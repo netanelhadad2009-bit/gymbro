@@ -8,11 +8,11 @@ import { saveOnboardingData, getStepProgress } from '../../lib/onboarding-storag
 import { colors, typography, spacing, borderRadius } from '../../lib/theme';
 
 const dietOptions = [
-  { value: 'none', label: 'לא עוקב אחרי דיאטה מסוימת', IconComponent: UtensilsCrossed },
-  { value: 'vegan', label: 'טבעוני', IconComponent: Leaf },
-  { value: 'vegetarian', label: 'צמחוני', IconComponent: Sprout },
-  { value: 'keto', label: 'קטוגני', IconComponent: Beef },
-  { value: 'paleo', label: 'פלאוליתי', IconComponent: Percent },
+  { value: 'none', label: 'No specific diet', IconComponent: UtensilsCrossed },
+  { value: 'vegan', label: 'Vegan', IconComponent: Leaf },
+  { value: 'vegetarian', label: 'Vegetarian', IconComponent: Sprout },
+  { value: 'keto', label: 'Keto', IconComponent: Beef },
+  { value: 'paleo', label: 'Paleo', IconComponent: Percent },
 ];
 
 export default function DietPage() {
@@ -39,12 +39,12 @@ export default function DietPage() {
     <OnboardingShell
       title={
         <Text style={styles.titleText}>
-          אתה עוקב אחרי דיאטה{'\n'}מסוימת?
+          Do you follow{'\n'}a specific diet?
         </Text>
       }
       subtitle={
         <Text style={styles.subtitleText}>
-          התשובה שלך תעזור לנו להבין את{'\n'}ההתנהלות התזונתית שלך.
+          This helps us understand{'\n'}your nutrition preferences.
         </Text>
       }
       progress={getStepProgress('diet')}
@@ -54,7 +54,7 @@ export default function DietPage() {
           disabled={!selected}
           loading={isLoading}
         >
-          הבא
+          Next
         </PrimaryButton>
       }
     >
@@ -99,13 +99,13 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: typography.weight.bold,
     color: colors.text.primary,
-    textAlign: 'right',
+    textAlign: 'left',
     lineHeight: 36,
   },
   subtitleText: {
     fontSize: typography.size.base,
     color: colors.text.secondary,
-    textAlign: 'right',
+    textAlign: 'left',
     lineHeight: 24,
   },
   optionsContainer: {
@@ -137,7 +137,7 @@ const styles = StyleSheet.create({
     fontSize: typography.size.lg,
     fontWeight: typography.weight.semibold,
     color: colors.text.primary,
-    textAlign: 'right',
+    textAlign: 'left',
     flex: 1,
   },
   optionLabelSelected: {

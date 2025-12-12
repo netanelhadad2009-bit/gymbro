@@ -52,14 +52,14 @@ async function finalizeServerSideIfNeeded(userId: string, draft: any, supabase: 
     })() : 25;
 
     const payload: NutritionPayload = {
-      gender_he: profile?.gender || "זכר",
+      gender: profile?.gender || "male",
       age: age,
       height_cm: profile?.height_cm || 170,
       weight_kg: profile?.weight_kg || 70,
       target_weight_kg: profile?.target_weight_kg || profile?.weight_kg || 70,
-      activity_level_he: profile?.activity || "בינוני",
-      goal_he: profile?.goal || "שמירה על המשקל",
-      diet_type_he: profile?.diet || "רגיל",
+      activity: profile?.activity || "moderate",
+      goal: profile?.goal || "maintain",
+      diet: profile?.diet || "none",
       days: days,
     };
 

@@ -1,7 +1,7 @@
 /**
  * Direct Response Generator for AI Coach
  *
- * Generates plain-text Hebrew responses directly from user data
+ * Generates plain-text English responses directly from user data
  * without calling the AI model, for structured intents.
  */
 
@@ -19,7 +19,7 @@ import type { UserIntent } from "./intent";
  *
  * @param intent - Detected user intent
  * @param ctx - User context with data
- * @returns Plain-text Hebrew response, or null if AI model is needed
+ * @returns Plain-text English response, or null if AI model is needed
  */
 export function generateDirectResponse(
   intent: UserIntent,
@@ -60,21 +60,21 @@ function generateNutritionTodayResponse(
   const today = getTodayNutrition(ctx);
 
   if (!today) {
-    return "עדיין לא צרכת ארוחות היום. תוכל/י להוסיף ארוחה כדי שאוכל לעקוב אחרי התזונה שלך.";
+    return "You haven't logged any meals today yet. Add a meal so I can track your nutrition.";
   }
 
   const lines: string[] = [];
 
   // Main stats
   lines.push(
-    `היום צרכת ${today.calories} קלוריות: ${today.protein}g חלבון, ${today.carbs}g פחמימות, ${today.fat}g שומן.`
+    `Today you consumed ${today.calories} calories: ${today.protein}g protein, ${today.carbs}g carbs, ${today.fat}g fat.`
   );
 
   // Meal count
   if (today.meal_count === 1) {
-    lines.push("רשמת ארוחה אחת.");
+    lines.push("You logged 1 meal.");
   } else {
-    lines.push(`רשמת ${today.meal_count} ארוחות.`);
+    lines.push(`You logged ${today.meal_count} meals.`);
   }
 
   // Add goal comparison if profile exists
@@ -87,19 +87,19 @@ function generateNutritionTodayResponse(
       targetCals = 1800;
       const diff = targetCals - today.calories;
       if (diff > 200) {
-        lines.push(`אתה/את ${Math.abs(diff)} קלוריות מתחת ליעד הגירעון - מצוין!`);
+        lines.push(`You're ${Math.abs(diff)} calories below your deficit target - great job!`);
       } else if (diff < -200) {
-        lines.push(`אתה/את ${Math.abs(diff)} קלוריות מעל ליעד הגירעון.`);
+        lines.push(`You're ${Math.abs(diff)} calories above your deficit target.`);
       } else {
-        lines.push("אתה/את בטווח היעד שלך.");
+        lines.push("You're within your target range.");
       }
     } else if (goal === "gain") {
       targetCals = 2800;
       const diff = today.calories - targetCals;
       if (diff > 0) {
-        lines.push(`אתה/את בעודף של ${diff} קלוריות - מעולה לעלייה במסה.`);
+        lines.push(`You're in a surplus of ${diff} calories - great for building muscle.`);
       } else {
-        lines.push(`עוד ${Math.abs(diff)} קלוריות כדי להגיע ליעד העודף.`);
+        lines.push(`${Math.abs(diff)} more calories needed to reach your surplus target.`);
       }
     }
   }
@@ -117,13 +117,13 @@ function generateNutritionWeekResponse(
   const weekly = getWeeklyNutrition(ctx);
 
   if (!weekly) {
-    return "אין מספיק נתונים לשבוע האחרון. הוסיפ/י ארוחות באופן קבוע כדי שאוכל לעקוב אחרי הממוצעים.";
+    return "Not enough data for the last week. Log meals regularly so I can track your averages.";
   }
 
   const lines: string[] = [];
 
   lines.push(
-    `בממוצע ב-7 הימים האחרונים צרכת ${weekly.calories} קלוריות ו-${weekly.protein}g חלבון ביום.`
+    `On average over the last 7 days, you consumed ${weekly.calories} calories and ${weekly.protein}g protein per day.`
   );
 
   // Add trend analysis if we have daily data
@@ -137,11 +137,11 @@ function generateNutritionWeekResponse(
 
     const diff = recentAvg - olderAvg;
     if (diff > 100) {
-      lines.push("הקלוריות שלך עלו בימים האחרונים.");
+      lines.push("Your calories have increased in recent days.");
     } else if (diff < -100) {
-      lines.push("הקלוריות שלך ירדו בימים האחרונים.");
+      lines.push("Your calories have decreased in recent days.");
     } else {
-      lines.push("הקלוריות שלך יציבות.");
+      lines.push("Your calories are stable.");
     }
   }
 
@@ -156,7 +156,7 @@ function generateWeightTrendResponse(
   completeness: ReturnType<typeof checkDataCompleteness>
 ): string {
   if (!completeness.hasWeighIns) {
-    return "אין נתוני שקילה זמינים. הוסיפ/י שקילות באופן קבוע (לפחות פעם בשבוע) כדי לעקוב אחרי המגמה במשקל.";
+    return "No weigh-in data available. Add weigh-ins regularly (at least once a week) to track your weight trend.";
   }
 
   return summarizeWeighInsForPrompt(ctx);
@@ -170,15 +170,15 @@ function generateLastMealsResponse(
   completeness: ReturnType<typeof checkDataCompleteness>
 ): string {
   if (!ctx?.recent_meals || ctx.recent_meals.length === 0) {
-    return "אין ארוחות רשומות. הוסיפ/י ארוחות כדי שאוכל לעקוב אחרי התזונה שלך.";
+    return "No meals logged. Add meals so I can track your nutrition.";
   }
 
-  const lines: string[] = ["הארוחות האחרונות שלך:"];
+  const lines: string[] = ["Your recent meals:"];
 
   for (const meal of ctx.recent_meals) {
-    const date = new Date(meal.created_at).toLocaleDateString("he-IL", {
-      day: "2-digit",
-      month: "2-digit",
+    const date = new Date(meal.created_at).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
     });
     lines.push(
       `${meal.name} (${date}): ${meal.calories}kcal, ${meal.protein}P/${meal.carbs}C/${meal.fat}F`

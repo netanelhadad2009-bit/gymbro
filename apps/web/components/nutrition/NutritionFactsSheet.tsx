@@ -28,10 +28,10 @@ interface NutritionFactsSheetProps {
 const QUICK_PORTIONS = [30, 50, 100, 150, 200];
 
 const MEAL_TYPES: { value: MealType; label: string }[] = [
-  { value: 'breakfast', label: 'ארוחת בוקר' },
-  { value: 'lunch', label: 'ארוחת צהריים' },
-  { value: 'dinner', label: 'ארוחת ערב' },
-  { value: 'snack', label: 'חטיף' },
+  { value: 'breakfast', label: 'Breakfast' },
+  { value: 'lunch', label: 'Lunch' },
+  { value: 'dinner', label: 'Dinner' },
+  { value: 'snack', label: 'Snack' },
 ];
 
 export function NutritionFactsSheet({

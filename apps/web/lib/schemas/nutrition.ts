@@ -13,8 +13,8 @@ export const MealItem = z.object({
 });
 
 export const Meal = z.object({
-  name: z.enum(["ארוחת בוקר", "ביניים", "צהריים", "ערב"], {
-    message: "Meal name must be one of: ארוחת בוקר, ביניים, צהריים, ערב",
+  name: z.enum(["Breakfast", "Snack", "Lunch", "Dinner"], {
+    message: "Meal name must be one of: Breakfast, Snack, Lunch, Dinner",
   }),
   items: z.array(MealItem).min(1, "Each meal must have at least one item"),
   macros: z.object({

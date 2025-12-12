@@ -64,7 +64,8 @@ export async function GET(request: NextRequest) {
     if (!paramsValidation.success) {
       return paramsValidation.response;
     }
-    const { stageId, cursor, limit } = paramsValidation.data;
+    const { stageId, cursor, limit: rawLimit } = paramsValidation.data;
+    const limit = rawLimit ?? DEFAULT_LIMIT;
 
     console.log('[PointsFeed] Query:', { stageId, cursor, limit });
 

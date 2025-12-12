@@ -7,7 +7,7 @@ export default function OnboardingLayout() {
       screenOptions={{
         headerShown: false,
         contentStyle: { backgroundColor: colors.background.primary },
-        animation: 'slide_from_left', // RTL-friendly animation
+        animation: 'slide_from_right',
       }}
     />
   );

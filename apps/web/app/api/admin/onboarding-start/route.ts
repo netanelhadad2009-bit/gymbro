@@ -11,9 +11,20 @@ import {
   appendOnboardingStartedNoSignup,
   OnboardingDropoffPayload,
 } from "@/lib/googleSheets";
+import { checkRateLimit, RateLimitPresets, ErrorResponses } from "@/lib/api/security";
 
 export async function POST(request: NextRequest) {
   try {
+    // Rate limiting to prevent abuse (public endpoint)
+    const rateLimit = await checkRateLimit(request, {
+      ...RateLimitPresets.public,
+      keyPrefix: 'admin-onboarding-start',
+    });
+
+    if (!rateLimit.allowed) {
+      return ErrorResponses.rateLimited(rateLimit.resetAt, rateLimit.limit);
+    }
+
     const body = await request.json();
 
     // Validate required field

@@ -49,14 +49,14 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
   loss_beginner: [
     {
       code: 'FOUNDATION',
-      title_he: 'יסודות',
-      subtitle_he: 'התחלה נכונה',
+      title_he: 'Foundations',
+      subtitle_he: 'Getting Started Right',
       color_hex: '#E2F163',
       tasks: [
         {
           key_code: 'LOG_FIRST_MEAL',
-          title_he: 'רשום ארוחה ראשונה',
-          desc_he: 'התחל לעקוב אחר מה שאתה אוכל',
+          title_he: 'Log Your First Meal',
+          desc_he: 'Start tracking what you eat',
           points: 10,
           condition_json: {
             type: 'LOG_MEALS_TODAY',
@@ -65,8 +65,8 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
         },
         {
           key_code: 'LOG_3_MEALS_TODAY',
-          title_he: 'רשום 3 ארוחות היום',
-          desc_he: 'בנה הרגל של רישום עקבי',
+          title_he: 'Log 3 Meals Today',
+          desc_he: 'Build a consistent logging habit',
           points: 20,
           condition_json: {
             type: 'LOG_MEALS_TODAY',
@@ -75,8 +75,8 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
         },
         {
           key_code: 'FIRST_WEIGH_IN',
-          title_he: 'שקול משקל פעם ראשונה',
-          desc_he: 'נקודת התחלה חשובה למעקב',
+          title_he: 'Weigh In for the First Time',
+          desc_he: 'Important starting point for tracking',
           points: 15,
           condition_json: {
             type: 'FIRST_WEIGH_IN',
@@ -86,14 +86,14 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
     },
     {
       code: 'MOMENTUM',
-      title_he: 'מומנטום',
-      subtitle_he: 'בניית הרגלים',
+      title_he: 'Momentum',
+      subtitle_he: 'Building Habits',
       color_hex: '#4CAF50',
       tasks: [
         {
           key_code: 'LOG_3_DAYS_STREAK',
-          title_he: 'רשום ארוחות 3 ימים רצופים',
-          desc_he: 'התמדה היא המפתח',
+          title_he: 'Log Meals for 3 Days Straight',
+          desc_he: 'Consistency is key',
           points: 30,
           condition_json: {
             type: 'STREAK_DAYS',
@@ -102,8 +102,8 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
         },
         {
           key_code: 'DEFICIT_1_WEEK',
-          title_he: 'שמור על גירעון קלורי שבוע',
-          desc_he: 'אכול לפי יעד הקלוריות היומי שלך',
+          title_he: 'Maintain Calorie Deficit for a Week',
+          desc_he: 'Eat according to your daily calorie target',
           points: 40,
           condition_json: {
             type: 'WEEKLY_DEFICIT',
@@ -112,8 +112,8 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
         },
         {
           key_code: 'LOG_5_WEIGH_INS',
-          title_he: 'רשום 5 שקילות',
-          desc_he: 'עקוב אחר ההתקדמות שלך',
+          title_he: 'Log 5 Weigh-Ins',
+          desc_he: 'Track your progress',
           points: 20,
           condition_json: {
             type: 'TOTAL_WEIGH_INS',
@@ -124,14 +124,14 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
     },
     {
       code: 'CONSISTENCY',
-      title_he: 'עקביות',
-      subtitle_he: 'הפיכה להרגל',
+      title_he: 'Consistency',
+      subtitle_he: 'Making It a Habit',
       color_hex: '#2196F3',
       tasks: [
         {
           key_code: 'LOG_7_DAYS_STREAK',
-          title_he: 'רשום ארוחות שבוע שלם',
-          desc_he: 'שבוע מושלם!',
+          title_he: 'Log Meals for a Full Week',
+          desc_he: 'Perfect week!',
           points: 50,
           condition_json: {
             type: 'STREAK_DAYS',
@@ -140,8 +140,8 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
         },
         {
           key_code: 'DEFICIT_2_WEEKS',
-          title_he: 'גירעון קלורי שבועיים רצופים',
-          desc_he: 'עקביות היא המפתח להצלחה',
+          title_he: 'Calorie Deficit for 2 Weeks Straight',
+          desc_he: 'Consistency is the key to success',
           points: 60,
           condition_json: {
             type: 'WEEKLY_DEFICIT',
@@ -151,8 +151,8 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
         },
         {
           key_code: 'TOTAL_50_MEALS',
-          title_he: 'רשום 50 ארוחות',
-          desc_he: 'ההרגל מתחזק!',
+          title_he: 'Log 50 Meals',
+          desc_he: 'The habit is getting stronger!',
           points: 40,
           condition_json: {
             type: 'TOTAL_MEALS_LOGGED',
@@ -163,14 +163,14 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
     },
     {
       code: 'MAINTENANCE',
-      title_he: 'תחזוקה יומית',
-      subtitle_he: 'שמור על התוצאות',
+      title_he: 'Daily Maintenance',
+      subtitle_he: 'Maintain Your Results',
       color_hex: '#00BCD4',
       tasks: [
         {
           key_code: 'DAILY_MEAL_LOG',
-          title_he: 'רשום את הארוחות היום',
-          desc_he: 'מעקב יומי עקבי',
+          title_he: 'Log Your Meals Today',
+          desc_he: 'Consistent daily tracking',
           points: 5,
           condition_json: {
             type: 'LOG_MEALS_TODAY',
@@ -179,8 +179,8 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
         },
         {
           key_code: 'DAILY_PROTEIN',
-          title_he: 'הגע ליעד החלבון',
-          desc_he: 'שמור על מסת השריר',
+          title_he: 'Hit Your Protein Goal',
+          desc_he: 'Preserve muscle mass',
           points: 10,
           condition_json: {
             type: 'HIT_PROTEIN_GOAL',
@@ -189,8 +189,8 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
         },
         {
           key_code: 'DAILY_DEFICIT',
-          title_he: 'שמור על גירעון קלורי',
-          desc_he: 'המשך לשרוף שומן',
+          title_he: 'Maintain Calorie Deficit',
+          desc_he: 'Keep burning fat',
           points: 10,
           condition_json: {
             type: 'WEEKLY_DEFICIT',
@@ -208,14 +208,14 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
   loss_intermediate: [
     {
       code: 'FOUNDATION',
-      title_he: 'יסודות מתקדמים',
-      subtitle_he: 'עיבוד התזונה',
+      title_he: 'Advanced Foundations',
+      subtitle_he: 'Refining Nutrition',
       color_hex: '#E2F163',
       tasks: [
         {
           key_code: 'PROTEIN_GOAL_3_DAYS',
-          title_he: 'הגע ליעד החלבון היומי שלך',
-          desc_he: 'חלבון שומר על מסת השריר',
+          title_he: 'Hit Your Daily Protein Goal',
+          desc_he: 'Protein preserves muscle mass',
           points: 25,
           condition_json: {
             type: 'HIT_PROTEIN_GOAL',
@@ -224,8 +224,8 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
         },
         {
           key_code: 'LOG_14_DAYS_STREAK',
-          title_he: 'רשום ארוחות שבועיים רצופים',
-          desc_he: 'משמעת ברזל',
+          title_he: 'Log Meals for 2 Weeks Straight',
+          desc_he: 'Iron discipline',
           points: 40,
           condition_json: {
             type: 'STREAK_DAYS',
@@ -234,8 +234,8 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
         },
         {
           key_code: 'LOG_10_WEIGH_INS',
-          title_he: 'רשום 10 שקילות',
-          desc_he: 'מעקב קבוע אחר הגוף',
+          title_he: 'Log 10 Weigh-Ins',
+          desc_he: 'Consistent body tracking',
           points: 30,
           condition_json: {
             type: 'TOTAL_WEIGH_INS',
@@ -246,14 +246,14 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
     },
     {
       code: 'OPTIMIZATION',
-      title_he: 'אופטימיזציה',
-      subtitle_he: 'שיפור ביצועים',
+      title_he: 'Optimization',
+      subtitle_he: 'Performance Improvement',
       color_hex: '#FF9800',
       tasks: [
         {
           key_code: 'HIGHER_DEFICIT_WEEK',
-          title_he: 'שמור על גירעון קלורי יומי',
-          desc_he: 'אכול לפי יעד הקלוריות היומי שלך',
+          title_he: 'Maintain Daily Calorie Deficit',
+          desc_he: 'Eat according to your daily calorie target',
           points: 50,
           condition_json: {
             type: 'WEEKLY_DEFICIT',
@@ -262,8 +262,8 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
         },
         {
           key_code: 'PROTEIN_STREAK_7_DAYS',
-          title_he: 'עמוד ביעד החלבון היומי שלך',
-          desc_he: 'שמור על היעד שלך',
+          title_he: 'Meet Your Daily Protein Goal',
+          desc_he: 'Stay on target',
           points: 45,
           condition_json: {
             type: 'HIT_PROTEIN_GOAL',
@@ -272,8 +272,8 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
         },
         {
           key_code: 'TOTAL_100_MEALS',
-          title_he: 'רשום 100 ארוחות',
-          desc_he: 'מקצוען במעקב תזונתי!',
+          title_he: 'Log 100 Meals',
+          desc_he: 'Pro nutrition tracker!',
           points: 40,
           condition_json: {
             type: 'TOTAL_MEALS_LOGGED',
@@ -284,14 +284,14 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
     },
     {
       code: 'MASTERY',
-      title_he: 'שליטה',
-      subtitle_he: 'אכול לפי יעד הקלוריות היומי שלך',
+      title_he: 'Control',
+      subtitle_he: 'Eat According to Your Daily Calorie Target',
       color_hex: '#9C27B0',
       tasks: [
         {
           key_code: 'LOG_30_DAYS_STREAK',
-          title_he: 'רשום ארוחות חודש שלם',
-          desc_he: 'מסירות מדהימה!',
+          title_he: 'Log Meals for a Full Month',
+          desc_he: 'Amazing dedication!',
           points: 100,
           condition_json: {
             type: 'STREAK_DAYS',
@@ -300,8 +300,8 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
         },
         {
           key_code: 'AGGRESSIVE_DEFICIT_2_WEEKS',
-          title_he: 'גירעון קלורי שבועיים רצופים',
-          desc_he: 'אכול לפי יעד הקלוריות היומי שלך',
+          title_he: 'Calorie Deficit for 2 Weeks Straight',
+          desc_he: 'Eat according to your daily calorie target',
           points: 80,
           condition_json: {
             type: 'WEEKLY_DEFICIT',
@@ -311,8 +311,8 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
         },
         {
           key_code: 'LOG_20_WEIGH_INS',
-          title_he: 'רשום 20 שקילות',
-          desc_he: 'מעקב מקצועי אחר המשקל',
+          title_he: 'Log 20 Weigh-Ins',
+          desc_he: 'Professional weight tracking',
           points: 60,
           condition_json: {
             type: 'TOTAL_WEIGH_INS',
@@ -323,14 +323,14 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
     },
     {
       code: 'MAINTENANCE',
-      title_he: 'תחזוקה יומית',
-      subtitle_he: 'שמור על התוצאות',
+      title_he: 'Daily Maintenance',
+      subtitle_he: 'Maintain Your Results',
       color_hex: '#00BCD4',
       tasks: [
         {
           key_code: 'DAILY_MEAL_LOG',
-          title_he: 'רשום את הארוחות היום',
-          desc_he: 'מעקב יומי עקבי',
+          title_he: 'Log Your Meals Today',
+          desc_he: 'Consistent daily tracking',
           points: 5,
           condition_json: {
             type: 'LOG_MEALS_TODAY',
@@ -339,8 +339,8 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
         },
         {
           key_code: 'DAILY_PROTEIN',
-          title_he: 'הגע ליעד החלבון',
-          desc_he: 'שמור על מסת השריר',
+          title_he: 'Hit Your Protein Goal',
+          desc_he: 'Preserve muscle mass',
           points: 10,
           condition_json: {
             type: 'HIT_PROTEIN_GOAL',
@@ -349,8 +349,8 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
         },
         {
           key_code: 'DAILY_DEFICIT',
-          title_he: 'שמור על גירעון קלורי',
-          desc_he: 'המשך לשרוף שומן',
+          title_he: 'Maintain Calorie Deficit',
+          desc_he: 'Keep burning fat',
           points: 10,
           condition_json: {
             type: 'WEEKLY_DEFICIT',
@@ -368,14 +368,14 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
   loss_advanced: [
     {
       code: 'PRECISION',
-      title_he: 'דיוק',
-      subtitle_he: 'שליטה מלאה',
+      title_he: 'Precision',
+      subtitle_he: 'Full Control',
       color_hex: '#E2F163',
       tasks: [
         {
           key_code: 'PROTEIN_HIGH_150G',
-          title_he: 'הגע ליעד החלבון היומי שלך',
-          desc_he: 'שמור על היעד שלך',
+          title_he: 'Hit Your Daily Protein Goal',
+          desc_he: 'Stay on target',
           points: 40,
           condition_json: {
             type: 'HIT_PROTEIN_GOAL',
@@ -384,8 +384,8 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
         },
         {
           key_code: 'HUGE_DEFICIT_WEEK',
-          title_he: 'שמור על גירעון קלורי יומי',
-          desc_he: 'אכול לפי יעד הקלוריות היומי שלך',
+          title_he: 'Maintain Daily Calorie Deficit',
+          desc_he: 'Eat according to your daily calorie target',
           points: 60,
           condition_json: {
             type: 'WEEKLY_DEFICIT',
@@ -394,8 +394,8 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
         },
         {
           key_code: 'LOG_60_DAYS_STREAK',
-          title_he: 'רשום ארוחות חודשיים רצופים',
-          desc_he: 'מחויבות ללא פשרות',
+          title_he: 'Log Meals for 2 Months Straight',
+          desc_he: 'Uncompromising commitment',
           points: 150,
           condition_json: {
             type: 'STREAK_DAYS',
@@ -406,14 +406,14 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
     },
     {
       code: 'EXCELLENCE',
-      title_he: 'מצוינות',
-      subtitle_he: 'רמה מקצועית',
+      title_he: 'Excellence',
+      subtitle_he: 'Professional Level',
       color_hex: '#9C27B0',
       tasks: [
         {
           key_code: 'TOTAL_200_MEALS',
-          title_he: 'רשום 200 ארוחות',
-          desc_he: 'מקצוען אמיתי',
+          title_he: 'Log 200 Meals',
+          desc_he: 'True professional',
           points: 80,
           condition_json: {
             type: 'TOTAL_MEALS_LOGGED',
@@ -422,8 +422,8 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
         },
         {
           key_code: 'LOG_30_WEIGH_INS',
-          title_he: 'רשום 30 שקילות',
-          desc_he: 'מעקב מתמיד',
+          title_he: 'Log 30 Weigh-Ins',
+          desc_he: 'Continuous tracking',
           points: 70,
           condition_json: {
             type: 'TOTAL_WEIGH_INS',
@@ -432,8 +432,8 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
         },
         {
           key_code: 'EXTREME_DEFICIT_MONTH',
-          title_he: 'גירעון קלורי חודש שלם',
-          desc_he: 'אכול לפי יעד הקלוריות היומי שלך',
+          title_he: 'Calorie Deficit for a Full Month',
+          desc_he: 'Eat according to your daily calorie target',
           points: 120,
           condition_json: {
             type: 'WEEKLY_DEFICIT',
@@ -445,14 +445,14 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
     },
     {
       code: 'LEGENDARY',
-      title_he: 'אגדי',
-      subtitle_he: 'רמת אליפות',
+      title_he: 'Legendary',
+      subtitle_he: 'Championship Level',
       color_hex: '#FF6B6B',
       tasks: [
         {
           key_code: 'LOG_90_DAYS_STREAK',
-          title_he: 'רשום ארוחות 3 חודשים רצופים',
-          desc_he: 'הישג אגדי!',
+          title_he: 'Log Meals for 3 Months Straight',
+          desc_he: 'Legendary achievement!',
           points: 200,
           condition_json: {
             type: 'STREAK_DAYS',
@@ -461,8 +461,8 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
         },
         {
           key_code: 'TOTAL_500_MEALS',
-          title_he: 'רשום 500 ארוחות',
-          desc_he: 'מאסטר המעקב התזונתי',
+          title_he: 'Log 500 Meals',
+          desc_he: 'Master of nutrition tracking',
           points: 150,
           condition_json: {
             type: 'TOTAL_MEALS_LOGGED',
@@ -471,8 +471,8 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
         },
         {
           key_code: 'PROTEIN_ULTRA_180G',
-          title_he: 'הגע ליעד החלבון היומי שלך',
-          desc_he: 'שמור על היעד שלך',
+          title_he: 'Hit Your Daily Protein Goal',
+          desc_he: 'Stay on target',
           points: 100,
           condition_json: {
             type: 'HIT_PROTEIN_GOAL',
@@ -483,14 +483,14 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
     },
     {
       code: 'MAINTENANCE',
-      title_he: 'תחזוקה יומית',
-      subtitle_he: 'שמור על התוצאות',
+      title_he: 'Daily Maintenance',
+      subtitle_he: 'Maintain Your Results',
       color_hex: '#00BCD4',
       tasks: [
         {
           key_code: 'DAILY_MEAL_LOG',
-          title_he: 'רשום את הארוחות היום',
-          desc_he: 'מעקב יומי עקבי',
+          title_he: 'Log Your Meals Today',
+          desc_he: 'Consistent daily tracking',
           points: 5,
           condition_json: {
             type: 'LOG_MEALS_TODAY',
@@ -499,8 +499,8 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
         },
         {
           key_code: 'DAILY_PROTEIN',
-          title_he: 'הגע ליעד החלבון',
-          desc_he: 'שמור על מסת השריר',
+          title_he: 'Hit Your Protein Goal',
+          desc_he: 'Preserve muscle mass',
           points: 10,
           condition_json: {
             type: 'HIT_PROTEIN_GOAL',
@@ -509,8 +509,8 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
         },
         {
           key_code: 'DAILY_DEFICIT',
-          title_he: 'שמור על גירעון קלורי',
-          desc_he: 'המשך לשרוף שומן',
+          title_he: 'Maintain Calorie Deficit',
+          desc_he: 'Keep burning fat',
           points: 10,
           condition_json: {
             type: 'WEEKLY_DEFICIT',
@@ -528,14 +528,14 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
   gain_beginner: [
     {
       code: 'FOUNDATION',
-      title_he: 'יסודות',
-      subtitle_he: 'בניית הבסיס',
+      title_he: 'Foundations',
+      subtitle_he: 'Building the Foundation',
       color_hex: '#E2F163',
       tasks: [
         {
           key_code: 'LOG_FIRST_MEAL',
-          title_he: 'רשום ארוחה ראשונה',
-          desc_he: 'התחל לעקוב אחר התזונה',
+          title_he: 'Log Your First Meal',
+          desc_he: 'Start tracking nutrition',
           points: 10,
           condition_json: {
             type: 'LOG_MEALS_TODAY',
@@ -544,8 +544,8 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
         },
         {
           key_code: 'EAT_SURPLUS_DAY',
-          title_he: 'אכול בעודף קלורי יום אחד',
-          desc_he: 'עודף נדרש לבניית שריר',
+          title_he: 'Eat in Calorie Surplus for One Day',
+          desc_he: 'Surplus required for building muscle',
           points: 20,
           condition_json: {
             type: 'WEEKLY_SURPLUS',
@@ -555,8 +555,8 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
         },
         {
           key_code: 'FIRST_WEIGH_IN',
-          title_he: 'שקול משקל פעם ראשונה',
-          desc_he: 'עקוב אחר ההתקדמות',
+          title_he: 'Weigh In for the First Time',
+          desc_he: 'Track your progress',
           points: 15,
           condition_json: {
             type: 'FIRST_WEIGH_IN',
@@ -566,14 +566,14 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
     },
     {
       code: 'GROWTH',
-      title_he: 'צמיחה',
-      subtitle_he: 'בניית מסה',
+      title_he: 'Growth',
+      subtitle_he: 'Building Mass',
       color_hex: '#4CAF50',
       tasks: [
         {
           key_code: 'SURPLUS_WEEK',
-          title_he: 'עודף קלורי שבוע שלם',
-          desc_he: 'גדל באופן עקבי',
+          title_he: 'Calorie Surplus for a Full Week',
+          desc_he: 'Grow consistently',
           points: 40,
           condition_json: {
             type: 'WEEKLY_SURPLUS',
@@ -582,8 +582,8 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
         },
         {
           key_code: 'PROTEIN_GAIN_120G',
-          title_he: 'הגע ליעד החלבון היומי שלך',
-          desc_he: 'שמור על היעד שלך',
+          title_he: 'Hit Your Daily Protein Goal',
+          desc_he: 'Stay on target',
           points: 30,
           condition_json: {
             type: 'HIT_PROTEIN_GOAL',
@@ -592,8 +592,8 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
         },
         {
           key_code: 'LOG_7_DAYS_STREAK',
-          title_he: 'רשום ארוחות שבוע רצוף',
-          desc_he: 'מעקב עקבי',
+          title_he: 'Log meals for a week straight',
+          desc_he: 'Consistent tracking',
           points: 35,
           condition_json: {
             type: 'STREAK_DAYS',
@@ -604,14 +604,14 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
     },
     {
       code: 'MOMENTUM',
-      title_he: 'מומנטום',
-      subtitle_he: 'המשך הצמיחה',
+      title_he: 'Momentum',
+      subtitle_he: 'Continued Growth',
       color_hex: '#2196F3',
       tasks: [
         {
           key_code: 'SURPLUS_2_WEEKS',
-          title_he: 'עודף קלורי שבועיים רצופים',
-          desc_he: 'בלק מוצלח',
+          title_he: 'Calorie Surplus for 2 Weeks Straight',
+          desc_he: 'Successful bulk',
           points: 60,
           condition_json: {
             type: 'WEEKLY_SURPLUS',
@@ -621,8 +621,8 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
         },
         {
           key_code: 'TOTAL_50_MEALS',
-          title_he: 'רשום 50 ארוחות',
-          desc_he: 'מעקב טוב = תוצאות טובות',
+          title_he: 'Log 50 Meals',
+          desc_he: 'Good tracking = good results',
           points: 40,
           condition_json: {
             type: 'TOTAL_MEALS_LOGGED',
@@ -631,8 +631,8 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
         },
         {
           key_code: 'LOG_10_WEIGH_INS',
-          title_he: 'רשום 10 שקילות',
-          desc_he: 'עקוב אחר העלייה במשקל',
+          title_he: 'Log 10 Weigh-Ins',
+          desc_he: 'Track weight gain',
           points: 30,
           condition_json: {
             type: 'TOTAL_WEIGH_INS',
@@ -643,14 +643,14 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
     },
     {
       code: 'MAINTENANCE',
-      title_he: 'תחזוקה יומית',
-      subtitle_he: 'שמור על התוצאות',
+      title_he: 'Daily Maintenance',
+      subtitle_he: 'Maintain Your Results',
       color_hex: '#00BCD4',
       tasks: [
         {
           key_code: 'DAILY_MEAL_LOG',
-          title_he: 'רשום את הארוחות היום',
-          desc_he: 'מעקב יומי עקבי',
+          title_he: 'Log Your Meals Today',
+          desc_he: 'Consistent daily tracking',
           points: 5,
           condition_json: {
             type: 'LOG_MEALS_TODAY',
@@ -659,8 +659,8 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
         },
         {
           key_code: 'DAILY_PROTEIN',
-          title_he: 'הגע ליעד החלבון',
-          desc_he: 'שמור על בניית השריר',
+          title_he: 'Hit Your Protein Goal',
+          desc_he: 'Keep building muscle',
           points: 10,
           condition_json: {
             type: 'HIT_PROTEIN_GOAL',
@@ -669,8 +669,8 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
         },
         {
           key_code: 'DAILY_SURPLUS',
-          title_he: 'שמור על עודף קלורי',
-          desc_he: 'המשך לגדול',
+          title_he: 'Maintain Calorie Surplus',
+          desc_he: 'Keep growing',
           points: 10,
           condition_json: {
             type: 'WEEKLY_SURPLUS',
@@ -688,14 +688,14 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
   gain_intermediate: [
     {
       code: 'OPTIMIZATION',
-      title_he: 'אופטימיזציה',
-      subtitle_he: 'בלק חכם',
+      title_he: 'Optimization',
+      subtitle_he: 'Smart Bulk',
       color_hex: '#E2F163',
       tasks: [
         {
           key_code: 'SURPLUS_CONTROLLED_WEEK',
-          title_he: 'שמור על עודף קלורי יומי',
-          desc_he: 'אכול לפי יעד הקלוריות היומי שלך',
+          title_he: 'Maintain Daily Calorie Surplus',
+          desc_he: 'Eat according to your daily calorie target',
           points: 35,
           condition_json: {
             type: 'WEEKLY_SURPLUS',
@@ -704,8 +704,8 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
         },
         {
           key_code: 'PROTEIN_GAIN_150G',
-          title_he: 'הגע ליעד החלבון היומי שלך',
-          desc_he: 'שמור על היעד שלך',
+          title_he: 'Hit Your Daily Protein Goal',
+          desc_he: 'Stay on target',
           points: 40,
           condition_json: {
             type: 'HIT_PROTEIN_GOAL',
@@ -714,8 +714,8 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
         },
         {
           key_code: 'LOG_14_DAYS_STREAK',
-          title_he: 'רשום ארוחות שבועיים רצופים',
-          desc_he: 'משמעת במעקב',
+          title_he: 'Log Meals for 2 Weeks Straight',
+          desc_he: 'Tracking discipline',
           points: 45,
           condition_json: {
             type: 'STREAK_DAYS',
@@ -726,14 +726,14 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
     },
     {
       code: 'MASS_BUILDING',
-      title_he: 'בניית מסה',
-      subtitle_he: 'גדל במהירות',
+      title_he: 'Building Mass',
+      subtitle_he: 'Grow Rapidly',
       color_hex: '#FF9800',
       tasks: [
         {
           key_code: 'SURPLUS_AGGRESSIVE_WEEK',
-          title_he: 'שמור על עודף קלורי יומי',
-          desc_he: 'אכול לפי יעד הקלוריות היומי שלך',
+          title_he: 'Maintain Daily Calorie Surplus',
+          desc_he: 'Eat according to your daily calorie target',
           points: 50,
           condition_json: {
             type: 'WEEKLY_SURPLUS',
@@ -742,8 +742,8 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
         },
         {
           key_code: 'TOTAL_100_MEALS',
-          title_he: 'רשום 100 ארוחות',
-          desc_he: 'מעקב מקצועי',
+          title_he: 'Log 100 Meals',
+          desc_he: 'Professional tracking',
           points: 50,
           condition_json: {
             type: 'TOTAL_MEALS_LOGGED',
@@ -752,8 +752,8 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
         },
         {
           key_code: 'LOG_30_DAYS_STREAK',
-          title_he: 'רשום ארוחות חודש שלם',
-          desc_he: 'התמדה מדהימה',
+          title_he: 'Log Meals for a Full Month',
+          desc_he: 'Amazing persistence',
           points: 80,
           condition_json: {
             type: 'STREAK_DAYS',
@@ -764,14 +764,14 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
     },
     {
       code: 'CONSISTENCY',
-      title_he: 'עקביות',
-      subtitle_he: 'תוצאות ארוכות טווח',
+      title_he: 'Consistency',
+      subtitle_he: 'Long-Term Results',
       color_hex: '#9C27B0',
       tasks: [
         {
           key_code: 'SURPLUS_MONTH',
-          title_he: 'שמור על עודף קלורי חודש',
-          desc_he: 'אכול לפי יעד הקלוריות היומי שלך',
+          title_he: 'Maintain Calorie Surplus for a Month',
+          desc_he: 'Eat according to your daily calorie target',
           points: 100,
           condition_json: {
             type: 'WEEKLY_SURPLUS',
@@ -781,8 +781,8 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
         },
         {
           key_code: 'LOG_20_WEIGH_INS',
-          title_he: 'רשום 20 שקילות',
-          desc_he: 'מעקב קפדני אחר המשקל',
+          title_he: 'Log 20 Weigh-Ins',
+          desc_he: 'Careful weight tracking',
           points: 60,
           condition_json: {
             type: 'TOTAL_WEIGH_INS',
@@ -791,8 +791,8 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
         },
         {
           key_code: 'PROTEIN_ULTRA_170G',
-          title_he: 'הגע ליעד החלבון היומי שלך',
-          desc_he: 'שמור על היעד שלך',
+          title_he: 'Hit Your Daily Protein Goal',
+          desc_he: 'Stay on target',
           points: 70,
           condition_json: {
             type: 'HIT_PROTEIN_GOAL',
@@ -803,14 +803,14 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
     },
     {
       code: 'MAINTENANCE',
-      title_he: 'תחזוקה יומית',
-      subtitle_he: 'שמור על התוצאות',
+      title_he: 'Daily Maintenance',
+      subtitle_he: 'Maintain Your Results',
       color_hex: '#00BCD4',
       tasks: [
         {
           key_code: 'DAILY_MEAL_LOG',
-          title_he: 'רשום את הארוחות היום',
-          desc_he: 'מעקב יומי עקבי',
+          title_he: 'Log Your Meals Today',
+          desc_he: 'Consistent daily tracking',
           points: 5,
           condition_json: {
             type: 'LOG_MEALS_TODAY',
@@ -819,8 +819,8 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
         },
         {
           key_code: 'DAILY_PROTEIN',
-          title_he: 'הגע ליעד החלבון',
-          desc_he: 'שמור על בניית השריר',
+          title_he: 'Hit Your Protein Goal',
+          desc_he: 'Keep building muscle',
           points: 10,
           condition_json: {
             type: 'HIT_PROTEIN_GOAL',
@@ -829,8 +829,8 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
         },
         {
           key_code: 'DAILY_SURPLUS',
-          title_he: 'שמור על עודף קלורי',
-          desc_he: 'המשך לגדול',
+          title_he: 'Maintain Calorie Surplus',
+          desc_he: 'Keep growing',
           points: 10,
           condition_json: {
             type: 'WEEKLY_SURPLUS',
@@ -848,14 +848,14 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
   gain_advanced: [
     {
       code: 'PRECISION_BULK',
-      title_he: 'בלק מדויק',
-      subtitle_he: 'ליין בלקינג',
+      title_he: 'Precise Bulk',
+      subtitle_he: 'Lean Bulking',
       color_hex: '#E2F163',
       tasks: [
         {
           key_code: 'LEAN_SURPLUS_WEEK',
-          title_he: 'שמור על עודף קלורי קטן',
-          desc_he: 'אכול לפי יעד הקלוריות היומי שלך',
+          title_he: 'Maintain Small Calorie Surplus',
+          desc_he: 'Eat according to your daily calorie target',
           points: 40,
           condition_json: {
             type: 'WEEKLY_SURPLUS',
@@ -864,8 +864,8 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
         },
         {
           key_code: 'PROTEIN_MASSIVE_180G',
-          title_he: 'הגע ליעד החלבון היומי שלך',
-          desc_he: 'שמור על היעד שלך',
+          title_he: 'Hit Your Daily Protein Goal',
+          desc_he: 'Stay on target',
           points: 50,
           condition_json: {
             type: 'HIT_PROTEIN_GOAL',
@@ -874,8 +874,8 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
         },
         {
           key_code: 'LOG_60_DAYS_STREAK',
-          title_he: 'רשום ארוחות חודשיים רצופים',
-          desc_he: 'מחויבות מלאה',
+          title_he: 'Log Meals for 2 Months Straight',
+          desc_he: 'Full commitment',
           points: 120,
           condition_json: {
             type: 'STREAK_DAYS',
@@ -886,14 +886,14 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
     },
     {
       code: 'EXCELLENCE',
-      title_he: 'מצוינות',
-      subtitle_he: 'רמה מקצועית',
+      title_he: 'Excellence',
+      subtitle_he: 'Professional Level',
       color_hex: '#9C27B0',
       tasks: [
         {
           key_code: 'TOTAL_200_MEALS',
-          title_he: 'רשום 200 ארוחות',
-          desc_he: 'מעקב ברמה גבוהה',
+          title_he: 'Log 200 Meals',
+          desc_he: 'High-level tracking',
           points: 80,
           condition_json: {
             type: 'TOTAL_MEALS_LOGGED',
@@ -902,8 +902,8 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
         },
         {
           key_code: 'LOG_30_WEIGH_INS',
-          title_he: 'רשום 30 שקילות',
-          desc_he: 'מעקב מתמשך',
+          title_he: 'Log 30 Weigh-Ins',
+          desc_he: 'Continuous tracking',
           points: 70,
           condition_json: {
             type: 'TOTAL_WEIGH_INS',
@@ -912,8 +912,8 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
         },
         {
           key_code: 'CONTROLLED_SURPLUS_2_MONTHS',
-          title_he: 'עודף קלורי חודשיים רצופים',
-          desc_he: 'אכול לפי יעד הקלוריות היומי שלך',
+          title_he: 'Calorie Surplus for 2 Months Straight',
+          desc_he: 'Eat according to your daily calorie target',
           points: 150,
           condition_json: {
             type: 'WEEKLY_SURPLUS',
@@ -925,14 +925,14 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
     },
     {
       code: 'LEGENDARY',
-      title_he: 'אגדי',
-      subtitle_he: 'רמת אליפות',
+      title_he: 'Legendary',
+      subtitle_he: 'Championship Level',
       color_hex: '#FF6B6B',
       tasks: [
         {
           key_code: 'LOG_90_DAYS_STREAK',
-          title_he: 'רשום ארוחות 3 חודשים רצופים',
-          desc_he: 'אגדי!',
+          title_he: 'Log Meals for 3 Months Straight',
+          desc_he: 'Legendary!',
           points: 200,
           condition_json: {
             type: 'STREAK_DAYS',
@@ -941,8 +941,8 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
         },
         {
           key_code: 'TOTAL_500_MEALS',
-          title_he: 'רשום 500 ארוחות',
-          desc_he: 'מאסטר התזונה',
+          title_he: 'Log 500 Meals',
+          desc_he: 'Nutrition master',
           points: 150,
           condition_json: {
             type: 'TOTAL_MEALS_LOGGED',
@@ -951,8 +951,8 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
         },
         {
           key_code: 'PROTEIN_BEAST_200G',
-          title_he: 'הגע ליעד החלבון היומי שלך',
-          desc_he: 'שמור על היעד שלך',
+          title_he: 'Hit Your Daily Protein Goal',
+          desc_he: 'Stay on target',
           points: 100,
           condition_json: {
             type: 'HIT_PROTEIN_GOAL',
@@ -963,14 +963,14 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
     },
     {
       code: 'MAINTENANCE',
-      title_he: 'תחזוקה יומית',
-      subtitle_he: 'שמור על התוצאות',
+      title_he: 'Daily Maintenance',
+      subtitle_he: 'Maintain Your Results',
       color_hex: '#00BCD4',
       tasks: [
         {
           key_code: 'DAILY_MEAL_LOG',
-          title_he: 'רשום את הארוחות היום',
-          desc_he: 'מעקב יומי עקבי',
+          title_he: 'Log Your Meals Today',
+          desc_he: 'Consistent daily tracking',
           points: 5,
           condition_json: {
             type: 'LOG_MEALS_TODAY',
@@ -979,8 +979,8 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
         },
         {
           key_code: 'DAILY_PROTEIN',
-          title_he: 'הגע ליעד החלבון',
-          desc_he: 'שמור על בניית השריר',
+          title_he: 'Hit Your Protein Goal',
+          desc_he: 'Keep building muscle',
           points: 10,
           condition_json: {
             type: 'HIT_PROTEIN_GOAL',
@@ -989,8 +989,8 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
         },
         {
           key_code: 'DAILY_SURPLUS',
-          title_he: 'שמור על עודף קלורי',
-          desc_he: 'המשך לגדול',
+          title_he: 'Maintain Calorie Surplus',
+          desc_he: 'Keep growing',
           points: 10,
           condition_json: {
             type: 'WEEKLY_SURPLUS',
@@ -1008,14 +1008,14 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
   recomp_beginner: [
     {
       code: 'FOUNDATION',
-      title_he: 'יסודות',
-      subtitle_he: 'איזון והרכב גוף',
+      title_he: 'Foundations',
+      subtitle_he: 'Balance and Body Composition',
       color_hex: '#E2F163',
       tasks: [
         {
           key_code: 'LOG_FIRST_MEAL',
-          title_he: 'רשום ארוחה ראשונה',
-          desc_he: 'התחל במעקב',
+          title_he: 'Log Your First Meal',
+          desc_he: 'Start tracking',
           points: 10,
           condition_json: {
             type: 'LOG_MEALS_TODAY',
@@ -1024,8 +1024,8 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
         },
         {
           key_code: 'MAINTENANCE_DAY',
-          title_he: 'אכול בתחזוקה יום אחד',
-          desc_he: 'שמור על מאזן קלורי',
+          title_he: 'Eat at Maintenance for One Day',
+          desc_he: 'Maintain calorie balance',
           points: 20,
           condition_json: {
             type: 'WEEKLY_BALANCED',
@@ -1035,8 +1035,8 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
         },
         {
           key_code: 'FIRST_WEIGH_IN',
-          title_he: 'שקול משקל פעם ראשונה',
-          desc_he: 'בסיס למעקב',
+          title_he: 'Weigh In for the First Time',
+          desc_he: 'Baseline for tracking',
           points: 15,
           condition_json: {
             type: 'FIRST_WEIGH_IN',
@@ -1046,14 +1046,14 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
     },
     {
       code: 'BALANCE',
-      title_he: 'איזון',
-      subtitle_he: 'שמירה על מאזן',
+      title_he: 'Balance',
+      subtitle_he: 'Maintaining Balance',
       color_hex: '#4CAF50',
       tasks: [
         {
           key_code: 'MAINTENANCE_WEEK',
-          title_he: 'שמור על תחזוקה שבוע',
-          desc_he: 'לא עודף ולא גירעון',
+          title_he: 'Maintain Maintenance Calories for a Week',
+          desc_he: 'No surplus, no deficit',
           points: 35,
           condition_json: {
             type: 'WEEKLY_BALANCED',
@@ -1062,8 +1062,8 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
         },
         {
           key_code: 'PROTEIN_RECOMP_140G',
-          title_he: 'הגע ליעד החלבון היומי שלך',
-          desc_he: 'חלבון גבוה לריקומפ',
+          title_he: 'Hit Your Daily Protein Goal',
+          desc_he: 'High protein for recomp',
           points: 30,
           condition_json: {
             type: 'HIT_PROTEIN_GOAL',
@@ -1072,8 +1072,8 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
         },
         {
           key_code: 'LOG_7_DAYS_STREAK',
-          title_he: 'רשום ארוחות שבוע רצוף',
-          desc_he: 'מעקב עקבי',
+          title_he: 'Log meals for a week straight',
+          desc_he: 'Consistent tracking',
           points: 35,
           condition_json: {
             type: 'STREAK_DAYS',
@@ -1084,14 +1084,14 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
     },
     {
       code: 'RECOMPOSITION',
-      title_he: 'ריקומפוזיציה',
-      subtitle_he: 'שינוי הרכב הגוף',
+      title_he: 'Recomposition',
+      subtitle_he: 'Changing Body Composition',
       color_hex: '#2196F3',
       tasks: [
         {
           key_code: 'MAINTENANCE_2_WEEKS',
-          title_he: 'תחזוקה שבועיים רצופים',
-          desc_he: 'שינוי הרכב גוף בהצלחה',
+          title_he: 'Maintenance for 2 Weeks Straight',
+          desc_he: 'Successful body recomposition',
           points: 60,
           condition_json: {
             type: 'WEEKLY_BALANCED',
@@ -1101,8 +1101,8 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
         },
         {
           key_code: 'TOTAL_50_MEALS',
-          title_he: 'רשום 50 ארוחות',
-          desc_he: 'מעקב מקצועי',
+          title_he: 'Log 50 Meals',
+          desc_he: 'Professional tracking',
           points: 40,
           condition_json: {
             type: 'TOTAL_MEALS_LOGGED',
@@ -1111,8 +1111,8 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
         },
         {
           key_code: 'LOG_10_WEIGH_INS',
-          title_he: 'רשום 10 שקילות',
-          desc_he: 'עקוב אחר היציבות',
+          title_he: 'Log 10 Weigh-Ins',
+          desc_he: 'Track stability',
           points: 30,
           condition_json: {
             type: 'TOTAL_WEIGH_INS',
@@ -1123,14 +1123,14 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
     },
     {
       code: 'MAINTENANCE',
-      title_he: 'תחזוקה יומית',
-      subtitle_he: 'שמור על התוצאות',
+      title_he: 'Daily Maintenance',
+      subtitle_he: 'Maintain Your Results',
       color_hex: '#00BCD4',
       tasks: [
         {
           key_code: 'DAILY_MEAL_LOG',
-          title_he: 'רשום את הארוחות היום',
-          desc_he: 'מעקב יומי עקבי',
+          title_he: 'Log Your Meals Today',
+          desc_he: 'Consistent daily tracking',
           points: 5,
           condition_json: {
             type: 'LOG_MEALS_TODAY',
@@ -1139,8 +1139,8 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
         },
         {
           key_code: 'DAILY_PROTEIN',
-          title_he: 'הגע ליעד החלבון',
-          desc_he: 'שמור על הרכב הגוף',
+          title_he: 'Hit Your Protein Goal',
+          desc_he: 'Maintain body composition',
           points: 10,
           condition_json: {
             type: 'HIT_PROTEIN_GOAL',
@@ -1149,8 +1149,8 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
         },
         {
           key_code: 'DAILY_BALANCED',
-          title_he: 'שמור על תחזוקת קלוריות',
-          desc_he: 'המשך את הריקומפ',
+          title_he: 'Maintain Maintenance Calories',
+          desc_he: 'Continue the recomp',
           points: 10,
           condition_json: {
             type: 'WEEKLY_BALANCED',
@@ -1168,14 +1168,14 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
   recomp_intermediate: [
     {
       code: 'PRECISION',
-      title_he: 'דיוק',
-      subtitle_he: 'שליטה במאזן',
+      title_he: 'Precision',
+      subtitle_he: 'Controlling the Balance',
       color_hex: '#E2F163',
       tasks: [
         {
           key_code: 'TIGHT_MAINTENANCE_WEEK',
-          title_he: 'שמור על תחזוקת קלוריות שבוע',
-          desc_he: 'שמור על ±100 קלוריות',
+          title_he: 'Maintain Maintenance Calories for a Week',
+          desc_he: 'Stay within ±100 calories',
           points: 40,
           condition_json: {
             type: 'WEEKLY_BALANCED',
@@ -1184,8 +1184,8 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
         },
         {
           key_code: 'PROTEIN_HIGH_160G',
-          title_he: 'הגע ליעד החלבון היומי שלך',
-          desc_he: 'שמור על היעד שלך',
+          title_he: 'Hit Your Daily Protein Goal',
+          desc_he: 'Stay on target',
           points: 40,
           condition_json: {
             type: 'HIT_PROTEIN_GOAL',
@@ -1194,8 +1194,8 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
         },
         {
           key_code: 'LOG_14_DAYS_STREAK',
-          title_he: 'רשום ארוחות שבועיים רצופים',
-          desc_he: 'מעקב קפדני',
+          title_he: 'Log Meals for 2 Weeks Straight',
+          desc_he: 'Careful tracking',
           points: 45,
           condition_json: {
             type: 'STREAK_DAYS',
@@ -1206,14 +1206,14 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
     },
     {
       code: 'OPTIMIZATION',
-      title_he: 'אופטימיזציה',
-      subtitle_he: 'שינוי הרכב מתקדם',
+      title_he: 'Optimization',
+      subtitle_he: 'Advanced Body Composition',
       color_hex: '#FF9800',
       tasks: [
         {
           key_code: 'MAINTENANCE_MONTH',
-          title_he: 'תחזוקה חודש שלם',
-          desc_he: 'ריקומפ ארוך טווח',
+          title_he: 'Maintenance for a Full Month',
+          desc_he: 'Long-term recomp',
           points: 80,
           condition_json: {
             type: 'WEEKLY_BALANCED',
@@ -1223,8 +1223,8 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
         },
         {
           key_code: 'TOTAL_100_MEALS',
-          title_he: 'רשום 100 ארוחות',
-          desc_he: 'מעקב ברמה גבוהה',
+          title_he: 'Log 100 Meals',
+          desc_he: 'High-level tracking',
           points: 50,
           condition_json: {
             type: 'TOTAL_MEALS_LOGGED',
@@ -1233,8 +1233,8 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
         },
         {
           key_code: 'LOG_30_DAYS_STREAK',
-          title_he: 'רשום ארוחות חודש שלם',
-          desc_he: 'התמדה מדהימה',
+          title_he: 'Log Meals for a Full Month',
+          desc_he: 'Amazing persistence',
           points: 80,
           condition_json: {
             type: 'STREAK_DAYS',
@@ -1245,14 +1245,14 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
     },
     {
       code: 'MASTERY',
-      title_he: 'שליטה',
-      subtitle_he: 'ריקומפ מושלם',
+      title_he: 'Control',
+      subtitle_he: 'Perfect Recomp',
       color_hex: '#9C27B0',
       tasks: [
         {
           key_code: 'MAINTENANCE_2_MONTHS',
-          title_he: 'תחזוקה חודשיים רצופים',
-          desc_he: 'שינוי הרכב גוף משמעותי',
+          title_he: 'Maintenance for 2 Months Straight',
+          desc_he: 'Significant body composition change',
           points: 120,
           condition_json: {
             type: 'WEEKLY_BALANCED',
@@ -1262,8 +1262,8 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
         },
         {
           key_code: 'LOG_20_WEIGH_INS',
-          title_he: 'רשום 20 שקילות',
-          desc_he: 'מעקב מתמיד',
+          title_he: 'Log 20 Weigh-Ins',
+          desc_he: 'Continuous tracking',
           points: 60,
           condition_json: {
             type: 'TOTAL_WEIGH_INS',
@@ -1272,8 +1272,8 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
         },
         {
           key_code: 'PROTEIN_ULTRA_180G',
-          title_he: 'הגע ליעד החלבון היומי שלך',
-          desc_he: 'שמור על היעד שלך',
+          title_he: 'Hit Your Daily Protein Goal',
+          desc_he: 'Stay on target',
           points: 70,
           condition_json: {
             type: 'HIT_PROTEIN_GOAL',
@@ -1284,14 +1284,14 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
     },
     {
       code: 'MAINTENANCE',
-      title_he: 'תחזוקה יומית',
-      subtitle_he: 'שמור על התוצאות',
+      title_he: 'Daily Maintenance',
+      subtitle_he: 'Maintain Your Results',
       color_hex: '#00BCD4',
       tasks: [
         {
           key_code: 'DAILY_MEAL_LOG',
-          title_he: 'רשום את הארוחות היום',
-          desc_he: 'מעקב יומי עקבי',
+          title_he: 'Log Your Meals Today',
+          desc_he: 'Consistent daily tracking',
           points: 5,
           condition_json: {
             type: 'LOG_MEALS_TODAY',
@@ -1300,8 +1300,8 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
         },
         {
           key_code: 'DAILY_PROTEIN',
-          title_he: 'הגע ליעד החלבון',
-          desc_he: 'שמור על הרכב הגוף',
+          title_he: 'Hit Your Protein Goal',
+          desc_he: 'Maintain body composition',
           points: 10,
           condition_json: {
             type: 'HIT_PROTEIN_GOAL',
@@ -1310,8 +1310,8 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
         },
         {
           key_code: 'DAILY_BALANCED',
-          title_he: 'שמור על תחזוקת קלוריות',
-          desc_he: 'המשך את הריקומפ',
+          title_he: 'Maintain Maintenance Calories',
+          desc_he: 'Continue the recomp',
           points: 10,
           condition_json: {
             type: 'WEEKLY_BALANCED',
@@ -1329,14 +1329,14 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
   recomp_advanced: [
     {
       code: 'ELITE_PRECISION',
-      title_he: 'דיוק עילית',
-      subtitle_he: 'אכול לפי יעד הקלוריות היומי שלך',
+      title_he: 'Elite Precision',
+      subtitle_he: 'Eat According to Your Daily Calorie Target',
       color_hex: '#E2F163',
       tasks: [
         {
           key_code: 'ULTRA_TIGHT_MAINTENANCE',
-          title_he: 'שמור על תחזוקת קלוריות',
-          desc_he: 'אכול לפי יעד הקלוריות היומי שלך',
+          title_he: 'Maintain Maintenance Calories',
+          desc_he: 'Eat according to your daily calorie target',
           points: 60,
           condition_json: {
             type: 'WEEKLY_BALANCED',
@@ -1345,8 +1345,8 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
         },
         {
           key_code: 'PROTEIN_ELITE_190G',
-          title_he: 'הגע ליעד החלבון היומי שלך',
-          desc_he: 'שמור על היעד שלך',
+          title_he: 'Hit Your Daily Protein Goal',
+          desc_he: 'Stay on target',
           points: 70,
           condition_json: {
             type: 'HIT_PROTEIN_GOAL',
@@ -1355,8 +1355,8 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
         },
         {
           key_code: 'LOG_60_DAYS_STREAK',
-          title_he: 'רשום ארוחות חודשיים רצופים',
-          desc_he: 'מחויבות מלאה',
+          title_he: 'Log Meals for 2 Months Straight',
+          desc_he: 'Full commitment',
           points: 120,
           condition_json: {
             type: 'STREAK_DAYS',
@@ -1367,14 +1367,14 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
     },
     {
       code: 'EXCELLENCE',
-      title_he: 'מצוינות',
-      subtitle_he: 'רמה מקצועית',
+      title_he: 'Excellence',
+      subtitle_he: 'Professional Level',
       color_hex: '#9C27B0',
       tasks: [
         {
           key_code: 'TOTAL_200_MEALS',
-          title_he: 'רשום 200 ארוחות',
-          desc_he: 'מקצוען במעקב',
+          title_he: 'Log 200 Meals',
+          desc_he: 'Pro tracker',
           points: 80,
           condition_json: {
             type: 'TOTAL_MEALS_LOGGED',
@@ -1383,8 +1383,8 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
         },
         {
           key_code: 'LOG_30_WEIGH_INS',
-          title_he: 'רשום 30 שקילות',
-          desc_he: 'מעקב מתמשך',
+          title_he: 'Log 30 Weigh-Ins',
+          desc_he: 'Continuous tracking',
           points: 70,
           condition_json: {
             type: 'TOTAL_WEIGH_INS',
@@ -1393,8 +1393,8 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
         },
         {
           key_code: 'MAINTENANCE_3_MONTHS',
-          title_he: 'תחזוקה 3 חודשים רצופים',
-          desc_he: 'ריקומפ ארוך טווח',
+          title_he: 'Maintenance for 3 Months Straight',
+          desc_he: 'Long-term recomp',
           points: 180,
           condition_json: {
             type: 'WEEKLY_BALANCED',
@@ -1406,14 +1406,14 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
     },
     {
       code: 'LEGENDARY',
-      title_he: 'אגדי',
-      subtitle_he: 'רמת אליפות',
+      title_he: 'Legendary',
+      subtitle_he: 'Championship Level',
       color_hex: '#FF6B6B',
       tasks: [
         {
           key_code: 'LOG_90_DAYS_STREAK',
-          title_he: 'רשום ארוחות 3 חודשים רצופים',
-          desc_he: 'הישג אגדי!',
+          title_he: 'Log Meals for 3 Months Straight',
+          desc_he: 'Legendary achievement!',
           points: 200,
           condition_json: {
             type: 'STREAK_DAYS',
@@ -1422,8 +1422,8 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
         },
         {
           key_code: 'TOTAL_500_MEALS',
-          title_he: 'רשום 500 ארוחות',
-          desc_he: 'מאסטר התזונה',
+          title_he: 'Log 500 Meals',
+          desc_he: 'Nutrition master',
           points: 150,
           condition_json: {
             type: 'TOTAL_MEALS_LOGGED',
@@ -1432,8 +1432,8 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
         },
         {
           key_code: 'PROTEIN_CHAMPION_200G',
-          title_he: 'הגע ליעד החלבון היומי שלך',
-          desc_he: 'שמור על היעד שלך',
+          title_he: 'Hit Your Daily Protein Goal',
+          desc_he: 'Stay on target',
           points: 100,
           condition_json: {
             type: 'HIT_PROTEIN_GOAL',
@@ -1444,14 +1444,14 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
     },
     {
       code: 'MAINTENANCE',
-      title_he: 'תחזוקה יומית',
-      subtitle_he: 'שמור על התוצאות',
+      title_he: 'Daily Maintenance',
+      subtitle_he: 'Maintain Your Results',
       color_hex: '#00BCD4',
       tasks: [
         {
           key_code: 'DAILY_MEAL_LOG',
-          title_he: 'רשום את הארוחות היום',
-          desc_he: 'מעקב יומי עקבי',
+          title_he: 'Log Your Meals Today',
+          desc_he: 'Consistent daily tracking',
           points: 5,
           condition_json: {
             type: 'LOG_MEALS_TODAY',
@@ -1460,8 +1460,8 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
         },
         {
           key_code: 'DAILY_PROTEIN',
-          title_he: 'הגע ליעד החלבון',
-          desc_he: 'שמור על הרכב הגוף',
+          title_he: 'Hit Your Protein Goal',
+          desc_he: 'Maintain body composition',
           points: 10,
           condition_json: {
             type: 'HIT_PROTEIN_GOAL',
@@ -1470,8 +1470,8 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
         },
         {
           key_code: 'DAILY_BALANCED',
-          title_he: 'שמור על תחזוקת קלוריות',
-          desc_he: 'המשך את הריקומפ',
+          title_he: 'Maintain Maintenance Calories',
+          desc_he: 'Continue the recomp',
           points: 10,
           condition_json: {
             type: 'WEEKLY_BALANCED',
@@ -1489,14 +1489,14 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
   maintain_beginner: [
     {
       code: 'FOUNDATION',
-      title_he: 'יסודות',
-      subtitle_he: 'שמירה על היציבות',
+      title_he: 'Foundations',
+      subtitle_he: 'Maintaining Stability',
       color_hex: '#E2F163',
       tasks: [
         {
           key_code: 'LOG_FIRST_MEAL',
-          title_he: 'רשום ארוחה ראשונה',
-          desc_he: 'התחל במעקב',
+          title_he: 'Log Your First Meal',
+          desc_he: 'Start tracking',
           points: 10,
           condition_json: {
             type: 'LOG_MEALS_TODAY',
@@ -1505,8 +1505,8 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
         },
         {
           key_code: 'MAINTENANCE_DAY',
-          title_he: 'אכול בתחזוקה יום אחד',
-          desc_he: 'שמור על משקל יציב',
+          title_he: 'Eat at Maintenance for One Day',
+          desc_he: 'Maintain stable weight',
           points: 15,
           condition_json: {
             type: 'WEEKLY_BALANCED',
@@ -1516,8 +1516,8 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
         },
         {
           key_code: 'FIRST_WEIGH_IN',
-          title_he: 'שקול משקל פעם ראשונה',
-          desc_he: 'בסיס למעקב',
+          title_he: 'Weigh In for the First Time',
+          desc_he: 'Baseline for tracking',
           points: 15,
           condition_json: {
             type: 'FIRST_WEIGH_IN',
@@ -1527,14 +1527,14 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
     },
     {
       code: 'STABILITY',
-      title_he: 'יציבות',
-      subtitle_he: 'שמירה על מאזן',
+      title_he: 'Stability',
+      subtitle_he: 'Maintaining Balance',
       color_hex: '#4CAF50',
       tasks: [
         {
           key_code: 'MAINTENANCE_WEEK',
-          title_he: 'תחזוקה שבוע שלם',
-          desc_he: 'משקל יציב',
+          title_he: 'Maintenance for a Full Week',
+          desc_he: 'Stable weight',
           points: 30,
           condition_json: {
             type: 'WEEKLY_BALANCED',
@@ -1543,8 +1543,8 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
         },
         {
           key_code: 'LOG_5_DAYS_STREAK',
-          title_he: 'רשום ארוחות 5 ימים רצופים',
-          desc_he: 'מעקב קבוע',
+          title_he: 'Log Meals for 5 Days Straight',
+          desc_he: 'Regular tracking',
           points: 25,
           condition_json: {
             type: 'STREAK_DAYS',
@@ -1553,8 +1553,8 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
         },
         {
           key_code: 'LOG_5_WEIGH_INS',
-          title_he: 'רשום 5 שקילות',
-          desc_he: 'עקוב אחר היציבות',
+          title_he: 'Log 5 Weigh-Ins',
+          desc_he: 'Track stability',
           points: 20,
           condition_json: {
             type: 'TOTAL_WEIGH_INS',
@@ -1565,14 +1565,14 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
     },
     {
       code: 'CONSISTENCY',
-      title_he: 'עקביות',
-      subtitle_he: 'שמירה לטווח ארוך',
+      title_he: 'Consistency',
+      subtitle_he: 'Long-Term Maintenance',
       color_hex: '#2196F3',
       tasks: [
         {
           key_code: 'MAINTENANCE_2_WEEKS',
-          title_he: 'תחזוקה שבועיים רצופים',
-          desc_he: 'שמירה מוצלחת על המשקל',
+          title_he: 'Maintenance for 2 Weeks Straight',
+          desc_he: 'Successfully maintaining weight',
           points: 50,
           condition_json: {
             type: 'WEEKLY_BALANCED',
@@ -1582,8 +1582,8 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
         },
         {
           key_code: 'TOTAL_30_MEALS',
-          title_he: 'רשום 30 ארוחות',
-          desc_he: 'מעקב טוב',
+          title_he: 'Log 30 Meals',
+          desc_he: 'Good tracking',
           points: 30,
           condition_json: {
             type: 'TOTAL_MEALS_LOGGED',
@@ -1592,8 +1592,8 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
         },
         {
           key_code: 'LOG_10_DAYS_STREAK',
-          title_he: 'רשום ארוחות 10 ימים רצופים',
-          desc_he: 'התמדה יפה',
+          title_he: 'Log Meals for 10 Days Straight',
+          desc_he: 'Nice persistence',
           points: 40,
           condition_json: {
             type: 'STREAK_DAYS',
@@ -1604,14 +1604,14 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
     },
     {
       code: 'MAINTENANCE',
-      title_he: 'תחזוקה יומית',
-      subtitle_he: 'שמור על התוצאות',
+      title_he: 'Daily Maintenance',
+      subtitle_he: 'Maintain Your Results',
       color_hex: '#00BCD4',
       tasks: [
         {
           key_code: 'DAILY_MEAL_LOG',
-          title_he: 'רשום את הארוחות היום',
-          desc_he: 'מעקב יומי עקבי',
+          title_he: 'Log Your Meals Today',
+          desc_he: 'Consistent daily tracking',
           points: 5,
           condition_json: {
             type: 'LOG_MEALS_TODAY',
@@ -1620,8 +1620,8 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
         },
         {
           key_code: 'DAILY_PROTEIN',
-          title_he: 'הגע ליעד החלבון',
-          desc_he: 'שמור על מסת השריר',
+          title_he: 'Hit Your Protein Goal',
+          desc_he: 'Preserve muscle mass',
           points: 10,
           condition_json: {
             type: 'HIT_PROTEIN_GOAL',
@@ -1630,8 +1630,8 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
         },
         {
           key_code: 'DAILY_BALANCED',
-          title_he: 'שמור על תחזוקת קלוריות',
-          desc_he: 'שמור על המשקל',
+          title_he: 'Maintain Maintenance Calories',
+          desc_he: 'Maintain weight',
           points: 10,
           condition_json: {
             type: 'WEEKLY_BALANCED',
@@ -1649,14 +1649,14 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
   maintain_intermediate: [
     {
       code: 'PRECISION',
-      title_he: 'דיוק',
-      subtitle_he: 'שמירה מדויקת',
+      title_he: 'Precision',
+      subtitle_he: 'Precise Maintenance',
       color_hex: '#E2F163',
       tasks: [
         {
           key_code: 'TIGHT_MAINTENANCE_WEEK',
-          title_he: 'שמור על תחזוקת קלוריות',
-          desc_he: 'שליטה במשקל',
+          title_he: 'Maintain Maintenance Calories',
+          desc_he: 'Control weight',
           points: 35,
           condition_json: {
             type: 'WEEKLY_BALANCED',
@@ -1665,8 +1665,8 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
         },
         {
           key_code: 'PROTEIN_MAINTAIN_120G',
-          title_he: 'הגע ליעד החלבון היומי שלך',
-          desc_he: 'חלבון לשמירה על שריר',
+          title_he: 'Hit Your Daily Protein Goal',
+          desc_he: 'Protein to preserve muscle',
           points: 30,
           condition_json: {
             type: 'HIT_PROTEIN_GOAL',
@@ -1675,8 +1675,8 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
         },
         {
           key_code: 'LOG_14_DAYS_STREAK',
-          title_he: 'רשום ארוחות שבועיים רצופים',
-          desc_he: 'מעקב עקבי',
+          title_he: 'Log Meals for 2 Weeks Straight',
+          desc_he: 'Consistent tracking',
           points: 40,
           condition_json: {
             type: 'STREAK_DAYS',
@@ -1687,14 +1687,14 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
     },
     {
       code: 'MASTERY',
-      title_he: 'שליטה',
-      subtitle_he: 'תחזוקה ארוכת טווח',
+      title_he: 'Control',
+      subtitle_he: 'Long-Term Maintenance',
       color_hex: '#FF9800',
       tasks: [
         {
           key_code: 'MAINTENANCE_MONTH',
-          title_he: 'תחזוקה חודש שלם',
-          desc_he: 'יציבות מדהימה',
+          title_he: 'Maintenance for a Full Month',
+          desc_he: 'Amazing stability',
           points: 70,
           condition_json: {
             type: 'WEEKLY_BALANCED',
@@ -1704,8 +1704,8 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
         },
         {
           key_code: 'TOTAL_100_MEALS',
-          title_he: 'רשום 100 ארוחות',
-          desc_he: 'מעקב מקצועי',
+          title_he: 'Log 100 Meals',
+          desc_he: 'Professional tracking',
           points: 50,
           condition_json: {
             type: 'TOTAL_MEALS_LOGGED',
@@ -1714,8 +1714,8 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
         },
         {
           key_code: 'LOG_15_WEIGH_INS',
-          title_he: 'רשום 15 שקילות',
-          desc_he: 'מעקב מתמיד',
+          title_he: 'Log 15 Weigh-Ins',
+          desc_he: 'Continuous tracking',
           points: 40,
           condition_json: {
             type: 'TOTAL_WEIGH_INS',
@@ -1726,14 +1726,14 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
     },
     {
       code: 'EXCELLENCE',
-      title_he: 'מצוינות',
-      subtitle_he: 'שמירה מושלמת',
+      title_he: 'Excellence',
+      subtitle_he: 'Perfect Maintenance',
       color_hex: '#9C27B0',
       tasks: [
         {
           key_code: 'MAINTENANCE_2_MONTHS',
-          title_he: 'תחזוקה חודשיים רצופים',
-          desc_he: 'שליטה מושלמת במשקל',
+          title_he: 'Maintenance for 2 Months Straight',
+          desc_he: 'Perfect weight control',
           points: 100,
           condition_json: {
             type: 'WEEKLY_BALANCED',
@@ -1743,8 +1743,8 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
         },
         {
           key_code: 'LOG_30_DAYS_STREAK',
-          title_he: 'רשום ארוחות חודש שלם',
-          desc_he: 'מחויבות גבוהה',
+          title_he: 'Log Meals for a Full Month',
+          desc_he: 'High commitment',
           points: 70,
           condition_json: {
             type: 'STREAK_DAYS',
@@ -1753,8 +1753,8 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
         },
         {
           key_code: 'PROTEIN_HIGH_150G',
-          title_he: 'הגע ליעד החלבון היומי שלך',
-          desc_he: 'חלבון גבוה',
+          title_he: 'Hit Your Daily Protein Goal',
+          desc_he: 'High protein',
           points: 50,
           condition_json: {
             type: 'HIT_PROTEIN_GOAL',
@@ -1765,14 +1765,14 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
     },
     {
       code: 'MAINTENANCE',
-      title_he: 'תחזוקה יומית',
-      subtitle_he: 'שמור על התוצאות',
+      title_he: 'Daily Maintenance',
+      subtitle_he: 'Maintain Your Results',
       color_hex: '#00BCD4',
       tasks: [
         {
           key_code: 'DAILY_MEAL_LOG',
-          title_he: 'רשום את הארוחות היום',
-          desc_he: 'מעקב יומי עקבי',
+          title_he: 'Log Your Meals Today',
+          desc_he: 'Consistent daily tracking',
           points: 5,
           condition_json: {
             type: 'LOG_MEALS_TODAY',
@@ -1781,8 +1781,8 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
         },
         {
           key_code: 'DAILY_PROTEIN',
-          title_he: 'הגע ליעד החלבון',
-          desc_he: 'שמור על מסת השריר',
+          title_he: 'Hit Your Protein Goal',
+          desc_he: 'Preserve muscle mass',
           points: 10,
           condition_json: {
             type: 'HIT_PROTEIN_GOAL',
@@ -1791,8 +1791,8 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
         },
         {
           key_code: 'DAILY_BALANCED',
-          title_he: 'שמור על תחזוקת קלוריות',
-          desc_he: 'שמור על המשקל',
+          title_he: 'Maintain Maintenance Calories',
+          desc_he: 'Maintain weight',
           points: 10,
           condition_json: {
             type: 'WEEKLY_BALANCED',
@@ -1810,14 +1810,14 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
   maintain_advanced: [
     {
       code: 'ELITE_CONTROL',
-      title_he: 'שליטה עילית',
-      subtitle_he: 'אכול לפי יעד הקלוריות היומי שלך',
+      title_he: 'Elite Control',
+      subtitle_he: 'Eat According to Your Daily Calorie Target',
       color_hex: '#E2F163',
       tasks: [
         {
           key_code: 'ULTRA_TIGHT_MAINTENANCE',
-          title_he: 'שמור על תחזוקת קלוריות',
-          desc_he: 'אכול לפי יעד הקלוריות היומי שלך',
+          title_he: 'Maintain Maintenance Calories',
+          desc_he: 'Eat according to your daily calorie target',
           points: 50,
           condition_json: {
             type: 'WEEKLY_BALANCED',
@@ -1826,8 +1826,8 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
         },
         {
           key_code: 'PROTEIN_ELITE_160G',
-          title_he: 'הגע ליעד החלבון היומי שלך',
-          desc_he: 'שמור על היעד שלך',
+          title_he: 'Hit Your Daily Protein Goal',
+          desc_he: 'Stay on target',
           points: 50,
           condition_json: {
             type: 'HIT_PROTEIN_GOAL',
@@ -1836,8 +1836,8 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
         },
         {
           key_code: 'LOG_60_DAYS_STREAK',
-          title_he: 'רשום ארוחות חודשיים רצופים',
-          desc_he: 'מחויבות יוצאת דופן',
+          title_he: 'Log Meals for 2 Months Straight',
+          desc_he: 'Exceptional commitment',
           points: 100,
           condition_json: {
             type: 'STREAK_DAYS',
@@ -1848,14 +1848,14 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
     },
     {
       code: 'PERFECTION',
-      title_he: 'שלמות',
-      subtitle_he: 'תחזוקה מושלמת',
+      title_he: 'Perfection',
+      subtitle_he: 'Perfect Maintenance',
       color_hex: '#9C27B0',
       tasks: [
         {
           key_code: 'TOTAL_200_MEALS',
-          title_he: 'רשום 200 ארוחות',
-          desc_he: 'מעקב ברמה גבוהה',
+          title_he: 'Log 200 Meals',
+          desc_he: 'High-level tracking',
           points: 80,
           condition_json: {
             type: 'TOTAL_MEALS_LOGGED',
@@ -1864,8 +1864,8 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
         },
         {
           key_code: 'LOG_25_WEIGH_INS',
-          title_he: 'רשום 25 שקילות',
-          desc_he: 'מעקב מתמשך',
+          title_he: 'Log 25 Weigh-Ins',
+          desc_he: 'Continuous tracking',
           points: 60,
           condition_json: {
             type: 'TOTAL_WEIGH_INS',
@@ -1874,8 +1874,8 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
         },
         {
           key_code: 'MAINTENANCE_3_MONTHS',
-          title_he: 'תחזוקה 3 חודשים רצופים',
-          desc_he: 'שמירה ארוכת טווח מדהימה',
+          title_he: 'Maintenance for 3 Months Straight',
+          desc_he: 'Amazing long-term maintenance',
           points: 150,
           condition_json: {
             type: 'WEEKLY_BALANCED',
@@ -1887,14 +1887,14 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
     },
     {
       code: 'LEGENDARY',
-      title_he: 'אגדי',
-      subtitle_he: 'רמת אליפות',
+      title_he: 'Legendary',
+      subtitle_he: 'Championship Level',
       color_hex: '#FF6B6B',
       tasks: [
         {
           key_code: 'LOG_90_DAYS_STREAK',
-          title_he: 'רשום ארוחות 3 חודשים רצופים',
-          desc_he: 'הישג אגדי!',
+          title_he: 'Log Meals for 3 Months Straight',
+          desc_he: 'Legendary achievement!',
           points: 200,
           condition_json: {
             type: 'STREAK_DAYS',
@@ -1903,8 +1903,8 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
         },
         {
           key_code: 'TOTAL_500_MEALS',
-          title_he: 'רשום 500 ארוחות',
-          desc_he: 'מאסטר המעקב',
+          title_he: 'Log 500 Meals',
+          desc_he: 'Tracking master',
           points: 150,
           condition_json: {
             type: 'TOTAL_MEALS_LOGGED',
@@ -1913,8 +1913,8 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
         },
         {
           key_code: 'PROTEIN_CHAMPION_180G',
-          title_he: 'הגע ליעד החלבון היומי שלך',
-          desc_he: 'שמור על היעד שלך',
+          title_he: 'Hit Your Daily Protein Goal',
+          desc_he: 'Stay on target',
           points: 100,
           condition_json: {
             type: 'HIT_PROTEIN_GOAL',
@@ -1925,14 +1925,14 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
     },
     {
       code: 'MAINTENANCE',
-      title_he: 'תחזוקה יומית',
-      subtitle_he: 'שמור על התוצאות',
+      title_he: 'Daily Maintenance',
+      subtitle_he: 'Maintain Your Results',
       color_hex: '#00BCD4',
       tasks: [
         {
           key_code: 'DAILY_MEAL_LOG',
-          title_he: 'רשום את הארוחות היום',
-          desc_he: 'מעקב יומי עקבי',
+          title_he: 'Log Your Meals Today',
+          desc_he: 'Consistent daily tracking',
           points: 5,
           condition_json: {
             type: 'LOG_MEALS_TODAY',
@@ -1941,8 +1941,8 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
         },
         {
           key_code: 'DAILY_PROTEIN',
-          title_he: 'הגע ליעד החלבון',
-          desc_he: 'שמור על מסת השריר',
+          title_he: 'Hit Your Protein Goal',
+          desc_he: 'Preserve muscle mass',
           points: 10,
           condition_json: {
             type: 'HIT_PROTEIN_GOAL',
@@ -1951,8 +1951,8 @@ export const STAGE_TEMPLATES: Record<TemplateKey, BuiltStage[]> = {
         },
         {
           key_code: 'DAILY_BALANCED',
-          title_he: 'שמור על תחזוקת קלוריות',
-          desc_he: 'שמור על המשקל',
+          title_he: 'Maintain Maintenance Calories',
+          desc_he: 'Maintain weight',
           points: 10,
           condition_json: {
             type: 'WEEKLY_BALANCED',

@@ -11,12 +11,12 @@ export const userRouter = Router();
 userRouter.post("/sync", requireAuth, async (req: AuthedRequest, res) => {
   try {
     const authUserId = req.user!.id;
-    const email = req.user!.email ?? null;
+    const email = req.user!.email ?? undefined;
 
     const user = await prisma.user.upsert({
       where: { authUserId },
       update: { email },
-      create: { authUserId, email },
+      create: { authUserId, email: email ?? '' },
       select: { id: true, authUserId: true, email: true, createdAt: true }
     });
 

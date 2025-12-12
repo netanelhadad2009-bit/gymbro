@@ -17,10 +17,10 @@ const heightValues = Array.from({ length: HEIGHT_MAX - HEIGHT_MIN + 1 }, (_, i) 
 const weightValues = Array.from({ length: WEIGHT_MAX - WEIGHT_MIN + 1 }, (_, i) => WEIGHT_MIN + i);
 
 function getBMICategory(bmi: number): { label: string; color: string; bg: string } {
-  if (bmi < 18.5) return { label: 'תת משקל', color: '#5B6CFF', bg: '#b8c5ff' };
-  if (bmi < 25) return { label: 'תקין', color: '#18C37D', bg: '#b0f4d7' };
-  if (bmi < 30) return { label: 'עודף', color: '#FFA323', bg: '#ffd9a3' };
-  return { label: 'השמנה', color: '#E5484D', bg: '#ffc2c2' };
+  if (bmi < 18.5) return { label: 'Underweight', color: '#5B6CFF', bg: '#b8c5ff' };
+  if (bmi < 25) return { label: 'Normal', color: '#18C37D', bg: '#b0f4d7' };
+  if (bmi < 30) return { label: 'Overweight', color: '#FFA323', bg: '#ffd9a3' };
+  return { label: 'Obese', color: '#E5484D', bg: '#ffc2c2' };
 }
 
 export default function MetricsPage() {
@@ -84,19 +84,19 @@ export default function MetricsPage() {
     <OnboardingShell
       title={
         <Text style={styles.titleText}>
-          מה הגובה והמשקל{'\n'}שלך?
+          What's your height{'\n'}and weight?
         </Text>
       }
       subtitle={
         <Text style={styles.subtitleText}>
-          נתחשב בזה כדי לחשב את{'\n'}נקודת הפתיחה המותאמת שלך.
+          We'll use this to calculate{'\n'}your personalized starting point.
         </Text>
       }
       progress={getStepProgress('metrics')}
       disableScroll
       footer={
         <PrimaryButton onPress={handleContinue}>
-          הבא
+          Next
         </PrimaryButton>
       }
     >
@@ -104,7 +104,7 @@ export default function MetricsPage() {
       <View style={styles.pickersRow}>
         {/* Weight Picker */}
         <View style={styles.pickerColumn}>
-          <Text style={styles.pickerLabel}>משקל</Text>
+          <Text style={styles.pickerLabel}>Weight</Text>
           <View style={styles.pickerWrapper}>
             {/* Gradient overlays */}
             <LinearGradient
@@ -135,7 +135,7 @@ export default function MetricsPage() {
                     styles.pickerItemText,
                     w === weight && styles.pickerItemTextSelected
                   ]}>
-                    {w} ק״ג
+                    {w} kg
                   </Text>
                 </View>
               ))}
@@ -146,7 +146,7 @@ export default function MetricsPage() {
 
         {/* Height Picker */}
         <View style={styles.pickerColumn}>
-          <Text style={styles.pickerLabel}>גובה</Text>
+          <Text style={styles.pickerLabel}>Height</Text>
           <View style={styles.pickerWrapper}>
             <LinearGradient
               colors={[colors.background.primary, 'transparent']}
@@ -176,7 +176,7 @@ export default function MetricsPage() {
                     styles.pickerItemText,
                     h === height && styles.pickerItemTextSelected
                   ]}>
-                    {h} ס״מ
+                    {h} cm
                   </Text>
                 </View>
               ))}
@@ -206,10 +206,10 @@ export default function MetricsPage() {
           <View style={[styles.bmiBarSegment, { backgroundColor: '#E5484D' }]} />
         </View>
         <View style={styles.bmiLabels}>
-          <Text style={styles.bmiBarLabel}>תת משקל</Text>
-          <Text style={styles.bmiBarLabel}>תקין</Text>
-          <Text style={styles.bmiBarLabel}>עודף</Text>
-          <Text style={styles.bmiBarLabel}>השמנה</Text>
+          <Text style={styles.bmiBarLabel}>Underweight</Text>
+          <Text style={styles.bmiBarLabel}>Normal</Text>
+          <Text style={styles.bmiBarLabel}>Overweight</Text>
+          <Text style={styles.bmiBarLabel}>Obese</Text>
         </View>
       </View>
     </OnboardingShell>
@@ -221,13 +221,13 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: typography.weight.bold,
     color: colors.text.primary,
-    textAlign: 'right',
+    textAlign: 'left',
     lineHeight: 36,
   },
   subtitleText: {
     fontSize: typography.size.base,
     color: colors.text.secondary,
-    textAlign: 'right',
+    textAlign: 'left',
     lineHeight: 24,
   },
   pickersRow: {

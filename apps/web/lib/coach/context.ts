@@ -292,14 +292,14 @@ export async function getUserContext(
 }
 
 /**
- * Summarize meals for AI prompt (Hebrew, compact)
+ * Summarize meals for AI prompt (English, compact)
  *
  * @param ctx - User context
- * @returns Hebrew-formatted meal summary
+ * @returns English-formatted meal summary
  */
 export function summarizeMealsForPrompt(ctx: UserContext | null): string {
   if (!ctx || !ctx.nutrition?.daily_totals || ctx.nutrition.daily_totals.length === 0) {
-    return "המשתמש עדיין לא רשם ארוחות באפליקציה. עודד אותו להוסיף ארוחות.";
+    return "User hasn't logged any meals in the app yet. Encourage them to add meals.";
   }
 
   const lines: string[] = [];
@@ -307,27 +307,27 @@ export function summarizeMealsForPrompt(ctx: UserContext | null): string {
   // Add daily totals (last 7 days max for brevity)
   const recentDays = ctx.nutrition.daily_totals.slice(0, 7);
   for (const day of recentDays) {
-    const date = new Date(day.date).toLocaleDateString("he-IL", {
-      day: "2-digit",
-      month: "2-digit",
+    const date = new Date(day.date).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
     });
     lines.push(
-      `${date}: ${day.calories}kcal • ${day.protein}P/${day.carbs}C/${day.fat}F (${day.meal_count} ארוחות)`
+      `${date}: ${day.calories}kcal • ${day.protein}P/${day.carbs}C/${day.fat}F (${day.meal_count} meals)`
     );
   }
 
   // Add averages if available
   if (ctx.nutrition.averages) {
     lines.push("");
-    lines.push("ממוצעים:");
+    lines.push("Averages:");
     if (ctx.nutrition.averages["7d"]?.calories) {
       lines.push(
-        `7 ימים: ${ctx.nutrition.averages["7d"].calories}kcal, ${ctx.nutrition.averages["7d"].protein}g חלבון`
+        `7 days: ${ctx.nutrition.averages["7d"].calories}kcal, ${ctx.nutrition.averages["7d"].protein}g protein`
       );
     }
     if (ctx.nutrition.averages["30d"]?.calories) {
       lines.push(
-        `30 ימים: ${ctx.nutrition.averages["30d"].calories}kcal, ${ctx.nutrition.averages["30d"].protein}g חלבון`
+        `30 days: ${ctx.nutrition.averages["30d"].calories}kcal, ${ctx.nutrition.averages["30d"].protein}g protein`
       );
     }
   }
@@ -336,19 +336,22 @@ export function summarizeMealsForPrompt(ctx: UserContext | null): string {
 }
 
 /**
- * Summarize weigh-ins for AI prompt (Hebrew, compact)
+ * Summarize weigh-ins for AI prompt (English, compact)
  *
  * @param ctx - User context
- * @returns Hebrew-formatted weight summary with trend
+ * @returns English-formatted weight summary with trend
  */
 export function summarizeWeighInsForPrompt(ctx: UserContext | null): string {
   if (!ctx || !ctx.weigh_ins || ctx.weigh_ins.length === 0) {
-    return "המשתמש עדיין לא רשם שקילות באפליקציה. עודד אותו להוסיף שקילה בעמוד הפרופיל.";
+    return "User hasn't logged any weigh-ins in the app yet. Encourage them to add weigh-ins on the Profile page.";
   }
 
   const weighIns = ctx.weigh_ins;
   const latest = weighIns[0];
-  const latestDate = new Date(latest.date).toLocaleDateString("he-IL");
+  const latestDate = new Date(latest.date).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+  });
 
   // Calculate trend
   let trend = "≈"; // stable
@@ -374,12 +377,12 @@ export function summarizeWeighInsForPrompt(ctx: UserContext | null): string {
 
   const trendStr =
     trend === "↑"
-      ? `עלייה (${weeklyChange.toFixed(1)} ק"ג/שבוע)`
+      ? `Gaining (${weeklyChange.toFixed(1)} kg/week)`
       : trend === "↓"
-      ? `ירידה (${Math.abs(weeklyChange).toFixed(1)} ק"ג/שבוע)`
-      : "יציב";
+      ? `Losing (${Math.abs(weeklyChange).toFixed(1)} kg/week)`
+      : "Stable";
 
-  return `משקל אחרון: ${latest.weight_kg} ק"ג (${latestDate})\nמגמה: ${trendStr}\nשקילות: ${weighIns.length} רשומות`;
+  return `Latest weight: ${latest.weight_kg} kg (${latestDate})\nTrend: ${trendStr}\nWeigh-ins: ${weighIns.length} records`;
 }
 
 /**
@@ -447,15 +450,15 @@ export function checkDataCompleteness(ctx: UserContext | null): {
   const hasWeighIns = (ctx?.weigh_ins?.length || 0) > 0;
 
   if (!hasProfile) {
-    suggestions.push("השלימ/י את הפרופיל (גיל, מין, משקל, יעד)");
+    suggestions.push("Complete your profile (age, gender, weight, goal)");
   }
 
   if (!hasMeals) {
-    suggestions.push("הוסיפ/י ארוחות כדי שאוכל לעקוב אחרי התזונה שלך");
+    suggestions.push("Add meals so I can track your nutrition");
   }
 
   if (!hasWeighIns) {
-    suggestions.push("הוסיפ/י שקילות כדי לעקוב אחרי המגמה במשקל");
+    suggestions.push("Add weigh-ins to track your weight trend");
   }
 
   return {
@@ -715,33 +718,33 @@ export async function getFullUserContext(
 }
 
 /**
- * Summarize workout program for AI prompt (Hebrew, compact)
+ * Summarize workout program for AI prompt (English, compact)
  *
  * @param ctx - User context
- * @returns Hebrew-formatted workout summary
+ * @returns English-formatted workout summary
  */
 export function summarizeWorkoutForPrompt(ctx: UserContext | null): string {
   if (!ctx?.workout_program) {
-    return "המשתמש עדיין לא יצר תוכנית אימונים. עודד אותו ליצור תוכנית מותאמת אישית.";
+    return "User hasn't created a workout program yet. Encourage them to create a personalized program.";
   }
 
   const prog = ctx.workout_program;
   const lines: string[] = [];
 
-  lines.push(`תוכנית: ${prog.title}`);
-  lines.push(`מטרה: ${prog.goal === "gain" ? "עלייה במסה" : prog.goal === "loss" ? "ירידה במשקל" : "חיטוב"}`);
+  lines.push(`Program: ${prog.title}`);
+  lines.push(`Goal: ${prog.goal === "gain" ? "Build muscle" : prog.goal === "loss" ? "Lose weight" : "Body recomposition"}`);
 
   const completed = prog.workouts.filter((w) => w.completed).length;
   const total = prog.workouts.length;
-  lines.push(`התקדמות: ${completed}/${total} אימונים הושלמו`);
+  lines.push(`Progress: ${completed}/${total} workouts completed`);
 
   // List upcoming workouts
   const upcoming = prog.workouts.filter((w) => !w.completed).slice(0, 3);
   if (upcoming.length > 0) {
-    lines.push("\nאימונים קרובים:");
+    lines.push("\nUpcoming workouts:");
     for (const w of upcoming) {
       const exerciseCount = w.exercises.length;
-      lines.push(`- יום ${w.day_number}: ${w.title} (${exerciseCount} תרגילים)`);
+      lines.push(`- Day ${w.day_number}: ${w.title} (${exerciseCount} exercises)`);
     }
   }
 
@@ -749,17 +752,17 @@ export function summarizeWorkoutForPrompt(ctx: UserContext | null): string {
 }
 
 /**
- * Summarize plan meals for AI prompt (Hebrew, compact)
+ * Summarize plan meals for AI prompt (English, compact)
  *
  * @param ctx - User context
- * @returns Hebrew-formatted meal plan summary
+ * @returns English-formatted meal plan summary
  */
 export function summarizePlanMealsForPrompt(ctx: UserContext | null): string {
   if (!ctx?.plan_meals || ctx.plan_meals.length === 0) {
-    return "המשתמש עדיין לא יצר תפריט שבועי. עודד אותו ליצור תפריט תזונה בעמוד התפריט.";
+    return "User hasn't created a weekly meal plan yet. Encourage them to create a nutrition menu on the Menu page.";
   }
 
-  const dayNames = ["ראשון", "שני", "שלישי", "רביעי", "חמישי", "שישי", "שבת"];
+  const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
   const mealsByDay = new Map<number, PlanMeal[]>();
 
   for (const meal of ctx.plan_meals) {
@@ -769,39 +772,39 @@ export function summarizePlanMealsForPrompt(ctx: UserContext | null): string {
     mealsByDay.get(meal.day_index)!.push(meal);
   }
 
-  const lines: string[] = ["תפריט השבוע:"];
+  const lines: string[] = ["Weekly Menu:"];
 
   for (const [dayIndex, meals] of mealsByDay) {
-    const dayName = dayNames[dayIndex] || `יום ${dayIndex}`;
+    const dayName = dayNames[dayIndex] || `Day ${dayIndex}`;
     const totalCal = meals.reduce((sum, m) => sum + m.calories, 0);
     const eaten = meals.filter((m) => m.eaten_at).length;
-    lines.push(`${dayName}: ${meals.length} ארוחות (${totalCal} קל'), ${eaten} נאכלו`);
+    lines.push(`${dayName}: ${meals.length} meals (${totalCal} kcal), ${eaten} eaten`);
   }
 
   return lines.join("\n");
 }
 
 /**
- * Summarize user progress for AI prompt (Hebrew, compact)
+ * Summarize user progress for AI prompt (English, compact)
  *
  * @param ctx - User context
- * @returns Hebrew-formatted progress summary
+ * @returns English-formatted progress summary
  */
 export function summarizeProgressForPrompt(ctx: UserContext | null): string {
   if (!ctx?.progress) {
-    return "המשתמש עדיין לא צבר נקודות או תגים. עודד אותו להשתמש באפליקציה באופן קבוע.";
+    return "User hasn't earned any points or badges yet. Encourage them to use the app regularly.";
   }
 
   const prog = ctx.progress;
   const lines: string[] = [];
 
-  lines.push(`נקודות: ${prog.total_points}`);
-  lines.push(`רצף נוכחי: ${prog.current_streak} ימים`);
-  lines.push(`ארוחות השבוע: ${prog.meals_logged_this_week}`);
-  lines.push(`אימונים השבוע: ${prog.workouts_completed_this_week}`);
+  lines.push(`Points: ${prog.total_points}`);
+  lines.push(`Current streak: ${prog.current_streak} days`);
+  lines.push(`Meals this week: ${prog.meals_logged_this_week}`);
+  lines.push(`Workouts this week: ${prog.workouts_completed_this_week}`);
 
   if (prog.badges.length > 0) {
-    lines.push(`תגים: ${prog.badges.length} הושגו`);
+    lines.push(`Badges: ${prog.badges.length} earned`);
   }
 
   return lines.join("\n");

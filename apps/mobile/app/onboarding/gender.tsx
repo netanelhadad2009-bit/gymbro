@@ -7,9 +7,9 @@ import { saveOnboardingData, getStepProgress } from '../../lib/onboarding-storag
 import { colors, typography, spacing, borderRadius } from '../../lib/theme';
 
 const genderOptions = [
-  { value: 'male', label: 'זכר', symbol: '♂' },
-  { value: 'female', label: 'נקבה', symbol: '♀' },
-  { value: 'other', label: 'אחר', symbol: '⚥' },
+  { value: 'male', label: 'Male', symbol: '♂' },
+  { value: 'female', label: 'Female', symbol: '♀' },
+  { value: 'other', label: 'Other', symbol: '⚥' },
 ] as const;
 
 type GenderValue = typeof genderOptions[number]['value'];
@@ -24,12 +24,12 @@ export default function GenderPage() {
   };
 
   const titleText = selectedGender === 'male'
-    ? 'בחר מין'
+    ? 'Select your gender'
     : selectedGender === 'female'
-    ? 'בחרי מין'
-    : 'בחר/י מין';
+    ? 'Select your gender'
+    : 'Select your gender';
 
-  const subtitleText = 'נשתמש בזה כדי להתאים את התוכנית האישית שלך.';
+  const subtitleText = 'We\'ll use this to personalize your plan.';
 
   return (
     <OnboardingShell
@@ -39,7 +39,7 @@ export default function GenderPage() {
       disableScroll
       footer={
         <PrimaryButton onPress={handleContinue}>
-          הבא
+          Next
         </PrimaryButton>
       }
     >
@@ -126,7 +126,7 @@ const styles = StyleSheet.create({
     fontWeight: typography.weight.semibold,
     color: colors.text.primary,
     flex: 1,
-    textAlign: 'right',
+    textAlign: 'left',
   },
   optionLabelSelected: {
     color: colors.background.primary,

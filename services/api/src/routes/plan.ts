@@ -16,7 +16,7 @@
  * 3. POST /ai/nutrition
  *    curl -X POST http://localhost:3001/ai/nutrition \
  *      -H "Content-Type: application/json" \
- *      -d '{"gender":"זכר","age":28,"heightCm":178,"weight":92,"targetWeight":78,"activityDisplay":"בינוני","goalDisplay":"שריפת שומן","startDateISO":"2025-10-09"}'
+ *      -d '{"gender_en":"Male","age":28,"height_cm":178,"weight_kg":92,"target_weight_kg":78,"activity_level_en":"Moderate","goal_en":"Weight Loss","diet_type_en":"Regular"}'
  *
  * 4. POST /ai/commit
  *    curl -X POST http://localhost:3001/ai/commit \
@@ -60,14 +60,14 @@ if (!openaiKey) {
 const openai = new OpenAI({ apiKey: openaiKey });
 
 // Model to use for all LLM operations
-const MODEL = "claude-3-5-haiku-20241022"; // Nutrition
+const MODEL = "gpt-4o"; // Nutrition - Using GPT-4o for both nutrition and workouts
 const WORKOUT_MODEL = "gpt-4o"; // Workouts - GPT-4o is fast and reliable (~5-12s)
 
 // Environment configuration
 const SOFT_VALIDATE = process.env.WORKOUT_SOFT_VALIDATE !== 'false';
 
 console.log("✓ Plan router initialized");
-console.log("  📦 Nutrition model:", MODEL);
+console.log("  📦 Nutrition model:", MODEL, "(OpenAI GPT-4o)");
 console.log("  🏋️  Workout model:", WORKOUT_MODEL);
 console.log("  🔧 Validation mode:", SOFT_VALIDATE ? 'SOFT (auto-correct)' : 'HARD (strict)');
 
@@ -98,14 +98,16 @@ const WorkoutBodySchema = z.object({
 });
 
 const NutritionBodySchema = z.object({
-  gender: z.string(),
+  gender_en: z.string(),
   age: z.number().int().positive(),
-  heightCm: z.number().positive(),
-  weight: z.number().positive(),
-  targetWeight: z.number().positive(),
-  activityDisplay: z.string(),
-  goalDisplay: z.string(),
-  startDateISO: z.string()
+  height_cm: z.number().positive(),
+  weight_kg: z.number().positive(),
+  target_weight_kg: z.number().positive(),
+  activity_level_en: z.string(),
+  goal_en: z.string(),
+  diet_type_en: z.string().optional(),
+  days: z.number().optional(),
+  startDateISO: z.string().optional()
 });
 
 const CommitBodySchema = z.object({
@@ -488,9 +490,10 @@ JSON only.`;
 });
 
 /**
- * POST /ai/nutrition - Generate 1-day kosher nutrition plan (JSON)
+ * Nutrition plan generation handler
+ * Used by both /nutrition and /nutrition/onboarding routes
  */
-planRouter.post("/nutrition", async (req, res) => {
+const handleNutritionGeneration = async (req: any, res: any) => {
   const startTime = Date.now();
   try {
     console.log("[/ai/nutrition] Request:", {
@@ -541,31 +544,36 @@ CRITICAL: The "goal" field MUST be EXACTLY "loss" (not "weight_loss" or anything
 
 Return valid compact JSON only. No explanations.`;
 
+    // Generate start date if not provided
+    const startDate = params.startDateISO || new Date().toISOString().split('T')[0];
+
     const userPrompt = `צור תוכנית תזונה ליום אחד:
 
-- מגדר: ${params.gender}
+- מגדר: ${params.gender_en}
 - גיל: ${params.age}
-- גובה: ${params.heightCm} ס"מ
-- משקל: ${params.weight} ק"ג → ${params.targetWeight} ק"ג
-- פעילות: ${params.activityDisplay}
-- מטרה: ${params.goalDisplay}
-- תאריך: ${params.startDateISO}
+- גובה: ${params.height_cm} ס"מ
+- משקל: ${params.weight_kg} ק"ג → ${params.target_weight_kg} ק"ג
+- פעילות: ${params.activity_level_en}
+- מטרה: ${params.goal_en}
+- תאריך: ${startDate}
 
 החזר JSON בלבד.`;
 
-    // Call Claude with timeout
-    const msg = await withTimeout(
-      anthropic.messages.create({
-        model: MODEL,
+    // Call OpenAI (GPT-4o) with timeout instead of Claude
+    const completion = await withTimeout(
+      openai.chat.completions.create({
+        model: "gpt-4o",
         max_tokens: 1000,
         temperature: 0.3,
-        system: systemPrompt,
-        messages: [{ role: "user", content: userPrompt }]
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userPrompt }
+        ]
       }),
       60000 // 60 second timeout
     );
 
-    let responseText = msg.content[0].type === "text" ? msg.content[0].text : "";
+    let responseText = completion.choices[0]?.message?.content || "";
 
     // Clean markdown
     responseText = responseText.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
@@ -588,13 +596,41 @@ Return valid compact JSON only. No explanations.`;
 
     const elapsed = Date.now() - startTime;
     console.log("[/ai/nutrition] Generated JSON with", validationResult.data.meals_flat.length, "meals in", elapsed, "ms");
-    return res.json({ ok: true, json: validationResult.data });
+
+    // Transform for mobile app compatibility
+    const response = {
+      ok: true,
+      calories: validationResult.data.meta.calories_target,
+      plan: {
+        dailyTargets: {
+          calories_target: validationResult.data.meta.calories_target,
+          protein_target_g: validationResult.data.meta.protein_target_g,
+          carbs_target_g: validationResult.data.meta.carbs_target_g,
+          fat_target_g: validationResult.data.meta.fat_target_g,
+        },
+        days: validationResult.data.meals_flat,
+      },
+      // Also include original format for backward compatibility
+      json: validationResult.data,
+    };
+
+    return res.json(response);
   } catch (err: any) {
     const elapsed = Date.now() - startTime;
     console.error("[/ai/nutrition] Error after", elapsed, "ms:", err.message);
     return res.status(500).json({ ok: false, error: "generation_failed", details: err?.message });
   }
-});
+};
+
+/**
+ * POST /ai/nutrition - Generate 1-day kosher nutrition plan (JSON)
+ */
+planRouter.post("/nutrition", handleNutritionGeneration);
+
+/**
+ * POST /ai/nutrition/onboarding - Alias for mobile app compatibility
+ */
+planRouter.post("/nutrition/onboarding", handleNutritionGeneration);
 
 /**
  * POST /ai/commit - Save program to database
